@@ -12,3 +12,32 @@ body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
 }
+
+/* Scrollbar personnalisée pour les navigateurs WebKit (Chrome, Safari, Edge) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px; /* Largeur de la scrollbar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Couleur de fond */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #c5c5c5; /* Couleur de la scrollbar */
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8; /* Couleur au survol */
+}
+
+/* Pour Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #c5c5c5 #f1f1f1;
+}
+
+/* Style global pour les conteneurs avec défilement */
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch; /* Défilement fluide sur iOS */
+}

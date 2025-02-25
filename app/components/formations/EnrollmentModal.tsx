@@ -12,6 +12,8 @@ import {
 import { toast } from 'sonner';
 import { supabase } from '../../lib/supabase';
 import type { Formation } from '../../types/database';
+import { Check, AlertCircle } from 'lucide-react';
+import { PostgrestError } from '@supabase/supabase-js';
 
 interface EnrollmentModalProps {
   isOpen: boolean;
@@ -67,22 +69,62 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
     return priceAmount; // Par défaut
   };
 
-  const openWavePayment = () => {
-    // Calculer le montant à payer
-    const amountToPay = getPaymentAmount();
-    
-    // Créer le lien de paiement Wave
-    const wavePaymentLink = `https://pay.wave.com/m/M_OfAgT8X_IT6P/c/sn/?amount=${amountToPay}`;
-    
-    // Ouvrir le lien dans une nouvelle fenêtre
-    const paymentWindow = window.open(wavePaymentLink, '_blank');
-    
-    // Marquer que la fenêtre de paiement a été ouverte
-    setPaymentWindowOpened(true);
-    setPaymentStatus('initiated');
-    
-    // Afficher un message à l'utilisateur
-    toast.info("Veuillez compléter votre paiement Wave, puis revenir ici pour confirmer votre transaction.");
+  const openWavePayment = async () => {
+    try {
+      // Calculer le montant à payer
+      const amountToPay = getPaymentAmount();
+      
+      // Créer le lien de paiement Wave
+      const wavePaymentLink = `https://pay.wave.com/m/M_OfAgT8X_IT6P/c/sn/?amount=${amountToPay}`;
+      
+      // Générer un ID de transaction simple pour référence
+      const tempTransactionId = `TX${Date.now()}${Math.floor(Math.random() * 10000)}`;
+      setTransactionId(tempTransactionId);
+      
+      // Ouvrir le lien dans une nouvelle fenêtre
+      window.open(wavePaymentLink, '_blank');
+      
+      // Marquer que la fenêtre de paiement a été ouverte
+      setPaymentWindowOpened(true);
+      setPaymentStatus('initiated');
+      
+      // Essayer d'enregistrer la transaction (ne bloque pas le flux si ça échoue)
+      try {
+        const { error } = await supabase
+          .from('payment_transactions')
+          .insert([{
+            id: tempTransactionId,
+            formation_id: formation.id,
+            amount: amountToPay,
+            payment_option: formData.paymentOption,
+            status: 'pending',
+            provider: 'wave',
+            customer_data: {
+              fullName: formData.fullName,
+              email: formData.email,
+              phone: formData.phone,
+              country: formData.country,
+              city: formData.city,
+            }
+          }]);
+          
+        if (error) {
+          console.warn('Erreur lors de l\'enregistrement de la transaction:', error);
+        } else {
+          console.log('Transaction enregistrée');
+        }
+      } catch (err) {
+        console.warn('Erreur lors de l\'enregistrement de la transaction:', err);
+      }
+      
+      // Afficher un message à l'utilisateur
+      toast.info("Veuillez compléter votre paiement Wave, puis revenir ici pour confirmer votre transaction.");
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error("Une erreur est survenue lors de la création du lien de paiement.");
+      setPaymentStatus('not_started');
+      setPaymentWindowOpened(false);
+    }
   };
   
   const verifyPayment = () => {
@@ -112,9 +154,6 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
     setLoading(true);
     
     try {
-      // Calculer le montant payé
-      const amountPaid = getPaymentAmount();
-      
       // Créer l'entrée dans formation_enrollments
       const { data, error } = await supabase
         .from('formation_enrollments')
@@ -129,14 +168,35 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
             city: formData.city,
             payment_option: formData.paymentOption,
             payment_status: formData.paymentOption === 'full' ? 'paid' : 'partial',
-            amount_paid: amountPaid,
-            // Stocker l'ID de transaction dans une note (si metadata n'existe pas)
-            notes: `ID Transaction Wave: ${transactionId}`
+            amount_paid: getPaymentAmount()
           }
         ])
         .select();
 
       if (error) throw error;
+      
+      // Essayer de mettre à jour la transaction de paiement avec l'ID d'inscription
+      if (transactionId) {
+        try {
+          const { error } = await supabase
+            .from('payment_transactions')
+            .update({ 
+              enrollment_id: data[0].id,
+              status: 'completed',
+              provider_transaction_id: transactionId,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', transactionId);
+            
+          if (error) {
+            console.warn('Erreur lors de la mise à jour de la transaction:', error);
+          } else {
+            console.log('Transaction mise à jour');
+          }
+        } catch (err) {
+          console.warn('Erreur lors de la mise à jour de la transaction:', err);
+        }
+      }
       
       // Enregistrer également dans activity_logs
       try {
@@ -195,7 +255,7 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={isOpen ? undefined : onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-[#0f4c81]">
@@ -406,10 +466,12 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
               <div className="pt-4 bg-blue-50 p-4 rounded-lg">
                 <h3 className="font-medium text-[#0f4c81] mb-2">Méthode de paiement</h3>
                 <div className="flex items-center space-x-2 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-[#12b5cb] flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                  <div className="w-10 h-10 rounded-full bg-[#21b8ec] flex items-center justify-center">
+                    <img 
+                      src="/images/payments/wave_2.svg" 
+                      alt="Wave" 
+                      className="w-6 h-6" 
+                    />
                   </div>
                   <div>
                     <div className="font-medium">Wave</div>
@@ -443,16 +505,23 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
               </h3>
               
               <div className="space-y-4">
-                {!paymentWindowOpened ? (
-                  <div className="text-center p-4 border rounded-lg">
+              {!paymentWindowOpened ? (
+                <div className="text-center p-4 border rounded-lg">
                     <p className="mb-4">Cliquez sur le bouton ci-dessous pour effectuer votre paiement via Wave</p>
+                    <div className="flex justify-center">
                     <button 
-                      onClick={openWavePayment}
-                      className="bg-[#12b5cb] text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors"
+                        onClick={openWavePayment}
+                        className="bg-[#21b8ec] text-white px-4 py-2 rounded-lg hover:bg-[#1aa8d9] transition-colors flex items-center justify-center"
                     >
-                      Payer {getPaymentAmount().toLocaleString()} FCFA avec Wave
+                        <img 
+                        src="/images/payments/wave_2.svg" 
+                        alt="Wave" 
+                        className="w-5 h-5 mr-2" 
+                        />
+                        Payer {getPaymentAmount().toLocaleString()} FCFA avec Wave
                     </button>
-                  </div>
+                    </div>
+                </div>
                 ) : (
                   <div className="space-y-4">
                     <div className={`p-4 rounded-lg border ${paymentStatus === 'verified' ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
@@ -474,7 +543,7 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
                               value={transactionId}
                               onChange={(e) => setTransactionId(e.target.value)}
                               placeholder="ex: TAKCYFL25IT23JFQA"
-                              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#12b5cb]"
+                              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#21b8ec]"
                               disabled={paymentStatus === 'verified' as PaymentStatus}
                               required
                             />
@@ -507,7 +576,7 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
                       <div className="text-center">
                         <button 
                           onClick={openWavePayment}
-                          className="text-[#12b5cb] underline"
+                          className="text-[#21b8ec] underline"
                         >
                           Refaire un paiement Wave
                         </button>
@@ -569,7 +638,7 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
               ) : step === 4 ? (
                 <button
                   onClick={handleSubmit}
-                  disabled={loading || paymentStatus !== 'verified' as PaymentStatus}
+                  disabled={loading || paymentStatus !== 'verified'}
                   className="px-6 py-2 bg-[#ff7f50] text-white rounded-lg hover:bg-[#ff6b3d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
