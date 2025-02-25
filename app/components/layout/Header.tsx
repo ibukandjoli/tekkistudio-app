@@ -34,12 +34,13 @@ const Header = () => {
     { label: 'Nos Business en vente', href: '/business' },
     { label: 'Notre Expertise', href: '/expertise' },
     { label: 'Nos Formations', href: '/formations' },
-    { label: 'À Propos', href: '/about' },
+    { label: 'À Propos', href: '/a-propos' },
   ];
 
   return (
     <header 
-        className={`fixed w-full top-0 z-50 transition-all duration-300 ${isScrolled || isBusinessPage ? 'bg-[#0f4c81]' : 'bg-transparent'}`}>
+        className={`fixed w-full top-0 z-50 transition-all duration-300 
+          ${isScrolled || isBusinessPage || isOpen ? 'bg-[#0f4c81]' : 'md:bg-transparent bg-[#0f4c81]'}`}>
 
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-20 py-6">
@@ -53,13 +54,7 @@ const Header = () => {
         </Link>
 
           <nav className="hidden md:flex items-center space-x-8">
-            {[
-              { href: '/marques', label: 'Nos Marques' },
-              { href: '/business', label: 'Nos Business en vente' },
-              { href: '/expertise', label: 'Notre Expertise' },
-              { href: '/formations', label: 'Nos Formations' },
-              { href: '/a-propos', label: 'À Propos' },
-            ].map((link) => (
+            {navItems.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -87,13 +82,7 @@ const Header = () => {
         
         {isOpen && (
           <div className="md:hidden py-4">
-            {[
-              { href: '/marques', label: 'Nos Marques' },
-              { href: '/business', label: 'Nos Business en vente' },
-              { href: '/expertise', label: 'Notre Expertise' },
-              { href: '/formations', label: 'Nos Formations' },
-              { href: '/about', label: 'À Propos' },
-            ].map((link) => (
+            {navItems.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

@@ -1,3 +1,4 @@
+// app/components/analytics/MetaPixel.tsx
 'use client';
 
 import { usePathname } from 'next/navigation';

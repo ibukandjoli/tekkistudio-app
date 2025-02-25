@@ -1,7 +1,7 @@
 // app/components/formations/EnrollmentModal.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,8 +12,7 @@ import {
 import { toast } from 'sonner';
 import { supabase } from '../../lib/supabase';
 import type { Formation } from '../../types/database';
-import { Check, AlertCircle } from 'lucide-react';
-import { PostgrestError } from '@supabase/supabase-js';
+import { Check, AlertCircle, Loader2 } from 'lucide-react';
 
 interface EnrollmentModalProps {
   isOpen: boolean;
@@ -32,6 +31,8 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('not_started');
   const [transactionId, setTransactionId] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  // État pour stocker une potentielle erreur
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     fullName: '',
@@ -43,6 +44,13 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
     paymentMethod: 'wave' as PaymentMethod,
     paymentOption: 'full' as PaymentOption,
   });
+
+  // Réinitialiser l'état d'erreur lors de l'ouverture du modal
+  useEffect(() => {
+    if (isOpen) {
+      setErrorDetails(null);
+    }
+  }, [isOpen]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
@@ -74,21 +82,11 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
       // Calculer le montant à payer
       const amountToPay = getPaymentAmount();
       
-      // Créer le lien de paiement Wave
-      const wavePaymentLink = `https://pay.wave.com/m/M_OfAgT8X_IT6P/c/sn/?amount=${amountToPay}`;
-      
       // Générer un ID de transaction simple pour référence
       const tempTransactionId = `TX${Date.now()}${Math.floor(Math.random() * 10000)}`;
       setTransactionId(tempTransactionId);
       
-      // Ouvrir le lien dans une nouvelle fenêtre
-      window.open(wavePaymentLink, '_blank');
-      
-      // Marquer que la fenêtre de paiement a été ouverte
-      setPaymentWindowOpened(true);
-      setPaymentStatus('initiated');
-      
-      // Essayer d'enregistrer la transaction (ne bloque pas le flux si ça échoue)
+      // Enregistrer la transaction AVANT d'ouvrir Wave
       try {
         const { error } = await supabase
           .from('payment_transactions')
@@ -110,12 +108,24 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
           
         if (error) {
           console.warn('Erreur lors de l\'enregistrement de la transaction:', error);
+          toast.error("Erreur lors de l'enregistrement de la transaction. Veuillez réessayer.");
+          return; // Ne pas continuer si l'enregistrement échoue
         } else {
-          console.log('Transaction enregistrée');
+          console.log('Transaction enregistrée avec ID:', tempTransactionId);
         }
       } catch (err) {
         console.warn('Erreur lors de l\'enregistrement de la transaction:', err);
+        toast.error("Erreur lors de l'enregistrement de la transaction. Veuillez réessayer.");
+        return; // Ne pas continuer si l'enregistrement échoue
       }
+      
+      // Créer le lien de paiement Wave et l'ouvrir
+      const wavePaymentLink = `https://pay.wave.com/m/M_OfAgT8X_IT6P/c/sn/?amount=${amountToPay}`;
+      window.open(wavePaymentLink, '_blank');
+      
+      // Marquer que la fenêtre de paiement a été ouverte
+      setPaymentWindowOpened(true);
+      setPaymentStatus('initiated');
       
       // Afficher un message à l'utilisateur
       toast.info("Veuillez compléter votre paiement Wave, puis revenir ici pour confirmer votre transaction.");
@@ -152,9 +162,10 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
     }
     
     setLoading(true);
+    setErrorDetails(null); // Réinitialiser les erreurs
     
     try {
-      // Créer l'entrée dans formation_enrollments
+      // 1. Créer l'entrée dans formation_enrollments
       const { data, error } = await supabase
         .from('formation_enrollments')
         .insert([
@@ -173,32 +184,48 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
         ])
         .select();
 
-      if (error) throw error;
+      if (error) {
+        throw new Error(`Erreur lors de l'inscription: ${error.message || JSON.stringify(error)}`);
+      }
       
-      // Essayer de mettre à jour la transaction de paiement avec l'ID d'inscription
+      // Vérifier que les données existent
+      if (!data || data.length === 0) {
+        throw new Error('Aucune donnée d\'inscription retournée par le serveur');
+      }
+      
+      const enrollmentId = data[0]?.id;
+      if (!enrollmentId) {
+        throw new Error('ID d\'inscription non disponible');
+      }
+      
+      console.log('Inscription réussie avec ID:', enrollmentId);
+      
+      // 2. Mettre à jour la transaction de paiement avec l'ID d'inscription
       if (transactionId) {
         try {
-          const { error } = await supabase
+          const { error: updateError } = await supabase
             .from('payment_transactions')
             .update({ 
-              enrollment_id: data[0].id,
+              enrollment_id: enrollmentId,
               status: 'completed',
               provider_transaction_id: transactionId,
               updated_at: new Date().toISOString()
             })
             .eq('id', transactionId);
             
-          if (error) {
-            console.warn('Erreur lors de la mise à jour de la transaction:', error);
+          if (updateError) {
+            console.warn('Erreur lors de la mise à jour de la transaction:', updateError);
+            // On continue même si cette étape échoue
           } else {
-            console.log('Transaction mise à jour');
+            console.log('Transaction mise à jour avec ID d\'inscription:', enrollmentId);
           }
         } catch (err) {
-          console.warn('Erreur lors de la mise à jour de la transaction:', err);
+          console.warn('Exception lors de la mise à jour de la transaction:', err);
+          // On continue même si cette étape échoue
         }
       }
       
-      // Enregistrer également dans activity_logs
+      // 3. Enregistrer dans activity_logs
       try {
         await supabase
           .from('activity_logs')
@@ -209,24 +236,33 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
               metadata: { 
                 formationId: formation.id, 
                 email: formData.email, 
-                enrollmentId: data[0].id,
+                enrollmentId: enrollmentId,
                 waveTransactionId: transactionId
               }
             }
           ]);
+        
+        console.log('Log d\'activité créé');
       } catch (logError) {
         console.warn('Erreur lors de la création du log:', logError);
+        // On continue même si cette étape échoue
       }
 
-      // Afficher un message de succès sans fermer le modal immédiatement
+      // Afficher un message de succès
       setSuccessMessage(`Félicitations ! Votre inscription à la formation "${formation.title}" a été enregistrée avec succès. Vous recevrez bientôt un email de confirmation avec tous les détails.`);
       
       // Avancer à l'étape de confirmation finale
       setStep(5);
       
-    } catch (error) {
-      console.error('Erreur lors de l\'inscription:', error);
-      toast.error('Une erreur est survenue. Veuillez réessayer.');
+    } catch (error: any) {
+      console.error('Erreur détaillée lors de l\'inscription:', error);
+      
+      // Stocker les détails de l'erreur pour débogage
+      const errorMessage = error.message || 'Erreur inconnue';
+      setErrorDetails(errorMessage);
+      
+      // Afficher un message d'erreur plus précis
+      toast.error(`Erreur: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -249,6 +285,7 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
     setTransactionId('');
     setPaymentWindowOpened(false);
     setSuccessMessage('');
+    setErrorDetails(null);
     
     // Fermer le modal
     onClose();
@@ -284,6 +321,19 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
               </div>
             ))}
           </div>
+
+          {/* Message d'erreur détaillé (visible uniquement s'il y a une erreur) */}
+          {errorDetails && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              <div className="flex items-start">
+                <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium">Une erreur est survenue :</p>
+                  <p className="mt-1">{errorDetails}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Étape 1: Informations personnelles */}
           {step === 1 && (
@@ -643,10 +693,7 @@ const EnrollmentModal = ({ isOpen, onClose, formation }: EnrollmentModalProps) =
                 >
                   {loading ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
+                      <Loader2 className="w-5 h-5 mr-2 inline animate-spin" />
                       Traitement en cours...
                     </>
                   ) : 'Finaliser l\'inscription'}

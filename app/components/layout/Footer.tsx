@@ -93,11 +93,11 @@ const Footer = () => {
       
       // Message personnalisé pour WhatsApp
       const message = encodeURIComponent(
-        "Bonjour ! 👋\n\nJe souhaite rejoindre la liste de diffusion TEKKI Studio pour recevoir :\n" +
-        "🚀 Les nouveaux business en vente\n" +
-        "📊 Les conseils e-commerce\n" +
-        "📚 Les annonces de formation\n" +
-        "✨ Les actualités de nos marques"
+        "Bonjour TEKKI Studio!\n\nJe souhaite rejoindre votre liste de diffusion pour recevoir :\n" +
+        "- Vos nouveaux business en vente\n" +
+        "- Vos conseils e-commerce\n" +
+        "- Les annonces de vos formation\n" +
+        "- Les actualités de vos marques"
       );
       
       // Redirection vers WhatsApp après un court délai
@@ -133,13 +133,13 @@ const Footer = () => {
                 Première fabrique de marques d'Afrique de l'Ouest. Nous créons et vendons des business e-commerce rentables et éprouvés.
             </p>
             <div className="flex space-x-4">
-                <a href="#" className="hover:text-[#ff7f50]">
+                <a href="https://facebook.com/tekkistudio" className="hover:text-[#ff7f50]">
                 <Facebook className="w-6 h-6" />
                 </a>
-                <a href="#" className="hover:text-[#ff7f50]">
+                <a href="https://instagram.com/tekkistudio" className="hover:text-[#ff7f50]">
                 <Instagram className="w-6 h-6" />
                 </a>
-                <a href="#" className="hover:text-[#ff7f50]">
+                <a href="https://linkedin.com/company/tekkistudio" className="hover:text-[#ff7f50]">
                 <Linkedin className="w-6 h-6" />
                 </a>
             </div>
