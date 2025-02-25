@@ -1,7 +1,11 @@
 // app/hooks/useBusinessFilters.ts
 
 import { useState, useMemo } from 'react';
-import { Business, BusinessStatus, BusinessType } from '../data-OLD/businesses';
+import { Business } from '../types/database';
+
+// Définir explicitement les types qui étaient dans l'ancien fichier
+export type BusinessStatus = 'available' | 'sold';
+export type BusinessType = 'physical' | 'digital';
 
 interface FilterState {
   status: BusinessStatus | 'all';
