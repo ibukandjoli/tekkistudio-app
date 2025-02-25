@@ -40,20 +40,20 @@ const Header = () => {
   return (
     <header 
         className={`fixed w-full top-0 z-50 transition-all duration-300 
-          ${isScrolled || isBusinessPage || isOpen ? 'bg-[#0f4c81]' : 'md:bg-transparent bg-[#0f4c81]'}`}>
+          ${isScrolled || isBusinessPage || isOpen ? 'bg-[#0f4c81]' : 'lg:bg-transparent bg-[#0f4c81]'}`}>
 
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-20 py-6">
-        <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2">
             <img 
                 src="/images/tekkistudio/logo.svg" 
                 alt="TEKKI Studio" 
                 className="w-150 h-10"
             />
-            
-        </Link>
+          </Link>
 
-          <nav className="hidden md:flex items-center space-x-8">
+          {/* Menu de navigation - visible uniquement sur écrans larges (desktop) */}
+          <nav className="hidden lg:flex items-center space-x-8">
             {navItems.map((link) => (
               <Link
                 key={link.href}
@@ -65,23 +65,29 @@ const Header = () => {
             ))}
           </nav>
 
-          <Link
-            href="/business"
-            className="hidden md:block bg-[#ff7f50] text-white px-4 py-2 rounded-lg hover:bg-[#ff6b3d] transition-colors"
-          >
-            Acheter un Business
-          </Link>
+          <div className="flex items-center space-x-4">
+            {/* Bouton Acheter un Business - visible sur tablette et desktop */}
+            <Link
+              href="/business"
+              className="hidden sm:block bg-[#ff7f50] text-white px-4 py-2 rounded-lg hover:bg-[#ff6b3d] transition-colors whitespace-nowrap"
+            >
+              Acheter un Business
+            </Link>
 
-          <button 
-            className="md:hidden text-white"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+            {/* Bouton hamburger - visible sur mobile et tablette */}
+            <button 
+              className="lg:hidden text-white"
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label="Toggle menu"
+            >
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
         
+        {/* Menu mobile - s'affiche quand le menu est ouvert */}
         {isOpen && (
-          <div className="md:hidden py-4">
+          <div className="lg:hidden py-4">
             {navItems.map((link) => (
               <Link
                 key={link.href}
@@ -92,13 +98,17 @@ const Header = () => {
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/business"
-              className="block mt-4 bg-[#ff7f50] text-white px-4 py-2 rounded-lg text-center"
-              onClick={() => setIsOpen(false)}
-            >
-              Acheter un Business
-            </Link>
+            
+            {/* Version mobile du bouton Acheter - visible uniquement sur très petits écrans */}
+            <div className="sm:hidden mt-4">
+              <Link
+                href="/business"
+                className="block bg-[#ff7f50] text-white px-4 py-2 rounded-lg text-center"
+                onClick={() => setIsOpen(false)}
+              >
+                Acheter un Business
+              </Link>
+            </div>
           </div>
         )}
       </div>

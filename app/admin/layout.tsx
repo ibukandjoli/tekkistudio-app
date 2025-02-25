@@ -5,13 +5,30 @@ import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { Toaster } from 'sonner';
-import Sidebar from './Sidebar';
+import Sidebar, { SIDEBAR_COLLAPSED_EVENT } from './Sidebar';
 import { Loader2 } from 'lucide-react';
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { session, adminUser, isLoading } = useAuth();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  // Écouter les changements d'état du sidebar
+  useEffect(() => {
+    const handleSidebarChange = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      setIsSidebarCollapsed(customEvent.detail.isCollapsed);
+    };
+
+    // S'abonner à l'événement
+    window.addEventListener(SIDEBAR_COLLAPSED_EVENT, handleSidebarChange);
+
+    // Nettoyer l'abonnement
+    return () => {
+      window.removeEventListener(SIDEBAR_COLLAPSED_EVENT, handleSidebarChange);
+    };
+  }, []);
 
   // Si c'est la page de login, on la rend immédiatement sans vérification
   if (pathname === '/admin/login') {
@@ -50,8 +67,12 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       {/* Sidebar améliorée avec défilement */}
       <Sidebar />
       
-      {/* Contenu principal */}
-      <main className="transition-all duration-300 md:ml-64 pt-16 md:pt-0">
+      {/* Contenu principal - ajustement dynamique en fonction de l'état du sidebar */}
+      <main 
+        className={`transition-all duration-300 pt-16 md:pt-0
+          ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}
+        `}
+      >
         <div className="p-6">
           {children}
         </div>

@@ -91,6 +91,72 @@ const InterestModal = ({ isOpen, onClose, businessName, businessPrice, businessI
     onClose();
   };
 
+  // Fonction pour gérer l'inscription à la liste WhatsApp
+  const handleWhatsAppSubscription = async () => {
+    if (!formData.subscribeToUpdates) return true;
+    
+    try {
+      console.log("Tentative d'inscription à la liste WhatsApp:", formData.phone);
+      
+      // Formater le numéro de téléphone (supprimer espaces, tirets, etc.)
+      const formattedPhone = formData.phone.replace(/[\s-]/g, '');
+      
+      // Vérifier d'abord si ce numéro existe déjà
+      const { data: existingSubscriber } = await supabase
+        .from('whatsapp_subscribers')
+        .select('id, status')
+        .eq('phone', formattedPhone)
+        .maybeSingle();
+      
+      if (existingSubscriber) {
+        console.log("Abonné WhatsApp existant:", existingSubscriber);
+        
+        // Si l'abonné existe mais a un statut inactif, le réactiver
+        if (existingSubscriber.status !== 'active') {
+          const { error: updateError } = await supabase
+            .from('whatsapp_subscribers')
+            .update({ 
+              status: 'active',
+              name: formData.fullName,
+              email: formData.email,
+              country: formData.country,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existingSubscriber.id);
+          
+          if (updateError) {
+            console.error("Erreur lors de la mise à jour de l'abonné WhatsApp:", updateError);
+            return false;
+          }
+        }
+      } else {
+        // Créer un nouvel abonné
+        const { error: insertError } = await supabase
+          .from('whatsapp_subscribers')
+          .insert([{
+            phone: formattedPhone,
+            country: formData.country,
+            name: formData.fullName,
+            email: formData.email,
+            status: 'active',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }]);
+        
+        if (insertError) {
+          console.error("Erreur lors de l'insertion de l'abonné WhatsApp:", insertError);
+          return false;
+        }
+      }
+      
+      console.log("Inscription/MAJ à la liste WhatsApp réussie");
+      return true;
+    } catch (error) {
+      console.error("Erreur globale d'inscription WhatsApp:", error);
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -103,6 +169,13 @@ const InterestModal = ({ isOpen, onClose, businessName, businessPrice, businessI
         toast.error('Veuillez entrer un numéro de téléphone valide');
         setLoading(false);
         return;
+      }
+
+      // Gérer l'inscription WhatsApp en premier
+      const whatsAppSuccess = await handleWhatsAppSubscription();
+      
+      if (!whatsAppSuccess) {
+        console.warn("L'inscription WhatsApp a échoué mais nous continuons le processus principal");
       }
 
       // Créer l'entrée dans business_interests
@@ -123,24 +196,6 @@ const InterestModal = ({ isOpen, onClose, businessName, businessPrice, businessI
         is_whatsapp: formData.isWhatsApp,
         subscribe_to_updates: formData.subscribeToUpdates
       };
-      
-      // Si l'utilisateur a coché la case pour s'abonner
-      if (formData.subscribeToUpdates) {
-        try {
-          await supabase
-            .from('whatsapp_subscribers')
-            .insert([{
-              phone: formData.phone,
-              country: formData.country,
-              name: formData.fullName,
-              email: formData.email,
-              status: 'active'
-            }]);
-        } catch (subError) {
-          console.warn('Erreur lors de l\'inscription à la liste de diffusion:', subError);
-          // Ne pas bloquer le processus principal
-        }
-      }
       
       console.log("Données à insérer:", interestData);
       

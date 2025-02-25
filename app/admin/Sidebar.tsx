@@ -1,7 +1,7 @@
 // app/admin/Sidebar.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -25,6 +25,10 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import Image from 'next/image';
 import { WhatsAppIcon } from '@/app/components/icons/WhatsAppIcon';
 import { supabase } from '@/app/lib/supabase';
+import React from 'react';
+
+// Créer un événement personnalisé pour notifier les changements d'état du sidebar
+export const SIDEBAR_COLLAPSED_EVENT = 'sidebar-collapsed-changed';
 
 /**
  * Sidebar pour l'interface d'administration
@@ -36,6 +40,18 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
+  // Notifier les autres composants du changement d'état du sidebar
+  useEffect(() => {
+    // Émettre un événement personnalisé lorsque l'état change
+    const event = new CustomEvent(SIDEBAR_COLLAPSED_EVENT, { 
+      detail: { isCollapsed } 
+    });
+    window.dispatchEvent(event);
+    
+    // Définir une classe sur l'élément HTML pour faciliter les styles CSS
+    document.documentElement.classList.toggle('sidebar-collapsed', isCollapsed);
+  }, [isCollapsed]);
   
   // Groupes de menu avec leurs sous-éléments
   const menuGroups = [
@@ -177,19 +193,26 @@ export default function Sidebar() {
         {/* En-tête avec logo */}
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 py-6 border-b`}>
           <div className="flex items-center space-x-3">
-            <div className="relative h-10 w-200 flex-shrink-0">
-              <Image 
-                src="/images/tekkistudio/logo_blue.svg"
-                alt="TEKKI Studio"
-                width={180}
-                height={40}
-                className="object-contain"
-              />
-            </div>
-            {!isCollapsed && (
-              <div className="flex flex-col">
-                <span className="text-xl font-bold text-[#0f4c81]"></span>
-                <span className="text-xs text-gray-500"></span>
+            {/* Logo alternatif selon l'état de collapse */}
+            {isCollapsed ? (
+              <div className="relative h-10 w-10 flex-shrink-0">
+                <Image 
+                  src="/images/tekkistudio/logo_icon.svg"
+                  alt="TEKKI Studio"
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                />
+              </div>
+            ) : (
+              <div className="relative h-10 w-40 flex-shrink-0">
+                <Image 
+                  src="/images/tekkistudio/logo_blue.svg"
+                  alt="TEKKI Studio"
+                  width={160}
+                  height={40}
+                  className="object-contain"
+                />
               </div>
             )}
           </div>
@@ -225,8 +248,12 @@ export default function Sidebar() {
                         ${isCollapsed ? 'justify-center' : ''}
                       `}
                     >
-                      {/* L'icône est toujours visible */}
-                      {item.icon}
+                      {/* L'icône est toujours visible, mais ajustée selon l'état de collapse */}
+                      <div className={isCollapsed ? '' : 'mr-3'}>
+                        {React.cloneElement(item.icon as React.ReactElement, { 
+                          className: `h-5 w-5 ${isCollapsed ? '' : 'mr-3'}` 
+                        })}
+                      </div>
                       
                       {/* Le texte n'est visible que si la sidebar n'est pas réduite */}
                       {!isCollapsed && (
@@ -248,8 +275,8 @@ export default function Sidebar() {
               ${isCollapsed ? 'justify-center' : ''}
             `}
           >
-            <LogOut className="h-5 w-5" />
-            {!isCollapsed && <span className="ml-3">Déconnexion</span>}
+            <LogOut className={`h-5 w-5 ${isCollapsed ? '' : 'mr-3'}`} />
+            {!isCollapsed && <span>Déconnexion</span>}
           </button>
         </div>
       </aside>
