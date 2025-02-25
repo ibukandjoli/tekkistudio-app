@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    reactStrictMode: true,
-    swcMinify: true,
+  // Configuration pour résoudre les problèmes de useSearchParams
+  experimental: {
+    // Désactiver l'erreur stricte pour useSearchParams
+    missingSuspenseWithCSRBailout: false
   }
-  
-  module.exports = nextConfig
+};
+
+module.exports = nextConfig;

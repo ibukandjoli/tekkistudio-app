@@ -2,6 +2,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { Suspense } from 'react';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import MetaPixel from './components/analytics/MetaPixel';
@@ -36,13 +37,19 @@ export default function RootLayout({
         <link rel="icon" href="https://tekkistudio.com/images/tekkistudio/fav.png" />
       </head>
       <body className={inter.className}>
-        {/* Composant Pixel Meta pour le suivi */}
-        <MetaPixel />
+        {/* Composant Pixel Meta pour le suivi - maintenant avec Suspense */}
+        <Suspense fallback={null}>
+          <MetaPixel />
+        </Suspense>
         
         {/* Structure principale du site */}
         <Header />
         <main>
-          {children}
+          <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0f4c81]"></div>
+          </div>}>
+            {children}
+          </Suspense>
         </main>
         <Footer />
         
