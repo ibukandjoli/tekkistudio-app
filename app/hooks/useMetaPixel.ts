@@ -1,3 +1,4 @@
+// app/hooks/useMetaPixel.ts
 import { useState, useCallback } from 'react';
 
 type EventData = Record<string, any>;
@@ -47,6 +48,7 @@ export default function useMetaPixel() {
     if (typeof window === 'undefined' || !window.fbq) return;
 
     try {
+      // Utilisation de la signature compatible avec la définition existante
       window.fbq('track', eventName, data);
     } catch (error) {
       console.error(`Erreur lors du tracking de l'événement ${eventName}:`, error);
@@ -66,9 +68,9 @@ export default function useMetaPixel() {
       // Générer un ID d'événement unique pour la synchronisation
       const eventId = `conv_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
-      // Envoyer via le Pixel (browser-side)
+      // Envoyer via le Pixel (browser-side) avec la signature compatible
       if (window.fbq) {
-        window.fbq('track', eventName, data, { eventID: eventId });
+        window.fbq('track', eventName, data);
       }
 
       // Envoyer via l'API Conversions (server-side)

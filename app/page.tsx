@@ -10,9 +10,9 @@ export default function Home() {
   return (
     <main>
       <HeroSection />
-      <WhyTekkiStudio />
-      <HowItWorks />
       <AvailableBusinesses />
+      <HowItWorks />
+      <WhyTekkiStudio />
       <BrandShowcase />
   {/*
       <Testimonials />

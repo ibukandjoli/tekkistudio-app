@@ -48,7 +48,18 @@ export default function BusinessesPage() {
 
       if (error) throw error;
 
-      setBusinesses(data || []);
+      // Trier les business: disponibles d'abord, puis vendus
+      const sortedData = [...(data || [])].sort((a, b) => {
+        // Si les statuts sont différents, on trie par statut
+        if (a.status !== b.status) {
+          return a.status === 'available' ? -1 : 1;
+        }
+        // Si les statuts sont identiques, on garde l'ordre par date (plus récent d'abord)
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+
+      setBusinesses(sortedData);
+      
       // Extraire les catégories uniques
       const uniqueCategories = [...new Set(data?.map(b => b.category) || [])];
       setCategories(uniqueCategories);
@@ -66,10 +77,15 @@ export default function BusinessesPage() {
     const matchCategory = filters.category === 'all' || business.category === filters.category;
     const matchSearch = !filters.search ||
       business.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-      business.description.toLowerCase().includes(filters.search.toLowerCase());
+      business.description.toLowerCase().includes(filters.search.toLowerCase()) ||
+      business.pitch.toLowerCase().includes(filters.search.toLowerCase());
 
     return matchStatus && matchType && matchCategory && matchSearch;
   });
+
+  // Regrouper les business filtrés par statut
+  const availableBusinesses = filteredBusinesses.filter(b => b.status === 'available');
+  const soldBusinesses = filteredBusinesses.filter(b => b.status === 'sold');
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} retry={fetchBusinesses} />;
@@ -162,86 +178,35 @@ export default function BusinessesPage() {
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
           {filteredBusinesses.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredBusinesses.map((business) => (
-                <div 
-                  key={business.id} 
-                  className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 transition-transform hover:translate-y-[-4px]"
-                >
-                  <div className="aspect-video relative">
-                    <img 
-                      src={business.images[0]?.src || '/placeholder-business.jpg'} 
-                      alt={business.images[0]?.alt || business.name}
-                      className="object-cover w-full h-full"
-                    />
-                    <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                      <span className={`px-3 py-1 rounded-full text-sm text-white font-medium ${
-                        business.status === 'available' 
-                          ? 'bg-green-500' 
-                          : 'bg-gray-500'
-                      }`}>
-                        {business.status === 'available' ? 'En vente' : 'Vendu'}
-                      </span>
-                      <span className="bg-[#ff7f50] text-white px-3 py-1 rounded-full text-sm font-medium">
-                        {business.category}
-                      </span>
-                    </div>
-
-                    {business.status === 'sold' && (
-                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                        <span className="text-white text-2xl font-bold">VENDU</span>
-                      </div>
-                    )}
+            <>
+              {/* Business disponibles */}
+              {availableBusinesses.length > 0 && (
+                <>
+                  <h2 className="text-2xl font-bold text-[#0f4c81] mb-8">
+                    Business disponibles ({availableBusinesses.length})
+                  </h2>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                    {availableBusinesses.map((business) => (
+                      <BusinessCard key={business.id} business={business} />
+                    ))}
                   </div>
+                </>
+              )}
 
-                  <div className="p-6">
-                    <h3 className="text-2xl font-bold text-[#0f4c81] mb-2">
-                      {business.name}
-                    </h3>
-                    <p className="text-gray-600 mb-6 line-clamp-2">
-                      {business.pitch}
-                    </p>
-
-                    <div className="space-y-4 mb-6">
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <span className="text-gray-600">Prix du Business</span>
-                        <div className="text-right">
-                        <span className="line-through text-gray-400 text-sm">
-                        {formatPrice(business.original_price)}
-                        </span>
-                        <span className="font-bold text-[#0f4c81] block">
-                        {formatPrice(business.price)}
-                        </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <span className="text-gray-600">Potentiel mensuel</span>
-                        <span className="font-bold text-[#ff7f50]">
-                        {formatPrice(business.monthly_potential)}
-                        </span>
-                      </div>
-                    </div>
-
-                    {business.status === 'available' ? (
-                      <Link 
-                        href={`/business/${business.slug}`}
-                        className="w-full bg-[#ff7f50] text-white py-3 rounded-lg hover:bg-[#ff6b3d] transition-all flex items-center justify-center group"
-                      >
-                        Voir les détails
-                        <ArrowRight className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                    ) : (
-                      <button 
-                        className="w-full bg-gray-100 text-gray-600 py-3 rounded-lg cursor-not-allowed"
-                        disabled
-                      >
-                        Business vendu
-                      </button>
-                    )}
+              {/* Business vendus */}
+              {soldBusinesses.length > 0 && (
+                <>
+                  <h2 className="text-2xl font-bold text-[#0f4c81] mb-8 mt-12">
+                    Business déjà vendus ({soldBusinesses.length})
+                  </h2>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 opacity-80">
+                    {soldBusinesses.map((business) => (
+                      <BusinessCard key={business.id} business={business} />
+                    ))}
                   </div>
-                </div>
-              ))}
-            </div>
+                </>
+              )}
+            </>
           ) : (
             <div className="text-center py-12">
               <p className="text-gray-600 text-lg">
@@ -252,5 +217,86 @@ export default function BusinessesPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+// Composant de carte business extrait pour éviter la duplication de code
+function BusinessCard({ business }: { business: Business }) {
+  return (
+    <div 
+      className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 transition-transform hover:translate-y-[-4px]"
+    >
+      <div className="aspect-video relative">
+        <img 
+          src={business.images[0]?.src || '/placeholder-business.jpg'} 
+          alt={business.images[0]?.alt || business.name}
+          className="object-cover w-full h-full"
+        />
+        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+          <span className={`px-3 py-1 rounded-full text-sm text-white font-medium ${
+            business.status === 'available' 
+              ? 'bg-green-500' 
+              : 'bg-gray-500'
+          }`}>
+            {business.status === 'available' ? 'En vente' : 'Vendu'}
+          </span>
+          <span className="bg-[#ff7f50] text-white px-3 py-1 rounded-full text-sm font-medium">
+            {business.category}
+          </span>
+        </div>
+
+        {business.status === 'sold' && (
+          <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+            <span className="text-white text-2xl font-bold">VENDU</span>
+          </div>
+        )}
+      </div>
+
+      <div className="p-6">
+        <h3 className="text-2xl font-bold text-[#0f4c81] mb-2">
+          {business.name}
+        </h3>
+        <p className="text-gray-600 mb-6 line-clamp-2">
+          {business.pitch}
+        </p>
+
+        <div className="space-y-4 mb-6">
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <span className="text-gray-600">Prix du Business</span>
+            <div className="text-right">
+              <span className="line-through text-gray-400 text-sm">
+                {formatPrice(business.original_price)}
+              </span>
+              <span className="font-bold text-[#0f4c81] block">
+                {formatPrice(business.price)}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <span className="text-gray-600">Potentiel mensuel</span>
+            <span className="font-bold text-[#ff7f50]">
+              {formatPrice(business.monthly_potential)}
+            </span>
+          </div>
+        </div>
+
+        {business.status === 'available' ? (
+          <Link 
+            href={`/business/${business.slug}`}
+            className="w-full bg-[#ff7f50] text-white py-3 rounded-lg hover:bg-[#ff6b3d] transition-all flex items-center justify-center group"
+          >
+            Voir les détails
+            <ArrowRight className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" />
+          </Link>
+        ) : (
+          <button 
+            className="w-full bg-gray-100 text-gray-600 py-3 rounded-lg cursor-not-allowed"
+            disabled
+          >
+            Business vendu
+          </button>
+        )}
+      </div>
+    </div>
   );
 }

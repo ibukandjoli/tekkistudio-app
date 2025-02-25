@@ -8,9 +8,12 @@ import { useEffect } from 'react';
 // Remplacer cette valeur par votre ID pixel Meta réel
 const META_PIXEL_ID = '601446776036363';
 
-// Types pour le Pixel Meta
+// Type simple pour les paramètres d'événement
 type EventParams = Record<string, any>;
 
+/**
+ * Interface pour les paramètres de l'API Conversions
+ */
 interface ConversionAPIParams {
   eventName: string;
   eventId?: string;
@@ -44,8 +47,8 @@ export default function MetaPixel() {
       
       // Vérifier que window.fbq est disponible avant de l'appeler
       if (typeof window !== 'undefined' && window.fbq) {
-        // Tracker l'événement PageView avec l'ID d'événement unique
-        window.fbq('track', 'PageView', {}, { eventID: eventId });
+        // Tracker l'événement PageView de manière compatible
+        window.fbq('track', 'PageView');
         
         // Envoi des données via l'API Conversions (côté serveur via API route)
         sendServerSideEvent({
@@ -116,17 +119,5 @@ async function sendServerSideEvent(params: ConversionAPIParams) {
     }
   } catch (error) {
     console.error('Erreur lors de l\'envoi de l\'événement au serveur:', error);
-  }
-}
-
-// Déclarer les types pour l'intégration du Pixel Meta dans window
-declare global {
-  interface Window {
-    fbq: (
-      method: 'track' | 'init' | 'trackCustom',
-      eventName: string,
-      params?: EventParams,
-      options?: { eventID?: string }
-    ) => void;
   }
 }
