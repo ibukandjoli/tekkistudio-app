@@ -177,19 +177,19 @@ export default function Sidebar() {
         {/* En-tête avec logo */}
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-4 py-6 border-b`}>
           <div className="flex items-center space-x-3">
-            <div className="relative h-10 w-10 flex-shrink-0">
+            <div className="relative h-10 w-200 flex-shrink-0">
               <Image 
-                src="/images/logo.png"
+                src="/images/tekkistudio/logo_blue.svg"
                 alt="TEKKI Studio"
-                width={40}
+                width={180}
                 height={40}
                 className="object-contain"
               />
             </div>
             {!isCollapsed && (
               <div className="flex flex-col">
-                <span className="text-xl font-bold text-[#0f4c81]">TEKKI Studio</span>
-                <span className="text-xs text-gray-500">Panel Administrateur</span>
+                <span className="text-xl font-bold text-[#0f4c81]"></span>
+                <span className="text-xs text-gray-500"></span>
               </div>
             )}
           </div>

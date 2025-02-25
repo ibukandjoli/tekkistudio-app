@@ -5,7 +5,7 @@ import Script from 'next/script';
 import { useEffect } from 'react';
 
 // Vous devez remplacer cette valeur par votre ID pixel Meta réel
-const META_PIXEL_ID = 'VOTRE_PIXEL_ID';
+const META_PIXEL_ID = '601446776036363';
 
 /**
  * Composant pour l'intégration du Pixel Meta (Facebook)

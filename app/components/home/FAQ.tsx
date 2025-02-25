@@ -76,8 +76,8 @@ const FAQ = () => {
           <div className="inline-block bg-[#F2F2F2] rounded-lg p-6">
             <p className="text-gray-600">
               Vous avez d'autres questions ? 
-              <Link href="/contact" className="text-[#ff7f50] ml-2 hover:underline">
-                Contactez-nous
+              <Link href="https://wa.me/221781362728" className="text-[#0f4c81] ml-2 hover:underline">
+                Ecrivez-nous
               </Link>
             </p>
           </div>

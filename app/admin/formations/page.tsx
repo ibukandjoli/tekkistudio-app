@@ -155,7 +155,7 @@ function FormationsPage() {
           <h2 className="text-3xl font-bold text-[#0f4c81]">Formations</h2>
           <p className="text-gray-500">Gérez vos formations</p>
         </div>
-        <Link href="/admin/formations/new">
+        <Link href="/admin/formations/add">
           <Button className="bg-[#ff7f50] hover:bg-[#ff6b3d]">
             <Plus className="w-4 h-4 mr-2" />
             Nouvelle Formation

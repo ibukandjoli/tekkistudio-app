@@ -17,7 +17,8 @@ const HeroSection = () => {
         </div>
       </div>
       
-      <div className="container mx-auto px-4 py-16 relative z-10">
+      {/* Ajout d'un padding-top plus important sur mobile */}
+      <div className="container mx-auto px-4 py-16 pt-24 md:pt-16 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           <div className="flex-1 text-white">
             <h1 className="text-4xl lg:text-6xl font-bold mb-6 leading-tight">

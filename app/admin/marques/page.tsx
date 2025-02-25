@@ -144,7 +144,7 @@ function MarquesPage() {
           <h2 className="text-3xl font-bold text-[#0f4c81]">Marques</h2>
           <p className="text-gray-500">Gérez vos marques</p>
         </div>
-        <Link href="/admin/marques/new">
+        <Link href="/admin/marques/add">
           <Button className="bg-[#ff7f50] hover:bg-[#ff6b3d]">
             <Plus className="w-4 h-4 mr-2" />
             Nouvelle Marque

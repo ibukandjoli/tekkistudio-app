@@ -1,22 +1,21 @@
-// app/admin/formations/[id]/edit/page.tsx
+// app/admin/formations/add/page.tsx
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { withAdminAuth } from '../../../../lib/withAdminAuth';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../../components/ui/card';
-import { Button } from '../../../../components/ui/button';
-import { Input } from '../../../../components/ui/input';
-import { Textarea } from '../../../../components/ui/textarea';
-import { Label } from '../../../../components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
-import { Loader2, AlertCircle, Plus, Trash2 } from 'lucide-react';
-import { supabase } from '../../../../lib/supabase';
-import type { Formation } from '../../../../types/database';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { withAdminAuth } from '@/app/lib/withAdminAuth';
+import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
+import { Button } from '@/app/components/ui/button';
+import { Input } from '@/app/components/ui/input';
+import { Textarea } from '@/app/components/ui/textarea';
+import { Label } from '@/app/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
+import { Loader2, AlertCircle, ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { supabase } from '@/app/lib/supabase';
+import type { Formation } from '@/app/types/database';
 import { toast } from 'sonner';
-import { formatPrice, priceToNumber } from '../../../../lib/utils/price-utils';
+import { generateSlug } from '@/app/lib/utils/string-utils';
 
-// Type de données du formulaire basé sur la structure de Formation
 interface FormationFormData {
   slug: string;
   title: string;
@@ -62,98 +61,45 @@ const iconOptions = [
   { value: 'Lightbulb', label: 'Ampoule' },
 ];
 
-// Valeurs par défaut
-const defaultFormData: FormationFormData = {
-  slug: '',
-  title: '',
-  category: '',
-  description: '',
-  long_description: '',
-  duration: '',
-  sessions: '',
-  level: 'Débutant',
-  price: '',
-  price_amount: 0,
-  icon: 'ShoppingBag',
-  benefits: [''],
-  modules: [
-    {
-      title: '',
-      description: '',
-      lessons: ['']
-    }
-  ],
-  prerequisites: [''],
-  formateur: {
-    name: '',
-    role: '',
-    bio: ''
-  },
-  prochaine_sessions: [
-    {
-      date: '',
-      places: 10
-    }
-  ]
-};
-
-function FormationForm() {
-  const params = useParams();
+function AddFormationPage() {
   const router = useRouter();
-  const isEditing = params.id !== 'new';
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<FormationFormData>(defaultFormData);
 
-  useEffect(() => {
-    if (isEditing) {
-      fetchFormation();
-    }
-  }, [isEditing]);
-
-  const fetchFormation = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const { data, error } = await supabase
-        .from('formations')
-        .select('*')
-        .eq('id', params.id)
-        .single();
-
-      if (error) throw error;
-      
-      if (data) {
-        // Adapter les données de la BD au format du formulaire
-        const formationData = data as Formation;
-        setFormData({
-          slug: formationData.slug || '',
-          title: formationData.title || '',
-          category: formationData.category || '',
-          description: formationData.description || '',
-          long_description: formationData.long_description || '',
-          duration: formationData.duration || '',
-          sessions: formationData.sessions || '',
-          level: formationData.level as 'Débutant' | 'Intermédiaire' | 'Avancé' | 'Tous niveaux',
-          price: formationData.price || '',
-          price_amount: formationData.price_amount || 0,
-          icon: formationData.icon || 'ShoppingBag',
-          benefits: Array.isArray(formationData.benefits) ? formationData.benefits : [''],
-          modules: Array.isArray(formationData.modules) ? formationData.modules : [{ title: '', description: '', lessons: [''] }],
-          prerequisites: Array.isArray(formationData.prerequisites) ? formationData.prerequisites : [''],
-          formateur: formationData.formateur || { name: '', role: '', bio: '' },
-          prochaine_sessions: Array.isArray(formationData.prochaine_sessions) ? formationData.prochaine_sessions : [{ date: '', places: 10 }]
-        });
+  // Initialisation avec les valeurs par défaut
+  const [formData, setFormData] = useState<FormationFormData>({
+    slug: '',
+    title: '',
+    category: '',
+    description: '',
+    long_description: '',
+    duration: '',
+    sessions: '',
+    level: 'Débutant',
+    price: '',
+    price_amount: 0,
+    icon: 'BookOpen',
+    benefits: [''],
+    modules: [
+      {
+        title: '',
+        description: '',
+        lessons: ['']
       }
-    } catch (error) {
-      console.error('Erreur lors du chargement:', error);
-      setError('Erreur lors du chargement des données. Veuillez réessayer.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    ],
+    prerequisites: [''],
+    formateur: {
+      name: '',
+      role: '',
+      bio: ''
+    },
+    prochaine_sessions: [
+      {
+        date: '',
+        places: 10
+      }
+    ]
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,18 +108,24 @@ function FormationForm() {
       setSaving(true);
       setError(null);
 
-      const formationToSave = {
-        slug: formData.slug,
-        title: formData.title,
-        category: formData.category,
-        description: formData.description,
-        long_description: formData.long_description,
-        duration: formData.duration,
-        sessions: formData.sessions,
-        level: formData.level,
-        price: formData.price,
-        price_amount: formData.price_amount,
-        icon: formData.icon,
+      // Validation supplémentaire
+      if (!formData.title) {
+        toast.error('Le titre de la formation est requis');
+        setError('Le titre de la formation est requis');
+        setSaving(false);
+        return;
+      }
+
+      // Générer automatiquement le slug s'il est vide
+      if (!formData.slug) {
+        const newSlug = generateSlug(formData.title);
+        setFormData(prev => ({ ...prev, slug: newSlug }));
+        formData.slug = newSlug;
+      }
+
+      // Nettoyer les données avant soumission (supprimer les éléments vides)
+      const cleanedFormData = {
+        ...formData,
         benefits: formData.benefits.filter(b => b.trim() !== ''),
         modules: formData.modules
           .filter(m => m.title.trim() !== '')
@@ -182,7 +134,6 @@ function FormationForm() {
             lessons: m.lessons.filter(l => l.trim() !== '')
           })),
         prerequisites: formData.prerequisites.filter(p => p.trim() !== ''),
-        formateur: formData.formateur,
         prochaine_sessions: formData.prochaine_sessions
           .filter(s => s.date.trim() !== '')
           .map(s => ({
@@ -191,30 +142,31 @@ function FormationForm() {
           }))
       };
 
-      if (isEditing) {
-        // Mettre à jour une formation existante
-        const { error } = await supabase
-          .from('formations')
-          .update(formationToSave)
-          .eq('id', params.id);
+      // Créer la formation dans la base de données
+      const { data, error: supabaseError } = await supabase
+        .from('formations')
+        .insert([cleanedFormData])
+        .select();
 
-        if (error) throw error;
-        toast.success('Formation mise à jour avec succès');
-      } else {
-        // Créer une nouvelle formation
-        const { error } = await supabase
-          .from('formations')
-          .insert([formationToSave]);
+      if (supabaseError) throw supabaseError;
 
-        if (error) throw error;
-        toast.success('Formation créée avec succès');
-      }
+      // Enregistrer dans les logs d'activité
+      await supabase.from('activity_logs').insert([
+        {
+          type: 'formation_created',
+          description: `Nouvelle formation créée: ${formData.title}`,
+          metadata: {
+            formation_title: formData.title,
+            formation_id: data?.[0]?.id
+          }
+        }
+      ]);
 
-      // Rediriger vers la liste des formations
+      toast.success('Formation créée avec succès');
       router.push('/admin/formations');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la sauvegarde:', error);
-      setError('Erreur lors de la sauvegarde. Veuillez réessayer.');
+      setError(error.message || 'Erreur lors de la création de la formation');
       toast.error('Une erreur est survenue');
     } finally {
       setSaving(false);
@@ -224,12 +176,20 @@ function FormationForm() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
-    if (name === 'price') {
+    // Si le titre change, suggérer un slug
+    if (name === 'title' && !formData.slug) {
+      const suggestedSlug = generateSlug(value);
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        slug: suggestedSlug
+      }));
+    } else if (name === 'price') {
       // Mettre à jour à la fois price (chaîne) et price_amount (nombre)
       setFormData(prev => ({
         ...prev,
         price: value,
-        price_amount: priceToNumber(value)
+        price_amount: parseFloat(value.replace(/[^\d]/g, '')) || 0
       }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -372,40 +332,33 @@ function FormationForm() {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-[#ff7f50]" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-96">
-        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-        <p className="text-lg text-red-600">{error}</p>
-        <Button 
-          onClick={fetchFormation} 
-          variant="outline" 
-          className="mt-4"
-        >
-          Réessayer
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold text-[#0f4c81]">
-          {isEditing ? 'Modifier la formation' : 'Nouvelle formation'}
-        </h2>
-        <p className="text-gray-500">
-          {isEditing ? 'Modifiez les informations de la formation' : 'Créez une nouvelle formation'}
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold text-[#0f4c81]">
+            Ajouter une nouvelle formation
+          </h2>
+          <p className="text-gray-500">
+            Créez une nouvelle formation à commercialiser
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => router.push('/admin/formations')}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft size={16} />
+          Retour à la liste
+        </Button>
       </div>
+
+      {error && (
+        <div className="bg-red-50 p-4 rounded-lg flex items-start gap-3 text-red-700">
+          <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+          <p>{error}</p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Informations de base */}
@@ -416,40 +369,44 @@ function FormationForm() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Titre</Label>
+                <Label htmlFor="title">Titre*</Label>
                 <Input
                   id="title"
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
                   required
+                  placeholder="Ex: Formation E-commerce de A à Z"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="slug">Slug</Label>
+                <Label htmlFor="slug">Slug*</Label>
                 <Input
                   id="slug"
                   name="slug"
                   value={formData.slug}
                   onChange={handleChange}
                   required
+                  placeholder="Ex: formation-ecommerce-de-a-a-z"
                 />
+                <p className="text-xs text-gray-500">Utilisé dans l'URL: tekkistudio.com/formations/slug</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="category">Catégorie</Label>
+                <Label htmlFor="category">Catégorie*</Label>
                 <Input
                   id="category"
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
                   required
+                  placeholder="Ex: E-commerce"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="level">Niveau</Label>
+                <Label htmlFor="level">Niveau*</Label>
                 <Select
                   value={formData.level}
                   onValueChange={(value) => handleSelectChange('level', value)}
@@ -468,42 +425,45 @@ function FormationForm() {
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="price">Prix</Label>
+                <Label htmlFor="price">Prix (format texte)*</Label>
                 <Input
                   id="price"
                   name="price"
                   value={formData.price}
                   onChange={handleChange}
                   required
+                  placeholder="Ex: 150,000 FCFA"
                 />
                 <p className="text-xs text-gray-500">
-                  Montant numérique: {formData.price_amount}
+                  Montant numérique: {formData.price_amount} FCFA
                 </p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="duration">Durée</Label>
+                <Label htmlFor="duration">Durée*</Label>
                 <Input
                   id="duration"
                   name="duration"
                   value={formData.duration}
                   onChange={handleChange}
                   required
+                  placeholder="Ex: 4 semaines"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="sessions">Sessions</Label>
+                <Label htmlFor="sessions">Sessions*</Label>
                 <Input
                   id="sessions"
                   name="sessions"
                   value={formData.sessions}
                   onChange={handleChange}
                   required
+                  placeholder="Ex: 8 sessions de 2h"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="icon">Icône</Label>
+              <Label htmlFor="icon">Icône*</Label>
               <Select
                 value={formData.icon}
                 onValueChange={(value) => handleSelectChange('icon', value)}
@@ -520,18 +480,19 @@ function FormationForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description courte</Label>
+              <Label htmlFor="description">Description courte*</Label>
               <Textarea
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 required
+                placeholder="Une description concise de la formation (1-2 phrases)"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="long_description">Description détaillée</Label>
+              <Label htmlFor="long_description">Description détaillée*</Label>
               <Textarea
                 id="long_description"
                 name="long_description"
@@ -539,6 +500,7 @@ function FormationForm() {
                 onChange={handleChange}
                 required
                 rows={6}
+                placeholder="Description complète de la formation, ses objectifs, ses avantages..."
               />
             </div>
           </CardContent>
@@ -552,32 +514,35 @@ function FormationForm() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="formateur_name">Nom du formateur</Label>
+                <Label htmlFor="formateur_name">Nom du formateur*</Label>
                 <Input
                   id="formateur_name"
                   value={formData.formateur.name}
                   onChange={(e) => handleFormateurChange('name', e.target.value)}
                   required
+                  placeholder="Ex: John Doe"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="formateur_role">Titre/Rôle</Label>
+                <Label htmlFor="formateur_role">Titre/Rôle*</Label>
                 <Input
                   id="formateur_role"
                   value={formData.formateur.role}
                   onChange={(e) => handleFormateurChange('role', e.target.value)}
                   required
+                  placeholder="Ex: Expert E-commerce, 10 ans d'expérience"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="formateur_bio">Biographie</Label>
+              <Label htmlFor="formateur_bio">Biographie*</Label>
               <Textarea
                 id="formateur_bio"
                 value={formData.formateur.bio}
                 onChange={(e) => handleFormateurChange('bio', e.target.value)}
                 required
                 rows={4}
+                placeholder="Biographie détaillée du formateur, son parcours, ses réalisations..."
               />
             </div>
           </CardContent>
@@ -585,8 +550,18 @@ function FormationForm() {
 
         {/* Bénéfices */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Ce que vous apprendrez (Bénéfices)</CardTitle>
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm" 
+              onClick={addBenefit}
+              className="flex items-center gap-1"
+            >
+              <Plus size={16} />
+              Ajouter un bénéfice
+            </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {formData.benefits.map((benefit, index) => (
@@ -602,27 +577,29 @@ function FormationForm() {
                   size="icon"
                   onClick={() => removeBenefit(index)}
                   disabled={formData.benefits.length === 1}
+                  className={formData.benefits.length === 1 ? "opacity-50 cursor-not-allowed" : ""}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
-            <Button
-              type="button"
-              variant="outline"
-              className="mt-2"
-              onClick={addBenefit}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Ajouter un bénéfice
-            </Button>
           </CardContent>
         </Card>
 
         {/* Prérequis */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Prérequis</CardTitle>
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm" 
+              onClick={addPrerequisite}
+              className="flex items-center gap-1"
+            >
+              <Plus size={16} />
+              Ajouter un prérequis
+            </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {formData.prerequisites.map((prerequisite, index) => (
@@ -643,22 +620,22 @@ function FormationForm() {
                 </Button>
               </div>
             ))}
-            <Button
-              type="button"
-              variant="outline"
-              className="mt-2"
-              onClick={addPrerequisite}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Ajouter un prérequis
-            </Button>
           </CardContent>
         </Card>
 
         {/* Programme (Modules) */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Programme de la formation</CardTitle>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={addModule}
+              className="flex items-center gap-1"
+            >
+              <Plus size={16} />
+              Ajouter un module
+            </Button>
           </CardHeader>
           <CardContent className="space-y-6">
             {formData.modules.map((module, moduleIndex) => (
@@ -668,16 +645,17 @@ function FormationForm() {
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon"
+                    size="sm"
                     onClick={() => removeModule(moduleIndex)}
                     disabled={formData.modules.length === 1}
+                    className="text-red-500 hover:text-red-700"
                   >
-                    <Trash2 className="h-4 w-4 text-red-500" />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor={`module-title-${moduleIndex}`}>Titre du module</Label>
+                  <Label htmlFor={`module-title-${moduleIndex}`}>Titre du module*</Label>
                   <Input
                     id={`module-title-${moduleIndex}`}
                     value={module.title}
@@ -688,7 +666,7 @@ function FormationForm() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor={`module-desc-${moduleIndex}`}>Description</Label>
+                  <Label htmlFor={`module-desc-${moduleIndex}`}>Description*</Label>
                   <Textarea
                     id={`module-desc-${moduleIndex}`}
                     value={module.description}
@@ -699,8 +677,20 @@ function FormationForm() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Leçons</Label>
-                  <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label className="mt-1">Leçons*</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => addLesson(moduleIndex)}
+                      className="flex items-center gap-1"
+                    >
+                      <Plus size={14} />
+                      Ajouter une leçon
+                    </Button>
+                  </div>
+                  <div className="space-y-2 pl-1">
                     {module.lessons.map((lesson, lessonIndex) => (
                       <div key={`lesson-${moduleIndex}-${lessonIndex}`} className="flex gap-2">
                         <Input
@@ -710,44 +700,37 @@ function FormationForm() {
                         />
                         <Button
                           type="button"
-                          variant="outline"
+                          variant="ghost"
                           size="icon"
                           onClick={() => removeLesson(moduleIndex, lessonIndex)}
                           disabled={module.lessons.length === 1}
+                          className="text-red-500 hover:text-red-700"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     ))}
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => addLesson(moduleIndex)}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Ajouter une leçon
-                  </Button>
                 </div>
               </div>
             ))}
-            
-            <Button
-              type="button"
-              variant="outline"
-              onClick={addModule}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Ajouter un module
-            </Button>
           </CardContent>
         </Card>
 
         {/* Prochaines sessions */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Prochaines sessions</CardTitle>
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm" 
+              onClick={addSession}
+              className="flex items-center gap-1"
+            >
+              <Plus size={16} />
+              Ajouter une session
+            </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {formData.prochaine_sessions.map((session, index) => (
@@ -775,24 +758,17 @@ function FormationForm() {
                 <div>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
                     onClick={() => removeSession(index)}
                     disabled={formData.prochaine_sessions.length === 1}
+                    className="text-red-500 hover:text-red-700"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             ))}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={addSession}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Ajouter une session
-            </Button>
           </CardContent>
         </Card>
 
@@ -806,10 +782,10 @@ function FormationForm() {
             {saving ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Enregistrement...
+                Création en cours...
               </>
             ) : (
-              isEditing ? 'Mettre à jour' : 'Créer la formation'
+              'Créer la formation'
             )}
           </Button>
           <Button
@@ -826,4 +802,4 @@ function FormationForm() {
   );
 }
 
-export default withAdminAuth(FormationForm);
+export default withAdminAuth(AddFormationPage);
