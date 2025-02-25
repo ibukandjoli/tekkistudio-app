@@ -1,35 +1,69 @@
 // app/components/analytics/MetaPixel.tsx
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import { useEffect } from 'react';
 
-// Vous devez remplacer cette valeur par votre ID pixel Meta réel
+// Remplacer cette valeur par votre ID pixel Meta réel
 const META_PIXEL_ID = '601446776036363';
 
+// Types pour le Pixel Meta
+type EventParams = Record<string, any>;
+
+interface ConversionAPIParams {
+  eventName: string;
+  eventId?: string;
+  userData?: {
+    email?: string;
+    phone?: string;
+    firstName?: string;
+    lastName?: string;
+    city?: string;
+    country?: string;
+  };
+  customData?: Record<string, any>;
+}
+
 /**
- * Composant pour l'intégration du Pixel Meta (Facebook)
+ * Composant pour l'intégration complète du Pixel Meta et de l'API Conversions
  * - Charge le script du Pixel Meta
+ * - Initialise l'API Conversions
  * - Déclenche les événements de page view à chaque changement de route
- * - Fournit une fonction pour suivre des événements personnalisés
+ * - Fournit des fonctions utilitaires pour le tracking d'événements
  */
 export default function MetaPixel() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   // Suivre les changements de page
   useEffect(() => {
     if (pathname) {
+      // Générer un ID d'événement unique pour la synchronisation avec l'API Conversions
+      const eventId = `pageview_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      
       // Vérifier que window.fbq est disponible avant de l'appeler
       if (typeof window !== 'undefined' && window.fbq) {
-        window.fbq('track', 'PageView');
+        // Tracker l'événement PageView avec l'ID d'événement unique
+        window.fbq('track', 'PageView', {}, { eventID: eventId });
+        
+        // Envoi des données via l'API Conversions (côté serveur via API route)
+        sendServerSideEvent({
+          eventName: 'PageView',
+          eventId: eventId,
+          customData: {
+            page_path: pathname,
+            page_url: `${window.location.origin}${pathname}${searchParams ? '?' + searchParams.toString() : ''}`,
+            page_title: document.title
+          }
+        });
       }
     }
-  }, [pathname]);
+  }, [pathname, searchParams]);
 
   return (
     <>
-      {/* Script d'initialisation du Pixel Meta */}
+      {/* Script d'initialisation du Pixel Meta avec support de l'API Conversions */}
       <Script id="meta-pixel-script" strategy="afterInteractive">
         {`
           !function(f,b,e,v,n,t,s)
@@ -40,7 +74,11 @@ export default function MetaPixel() {
           t.src=v;s=b.getElementsByTagName(e)[0];
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
+          
+          // Initialisation du Pixel Meta
           fbq('init', '${META_PIXEL_ID}');
+          
+          // Premier événement PageView automatique
           fbq('track', 'PageView');
         `}
       </Script>
@@ -59,13 +97,36 @@ export default function MetaPixel() {
   );
 }
 
-// Types pour le Pixel Meta
+/**
+ * Envoie un événement au serveur pour traitement via l'API Conversions Meta
+ * Permet de contourner les bloqueurs de publicités et d'améliorer la précision du tracking
+ */
+async function sendServerSideEvent(params: ConversionAPIParams) {
+  try {
+    const response = await fetch('/api/track-conversion', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    });
+    
+    if (!response.ok) {
+      console.error('Erreur lors de l\'envoi de l\'événement au serveur');
+    }
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de l\'événement au serveur:', error);
+  }
+}
+
+// Déclarer les types pour l'intégration du Pixel Meta dans window
 declare global {
   interface Window {
     fbq: (
       method: 'track' | 'init' | 'trackCustom',
       eventName: string,
-      params?: Record<string, any>
+      params?: EventParams,
+      options?: { eventID?: string }
     ) => void;
   }
 }
