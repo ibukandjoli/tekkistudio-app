@@ -22,10 +22,10 @@ const AboutPage = () => {
       bio: "Spécialiste en gestion de supply chain et opérations e-commerce, assurant l'excellence opérationnelle de chaque marque lancée."
     },
     {
-      name: "Ibrahima Faye",
-      role: "Responsable Marketing",
+      name: "Jeremie Branham",
+      role: "Developpeur E-commerce",
       imageSrc: "/images/tekkistudio/team/jeremie.png",
-      bio: "Stratège marketing digital avec une expertise particulière dans le développement de marques sur les marchés africains."
+      bio: "Développeur fullstack avec 3 ans d'expérience en développement de sites et applications web, passionné par l'UX et l'E-commerce. "
     }
   ];
 

@@ -31,7 +31,7 @@ const Header = () => {
 
   const navItems = [
     { label: 'Nos Marques', href: '/marques' },
-    { label: 'Nos Business en vente', href: '/business' },
+    { label: 'Nos Business', href: '/business' },
     { label: 'Notre Expertise', href: '/expertise' },
     { label: 'Nos Formations', href: '/formations' },
     { label: 'À Propos', href: '/a-propos' },
