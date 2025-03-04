@@ -137,7 +137,7 @@ export default function RamadanPromoPage() {
         {/* Badge Ramadan */}
         <div className="absolute top-20 right-10 rotate-12 hidden md:block">
           <div className="bg-[#ff7f50] text-white font-bold px-6 py-3 rounded-full transform shadow-lg">
-            Offre limitée Ramadan
+            Offre limitée 2025
           </div>
         </div>
 
