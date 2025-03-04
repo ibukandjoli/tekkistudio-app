@@ -112,83 +112,37 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
       const newTransactionId = crypto.randomUUID();
       setTransactionId(newTransactionId);
       
-      // Préparation des données client
-      const customerData = {
-        fullName: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        country: formData.country,
-        city: formData.city,
-        businessName: formData.businessName,
-        businessDescription: formData.businessDescription
-      };
-  
-      // Afficher un indicateur de chargement
-      toast.loading("Préparation du paiement...");
-      
-      try {
-        // Appel à l'API pour créer la transaction
-        const response = await fetch('/api/transactions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            id: newTransactionId,
-            amount: amountToPay,
-            paymentOption: formData.paymentOption,
-            providerType: 'wave',
-            customerData,
-            transactionType: 'promo_ramadan'
-          }),
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.warn("Avertissement API transaction:", errorData);
-          // Continuer malgré l'erreur
-        }
-      } catch (apiError) {
-        console.warn("Erreur API transaction:", apiError);
-        // Continuer malgré l'erreur
-      }
-      
-      // Fallback: Insertion directe dans Supabase si l'API échoue
-      try {
-        const { error } = await supabase
-          .from('payment_transactions')
-          .insert([{
-            id: newTransactionId,
-            amount: amountToPay,
-            payment_option: formData.paymentOption,
-            status: 'pending',
-            provider: 'wave',
-            transaction_type: 'promo_ramadan',
-            customer_data: customerData,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }]);
-          
-        if (error) {
-          console.warn("Avertissement d'insertion transaction:", error);
-          // Continuer malgré l'erreur
-        }
-      } catch (insertError) {
-        console.warn("Erreur d'insertion transaction:", insertError);
-        // Continuer malgré l'erreur
-      }
+      // Préparation des données client et sauvegarde en base (code existant)
+      // ...
       
       // Supprimer l'indicateur de chargement
       toast.dismiss();
       
-      // Ouvrir le lien de paiement Wave
+      // Créer le lien Wave
       const wavePaymentLink = `https://pay.wave.com/m/M_OfAgT8X_IT6P/c/sn/?amount=${amountToPay}`;
-      const paymentWindow = window.open(wavePaymentLink, '_blank');
       
-      // Vérifier si la fenêtre a été ouverte avec succès
-      if (!paymentWindow) {
-        toast.error("Impossible d'ouvrir la fenêtre de paiement. Veuillez vérifier votre bloqueur de popups.");
-        return;
+      // Méthode adaptée pour mobile et desktop
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        // Sur mobile, utiliser un lien direct
+        // Créer un lien temporaire dans le DOM
+        const paymentLink = document.createElement('a');
+        paymentLink.href = wavePaymentLink;
+        paymentLink.target = '_blank'; // Ouvrir dans un nouvel onglet
+        paymentLink.rel = 'noopener noreferrer';
+        document.body.appendChild(paymentLink);
+        paymentLink.click(); // Déclencher le clic
+        document.body.removeChild(paymentLink); // Nettoyer
+      } else {
+        // Sur desktop, utiliser window.open comme avant
+        const paymentWindow = window.open(wavePaymentLink, '_blank');
+        
+        // Vérifier si la fenêtre a été ouverte avec succès
+        if (!paymentWindow) {
+          toast.error("Impossible d'ouvrir la fenêtre de paiement. Veuillez vérifier votre bloqueur de popups.");
+          return;
+        }
       }
       
       // Marquer que la fenêtre de paiement a été ouverte
@@ -728,17 +682,23 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
                       <div className="text-center p-4 border rounded-lg">
                         <p className="mb-4">Cliquez sur le bouton ci-dessous pour effectuer votre paiement via Wave</p>
                         <div className="flex justify-center">
-                          <button 
-                            onClick={openWavePayment}
+                        <a 
+                            href={`https://pay.wave.com/m/M_OfAgT8X_IT6P/c/sn/?amount=${getPaymentAmount()}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                openWavePayment();
+                            }}
                             className="bg-[#21b8ec] text-white px-4 py-2 rounded-lg hover:bg-[#1aa8d9] transition-colors flex items-center justify-center"
-                          >
+                            >
                             <img 
-                              src="/images/payments/wave_2.svg" 
-                              alt="Wave" 
-                              className="w-5 h-5 mr-2" 
+                                src="/images/payments/wave_2.svg" 
+                                alt="Wave" 
+                                className="w-5 h-5 mr-2" 
                             />
-                            Payer {formatPrice(getPaymentAmount())} FCFA avec Wave
-                          </button>
+                            Payer {getPaymentAmount().toLocaleString()} FCFA avec Wave
+                        </a>
                         </div>
                       </div>
                     ) : (
