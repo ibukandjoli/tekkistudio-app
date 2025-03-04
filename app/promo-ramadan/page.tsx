@@ -28,18 +28,18 @@ const promoData = {
     { name: "Viens on s'connaît", url: "https://viensonsconnait.com", image: "/images/portfolio/viensonsconnait.png" }
   ],
   features: [
-    "Site e-commerce responsive optimisé pour mobile",
-    "Design moderne et professionnel",
-    "Intégration système de paiement (Wave, Orange Money)",
+    "Site e-commerce adapté à tous les écrans",
+    "Design moderne, intuitif et professionnel",
+    "Intégration de formulaire de commande",
     "Gestion de stock et de commandes",
-    "Tableau de bord administrateur intuitif",
-    "Optimisation SEO de base",
+    "Tableau de bord simplifié pour tout gérer",
+    "Référencement naturel sur Google",
     "Formation à l'utilisation du site"
   ],
   marketingStrategy: [
     "Analyse de votre audience cible",
-    "Création de 3 publicités Facebook/Instagram",
-    "Configuration du Pixel Meta",
+    "Création de 2 publicités Facebook/Instagram",
+    "Configuration du Pixel Meta sur votre site",
     "Stratégie de ciblage détaillée",
     "Recommandations de budget publicitaire",
     "Suivi des performances pendant 15 jours"
@@ -47,19 +47,19 @@ const promoData = {
   faqs: [
     {
       question: "Comment se déroule la création de mon site e-commerce ?",
-      answer: "Après votre inscription, nous vous contacterons sous 24h pour discuter de vos besoins spécifiques. Nous vous fournirons un questionnaire pour recueillir toutes les informations nécessaires, puis nous créerons une maquette pour validation avant de développer votre site. Tout le processus est terminé en 7 jours ouvrés."
+      answer: "Après votre commande, nous vous contacterons sous 24h pour discuter de vos besoins spécifiques. Nous vous fournirons un questionnaire pour recueillir toutes les informations nécessaires, puis nous passerons au développement de votre site. Tout le processus est terminé en 7 jours ouvrés."
     },
     {
       question: "Puis-je personnaliser le design de mon site ?",
-      answer: "Absolument ! Nous travaillons avec vous pour créer un design qui correspond à votre marque et à votre vision. Vous aurez l'opportunité de donner votre avis sur les maquettes avant le développement final."
+      answer: "Absolument ! Nous travaillons avec vous pour créer un design qui correspond à votre marque et à votre vision. Vous aurez l'opportunité de donner votre avis sur le travail réalisé avant la livraison de votre site."
     },
     {
       question: "Comment fonctionne le paiement échelonné ?",
-      answer: "Vous payez 50% du montant (232 500 FCFA) lors de votre inscription pour réserver votre place. Les 50% restants sont à payer 30 jours après la livraison de votre site, ce qui vous donne le temps de commencer à générer des revenus avec votre nouveau site."
+      answer: "Vous payez 50% du montant (232 500 FCFA) lors de votre commande pour réserver votre place. Les 50% restants sont à payer 30 jours après la livraison de votre site, ce qui vous donne le temps de commencer à générer des revenus avec votre nouveau site."
     },
     {
       question: "Que se passe-t-il après la livraison du site ?",
-      answer: "Nous vous formons à l'utilisation de votre nouveau site e-commerce et vous accompagnons dans la mise en place de votre stratégie marketing Meta. Nous restons disponibles pendant 30 jours après la livraison pour répondre à vos questions et effectuer des ajustements mineurs si nécessaire."
+      answer: "Nous vous formons à l'utilisation de votre nouveau site e-commerce et vous accompagnons dans la mise en place de votre stratégie marketing sur Meta (Facebook & Instagram). Nous restons disponibles pendant 30 jours après la livraison pour répondre à vos questions et effectuer des ajustements mineurs si nécessaire."
     }
   ]
 };
@@ -145,7 +145,7 @@ export default function RamadanPromoPage() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-block mb-6 bg-white/10 backdrop-blur-sm px-6 py-2 rounded-full">
               <span className="text-white font-medium">
-                <span className="text-[#ff7f50]">Ramadan Moubarak</span> • Offre spéciale valable jusqu'au 12 mars
+                <span className="text-[#ff7f50]">OFFRE SPÉCIALE</span> • valable jusqu'au 12 mars 2025
               </span>
             </div>
             
@@ -242,7 +242,7 @@ export default function RamadanPromoPage() {
                 </div>
                 
                 <p className="text-gray-600 text-sm">
-                  Cette offre exceptionnelle se termine le 12 mars 2024
+                  Cette offre exceptionnelle se termine le 12 mars 2025
                 </p>
               </div>
               
@@ -272,7 +272,7 @@ export default function RamadanPromoPage() {
                 </div>
                 
                 <p className="text-gray-600 text-sm">
-                  Nous limitons à {promoData.maxClients} clients pour garantir une qualité optimale et un service personnalisé
+                  Nous limitons à {promoData.maxClients} clients pour garantir une qualité optimale et respecter nos délais
                 </p>
               </div>
             </div>
@@ -284,7 +284,7 @@ export default function RamadanPromoPage() {
       <section ref={detailsRef} id="details" className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-[#0f4c81] text-center mb-12">
-            Une solution complète pour lancer votre e-commerce
+            Une solution complète pour vendre efficacement sur Internet
           </h2>
           
           <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
@@ -350,7 +350,7 @@ export default function RamadanPromoPage() {
             Pourquoi profiter de cette offre exceptionnelle
           </h2>
           <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
-            Notre offre Ramadan combine tous les éléments essentiels pour lancer ou améliorer votre présence en ligne et générer des ventes rapidement.
+            Notre offre combine tous les éléments essentiels pour lancer ou améliorer votre présence en ligne et générer des ventes rapidement.
           </p>
           
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -362,7 +362,7 @@ export default function RamadanPromoPage() {
                 Rapidité d'exécution
               </h3>
               <p className="text-gray-600">
-                Votre site e-commerce sera prêt en seulement {promoData.deliveryTime}, vous permettant de capitaliser rapidement sur la période post-Ramadan.
+                Votre site e-commerce sera prêt en seulement {promoData.deliveryTime}, vous permettant de le rentabiliser rapidement dès le mois suivant.
               </p>
             </div>
             
@@ -374,7 +374,7 @@ export default function RamadanPromoPage() {
                 Solution tout-en-un
               </h3>
               <p className="text-gray-600">
-                Vous obtenez non seulement un site professionnel, mais aussi une stratégie complète pour attirer des clients et commencer à générer des ventes.
+                Vous obtenez non seulement un site professionnel, mais aussi une stratégie complète pour attirer des clients et augmenter vos ventes.
               </p>
             </div>
             
@@ -386,7 +386,7 @@ export default function RamadanPromoPage() {
                 Économie substantielle
               </h3>
               <p className="text-gray-600">
-                Profitez d'une réduction de {formatPrice(promoData.price.original - promoData.price.discounted)} FCFA sur le prix normal et d'un paiement facilité en deux tranches.
+                Profitez d'une réduction de {formatPrice(promoData.price.original - promoData.price.discounted)} FCFA sur le prix normal et d'un paiement facilité en deux tranches, sur 30 jours.
               </p>
             </div>
           </div>
@@ -476,36 +476,14 @@ export default function RamadanPromoPage() {
                 <Star className="w-5 h-5 text-yellow-500 fill-current" />
               </div>
               <p className="text-gray-600 mb-4">
-                "TEKKI Studio a transformé mon business avec un site e-commerce qui dépasse toutes mes attentes. Les ventes ont augmenté dès les premières semaines. Un investissement qui a déjà été rentabilisé !"
+                "TEKKI Studio a transformé notre marque avec un site e-commerce professionnel qui dépasse toutes nos attentes. Nous pouvons désormais vendre en boutique et sur Internet, surtout aux clients qui ne sont pas à Dakar."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-[#0f4c81] rounded-full flex items-center justify-center text-white font-bold">
-                  MS
+                  MD
                 </div>
                 <div>
-                  <div className="font-medium">Mariama Sow</div>
-                  <div className="text-sm text-gray-500">YoupyBaby</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-xl shadow-sm">
-              <div className="flex items-center gap-1 mb-4">
-                <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                <Star className="w-5 h-5 text-yellow-500 fill-current" />
-              </div>
-              <p className="text-gray-600 mb-4">
-                "L'équipe de TEKKI Studio est extrêmement professionnelle. Ils ont livré mon site dans les délais promis et leur stratégie Meta m'a permis d'acquérir mes premiers clients très rapidement. Je recommande vivement !"
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-[#0f4c81] rounded-full flex items-center justify-center text-white font-bold">
-                  AD
-                </div>
-                <div>
-                  <div className="font-medium">Abdou Diop</div>
+                  <div className="font-medium">Mme Diouf</div>
                   <div className="text-sm text-gray-500">Momo Le Bottier</div>
                 </div>
               </div>
@@ -520,14 +498,36 @@ export default function RamadanPromoPage() {
                 <Star className="w-5 h-5 text-yellow-500 fill-current" />
               </div>
               <p className="text-gray-600 mb-4">
-                "Avant de travailler avec TEKKI Studio, j'avais essayé d'autres solutions qui étaient soit trop chères, soit de mauvaise qualité. Ils ont réussi à créer exactement ce dont j'avais besoin, à un prix abordable."
+                "L'équipe de TEKKI Studio est extrêmement professionnelle et disponible. Je les ai sollicités pour la refonte de mon site, et ils ont fait un travail magnifique qui a été livré dans les délais promis."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-[#0f4c81] rounded-full flex items-center justify-center text-white font-bold">
-                  FN
+                  FD
                 </div>
                 <div>
-                  <div className="font-medium">Fatou Ndiaye</div>
+                  <div className="font-medium">Mme Ndiaye</div>
+                  <div className="text-sm text-gray-500">YoupyBaby</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-xl shadow-sm">
+              <div className="flex items-center gap-1 mb-4">
+                <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                <Star className="w-5 h-5 text-yellow-500 fill-current" />
+              </div>
+              <p className="text-gray-600 mb-4">
+                "Avant de travailler avec TEKKI Studio, j'avais essayé d'autres solutions qui étaient soit trop chères, soit de mauvaise qualité. Ils ont réussi à créer exactement ce dont j'avais besoin, à un prix abordable. J'adore mon site."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-[#0f4c81] rounded-full flex items-center justify-center text-white font-bold">
+                  FD
+                </div>
+                <div>
+                  <div className="font-medium">Fatou Diedhiou</div>
                   <div className="text-sm text-gray-500">Abarings</div>
                 </div>
               </div>
