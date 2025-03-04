@@ -19,7 +19,8 @@ import {
   X,
   UserCheck,
   GraduationCap,
-  Share2
+  Share2,
+  Gift
 } from 'lucide-react';
 import { useAuth } from '@/app/contexts/AuthContext';
 import Image from 'next/image';
@@ -69,22 +70,27 @@ export default function Sidebar() {
       title: 'Business',
       items: [
         { 
-          name: 'Business', 
+          name: 'Business en vente', 
           href: '/admin/businesses', 
           icon: <Store className="mr-3 h-5 w-5" /> 
         },
         { 
-          name: 'Prospects', 
+          name: 'Prospects Biz Ecom', 
           href: '/admin/leads', 
           icon: <MessageSquare className="mr-3 h-5 w-5" /> 
         },
+        { 
+          name: 'Prospects Sites Ecom', 
+          href: '/admin/ramadan-leads', 
+          icon: <Gift className="mr-3 h-5 w-5" /> 
+        }
       ]
     },
     {
       title: 'Formations',
       items: [
         { 
-          name: 'Formations', 
+          name: 'Nos Formations', 
           href: '/admin/formations', 
           icon: <BookOpen className="mr-3 h-5 w-5" /> 
         },
@@ -99,7 +105,7 @@ export default function Sidebar() {
       title: 'Marques',
       items: [
         { 
-          name: 'Marques', 
+          name: 'Nos Marques', 
           href: '/admin/marques', 
           icon: <Package className="mr-3 h-5 w-5" /> 
         }

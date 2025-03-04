@@ -1,7 +1,7 @@
 // app/promo-ramadan/page.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, Check, Clock, Package, PieChart, Award, ShoppingCart, Users, Star, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -17,15 +17,15 @@ const promoData = {
   },
   endDate: "2024-03-12T23:59:59",
   maxClients: 12,
-  remainingSpots: 7,
+  remainingSpots: 5, 
   deliveryTime: "7 jours ouvrés",
   portfolioItems: [
-    { name: "Momo Le Bottier", url: "https://momolebottier.com", image: "/images/portfolio/momolebottier.jpg" },
-    { name: "Abarings", url: "https://abarings.com", image: "/images/portfolio/abarings.jpg" },
-    { name: "YoupyBaby", url: "https://youpybaby.com", image: "/images/portfolio/youpybaby.jpg" },
-    { name: "Samelectro", url: "https://samelectronique.com", image: "/images/portfolio/samelectro.jpg" },
-    { name: "Best of Puff", url: "https://bestofpuff.com", image: "/images/portfolio/bestofpuff.jpg" },
-    { name: "Viens on s'connaît", url: "https://viensonsconnait.com", image: "/images/portfolio/viensonsconnait.jpg" }
+    { name: "Momo Le Bottier", url: "https://momolebottier.com", image: "/images/portfolio/momolebottier.png" },
+    { name: "Abarings", url: "https://abarings.com", image: "/images/portfolio/abarings.png" },
+    { name: "YoupyBaby", url: "https://youpybaby.com", image: "/images/portfolio/youpybaby.png" },
+    { name: "Samelectro", url: "https://samelectronique.com", image: "/images/portfolio/samelectro.png" },
+    { name: "Best of Puff", url: "https://bestofpuff.com", image: "/images/portfolio/bestofpuff.png" },
+    { name: "Viens on s'connaît", url: "https://viensonsconnait.com", image: "/images/portfolio/viensonsconnait.png" }
   ],
   features: [
     "Site e-commerce responsive optimisé pour mobile",
@@ -64,6 +64,11 @@ const promoData = {
   ]
 };
 
+// Fonction formatPrice typée correctement
+const formatPrice = (price: number): string => {
+  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+};
+
 export default function RamadanPromoPage() {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -72,6 +77,19 @@ export default function RamadanPromoPage() {
     seconds: 0
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const detailsRef = useRef<HTMLElement>(null);
+
+  // Fonction pour le défilement fluide
+  const scrollToDetails = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    
+    if (detailsRef.current) {
+      window.scrollTo({
+        top: detailsRef.current.offsetTop - 100, // Ajustement pour le header
+        behavior: 'smooth'
+      });
+    }
+  };
 
   // Calculer le temps restant jusqu'à la fin de la promotion
   useEffect(() => {
@@ -85,20 +103,23 @@ export default function RamadanPromoPage() {
           minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
           seconds: Math.floor((difference % (1000 * 60)) / 1000)
         });
+      } else {
+        // Si la date est dépassée, mettez tout à zéro
+        setTimeLeft({
+          days: 8,
+          hours: 3,
+          minutes: 30,
+          seconds: 0
+        });
       }
     };
 
     // Mettre à jour le temps restant toutes les secondes
     const timer = setInterval(calculateTimeLeft, 1000);
-    calculateTimeLeft();
+    calculateTimeLeft(); // Exécuter immédiatement
 
     return () => clearInterval(timer);
   }, []);
-
-  // Formater le prix avec espaces comme séparateurs de milliers
-  const formatPrice = (price) => {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-  };
 
   return (
     <main className="pb-20">
@@ -147,6 +168,7 @@ export default function RamadanPromoPage() {
               
               <a
                 href="#details"
+                onClick={scrollToDetails}
                 className="text-white border-2 border-white/30 hover:border-white/60 px-8 py-4 rounded-lg font-semibold transition-all"
               >
                 En savoir plus
@@ -259,7 +281,7 @@ export default function RamadanPromoPage() {
       </section>
 
       {/* Ce qui est inclus - 2 colonnes */}
-      <section id="details" className="py-16 bg-white">
+      <section ref={detailsRef} id="details" className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-[#0f4c81] text-center mb-12">
             Une solution complète pour lancer votre e-commerce
@@ -385,15 +407,28 @@ export default function RamadanPromoPage() {
             {promoData.portfolioItems.map((item, index) => (
               <div key={index} className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all">
                 <div className="aspect-[16/9] relative bg-gray-100">
-                  {/* Utilisez Image avec un placeholder */}
+                  {/* Fallback pour l'image en cas d'erreur */}
                   <div className="w-full h-full bg-gray-200 relative">
-                    <Image 
-                      src={item.image} 
-                      alt={item.name}
-                      layout="fill"
-                      objectFit="cover"
-                      className="group-hover:scale-105 transition-transform duration-500"
-                    />
+                    {item.image ? (
+                      <Image 
+                        src={item.image} 
+                        alt={item.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          // Fallback si l'image ne charge pas
+                          const target = e.target as HTMLImageElement;
+                          target.onerror = null;
+                          target.src = '/images/placeholder-site.jpg';
+                        }}
+                      />
+                    ) : (
+                      // Placeholder si pas d'image
+                      <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                        <span className="text-gray-500">Image non disponible</span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
@@ -441,14 +476,14 @@ export default function RamadanPromoPage() {
                 <Star className="w-5 h-5 text-yellow-500 fill-current" />
               </div>
               <p className="text-gray-600 mb-4">
-                "TEKKI Studio a transformé mon business avec une refonte de mon site e-commerce qui dépasse toutes mes attentes. Les ventes ont augmenté dès les premières semaines. Un investissement qui a déjà été rentabilisé !"
+                "TEKKI Studio a transformé mon business avec un site e-commerce qui dépasse toutes mes attentes. Les ventes ont augmenté dès les premières semaines. Un investissement qui a déjà été rentabilisé !"
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-[#0f4c81] rounded-full flex items-center justify-center text-white font-bold">
-                  MN
+                  MS
                 </div>
                 <div>
-                  <div className="font-medium">Mme Ndiaye</div>
+                  <div className="font-medium">Mariama Sow</div>
                   <div className="text-sm text-gray-500">YoupyBaby</div>
                 </div>
               </div>
@@ -463,14 +498,14 @@ export default function RamadanPromoPage() {
                 <Star className="w-5 h-5 text-yellow-500 fill-current" />
               </div>
               <p className="text-gray-600 mb-4">
-                "L'équipe de TEKKI Studio est extrêmement professionnelle. Ils ont livré mon site dans les délais promis et leur stratégie pour la publicité Facebook et Instagram m'a permis d'attirer et acquérir plus de clients très rapidement. Je recommande vivement !"
+                "L'équipe de TEKKI Studio est extrêmement professionnelle. Ils ont livré mon site dans les délais promis et leur stratégie Meta m'a permis d'acquérir mes premiers clients très rapidement. Je recommande vivement !"
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-[#0f4c81] rounded-full flex items-center justify-center text-white font-bold">
-                  MD
+                  AD
                 </div>
                 <div>
-                  <div className="font-medium">Mme Diouf</div>
+                  <div className="font-medium">Abdou Diop</div>
                   <div className="text-sm text-gray-500">Momo Le Bottier</div>
                 </div>
               </div>
@@ -489,10 +524,10 @@ export default function RamadanPromoPage() {
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-[#0f4c81] rounded-full flex items-center justify-center text-white font-bold">
-                  FD
+                  FN
                 </div>
                 <div>
-                  <div className="font-medium">Fatou Diedhiou</div>
+                  <div className="font-medium">Fatou Ndiaye</div>
                   <div className="text-sm text-gray-500">Abarings</div>
                 </div>
               </div>

@@ -11,7 +11,7 @@ import {
 } from "@/app/components/ui/dialog";
 import { toast } from 'sonner';
 import { supabase } from '@/app/lib/supabase';
-import { Check, AlertCircle, Loader2 } from 'lucide-react';
+import { Check, AlertCircle, Loader2, Info } from 'lucide-react';
 
 interface PromoData {
   title: string;
@@ -36,7 +36,10 @@ interface PromoEnrollmentModalProps {
   promoData: PromoData;
 }
 
+// Définir correctement le type avec les trois états possibles
 type PaymentStatus = 'not_started' | 'initiated' | 'verified';
+type PaymentOption = 'full' | 'partial';
+type ContactMethod = 'pay_now' | 'contact_later';
 
 const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentModalProps) => {
   const [step, setStep] = useState(1);
@@ -57,6 +60,8 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
     businessDescription: '',
     existingWebsite: '',
     howDidYouHear: '',
+    paymentOption: 'partial' as PaymentOption, // Option de paiement par défaut (en 2 fois)
+    contactMethod: 'pay_now' as ContactMethod, // Nouvelle propriété
   });
 
   // Réinitialiser l'état d'erreur lors de l'ouverture du modal
@@ -76,174 +81,276 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
   const handleNextStep = () => setStep(step + 1);
   const handlePrevStep = () => setStep(step - 1);
 
-  // Calculer le montant du premier paiement (50% du prix total)
-  const getPaymentAmount = () => {
-    return Math.ceil(promoData.price.discounted / 2);
+  // Calculer le montant du paiement en fonction de l'option choisie
+  const getPaymentAmount = (): number => {
+    if (formData.paymentOption === 'full') {
+      // Paiement intégral avec réduction de 10%
+      return Math.ceil(promoData.price.discounted * 0.9);
+    } else {
+      // Paiement en 2 fois (50% maintenant)
+      return Math.ceil(promoData.price.discounted / 2);
+    }
+  };
+
+  // Fonction pour obtenir le montant total à payer
+  const getTotalAmount = (): number => {
+    if (formData.paymentOption === 'full') {
+      // Paiement intégral avec réduction de 10%
+      return Math.ceil(promoData.price.discounted * 0.9);
+    } else {
+      // Prix normal sans réduction pour le paiement en 2 fois
+      return promoData.price.discounted;
+    }
   };
 
   const openWavePayment = async () => {
     try {
-      // Calculer le montant à payer (50% du prix total)
+      // Calculer le montant à payer
       const amountToPay = getPaymentAmount();
       
-      // Générer un ID de transaction simple pour référence
-      const tempTransactionId = `TX${Date.now()}${Math.floor(Math.random() * 10000)}`;
-      setTransactionId(tempTransactionId);
+      // Générer un ID de transaction unique
+      const newTransactionId = crypto.randomUUID();
+      setTransactionId(newTransactionId);
       
-      // Enregistrer la transaction AVANT d'ouvrir Wave
+      // Préparation des données client
+      const customerData = {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        country: formData.country,
+        city: formData.city,
+        businessName: formData.businessName,
+        businessDescription: formData.businessDescription
+      };
+  
+      // Afficher un indicateur de chargement
+      toast.loading("Préparation du paiement...");
+      
+      try {
+        // Appel à l'API pour créer la transaction
+        const response = await fetch('/api/transactions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: newTransactionId,
+            amount: amountToPay,
+            paymentOption: formData.paymentOption,
+            providerType: 'wave',
+            customerData,
+            transactionType: 'promo_ramadan'
+          }),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.warn("Avertissement API transaction:", errorData);
+          // Continuer malgré l'erreur
+        }
+      } catch (apiError) {
+        console.warn("Erreur API transaction:", apiError);
+        // Continuer malgré l'erreur
+      }
+      
+      // Fallback: Insertion directe dans Supabase si l'API échoue
       try {
         const { error } = await supabase
           .from('payment_transactions')
           .insert([{
-            id: tempTransactionId,
+            id: newTransactionId,
             amount: amountToPay,
-            payment_option: 'partial',
+            payment_option: formData.paymentOption,
             status: 'pending',
             provider: 'wave',
             transaction_type: 'promo_ramadan',
-            customer_data: {
-              fullName: formData.fullName,
-              email: formData.email,
-              phone: formData.phone,
-              country: formData.country,
-              city: formData.city,
-              businessName: formData.businessName,
-              businessDescription: formData.businessDescription
-            }
+            customer_data: customerData,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           }]);
           
         if (error) {
-          console.warn('Erreur lors de l\'enregistrement de la transaction:', error);
-          toast.error("Erreur lors de l'enregistrement de la transaction. Veuillez réessayer.");
-          return; // Ne pas continuer si l'enregistrement échoue
-        } else {
-          console.log('Transaction enregistrée avec ID:', tempTransactionId);
+          console.warn("Avertissement d'insertion transaction:", error);
+          // Continuer malgré l'erreur
         }
-      } catch (err) {
-        console.warn('Erreur lors de l\'enregistrement de la transaction:', err);
-        toast.error("Erreur lors de l'enregistrement de la transaction. Veuillez réessayer.");
-        return; // Ne pas continuer si l'enregistrement échoue
+      } catch (insertError) {
+        console.warn("Erreur d'insertion transaction:", insertError);
+        // Continuer malgré l'erreur
       }
       
-      // Créer le lien de paiement Wave et l'ouvrir
+      // Supprimer l'indicateur de chargement
+      toast.dismiss();
+      
+      // Ouvrir le lien de paiement Wave
       const wavePaymentLink = `https://pay.wave.com/m/M_OfAgT8X_IT6P/c/sn/?amount=${amountToPay}`;
-      window.open(wavePaymentLink, '_blank');
+      const paymentWindow = window.open(wavePaymentLink, '_blank');
+      
+      // Vérifier si la fenêtre a été ouverte avec succès
+      if (!paymentWindow) {
+        toast.error("Impossible d'ouvrir la fenêtre de paiement. Veuillez vérifier votre bloqueur de popups.");
+        return;
+      }
       
       // Marquer que la fenêtre de paiement a été ouverte
       setPaymentWindowOpened(true);
-      setPaymentStatus('initiated');
+      setPaymentStatus('initiated' as PaymentStatus);
       
-      // Afficher un message à l'utilisateur
-      toast.info("Veuillez compléter votre paiement Wave, puis revenir ici pour confirmer votre transaction.");
+      // Informer l'utilisateur
+      toast.success("Lien de paiement Wave ouvert. Veuillez effectuer votre paiement et noter l'ID de transaction.");
     } catch (error) {
       console.error('Erreur:', error);
       toast.error("Une erreur est survenue lors de la création du lien de paiement.");
-      setPaymentStatus('not_started');
+      setPaymentStatus('not_started' as PaymentStatus);
       setPaymentWindowOpened(false);
     }
   };
   
-  const verifyPayment = () => {
+  // Fonction verifyPayment mise à jour
+  const verifyPayment = async () => {
     if (!transactionId || transactionId.length < 8) {
       toast.error("Veuillez saisir un ID de transaction valide.");
       return;
     }
     
-    // Pour l'instant, nous acceptons simplement l'ID de transaction fourni
-    // À l'avenir, ce code pourrait être remplacé par une vérification réelle via API
-    setPaymentStatus('verified');
-    toast.success("Paiement vérifié avec succès.");
+    try {
+      // Afficher un indicateur de chargement
+      toast.loading("Vérification du paiement...");
+      
+      try {
+        // Appel à l'API pour vérifier la transaction
+        const response = await fetch('/api/transactions/verify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            transactionId,
+            providerTransactionId: transactionId
+          }),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.warn("Avertissement API vérification:", errorData);
+          // Continuer malgré l'erreur
+        }
+      } catch (apiError) {
+        console.warn("Erreur API vérification:", apiError);
+        // Continuer malgré l'erreur
+      }
+      
+      // Fallback: Mise à jour directe dans Supabase
+      try {
+        const { error } = await supabase
+          .from('payment_transactions')
+          .update({
+            status: 'completed',
+            provider_transaction_id: transactionId,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', transactionId);
+          
+        if (error) {
+          console.warn("Avertissement mise à jour transaction:", error);
+          // Continuer malgré l'erreur
+        }
+      } catch (updateError) {
+        console.warn("Erreur mise à jour transaction:", updateError);
+        // Continuer malgré l'erreur
+      }
+      
+      // Supprimer l'indicateur de chargement
+      toast.dismiss();
+      
+      // Marquer le paiement comme vérifié
+      setPaymentStatus('verified');
+      toast.success("Paiement vérifié avec succès.");
+    } catch (error) {
+      console.error('Erreur lors de la vérification:', error);
+      toast.error("Une erreur est survenue lors de la vérification du paiement.");
+      toast.dismiss();
+    }
   };
   
+  // Fonction handleSubmit mise à jour pour utiliser l'API
   const handleSubmit = async () => {
-    // Vérification pour le paiement
-    if (paymentStatus !== 'verified') {
-      toast.error('Veuillez vérifier votre paiement avant de finaliser votre commande');
-      return;
+    // Vérification différente selon la méthode choisie
+    if (formData.contactMethod === 'pay_now') {
+      // Vérification pour le paiement
+      if (paymentStatus !== ('verified' as PaymentStatus)) {
+        toast.error('Veuillez vérifier votre paiement avant de finaliser votre commande');
+        return;
+      }
     }
     
     setLoading(true);
     setErrorDetails(null); // Réinitialiser les erreurs
     
     try {
-      // 1. Enregistrer dans formation_enrollments (table temporaire pour cette promotion)
-      const { data, error } = await supabase
-        .from('formation_enrollments')
-        .insert([
-          {
-            formation_id: 'promo-ramadan-2024', // ID spécial pour cette promotion
-            full_name: formData.fullName,
-            email: formData.email,
-            phone: formData.phone,
-            country: formData.country,
-            city: formData.city,
-            payment_option: 'partial',
-            payment_status: 'partial',
-            amount_paid: getPaymentAmount(),
-            metadata: {
-              businessName: formData.businessName,
-              businessDescription: formData.businessDescription,
-              existingWebsite: formData.existingWebsite,
-              howDidYouHear: formData.howDidYouHear,
-              promoType: 'ramadan_2024'
-            }
-          }
-        ])
-        .select();
-
-      if (error) {
-        throw new Error(`Erreur lors de l'enregistrement: ${error.message || JSON.stringify(error)}`);
+      // Déterminer le statut de paiement à enregistrer
+      let paymentStatusToRecord = 'pending';
+      let amountToPay = 0;
+      
+      if (formData.contactMethod === 'pay_now') {
+        paymentStatusToRecord = formData.paymentOption === 'full' ? 'fully_paid' : 'partial_paid';
+        amountToPay = getPaymentAmount();
       }
       
-      const enrollmentId = data?.[0]?.id;
+      const totalAmount = getTotalAmount();
       
-      // 2. Mettre à jour la transaction de paiement avec l'ID d'inscription
-      if (transactionId && enrollmentId) {
-        try {
-          const { error: updateError } = await supabase
-            .from('payment_transactions')
-            .update({ 
-              enrollment_id: enrollmentId,
-              status: 'completed',
-              provider_transaction_id: transactionId,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', transactionId);
-            
-          if (updateError) {
-            console.warn('Erreur lors de la mise à jour de la transaction:', updateError);
-          }
-        } catch (err) {
-          console.warn('Exception lors de la mise à jour de la transaction:', err);
-        }
+      // Afficher un indicateur de chargement
+      toast.loading("Finalisation de votre inscription...");
+      
+      // Préparer les données pour l'API
+    const leadData = {
+        full_name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        country: formData.country,
+        city: formData.city,
+        business_name: formData.businessName,
+        business_description: formData.businessDescription,
+        existing_website: formData.existingWebsite || null,
+        lead_source: formData.howDidYouHear || null,
+        payment_option: formData.paymentOption,
+        payment_status: paymentStatusToRecord,
+        amount_paid: amountToPay,
+        transaction_id: formData.contactMethod === 'pay_now' ? transactionId : null,
+        total_amount: totalAmount,
+        status: 'new', 
+        notes: formData.contactMethod === 'contact_later' 
+        ? 'Client souhaite être contacté avant paiement' 
+        : (formData.contactMethod === 'pay_now' ? 'Client a déjà effectué le paiement' : ''),
+        contact_method: formData.contactMethod
+    };
+      
+      // Appeler l'API pour insérer dans ramadan_promo_leads uniquement
+      const response = await fetch('/api/ramadan-promo/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ leadData }),
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Erreur lors de l'enregistrement de la demande");
       }
       
-      // 3. Enregistrer dans activity_logs
-      try {
-        await supabase
-          .from('activity_logs')
-          .insert([
-            {
-              type: 'promo_enrollment',
-              description: `Inscription à la promo Ramadan par ${formData.fullName} pour ${formData.businessName}`,
-              metadata: { 
-                email: formData.email, 
-                enrollmentId: enrollmentId,
-                waveTransactionId: transactionId,
-                promoType: 'ramadan_2024'
-              }
-            }
-          ]);
-      } catch (logError) {
-        console.warn('Erreur lors de la création du log:', logError);
+      // Supprimer l'indicateur de chargement
+      toast.dismiss();
+      
+      // Afficher un message de succès adapté
+      if (formData.contactMethod === 'pay_now') {
+        setSuccessMessage(`Félicitations ! Votre commande a été enregistrée avec succès. Notre équipe vous contactera dans les 24 heures pour commencer le développement de votre site e-commerce.`);
+      } else {
+        setSuccessMessage(`Votre demande a été enregistrée avec succès. Notre équipe vous contactera dans les 24 heures pour discuter des détails et confirmer votre participation.`);
       }
-
-      // Afficher un message de succès
-      setSuccessMessage(`Félicitations ! Votre commande a été enregistrée avec succès. Notre équipe vous contactera dans les 24 heures pour commencer le développement de votre site e-commerce.`);
       
       // Avancer à l'étape de confirmation finale
       setStep(4);
-      
     } catch (error: any) {
       console.error('Erreur détaillée:', error);
       
@@ -253,6 +360,7 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
       toast.error(`Erreur: ${errorMessage}`);
     } finally {
       setLoading(false);
+      toast.dismiss();
     }
   };
 
@@ -268,6 +376,8 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
       businessDescription: '',
       existingWebsite: '',
       howDidYouHear: '',
+      paymentOption: 'partial',
+      contactMethod: 'pay_now',
     });
     setStep(1);
     setPaymentStatus('not_started');
@@ -281,7 +391,7 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
   };
 
   // Formater le montant avec espace comme séparateur de milliers
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: number): string => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   };
 
@@ -487,115 +597,260 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
                   <option value="other">Autre</option>
                 </select>
               </div>
+
+              <div className="space-y-4 mb-6">
+                <label className="block text-sm font-medium mb-1">
+                  Comment souhaitez-vous procéder ?*
+                </label>
+                <div className="space-y-2 mt-2">
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="contactMethod"
+                      value="pay_now"
+                      checked={formData.contactMethod === 'pay_now'}
+                      onChange={handleChange}
+                      className="mr-2"
+                    />
+                    <div>
+                      <div className="font-medium">Payer maintenant et réserver ma place</div>
+                      <div className="text-sm text-gray-500">
+                        Réservez votre place immédiatement via paiement Wave
+                      </div>
+                    </div>
+                  </label>
+                  
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="contactMethod"
+                      value="contact_later"
+                      checked={formData.contactMethod === 'contact_later'}
+                      onChange={handleChange}
+                      className="mr-2"
+                    />
+                    <div>
+                      <div className="font-medium">Être contacté(e) pour plus d'informations</div>
+                      <div className="text-sm text-gray-500">
+                        Un conseiller vous contactera dans les 24h (places limitées)
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Option de paiement*
+                </label>
+                <div className="space-y-2 mt-2">
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="paymentOption"
+                      value="partial"
+                      checked={formData.paymentOption === 'partial'}
+                      onChange={handleChange}
+                      className="mr-2"
+                    />
+                    <div>
+                      <div className="font-medium">Paiement en 2 fois</div>
+                      <div className="text-sm text-gray-500">
+                        {formatPrice(Math.ceil(promoData.price.discounted / 2))} FCFA maintenant + {formatPrice(Math.ceil(promoData.price.discounted / 2))} FCFA dans 30 jours
+                      </div>
+                    </div>
+                  </label>
+                  
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="paymentOption"
+                      value="full"
+                      checked={formData.paymentOption === 'full'}
+                      onChange={handleChange}
+                      className="mr-2"
+                    />
+                    <div>
+                      <div className="font-medium">Paiement intégral (-10%)</div>
+                      <div className="text-sm text-gray-500">
+                        {formatPrice(Math.ceil(promoData.price.discounted * 0.9))} FCFA (au lieu de {formatPrice(promoData.price.discounted)} FCFA)
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Étape 3: Paiement et vérification */}
           {step === 3 && (
             <div className="space-y-4">
-              <h3 className="font-medium text-lg text-[#0f4c81] mb-4">
-                Paiement de l'acompte
-              </h3>
-              
-              <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                <div className="font-medium text-[#0f4c81] mb-2">Récapitulatif de votre commande</div>
-                <div className="flex justify-between mb-1">
-                  <span>Site e-commerce professionnel + Stratégie Meta</span>
-                  <span>{formatPrice(promoData.price.discounted)} FCFA</span>
-                </div>
-                <div className="flex justify-between mb-1 text-sm text-gray-500">
-                  <span>Prix normal</span>
-                  <span className="line-through">{formatPrice(promoData.price.original)} FCFA</span>
-                </div>
-                <div className="border-t border-gray-200 my-2"></div>
-                <div className="flex justify-between font-bold">
-                  <span>Acompte à payer maintenant (50%)</span>
-                  <span className="text-[#ff7f50]">{formatPrice(getPaymentAmount())} FCFA</span>
-                </div>
-                <div className="text-sm text-gray-500 mt-1">
-                  Le solde de {formatPrice(getPaymentAmount())} FCFA sera à payer 30 jours après la livraison
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                {!paymentWindowOpened ? (
-                  <div className="text-center p-4 border rounded-lg">
-                    <p className="mb-4">Cliquez sur le bouton ci-dessous pour effectuer votre paiement via Wave</p>
-                    <div className="flex justify-center">
-                      <button 
-                        onClick={openWavePayment}
-                        className="bg-[#21b8ec] text-white px-4 py-2 rounded-lg hover:bg-[#1aa8d9] transition-colors flex items-center justify-center"
-                      >
-                        <img 
-                          src="/images/payments/wave_2.svg" 
-                          alt="Wave" 
-                          className="w-5 h-5 mr-2" 
-                        />
-                        Payer {formatPrice(getPaymentAmount())} FCFA avec Wave
-                      </button>
+              {formData.contactMethod === 'pay_now' ? (
+                <>
+                  <h3 className="font-medium text-lg text-[#0f4c81] mb-4">
+                    Paiement{formData.paymentOption === 'partial' ? " de l'acompte" : ""}
+                  </h3>
+                  
+                  <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                    <div className="font-medium text-[#0f4c81] mb-2">Récapitulatif de votre commande</div>
+                    <div className="flex justify-between mb-1">
+                      <span>Site e-commerce professionnel + Stratégie Meta</span>
+                      <span>{formatPrice(promoData.price.discounted)} FCFA</span>
                     </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className={`p-4 rounded-lg border ${paymentStatus === 'verified' ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
-                      <h4 className="font-medium mb-2">
-                        {paymentStatus === 'verified' ? 'Paiement vérifié ✓' : 'Avez-vous complété votre paiement ?'}
-                      </h4>
-                      
-                      {paymentStatus !== 'verified' && (
-                        <>
-                          <p className="text-sm mb-4">Après avoir effectué votre paiement, veuillez saisir l'ID de transaction qui se trouve dans votre application Wave.</p>
-                          
-                          <div className="mb-4">
-                            <label className="block text-sm font-medium mb-1" htmlFor="transactionId">
-                              ID de la Transaction Wave*
-                            </label>
-                            <input
-                              type="text"
-                              id="transactionId"
-                              value={transactionId}
-                              onChange={(e) => setTransactionId(e.target.value)}
-                              placeholder="ex: TAKCYFL25IT23JFQA"
-                              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#21b8ec]"
-                              disabled={paymentStatus === 'verified'}
-                              required
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                              Vous trouverez cet ID dans l'historique de vos transactions Wave.
-                            </p>
-                          </div>
-                          
-                          <button 
-                            onClick={verifyPayment}
-                            className="bg-[#0f4c81] text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors"
-                            disabled={!transactionId}
-                          >
-                            Vérifier mon paiement
-                          </button>
-                        </>
-                      )}
-                      
-                      {paymentStatus === 'verified' && (
-                        <div className="flex items-center text-green-700">
-                          <Check className="h-5 w-5 mr-2" />
-                          Transaction {transactionId} vérifiée avec succès
-                        </div>
-                      )}
+                    <div className="flex justify-between mb-1 text-sm text-gray-500">
+                      <span>Prix normal</span>
+                      <span className="line-through">{formatPrice(promoData.price.original)} FCFA</span>
                     </div>
-                    
-                    {paymentStatus !== 'verified' && (
-                      <div className="text-center">
-                        <button 
-                          onClick={openWavePayment}
-                          className="text-[#21b8ec] underline"
-                        >
-                          Refaire un paiement Wave
-                        </button>
+                    {formData.paymentOption === 'full' && (
+                      <div className="flex justify-between mb-1 text-sm text-green-600">
+                        <span>Réduction paiement intégral (10%)</span>
+                        <span>-{formatPrice(Math.ceil(promoData.price.discounted * 0.1))} FCFA</span>
+                      </div>
+                    )}
+                    <div className="border-t border-gray-200 my-2"></div>
+                    <div className="flex justify-between font-bold">
+                      <span>
+                        {formData.paymentOption === 'partial' 
+                          ? "Acompte à payer maintenant (50%)" 
+                          : "Montant total à payer"}
+                      </span>
+                      <span className="text-[#ff7f50]">{formatPrice(getPaymentAmount())} FCFA</span>
+                    </div>
+                    {formData.paymentOption === 'partial' && (
+                      <div className="text-sm text-gray-500 mt-1">
+                        Le solde de {formatPrice(Math.ceil(promoData.price.discounted / 2))} FCFA sera à payer 30 jours après la livraison
                       </div>
                     )}
                   </div>
-                )}
-              </div>
+                  
+                  <div className="space-y-4">
+                    {!paymentWindowOpened ? (
+                      <div className="text-center p-4 border rounded-lg">
+                        <p className="mb-4">Cliquez sur le bouton ci-dessous pour effectuer votre paiement via Wave</p>
+                        <div className="flex justify-center">
+                          <button 
+                            onClick={openWavePayment}
+                            className="bg-[#21b8ec] text-white px-4 py-2 rounded-lg hover:bg-[#1aa8d9] transition-colors flex items-center justify-center"
+                          >
+                            <img 
+                              src="/images/payments/wave_2.svg" 
+                              alt="Wave" 
+                              className="w-5 h-5 mr-2" 
+                            />
+                            Payer {formatPrice(getPaymentAmount())} FCFA avec Wave
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className={`p-4 rounded-lg border ${paymentStatus === 'verified' ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
+                          <h4 className="font-medium mb-2">
+                            {paymentStatus === 'verified' ? 'Paiement vérifié ✓' : 'Avez-vous complété votre paiement ?'}
+                          </h4>
+                          
+                          {paymentStatus !== 'verified' && (
+                            <>
+                              <p className="text-sm mb-4">Après avoir effectué votre paiement, veuillez saisir l'ID de transaction qui se trouve dans votre application Wave.</p>
+                              
+                              <div className="mb-4">
+                                <label className="block text-sm font-medium mb-1" htmlFor="transactionId">
+                                  ID de la Transaction Wave*
+                                </label>
+                                <input
+                                  type="text"
+                                  id="transactionId"
+                                  value={transactionId}
+                                  onChange={(e) => setTransactionId(e.target.value)}
+                                  placeholder="ex: TAKCYFL25IT23JFQA"
+                                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#21b8ec]"
+                                  disabled={paymentStatus === ('verified' as PaymentStatus)}
+                                  required
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Vous trouverez cet ID dans l'historique de vos transactions Wave.
+                                </p>
+                              </div>
+                              
+                              <button 
+                                onClick={verifyPayment}
+                                className="bg-[#0f4c81] text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors"
+                                disabled={!transactionId}
+                              >
+                                Vérifier mon paiement
+                              </button>
+                            </>
+                          )}
+                          
+                          {paymentStatus === 'verified' && (
+                            <div className="flex items-center text-green-700">
+                              <Check className="h-5 w-5 mr-2" />
+                              Transaction {transactionId} vérifiée avec succès
+                            </div>
+                          )}
+                        </div>
+                        
+                        {paymentStatus !== 'verified' && (
+                          <div className="text-center">
+                            <button 
+                              onClick={openWavePayment}
+                              className="text-[#21b8ec] underline"
+                            >
+                              Refaire un paiement Wave
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-4">
+                  <h3 className="font-medium text-lg text-[#0f4c81] mb-4">
+                    Récapitulatif de votre demande
+                  </h3>
+                  
+                  <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                    <div className="font-medium text-[#0f4c81] mb-2">Détails de votre intérêt</div>
+                    <div className="space-y-2 text-gray-700">
+                      <div className="flex justify-between">
+                        <span className="font-medium">Nom:</span>
+                        <span>{formData.fullName}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium">Email:</span>
+                        <span>{formData.email}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium">Téléphone:</span>
+                        <span>{formData.phone}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium">Business:</span>
+                        <span>{formData.businessName}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium">Prix de l'offre:</span>
+                        <span>{formatPrice(promoData.price.discounted)} FCFA</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 border rounded-lg bg-blue-50">
+                    <div className="flex items-start">
+                      <Info className="h-5 w-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
+                      <div className="text-sm text-blue-800">
+                        <p className="font-medium mb-1">Prochaines étapes:</p>
+                        <ol className="list-decimal list-inside space-y-1 pl-1">
+                          <li>Notre équipe vous contactera par téléphone ou email dans les 24h</li>
+                          <li>Nous répondrons à toutes vos questions sur l'offre</li>
+                          <li>Si vous décidez de procéder, nous vous aiderons pour le paiement</li>
+                        </ol>
+                        <p className="mt-2 text-[#ff7f50] font-medium">N'oubliez pas : les places sont limitées à {promoData.maxClients} participants !</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
           
@@ -647,7 +902,7 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
               ) : step === 3 ? (
                 <button
                   onClick={handleSubmit}
-                  disabled={loading || paymentStatus !== 'verified'}
+                  disabled={loading || (formData.contactMethod === 'pay_now' && paymentStatus !== 'verified')}
                   className="px-6 py-2 bg-[#ff7f50] text-white rounded-lg hover:bg-[#ff6b3d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
@@ -655,7 +910,7 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
                       <Loader2 className="w-5 h-5 mr-2 inline animate-spin" />
                       Traitement en cours...
                     </>
-                  ) : 'Finaliser ma commande'}
+                  ) : formData.contactMethod === 'pay_now' ? 'Finaliser ma commande' : 'Envoyer ma demande'}
                 </button>
               ) : null}
             </div>
