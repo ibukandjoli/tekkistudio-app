@@ -20,7 +20,9 @@ import {
   UserCheck,
   GraduationCap,
   Share2,
-  Gift
+  Gift,
+  MessageCircle,
+  Bot
 } from 'lucide-react';
 import { useAuth } from '@/app/contexts/AuthContext';
 import Image from 'next/image';
@@ -108,6 +110,21 @@ export default function Sidebar() {
           name: 'Nos Marques', 
           href: '/admin/marques', 
           icon: <Package className="mr-3 h-5 w-5" /> 
+        }
+      ]
+    },
+    {
+      title: 'Chatbot',
+      items: [
+        { 
+          name: 'Conversations', 
+          href: '/admin/chatbot/conversations', 
+          icon: <MessageCircle className="mr-3 h-5 w-5" /> 
+        },
+        { 
+          name: 'Configuration', 
+          href: '/admin/chatbot/config', 
+          icon: <Bot className="mr-3 h-5 w-5" /> 
         }
       ]
     },

@@ -150,7 +150,7 @@ export default function EcommerceServicePage() {
                 onClick={() => setIsModalOpen(true)}
                 className="bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 shadow-lg flex items-center"
               >
-                Demander un devis
+                Je veux un site e-commerce
                 <ArrowRight className="ml-2 h-5 w-5" />
               </button>
               

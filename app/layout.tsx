@@ -7,6 +7,7 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import MetaPixel from './components/analytics/MetaPixel';
 import { Toaster } from 'sonner';
+import TekkiChatbot from './components/global/TekkiChatbot';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -52,6 +53,9 @@ export default function RootLayout({
           </Suspense>
         </main>
         <Footer />
+        
+        {/* Intégration du chatbot */}
+        <TekkiChatbot />
         
         {/* Système de notifications */}
         <Toaster position="top-right" />

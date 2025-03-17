@@ -1,3 +1,4 @@
+// app/page.tsx
 import HeroSection from './components/home/Hero';
 import WhyTekkiStudio from './components/home/WhyTekkiStudio';
 import HowItWorks from './components/home/HowItWorks';
