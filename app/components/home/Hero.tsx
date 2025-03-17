@@ -26,21 +26,21 @@ const HeroSection = () => {
               <span className="block text-[#ff7f50]">Sans Partir de Zéro</span>
             </h1>
             <p className="text-xl mb-8 text-gray-200 leading-relaxed">
-              Gagnez un temps précieux en acquérant un business e-commerce clé en main, testé et prêt à générer des revenus. Plus besoin de passer des mois à tout créer depuis le début.
+              Gagnez un temps précieux en acquérant un business e-commerce tout fini, testé et prêt à générer des revenus. Plus besoin de passer des mois à tout créer de zéro.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link 
                 href="/business" 
                 className="bg-[#ff7f50] text-white px-8 py-4 rounded-lg flex items-center gap-2 hover:bg-[#ff6b3d] transition-colors whitespace-nowrap"
               >
-                Voir nos business disponibles
+                Voir nos business en vente
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link 
-                href="/marques" 
+                href="/services/sites-ecommerce" 
                 className="border-2 border-white text-white px-8 py-4 rounded-lg hover:bg-white hover:text-[#0f4c81] transition-colors whitespace-nowrap"
               >
-                Découvrir nos marques
+                Créer votre site e-commerce
               </Link>
             </div>
           </div>
@@ -53,20 +53,20 @@ const HeroSection = () => {
               <ul className="space-y-4">
                 {[
                   {
-                    text: "Site e-commerce optimisé et prêt à l'emploi",
+                    text: "Un site e-commerce complet et prêt à l'emploi",
                     subtext: "Commencez à vendre immédiatement"
                   },
                   {
-                    text: "Fournisseurs qualifiés et produits sourcés",
+                    text: "Des Fournisseurs qualifiés & produits sourcés",
                     subtext: "Évitez des mois de recherche et de négociation"
                   },
                   {
-                    text: "Stratégie marketing complète",
-                    subtext: "Plan marketing testé et validé"
+                    text: "Une stratégie marketing complète et efficace",
+                    subtext: "Ne galérez plus pour attirer vos clients"
                   },
                   {
-                    text: "Formation et accompagnement",
-                    subtext: "2 mois d'accompagnement pour votre réussite"
+                    text: "Formation et accompagnement de 2 mois",
+                    subtext: "Nous sommes avec vous jusqu'aux premières ventes"
                   }
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">

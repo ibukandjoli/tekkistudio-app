@@ -3,52 +3,6 @@ import { NextResponse } from 'next/server';
 import { supabase } from '../../lib/supabase';
 import OpenAI from 'openai';
 
-interface Brand {
-    id: string;
-    name: string;
-    category?: string;
-    short_description?: string;
-    // Ajoutez d'autres propriétés selon votre schéma réel
-  }
-  
-  interface Formation {
-    id: string;
-    title: string;
-    price?: string | number;
-    category?: string;
-    description?: string;
-    slug?: string;
-    // Ajoutez d'autres propriétés selon votre schéma réel
-  }
-  
-  interface Business {
-    id: string;
-    name: string;
-    slug: string;
-    category?: string;
-    type?: 'physical' | 'digital';
-    status?: string;
-    price: number;
-    original_price?: number;
-    monthly_potential?: number;
-    pitch?: string;
-    description?: string;
-    images: Array<{src: string, alt: string}>;
-    market_analysis: any;
-    product_details: any;
-    marketing_strategy: any;
-    financials: any;
-    includes: string[];
-    target_audience?: string;
-    skill_level_required?: string;
-    time_required_weekly?: number;
-    roi_estimation_months?: number;
-    success_stories?: string[];
-    common_questions?: any;
-    benefits?: string[];
-    // Ajoutez d'autres propriétés selon votre schéma réel
-  }
-
 // Initialiser OpenAI avec la clé API
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -67,6 +21,53 @@ interface RequestBody {
     url: string;
   };
   history?: ChatMessage[];
+}
+
+interface Brand {
+  id: string;
+  name: string;
+  category?: string;
+  short_description?: string;
+  slug?: string;
+  // Autres propriétés
+}
+
+interface Formation {
+  id: string;
+  title: string;
+  price?: string | number;
+  category?: string;
+  description?: string;
+  slug?: string;
+  // Autres propriétés
+}
+
+interface Business {
+  id: string;
+  name: string;
+  slug: string;
+  category?: string;
+  type?: 'physical' | 'digital';
+  status?: string;
+  price: number;
+  original_price?: number;
+  monthly_potential?: number;
+  pitch?: string;
+  description?: string;
+  images: Array<{src: string, alt: string}>;
+  market_analysis: any;
+  product_details: any;
+  marketing_strategy: any;
+  financials: any;
+  includes: string[];
+  target_audience?: string;
+  skill_level_required?: string;
+  time_required_weekly?: number;
+  roi_estimation_months?: number;
+  success_stories?: string[];
+  common_questions?: any;
+  benefits?: string[];
+  // Autres propriétés
 }
 
 // Fonctions de cache pour réduire les appels à l'API OpenAI
@@ -141,48 +142,48 @@ function isComplexQuery(query: string) {
 
 // Fonction auxiliaire pour récupérer les données avec gestion d'erreur améliorée
 async function fetchDataSafely<T>(
-    tableName: string, 
-    select: string = '*', 
-    orderBy?: { column: string, ascending: boolean },
-    limit?: number, 
-    filters?: any
-  ): Promise<T[]> {
-    console.log(`Tentative de récupération des données depuis la table: ${tableName}`);
+  tableName: string, 
+  select: string = '*', 
+  orderBy?: { column: string, ascending: boolean },
+  limit?: number, 
+  filters?: any
+): Promise<T[]> {
+  console.log(`Tentative de récupération des données depuis la table: ${tableName}`);
+  
+  try {
+    let query = supabase.from(tableName).select(select);
     
-    try {
-      let query = supabase.from(tableName).select(select);
-      
-      if (orderBy) {
-        query = query.order(orderBy.column, { ascending: orderBy.ascending });
-      }
-      
-      if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-          query = query.eq(key, value);
-        });
-      }
-      
-      if (limit) {
-        query = query.limit(limit);
-      }
-      
-      const { data, error } = await query;
-      
-      if (error) {
-        console.error(`Erreur lors de la récupération des données de ${tableName}:`, error);
-        return [] as T[];
-      }
-      
-      console.log(`Données récupérées avec succès depuis ${tableName}, nombre d'éléments: ${data?.length || 0}`);
-      return (data || []) as T[];
-    } catch (e) {
-      console.error(`Exception lors de la récupération des données de ${tableName}:`, e);
+    if (orderBy) {
+      query = query.order(orderBy.column, { ascending: orderBy.ascending });
+    }
+    
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        query = query.eq(key, value);
+      });
+    }
+    
+    if (limit) {
+      query = query.limit(limit);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error(`Erreur lors de la récupération des données de ${tableName}:`, error);
       return [] as T[];
     }
+    
+    console.log(`Données récupérées avec succès depuis ${tableName}, nombre d'éléments: ${data?.length || 0}`);
+    return (data || []) as T[];
+  } catch (e) {
+    console.error(`Exception lors de la récupération des données de ${tableName}:`, e);
+    return [] as T[];
   }
+}
 
 // Fonction pour formater les business pour le contexte
-function createBusinessContext(businesses: any[]) {
+function createBusinessContext(businesses: Business[]) {
   if (!businesses || businesses.length === 0) {
     return "Aucun business disponible actuellement.";
   }
@@ -199,14 +200,17 @@ Public cible: ${b.target_audience || 'Non spécifié'}
 Niveau requis: ${b.skill_level_required || 'Débutant à intermédiaire'}
 Temps requis: ${b.time_required_weekly || '10-15'} heures/semaine
 ROI estimé: ${b.roi_estimation_months || '6-12'} mois
+Frais mensuels à prévoir: ${b.type === 'physical' 
+  ? 'Entre 80,000 et 500,000 FCFA (achat de stock, frais mensuels du site, marketing, création de contenus)'
+  : 'Entre 50,000 et 300,000 FCFA (frais mensuels du site, marketing, création de contenus)'}
 Description: ${b.description ? b.description.substring(0, 300) + '...' : 'Aucune description disponible'}
-URL: /business/${b.slug || ''}
+URL: https://tekkistudio.com/business/${b.slug || ''}
     `.trim())
     .join('\n\n---\n\n');
 }
 
 // Fonction pour formater les marques pour le contexte
-function createBrandsContext(brands: any[]) {
+function createBrandsContext(brands: Brand[]) {
   if (!brands || brands.length === 0) {
     return "Aucune marque disponible actuellement.";
   }
@@ -216,12 +220,13 @@ function createBrandsContext(brands: any[]) {
 Marque: ${b.name || 'Sans nom'}
 Catégorie: ${b.category || 'Non spécifiée'}
 Description: ${b.short_description ? b.short_description.substring(0, 300) + '...' : 'Aucune description disponible'}
+URL: https://tekkistudio.com/marques/${b.slug || ''}
     `.trim())
     .join('\n\n---\n\n');
 }
 
 // Fonction pour formater les formations pour le contexte
-function createFormationsContext(formations: any[]) {
+function createFormationsContext(formations: Formation[]) {
   if (!formations || formations.length === 0) {
     return "Aucune formation disponible actuellement.";
   }
@@ -232,7 +237,7 @@ Formation: ${f.title || 'Sans titre'}
 Prix: ${f.price || 'Prix non spécifié'}
 Catégorie: ${f.category || 'Non spécifiée'}
 Description: ${f.description ? f.description.substring(0, 300) + '...' : 'Aucune description disponible'}
-URL: /formations/${f.slug || ''}
+URL: https://tekkistudio.com/formations/${f.slug || ''}
     `.trim())
     .join('\n\n---\n\n');
 }
@@ -270,26 +275,26 @@ export async function POST(request: Request) {
     if (context.url.startsWith('/business/') && !context.url.endsWith('/business')) {
       // Page d'un business spécifique
       const businessSlug = context.url.split('/').pop();
-      businessesData = await fetchDataSafely('businesses', '*', undefined, undefined, { slug: businessSlug });
+      businessesData = await fetchDataSafely<Business>('businesses', '*', undefined, undefined, { slug: businessSlug });
     } 
     else if (context.url.startsWith('/business')) {
       // Page des business en général
-      businessesData = await fetchDataSafely('businesses', '*', { column: 'created_at', ascending: false });
+      businessesData = await fetchDataSafely<Business>('businesses', '*', { column: 'created_at', ascending: false });
     }
     else {
       // Autres pages: limiter le nombre de business à 3 pour réduire les tokens
-      businessesData = await fetchDataSafely('businesses', '*', { column: 'created_at', ascending: false }, 3);
+      businessesData = await fetchDataSafely<Business>('businesses', '*', { column: 'created_at', ascending: false }, 3);
     }
 
     // Récupérer les marques et formations selon la page visitée
     if (context.url.startsWith('/marques')) {
-      brandsData = await fetchDataSafely('brands');
+      brandsData = await fetchDataSafely<Brand>('brands');
     } else if (context.url.startsWith('/formations')) {
-      formationsData = await fetchDataSafely('formations');
+      formationsData = await fetchDataSafely<Formation>('formations');
     } else {
       // Sur d'autres pages, récupérer un échantillon limité
-      brandsData = await fetchDataSafely('brands', '*', undefined, 2);
-      formationsData = await fetchDataSafely('formations', '*', undefined, 2);
+      brandsData = await fetchDataSafely<Brand>('brands', '*', undefined, 2);
+      formationsData = await fetchDataSafely<Formation>('formations', '*', undefined, 2);
     }
 
     console.log(`${businessesData.length} business récupérés`);
@@ -320,12 +325,11 @@ export async function POST(request: Request) {
         "Analyse de votre audience cible",
         "Création de 2 publicités Facebook/Instagram",
         "Configuration du Pixel Meta sur votre site",
-        "Paramétrage de la campagne de publicité",
         "Stratégie de ciblage détaillée",
         "Recommandations de budget publicitaire",
         "Suivi des performances pendant 15 jours"
       ],
-      url: "/services/sites-ecommerce"
+      url: "https://tekkistudio.com/services/sites-ecommerce"
     };
 
     // Définir le contexte actuel basé sur l'URL
@@ -335,6 +339,8 @@ export async function POST(request: Request) {
 L'utilisateur est sur la page des business e-commerce à vendre.
 Voici les business actuellement disponibles à la vente:
 ${businessesContextString}
+
+TRÈS IMPORTANT: Ne confondez PAS ces business e-commerce à vendre avec les marques créées par TEKKI Studio. Amani et Ecoboom sont des MARQUES de TEKKI Studio, PAS des business à vendre.
       `;
     } else if (context.url.startsWith('/formations')) {
       pageSpecificContext = `
@@ -347,6 +353,8 @@ ${formationsContextString}
 L'utilisateur est sur la page des marques créées par TEKKI Studio.
 Voici les marques créées:
 ${brandsContextString}
+
+TRÈS IMPORTANT: Ces marques appartiennent à TEKKI Studio et ne sont PAS à vendre. Ne les confondez pas avec les business e-commerce à vendre.
       `;
     } else if (context.url.startsWith('/services')) {
       pageSpecificContext = `
@@ -360,6 +368,8 @@ ${JSON.stringify(ecommerceServiceContext, null, 2)}
 L'utilisateur est sur ${context.page || "la page d'accueil"}.
 Voici les business actuellement disponibles à la vente:
 ${businessesContextString}
+
+TRÈS IMPORTANT: Ne confondez PAS ces business e-commerce à vendre avec les marques créées par TEKKI Studio. Amani et Ecoboom sont des MARQUES de TEKKI Studio, PAS des business à vendre.
       `;
     }
 
@@ -373,15 +383,16 @@ QUESTIONS FRÉQUEMMENT POSÉES:
 2. Comment se passe le transfert du business?
    Une fois le contrat signé et le paiement effectué, nous effectuons les modifications souhaitées au site, puis nous vous remettons tous les accès au site et éléments nécessaires pour lancer votre business.
 
-3. Combien de temps faut-il pour démarrer?
-   Une fois l'acquisition finalisée, vous pouvez démarrer en 1 à 2 semaines, selon le business choisi et la disponibilité des produits.
+3. Quels sont les frais mensuels à prévoir?
+   Pour les business de produits physiques: Entre 80,000 et 500,000 FCFA, selon le business, ce qui inclus l'achat du stock de produits, les frais mensuels du site, le marketing (Publicité payante inclus), la création de contenus, et éventuellement les frais de stockage, si cela est confié à une entreprise de logistique.
+   Pour les business de produits digitaux: Entre 50,000 et 300,000 FCFA principalement pour les frais mensuels du site, le marketing (publicité payante inclus), et la création de contenus.
 
-4. Y a-t-il des frais récurrents à prévoir?
-   Oui, vous devrez prévoir des frais mensuels pour l'hébergement ou l'abonnement du site, les outils de marketing, et éventuellement la publicité, généralement entre 50 000 et 150 000 FCFA par mois selon le business.
+4. Combien de temps faut-il pour démarrer?
+   Une fois l'acquisition finalisée, vous pouvez démarrer en 1 à 2 semaines, selon le business choisi et la disponibilité des produits.
 
 5. Pourquoi les prix des business que vous vendez sont aussi élevés?
    Les prix fixés pour les business e-commerce proposés prennent en compte tout le travail fait en amont et qui sera fait après l'acquisition du business, notamment l'accompagnement de 2 mois proposés. Nous ne vendons pas que des sites e-commerce clés en main. Nous vendons notre savoir-faire, notre expertise et nos compétences en e-commerce, pour garantir le succès de votre activité.
-`;
+   `;
 
     // Système de qualification et exemples - version réduite
     const qualificationExamples = `
@@ -395,24 +406,38 @@ COMMENT QUALIFIER LES PROSPECTS:
 
     // Construire le prompt système pour l'IA - version optimisée
     const systemPrompt = `
-Tu es l'assistant virtuel commercial de TEKKI Studio, une fabrique de marques et de business e-commerce basée au Sénégal. Ton rôle est de répondre aux questions des prospects et les guider vers l'acquisition de l'un des business e-commerce, formations ou services proposés. Sois concis mais informatif.
+Tu es l'assistant virtuel commercial de TEKKI Studio, une fabrique de marques et de business e-commerce basée au Sénégal. Ton rôle est de répondre aux questions des prospects et les guider vers l'acquisition de l'un des business e-commerce proposés à la vente, ou du service de création de sites e-commerce professionnels optimisés pour la conversion. Tu dois fournir des informations supplémentaires et pertinentes sur les business proposés à la vente et les formations. Sois concis mais informatif.
 
-TEKKI STUDIO A DEUX ACTIVITÉS PRINCIPALES À BIEN DISTINGUER:
-1) TEKKI Studio crée ses propres MARQUES DE PRODUITS (qui appartiennent à TEKKI Studio)
-2) TEKKI Studio vend des BUSINESS E-COMMERCE CLÉ EN MAIN que n'importe qui peut acheter
+DISTINCTION FONDAMENTALE - MÉMORISER ABSOLUMENT:
+1) TEKKI Studio CRÉE ses propres MARQUES DE PRODUITS (comme Viens on s'connaît, Amani, Ecoboom) qui appartiennent à TEKKI Studio et ne sont PAS à vendre
+2) TEKKI Studio VEND des BUSINESS E-COMMERCE CLÉ EN MAIN prêts à être lancés que n'importe qui peut acheter
 
 ACTIVITÉS DE TEKKI STUDIO:
-- Création de marques: VIENS ON S'CONNAÎT (jeux de cartes relationnels), AMANI (ceintures chauffantes), ECOBOOM (couches écologiques pour bébés).
-- Vente de business e-commerce clé en main: des business e-commerce tout finis, prêts à être lancés avec tout inclus
+- Création de marques: VIENS ON S'CONNAÎT (jeux de cartes), AMANI (ceintures chauffantes), ECOBOOM (couches écologiques).
+- Vente de business e-commerce clé en main: des business e-commerce tout finis, prêts à être lancés, avec tout inclus
 - Formations en e-commerce et marketing digital
 - Service de création de sites e-commerce professionnels (695 000 FCFA, payable en 2 fois)
 
 TON RÔLE COMMERCIAL:
 - Comprendre les besoins des prospects
 - Qualifier le prospect (situation, budget, disponibilité, expérience)
-- Recommander le business, la formation ou le service adapté
-- Répondre aux doutes et objections avec des arguments persuasifs
-- Fournir les liens directs vers les pages pertinentes
+- Recommander le business ou la formation adapté
+- Répondre aux objections avec des arguments persuasifs
+- Convaincre le prospect d'acquérir le business ou de s'inscrire à la formation
+- Fournir des liens clickables vers les pages pertinentes
+
+INSTRUCTIONS IMPORTANTES POUR LES LIENS:
+- Quand tu mentionnes un business, ajoute un lien clickable vers sa page avec: https://tekkistudio.com/business/slug-du-business
+- Pour le service de création de site e-commerce: https://tekkistudio.com/services/sites-ecommerce
+- Pour les formations: https://tekkistudio.com/formations/slug-de-la-formation
+
+INSTRUCTIONS POUR LE SERVICE DE SITE E-COMMERCE:
+- Si l'utilisateur demande "Je veux un site e-commerce", parle du SERVICE DE CRÉATION DE SITE E-COMMERCE, et non des business à vendre
+- Fournis le lien vers la page de ce service et mentionne le délai de 7 jours, la stratégie Meta incluse, et l'attention particulière accordée à la conversion des visiteurs en clients
+
+INSTRUCTIONS POUR LES FRAIS MENSUELS:
+- Business physiques: Entre 80,000 et 500,000 FCFA (achat de stock, frais du site, marketing, création de contenus, stockage)
+- Business digitaux: Entre 50,000 et 300,000 FCFA (frais du site, marketing, création de contenus)
 
 ${qualificationExamples}
 
@@ -423,11 +448,12 @@ ${faqContent}
 
 INSTRUCTIONS:
 - Sois amical, professionnel et CONCIS
-- Donne des informations précises
-- Mets en avant les avantages, la valeur ajoutée et le potentiel de rentabilité
+- Donne des informations précises et pertinentes
+- Mets en avant les avantages et la valeur ajoutée
 - Mentionne l'accompagnement de 2 mois comme argument clé
-- Fournis toujours les liens directs vers les pages pertinentes
+- Inclus TOUJOURS des liens clickables dans ta réponse, lorsque c'est pertinent
 - N'hésite pas à suggérer de contacter directement l'équipe pour les questions spécifiques
+- Ne confonds JAMAIS les marques de TEKKI Studio avec les business e-commerce à vendre
 
 Page actuelle: ${context.page}
 URL: ${context.url}
@@ -536,7 +562,7 @@ URL: ${context.url}
       if (context.url.startsWith('/business')) {
         aiResponse.suggestions = [
           "Quel business me recommandez-vous?",
-          "Comment fonctionne l'accompagnement?",
+          "Comment se passe l'accompagnement?",
           "Contacter le service client"
         ];
       } else if (context.url.startsWith('/formations')) {
@@ -551,6 +577,24 @@ URL: ${context.url}
           "Quelles formations proposez-vous?",
           "Contacter le service client"
         ];
+      }
+    }
+
+    // Pour la question "Je veux un site e-commerce clé en main", s'assurer que la réponse parle du service
+    if (message.toLowerCase().includes("site e-commerce clé en main") && !context.url.startsWith('/business/')) {
+      const serviceURL = "https://tekkistudio.com/services/sites-ecommerce";
+      if (!aiResponse.content.includes(serviceURL)) {
+        // La réponse ne contient pas le bon lien, on ajoute une suggestion spécifique
+        aiResponse.suggestions = [
+          "Quels sont les délais de livraison?",
+          "Que comprend exactement ce service?",
+          "Voir la page du service"
+        ];
+        
+        // Assurons-nous que la réponse parle bien du service et non des business
+        if (!aiResponse.content.includes("695 000 FCFA")) {
+          aiResponse.content = `Notre service de création de site e-commerce professionnel est disponible à 695 000 FCFA. Il comprend un site entièrement fonctionnel et optimisé pour la conversion, une stratégie Meta et une formation vidéo pour la prise en main. Vous pouvez découvrir tous les détails en cliquant ici : ${serviceURL}. Le délai de livraison de votre site est de 7 jours ouvrés.`;
+        }
       }
     }
 

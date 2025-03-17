@@ -30,7 +30,7 @@ interface PageContext {
 // Questions suggérées initiales
 const initialSuggestions = [
   "Je veux acheter un de vos business",
-  "Je veux un site e-commerce clé en main",
+  "Je veux un site e-commerce",
   "Je veux me former en e-commerce",
   "Je veux plus d'infos sur un business"
 ];
@@ -48,7 +48,7 @@ const getWelcomeMessage = (): string => {
     greeting = 'Bonsoir';
   }
 
-  return `${greeting} 👋🏼 Je suis Sara, commerciale chez TEKKI Studio. Comment puis-je vous aider ?`;
+  return `${greeting} 👋🏼 Je suis Sara, Assisante Commerciale chez TEKKI Studio. Comment puis-je vous aider ?`;
 };
 
 export default function TekkiChatbot() {
@@ -385,7 +385,7 @@ export default function TekkiChatbot() {
                 <div>
                     <h3 className="font-semibold">Sara de TEKKI Studio</h3>
                     <p className="text-sm text-white/80">
-                    Votre assistante commerciale
+                    Assistante Commerciale
                     </p>
                 </div>
                 </div>
@@ -514,7 +514,7 @@ export default function TekkiChatbot() {
               </div>
               <div className="text-center mt-2">
                 <p className="text-[12px] text-gray-400 dark:text-gray-500">
-                    Powered by{" "}
+                    Chatbot IA créé par{" "}
                     <a
                     href="https://getdukka.com"
                     target="_blank"
