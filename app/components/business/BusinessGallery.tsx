@@ -3,15 +3,9 @@
 
 import React, { useState, useCallback } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
+import { BusinessGalleryProps } from '@/app/types/database';
 
-interface BusinessGalleryProps {
-  images: {
-    src: string;
-    alt: string;
-  }[];
-}
-
-const BusinessGallery = ({ images }: BusinessGalleryProps) => {
+const BusinessGallery: React.FC<BusinessGalleryProps> = ({ images, className = '' }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [mainCarouselRef, mainEmbla] = useEmblaCarousel({ loop: true });
   const [thumbCarouselRef, thumbEmbla] = useEmblaCarousel({

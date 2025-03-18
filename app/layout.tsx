@@ -8,6 +8,7 @@ import Footer from './components/layout/Footer';
 import MetaPixel from './components/analytics/MetaPixel';
 import { Toaster } from 'sonner';
 import TekkiChatbot from './components/global/TekkiChatbot';
+import CurrencySelectorWrapper from './components/common/CurrencySelectorWrapper';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -26,16 +27,9 @@ export default function RootLayout({
     <html lang="fr">
       <head>
         {/* Balises meta supplémentaires pour SEO */}
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="author" content="TEKKI Studio" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="robots" content="index, follow" />
-        <meta property="og:title" content="TEKKI Studio - Fabrique de Marques" />
-        <meta property="og:description" content="Première Fabrique de Marques d'Afrique de l'Ouest" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://tekkistudio.com" />
-        <meta property="og:image" content="https://tekkistudio.com/images/tekkistudio/tekki-social.png" />
-        <link rel="canonical" href="https://tekkistudio.com" />
-        <link rel="icon" href="https://tekkistudio.com/images/tekkistudio/fav.png" />
+        <link rel="icon" href="/favicon.ico" />
       </head>
       <body className={inter.className}>
         {/* Composant Pixel Meta pour le suivi - maintenant avec Suspense */}
@@ -44,21 +38,22 @@ export default function RootLayout({
         </Suspense>
         
         {/* Structure principale du site */}
-        <Header />
-        <main>
-          <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0f4c81]"></div>
-          </div>}>
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <main className="flex-grow">
             {children}
-          </Suspense>
-        </main>
-        <Footer />
+          </main>
+          <Footer />
+        </div>
+
+        {/* Sélecteur de devise */}
+        <CurrencySelectorWrapper />
         
         {/* Intégration du chatbot */}
         <TekkiChatbot />
         
         {/* Système de notifications */}
-        <Toaster position="top-right" />
+        <Toaster position="top-right" richColors closeButton />
       </body>
     </html>
   );

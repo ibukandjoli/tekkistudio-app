@@ -9,6 +9,7 @@ import LoadingState from '../components/ui/loading-state';
 import ErrorState from '../components/ui/error-state';
 import type { Business } from '../types/database';
 import { formatPrice } from '../lib/utils/price-utils';
+import PriceFormatter from '../components/common/PriceFormatter';
 
 interface Filters {
   status: 'all' | 'available' | 'sold';
@@ -261,24 +262,24 @@ function BusinessCard({ business }: { business: Business }) {
         </p>
 
         <div className="space-y-4 mb-6">
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <span className="text-gray-600">Prix du Business</span>
-            <div className="text-right">
-              <span className="line-through text-gray-400 text-sm">
-                {formatPrice(business.original_price)}
-              </span>
-              <span className="font-bold text-[#0f4c81] block">
-                {formatPrice(business.price)}
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <span className="text-gray-600">Potentiel mensuel</span>
-            <span className="font-bold text-[#ff7f50]">
-              {formatPrice(business.monthly_potential)}
+        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <span className="text-gray-600">Prix du Business</span>
+          <div className="text-right">
+            <span className="line-through text-gray-400 text-sm">
+              <PriceFormatter amount={business.original_price} showStrike={true} />
+            </span>
+            <span className="font-bold text-[#0f4c81] block">
+              <PriceFormatter amount={business.price} />
             </span>
           </div>
         </div>
+        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <span className="text-gray-600">Potentiel mensuel</span>
+          <span className="font-bold text-[#ff7f50]">
+            <PriceFormatter amount={business.monthly_potential} />
+          </span>
+        </div>
+      </div>
 
         {business.status === 'available' ? (
           <Link 

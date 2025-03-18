@@ -6,6 +6,7 @@ import { Calendar, Check, Package, PieChart, Award, ShoppingCart, Star, ArrowRig
 import Link from 'next/link';
 import Image from 'next/image';
 import PromoEnrollmentModal from '@/app/components/promotions/PromoEnrollmentModal';
+import PriceFormatter from '../../components/common/PriceFormatter';
 
 // Données de service
 const serviceData = {
@@ -54,7 +55,7 @@ const serviceData = {
     "Pas d'abonnement mensuel obligatoire"
   ],
   shopifyDisadvantages: [
-    "Abonnement mensuel de 21 000F CFA",
+    "Abonnement mensuel de 21 000F CFA/32€",
     "Thème Professionnel assez coûteux"
   ],
   woocommerceDisadvantages: [
@@ -168,7 +169,7 @@ export default function EcommerceServicePage() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-10">
                 <div className="text-center">
                   <div className="text-white font-bold text-3xl sm:text-4xl">
-                    {formatPrice(serviceData.price)} FCFA
+                    <PriceFormatter amount={serviceData.price} /> FCFA
                   </div>
                   <span className="text-white/80">
                     Site e-commerce + Stratégie Meta
@@ -178,9 +179,10 @@ export default function EcommerceServicePage() {
                 <div className="h-full w-px bg-white/20 hidden sm:block"></div>
                 
                 <div className="text-center">
-                  <div className="text-white/80 mb-1">Paiement facilité</div>
-                  <div className="text-white font-bold text-xl">60% à la commande</div>
-                  <div className="text-white font-bold text-xl">40% à la livraison</div>
+                <div className="text-white/80 max-w-xl mx-auto">
+                    Paiement facilité : 60% à la commande (<PriceFormatter amount={serviceData.price * 0.6} />), 
+                    40% à la livraison (<PriceFormatter amount={serviceData.price * 0.4} />)
+                </div>
                 </div>
               </div>
             </div>
@@ -308,8 +310,8 @@ export default function EcommerceServicePage() {
               </div>
               
               <div className="text-xl font-bold mb-6 text-[#0f4c81]">
-                695 000F CFA
-                <span className="text-sm text-gray-500 font-normal ml-2">+ abonnement Shopify (21 000F CFA/mois)</span>
+                <PriceFormatter amount={695000} />
+                <span className="text-sm text-gray-500 font-normal ml-2">+ abonnement Shopify (<PriceFormatter amount={21000} /> /mois)</span>
               </div>
               
               <div className="space-y-6">
@@ -358,8 +360,8 @@ export default function EcommerceServicePage() {
               </div>
               
               <div className="text-xl font-bold mb-6 text-[#0f4c81]">
-                495 000F CFA
-                <span className="text-sm text-gray-500 font-normal ml-2">+ hébergement (environ 94 000F CFA/an)</span>
+              <PriceFormatter amount={695000} />
+                <span className="text-sm text-gray-500 font-normal ml-2">+ hébergement (environ <PriceFormatter amount={21000} />/an)</span>
               </div>
               
               <div className="space-y-6">
