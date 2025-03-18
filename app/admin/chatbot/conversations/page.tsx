@@ -1,8 +1,8 @@
 // app/admin/chatbot/conversations/page.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/app/components/ui/card';
 import {
   Table,
   TableBody,
@@ -13,13 +13,39 @@ import {
 } from '@/app/components/ui/table';
 import { Button } from '@/app/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
-import { Calendar, Filter, Search, BarChart, MessageSquare, UserCheck, AlertTriangle } from 'lucide-react';
+import { Calendar, Filter, Search, BarChart, MessageSquare, UserCheck, AlertTriangle, Download, RefreshCw, ChevronLeft, ChevronRight, Eye, X } from 'lucide-react';
 import { supabase } from '@/app/lib/supabase';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { withAdminAuth } from '@/app/lib/withAdminAuth';
 import { Input } from '@/app/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/app/components/ui/tooltip';
+import { Badge } from '@/app/components/ui/badge';
+import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/app/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/app/components/ui/dropdown-menu";
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from "@/app/components/ui/pagination";
 
 interface Conversation {
   id: number;
@@ -36,93 +62,188 @@ interface Stat {
   value: number;
   icon: React.ReactNode;
   change?: number;
+  color?: string;
+}
+
+interface TopQuestion {
+  question: string;
+  count: number;
 }
 
 function ChatbotConversationsPage() {
+  // États principaux
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('all');
   const [timeRange, setTimeRange] = useState('7days');
   const [stats, setStats] = useState<Stat[]>([]);
-  const [topQuestions, setTopQuestions] = useState<{question: string, count: number}[]>([]);
+  const [topQuestions, setTopQuestions] = useState<TopQuestion[]>([]);
+  const [pageDistribution, setPageDistribution] = useState<{page: string, count: number, percentage: number}[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalConversations, setTotalConversations] = useState(0);
+  const conversationsPerPage = 15;
+
+  // Dates pour le filtre
+  const now = new Date();
+  const dateRanges = {
+    '24hours': subDays(now, 1),
+    '7days': subDays(now, 7),
+    '30days': subDays(now, 30),
+    'all': new Date(0)
+  };
+
+  // Calcul des statistiques et compteurs
+  const needsHumanCount = useMemo(() => 
+    conversations.filter(conv => conv.needs_human).length, 
+    [conversations]
+  );
+
+  const needsHumanPercentage = useMemo(() => 
+    conversations.length > 0 ? (needsHumanCount / conversations.length) * 100 : 0,
+    [needsHumanCount, conversations]
+  );
 
   useEffect(() => {
     fetchConversations();
-  }, [filter, timeRange]);
+  }, [filter, timeRange, currentPage]);
 
+  // Fonction pour récupérer les conversations avec pagination
   const fetchConversations = async () => {
     try {
       setLoading(true);
       
-      // Préparer la requête de base
+      // Obtenir la date de début en fonction du filtre de temps
+      const startDate = dateRanges[timeRange as keyof typeof dateRanges];
+      
+      // Compter le nombre total de conversations pour la pagination
+      let countQuery = supabase
+        .from('chat_conversations')
+        .select('id', { count: 'exact' });
+      
+      // Appliquer les filtres
+      if (filter === 'needs_human') {
+        countQuery = countQuery.eq('needs_human', true);
+      }
+      
+      countQuery = countQuery.gte('created_at', startDate.toISOString());
+      
+      if (searchQuery) {
+        countQuery = countQuery.or(`user_message.ilike.%${searchQuery}%,assistant_response.ilike.%${searchQuery}%`);
+      }
+      
+      const { count, error: countError } = await countQuery;
+      
+      if (countError) {
+        throw countError;
+      }
+      
+      setTotalConversations(count || 0);
+      setTotalPages(Math.ceil((count || 0) / conversationsPerPage));
+      
+      // Récupérer les conversations avec pagination
       let query = supabase
         .from('chat_conversations')
         .select('*')
         .order('created_at', { ascending: false });
       
-      // Ajouter les filtres
+      // Appliquer les filtres
       if (filter === 'needs_human') {
         query = query.eq('needs_human', true);
       }
       
-      // Ajouter les filtres de date
-      const now = new Date();
-      let startDate: Date;
-      
-      switch (timeRange) {
-        case '24hours':
-          startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-          break;
-        case '7days':
-          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          break;
-        case '30days':
-          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-          break;
-        default:
-          startDate = new Date(0); // Toutes les dates
-      }
-      
       query = query.gte('created_at', startDate.toISOString());
       
-      // Exécuter la requête
+      if (searchQuery) {
+        query = query.or(`user_message.ilike.%${searchQuery}%,assistant_response.ilike.%${searchQuery}%`);
+      }
+      
+      // Appliquer la pagination
+      const from = (currentPage - 1) * conversationsPerPage;
+      const to = from + conversationsPerPage - 1;
+      query = query.range(from, to);
+      
       const { data, error } = await query;
       
       if (error) throw error;
       
-      // Calculer les statistiques
-      const totalConversations = data.length;
-      const needsHumanCount = data.filter(conv => conv.needs_human).length;
-      const uniquePagesCount = new Set(data.map(conv => conv.page)).size;
+      setConversations(data || []);
       
-      // Calculer le % de change (fictif pour l'instant)
-      const changePercentage = 12; // À remplacer par un calcul réel
+      // Lancer les analyses une fois les données chargées
+      if (data) {
+        analyzeConversations(data);
+      }
       
-      // Définir les statistiques
+    } catch (error) {
+      console.error('Erreur lors du chargement des conversations:', error);
+      toast.error('Erreur lors du chargement des données');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fonction pour analyser les conversations et calculer les statistiques
+  const analyzeConversations = async (conversationsData: Conversation[]) => {
+    try {
+      // Récupérer toutes les conversations pour les statistiques (sans pagination)
+      const startDate = dateRanges[timeRange as keyof typeof dateRanges];
+      
+      let statsQuery = supabase
+        .from('chat_conversations')
+        .select('*')
+        .gte('created_at', startDate.toISOString());
+      
+      if (filter === 'needs_human') {
+        statsQuery = statsQuery.eq('needs_human', true);
+      }
+      
+      const { data: allConversations, error } = await statsQuery;
+      
+      if (error) throw error;
+      
+      if (!allConversations) return;
+      
+      // Calculer les statistiques générales
+      const convCount = allConversations.length;
+      const humanNeedCount = allConversations.filter(conv => conv.needs_human).length;
+      const uniquePagesCount = new Set(allConversations.map(conv => conv.page)).size;
+      
+      // Calculer les changements par rapport à la période précédente (simulation)
+      const changePercentage = 5; // À remplacer par un calcul réel comparant avec la période précédente
+      
+      // Mettre à jour les statistiques
       setStats([
         {
           label: 'Total conversations',
-          value: totalConversations,
-          icon: <MessageSquare className="h-5 w-5 text-[#0f4c81]" />,
-          change: changePercentage
+          value: convCount,
+          icon: <MessageSquare className="h-5 w-5" />,
+          change: changePercentage,
+          color: '#0f4c81'
         },
         {
-          label: 'Besoin d\'assistance',
-          value: needsHumanCount,
-          icon: <AlertTriangle className="h-5 w-5 text-amber-500" />,
-          change: needsHumanCount > 0 ? (needsHumanCount / totalConversations) * 100 : 0
+          label: "Besoin d'assistance",
+          value: humanNeedCount,
+          icon: <AlertTriangle className="h-5 w-5" />,
+          change: humanNeedCount > 0 ? (humanNeedCount / convCount) * 100 : 0,
+          color: '#ff7f50'
         },
         {
           label: 'Pages visitées',
           value: uniquePagesCount,
-          icon: <BarChart className="h-5 w-5 text-[#ff7f50]" />,
+          icon: <BarChart className="h-5 w-5" />,
+          color: '#10b981'
         },
       ]);
       
       // Calculer les questions les plus fréquentes
       const questions: Record<string, number> = {};
-      data.forEach(conv => {
+      allConversations.forEach(conv => {
         // Simplification de la question pour regroupement
         const simplifiedQ = conv.user_message
           .toLowerCase()
@@ -137,33 +258,141 @@ function ChatbotConversationsPage() {
       // Trier et prendre les 5 plus fréquentes
       const sortedQuestions = Object.entries(questions)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
+        .slice(0, 8)
         .map(([question, count]) => ({ question, count }));
       
       setTopQuestions(sortedQuestions);
       
-      // Filtrer les conversations si une recherche est active
-      let filteredData = data;
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        filteredData = data.filter(
-          conv => 
-            conv.user_message.toLowerCase().includes(query) || 
-            conv.assistant_response.toLowerCase().includes(query)
-        );
-      }
+      // Calculer la distribution par page
+      const pageCount: Record<string, number> = {};
+      allConversations.forEach(conv => {
+        const page = conv.page || 'Inconnue';
+        pageCount[page] = (pageCount[page] || 0) + 1;
+      });
       
-      setConversations(filteredData);
+      const pageDistribution = Object.entries(pageCount)
+        .map(([page, count]) => ({
+          page,
+          count,
+          percentage: (count / allConversations.length) * 100
+        }))
+        .sort((a, b) => b.count - a.count);
+      
+      setPageDistribution(pageDistribution);
+      
     } catch (error) {
-      console.error('Erreur lors du chargement des conversations:', error);
-    } finally {
-      setLoading(false);
+      console.error('Erreur lors de l\'analyse des conversations:', error);
     }
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setCurrentPage(1); // Réinitialiser à la première page lors d'une recherche
     fetchConversations();
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setCurrentPage(1);
+    fetchConversations();
+  };
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    // Recherche automatique si le champ est vide
+    if (e.target.value === '') {
+      setTimeout(() => {
+        fetchConversations();
+      }, 300);
+    }
+  };
+
+  const handleFilterChange = (value: string) => {
+    setFilter(value);
+    setCurrentPage(1); // Réinitialiser à la première page lors d'un changement de filtre
+  };
+
+  const handleTimeRangeChange = (value: string) => {
+    setTimeRange(value);
+    setCurrentPage(1); // Réinitialiser à la première page lors d'un changement de période
+  };
+
+  const viewConversation = (conversation: Conversation) => {
+    setSelectedConversation(conversation);
+    setIsDialogOpen(true);
+  };
+
+  const exportToCSV = async () => {
+    try {
+      setExportLoading(true);
+      
+      // Récupérer toutes les conversations pour l'export
+      const startDate = dateRanges[timeRange as keyof typeof dateRanges];
+      
+      let exportQuery = supabase
+        .from('chat_conversations')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (filter === 'needs_human') {
+        exportQuery = exportQuery.eq('needs_human', true);
+      }
+      
+      exportQuery = exportQuery.gte('created_at', startDate.toISOString());
+      
+      if (searchQuery) {
+        exportQuery = exportQuery.or(`user_message.ilike.%${searchQuery}%,assistant_response.ilike.%${searchQuery}%`);
+      }
+      
+      const { data, error } = await exportQuery;
+      
+      if (error) throw error;
+      
+      if (!data || data.length === 0) {
+        toast.warning('Aucune donnée à exporter');
+        return;
+      }
+      
+      // Formater les données pour le CSV
+      const headers = ['ID', 'Date', 'Page', 'URL', 'Message utilisateur', 'Réponse assistant', 'Besoin humain'];
+      
+      const csvRows = [
+        headers.join(','),
+        ...data.map(conv => {
+          const date = new Date(conv.created_at).toLocaleDateString();
+          // Échapper les virgules et les guillemets dans les champs de texte
+          const escapeCsvField = (field: string) => `"${field.replace(/"/g, '""')}"`;
+          
+          return [
+            conv.id,
+            date,
+            escapeCsvField(conv.page || ''),
+            escapeCsvField(conv.url || ''),
+            escapeCsvField(conv.user_message || ''),
+            escapeCsvField(conv.assistant_response || ''),
+            conv.needs_human ? 'Oui' : 'Non'
+          ].join(',');
+        })
+      ].join('\n');
+      
+      // Créer et télécharger le fichier CSV
+      const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `conversations-chatbot-${format(new Date(), 'yyyy-MM-dd')}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Export CSV réussi');
+      
+    } catch (error) {
+      console.error('Erreur lors de l\'export CSV:', error);
+      toast.error('Erreur lors de l\'export');
+    } finally {
+      setExportLoading(false);
+    }
   };
 
   // Fonction pour formater la date relative
@@ -178,6 +407,96 @@ function ChatbotConversationsPage() {
     }
   };
 
+  // Pagination - aller à la page précédente
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // Pagination - aller à la page suivante
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Générer les liens de pagination
+  const getPaginationItems = () => {
+    const items = [];
+    const maxVisiblePages = 5;
+    
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    // Première page
+    if (startPage > 1) {
+      items.push(
+        <PaginationItem key="first">
+          <PaginationLink onClick={() => setCurrentPage(1)}>1</PaginationLink>
+        </PaginationItem>
+      );
+      
+      if (startPage > 2) {
+        items.push(
+          <PaginationItem key="ellipsis-start">
+            <span className="px-4">...</span>
+          </PaginationItem>
+        );
+      }
+    }
+    
+    // Pages intermédiaires
+    for (let i = startPage; i <= endPage; i++) {
+      items.push(
+        <PaginationItem key={i}>
+          <PaginationLink 
+            onClick={() => setCurrentPage(i)}
+            isActive={i === currentPage}
+          >
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+    
+    // Dernière page
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        items.push(
+          <PaginationItem key="ellipsis-end">
+            <span className="px-4">...</span>
+          </PaginationItem>
+        );
+      }
+      
+      items.push(
+        <PaginationItem key="last">
+          <PaginationLink onClick={() => setCurrentPage(totalPages)}>
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+    
+    return items;
+  };
+
+  // Fonction pour obtenir une couleur en fonction d'un texte
+  const getColorFromText = (text: string): string => {
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+      hash = text.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    const hue = Math.abs(hash % 360);
+    return `hsl(${hue}, 70%, 50%)`;
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -190,21 +509,48 @@ function ChatbotConversationsPage() {
           </p>
         </div>
         
-        <Button className="bg-[#ff7f50]" onClick={() => fetchConversations()}>
-          Actualiser les données
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={exportToCSV} 
+            disabled={exportLoading || loading || conversations.length === 0}
+            className="flex items-center gap-2"
+          >
+            {exportLoading ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            Exporter CSV
+          </Button>
+          
+          <Button 
+            className="bg-[#ff7f50] flex items-center gap-2" 
+            onClick={() => fetchConversations()}
+            disabled={loading}
+          >
+            {loading ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            Actualiser
+          </Button>
+        </div>
       </div>
 
       {/* Statistiques */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {stats.map((stat, index) => (
-          <Card key={index}>
+          <Card key={index} className="transition-all hover:shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
-              {stat.icon}
+              <div style={{ color: stat.color || '#0f4c81' }}>
+                {stat.icon}
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
+              <div className="text-3xl font-bold">{stat.value}</div>
               {stat.change !== undefined && (
                 <p className="text-xs text-gray-500">
                   {stat.change >= 0 ? '+' : ''}{stat.change.toFixed(1)}% par rapport à la période précédente
@@ -216,49 +562,69 @@ function ChatbotConversationsPage() {
       </div>
 
       {/* Filtres et recherche */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <Card className="w-full">
-          <CardContent className="pt-6 flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Rechercher dans les conversations..."
-                  className="pl-10"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </form>
-            </div>
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-gray-50 pb-0">
+          <CardTitle className="text-lg">Recherche et filtres</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6 flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <form onSubmit={handleSearch} className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Rechercher dans les conversations..."
+                className="pl-10 pr-10"
+                value={searchQuery}
+                onChange={handleSearchInputChange}
+              />
+              {searchQuery && (
+                <button 
+                  type="button"
+                  onClick={clearSearch}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </form>
+          </div>
+          
+          <div className="flex gap-2 flex-col sm:flex-row">
+            <Select value={filter} onValueChange={handleFilterChange}>
+              <SelectTrigger className="w-[180px] bg-white">
+                <Filter className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Filtrer par" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les conversations</SelectItem>
+                <SelectItem value="needs_human">Besoin d'assistance</SelectItem>
+              </SelectContent>
+            </Select>
             
-            <div className="flex gap-2">
-              <Select value={filter} onValueChange={setFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Filtrer par" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les conversations</SelectItem>
-                  <SelectItem value="needs_human">Besoin d'assistance</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Select value={timeRange} onValueChange={setTimeRange}>
-                <SelectTrigger className="w-[180px]">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Période" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="24hours">Dernières 24h</SelectItem>
-                  <SelectItem value="7days">7 derniers jours</SelectItem>
-                  <SelectItem value="30days">30 derniers jours</SelectItem>
-                  <SelectItem value="all">Tout l'historique</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            <Select value={timeRange} onValueChange={handleTimeRangeChange}>
+              <SelectTrigger className="w-[180px] bg-white">
+                <Calendar className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Période" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="24hours">Dernières 24h</SelectItem>
+                <SelectItem value="7days">7 derniers jours</SelectItem>
+                <SelectItem value="30days">30 derniers jours</SelectItem>
+                <SelectItem value="all">Tout l'historique</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+        <CardFooter className="bg-gray-50 border-t">
+          <div className="w-full flex justify-between items-center text-sm text-gray-500">
+            <span>{totalConversations} conversations trouvées</span>
+            {filter === 'needs_human' && (
+              <span>
+                {needsHumanCount} conversations nécessitant une assistance ({needsHumanPercentage.toFixed(1)}%)
+              </span>
+            )}
+          </div>
+        </CardFooter>
+      </Card>
 
       {/* Contenu principal */}
       <Tabs defaultValue="conversations">
@@ -269,66 +635,113 @@ function ChatbotConversationsPage() {
         
         <TabsContent value="conversations">
           <Card>
+            <CardHeader className="bg-gray-50 pb-4">
+              <CardTitle>Historique des conversations</CardTitle>
+              <CardDescription>
+                Liste des interactions entre le chatbot et les visiteurs
+              </CardDescription>
+            </CardHeader>
             <CardContent className="p-0">
               <Table>
-                <TableHeader>
+                <TableHeader className="bg-gray-50">
                   <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Page</TableHead>
+                    <TableHead className="w-[160px]">Date</TableHead>
+                    <TableHead className="w-[180px]">Page</TableHead>
                     <TableHead>Message utilisateur</TableHead>
                     <TableHead>Réponse</TableHead>
-                    <TableHead>Statut</TableHead>
+                    <TableHead className="w-[150px]">Statut</TableHead>
+                    <TableHead className="w-[80px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
-                        <div className="flex justify-center">
+                      <TableCell colSpan={6} className="text-center py-12">
+                        <div className="flex flex-col items-center justify-center space-y-3">
                           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0f4c81]"></div>
+                          <p className="text-sm text-gray-500">Chargement des conversations...</p>
                         </div>
-                        <p className="mt-2 text-sm text-gray-500">Chargement des conversations...</p>
                       </TableCell>
                     </TableRow>
                   ) : conversations.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                        Aucune conversation trouvée pour les critères sélectionnés
+                      <TableCell colSpan={6} className="text-center py-12 text-gray-500">
+                        <div className="flex flex-col items-center justify-center space-y-2">
+                          <MessageSquare className="h-10 w-10 text-gray-300" />
+                          <p>Aucune conversation trouvée pour les critères sélectionnés</p>
+                          {searchQuery && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={clearSearch}
+                              className="mt-2"
+                            >
+                              Effacer la recherche
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ) : (
                     conversations.map((conv) => (
-                      <TableRow key={conv.id}>
-                        <TableCell className="whitespace-nowrap">
+                      <TableRow key={conv.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => viewConversation(conv)}>
+                        <TableCell className="whitespace-nowrap font-medium">
                           <div className="text-sm">{new Date(conv.created_at).toLocaleDateString()}</div>
                           <div className="text-xs text-gray-500">{formatRelativeDate(conv.created_at)}</div>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm font-medium">{conv.page || 'Page inconnue'}</div>
-                          <div className="text-xs text-gray-500">{conv.url || 'URL inconnue'}</div>
+                          <div className="text-xs text-gray-500 truncate max-w-[200px]" title={conv.url || 'URL inconnue'}>
+                            {conv.url || 'URL inconnue'}
+                          </div>
                         </TableCell>
-                        <TableCell className="max-w-[200px]">
+                        <TableCell className="max-w-[250px]">
                           <div className="truncate" title={conv.user_message}>
                             {conv.user_message}
                           </div>
                         </TableCell>
-                        <TableCell className="max-w-[300px]">
+                        <TableCell className="max-w-[250px]">
                           <div className="truncate" title={conv.assistant_response}>
                             {conv.assistant_response}
                           </div>
                         </TableCell>
                         <TableCell>
                           {conv.needs_human ? (
-                            <div className="flex items-center">
-                              <span className="flex h-2 w-2 rounded-full bg-amber-500 mr-2"></span>
-                              <span className="text-amber-600 text-sm">Assistance requise</span>
-                            </div>
+                            <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">
+                              <div className="flex items-center gap-1">
+                                <span className="flex h-2 w-2 rounded-full bg-amber-500"></span>
+                                <span>Assistance requise</span>
+                              </div>
+                            </Badge>
                           ) : (
-                            <div className="flex items-center">
-                              <span className="flex h-2 w-2 rounded-full bg-green-500 mr-2"></span>
-                              <span className="text-green-600 text-sm">Automatique</span>
-                            </div>
+                            <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
+                              <div className="flex items-center gap-1">
+                                <span className="flex h-2 w-2 rounded-full bg-green-500"></span>
+                                <span>Automatique</span>
+                              </div>
+                            </Badge>
                           )}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    viewConversation(conv);
+                                  }}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Voir les détails</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </TableCell>
                       </TableRow>
                     ))
@@ -336,16 +749,57 @@ function ChatbotConversationsPage() {
                 </TableBody>
               </Table>
             </CardContent>
+            
+            {/* Pagination */}
+            {!loading && conversations.length > 0 && (
+              <CardFooter className="flex justify-between items-center border-t py-4 bg-gray-50">
+                <div className="text-sm text-gray-500">
+                  Affichage {(currentPage - 1) * conversationsPerPage + 1} à {Math.min(currentPage * conversationsPerPage, totalConversations)} sur {totalConversations} conversations
+                </div>
+                
+                <Pagination>
+                <PaginationContent>
+                    <PaginationItem>
+                    {currentPage === 1 ? (
+                        <span className="opacity-50 cursor-not-allowed px-2">
+                        <ChevronLeft className="h-4 w-4 mr-2" />
+                        Précédent
+                        </span>
+                    ) : (
+                        <PaginationPrevious onClick={goToPreviousPage} />
+                    )}
+                    </PaginationItem>
+                    
+                    {getPaginationItems()}
+                    
+                    <PaginationItem>
+                    {currentPage === totalPages ? (
+                        <span className="opacity-50 cursor-not-allowed px-2">
+                        Suivant
+                        <ChevronRight className="h-4 w-4 ml-2" />
+                        </span>
+                    ) : (
+                        <PaginationNext onClick={goToNextPage} />
+                    )}
+                    </PaginationItem>
+                </PaginationContent>
+                </Pagination>
+              </CardFooter>
+            )}
           </Card>
         </TabsContent>
         
         <TabsContent value="analytics">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Top questions */}
+            <Card className="overflow-hidden">
+              <CardHeader className="bg-gray-50">
                 <CardTitle>Questions les plus fréquentes</CardTitle>
+                <CardDescription>
+                  Les sujets les plus abordés par les visiteurs
+                </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 {topQuestions.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     Pas assez de données pour cette analyse
@@ -353,16 +807,16 @@ function ChatbotConversationsPage() {
                 ) : (
                   <div className="space-y-4">
                     {topQuestions.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <div className="flex-1">
+                      <div key={index} className="flex items-center justify-between pb-2 border-b last:border-0">
+                        <div className="flex-1 mr-4">
                           <div className="font-medium truncate" title={item.question}>
                             {item.question}
                           </div>
                         </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-semibold rounded-full bg-[#0f4c81]/10 px-2 py-1 text-[#0f4c81]">
+                        <div>
+                          <Badge className="bg-[#0f4c81]/10 text-[#0f4c81] hover:bg-[#0f4c81]/20">
                             {item.count} fois
-                          </div>
+                          </Badge>
                         </div>
                       </div>
                     ))}
@@ -371,48 +825,216 @@ function ChatbotConversationsPage() {
               </CardContent>
             </Card>
             
-            <Card>
-              <CardHeader>
+            {/* Pages distribution */}
+            <Card className="overflow-hidden">
+              <CardHeader className="bg-gray-50">
                 <CardTitle>Répartition par page</CardTitle>
+                <CardDescription>
+                  Analyse des pages où le chatbot est le plus utilisé
+                </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 {loading ? (
                   <div className="flex justify-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0f4c81]"></div>
                   </div>
+                ) : pageDistribution.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    Pas assez de données pour cette analyse
+                  </div>
                 ) : (
                   <div className="space-y-4">
-                    {Object.entries(
-                      conversations.reduce((acc, conv) => {
-                        const page = conv.page || 'Inconnu';
-                        acc[page] = (acc[page] || 0) + 1;
-                        return acc;
-                      }, {} as Record<string, number>)
-                    )
-                      .sort((a, b) => b[1] - a[1])
-                      .map(([page, count], index) => (
-                        <div key={index} className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="font-medium">{page}</span>
-                            <span>{count} conversations</span>
+                    {pageDistribution.map((page, index) => (
+                      <div key={index} className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: getColorFromText(page.page) }}
+                            ></div>
+                            <span className="font-medium">{page.page}</span>
                           </div>
+                          <span className="text-sm text-gray-500">{page.count} conv.</span>
+                        </div>
+                        <div className="flex items-center gap-2">
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div
-                              className="bg-[#0f4c81] h-2 rounded-full"
+                              className="h-2 rounded-full"
                               style={{
-                                width: `${(count / conversations.length) * 100}%`,
+                                width: `${page.percentage}%`,
+                                backgroundColor: getColorFromText(page.page)
                               }}
                             ></div>
                           </div>
+                          <span className="text-xs font-medium w-12 text-right">
+                            {page.percentage.toFixed(1)}%
+                          </span>
                         </div>
+                      </div>
                     ))}
                   </div>
                 )}
               </CardContent>
             </Card>
+            
+            {/* Statistics by time */}
+            <Card className="md:col-span-2 overflow-hidden">
+              <CardHeader className="bg-gray-50">
+                <CardTitle>Répartition assistance humaine vs automatique</CardTitle>
+                <CardDescription>
+                  Analyse des conversations nécessitant une intervention humaine
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="flex flex-col md:flex-row items-center gap-8">
+                  {/* Donut chart */}
+                  <div className="w-48 h-48 relative">
+                    <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center">
+                      <div 
+                        className="absolute inset-0 rounded-full overflow-hidden"
+                        style={{
+                          background: `conic-gradient(#ff7f50 0% ${needsHumanPercentage}%, #10b981 ${needsHumanPercentage}% 100%)`
+                        }}
+                      ></div>
+                      <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="text-xl font-bold">{needsHumanPercentage.toFixed(1)}%</div>
+                          <div className="text-xs text-gray-500">humain</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Legend and stats */}
+                  <div className="flex-1 space-y-6">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2 p-4 rounded-lg bg-green-50">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full bg-[#10b981]"></div>
+                          <span className="font-medium">Réponses automatiques</span>
+                        </div>
+                        <div className="text-2xl font-bold">
+                          {conversations.length - needsHumanCount}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {(100 - needsHumanPercentage).toFixed(1)}% des conversations
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2 p-4 rounded-lg bg-amber-50">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full bg-[#ff7f50]"></div>
+                          <span className="font-medium">Assistance humaine</span>
+                        </div>
+                        <div className="text-2xl font-bold">
+                          {needsHumanCount}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {needsHumanPercentage.toFixed(1)}% des conversations
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                      <h4 className="font-medium text-blue-800 mb-1">Analyse de performance</h4>
+                      <p className="text-sm text-blue-700">
+                        {needsHumanPercentage < 20 ? (
+                          <>
+                            Excellente performance ! Seulement {needsHumanPercentage.toFixed(1)}% des conversations nécessitent une assistance humaine, ce qui indique que le chatbot répond efficacement à la plupart des demandes.
+                          </>
+                        ) : needsHumanPercentage < 40 ? (
+                          <>
+                            Bonne performance. {needsHumanPercentage.toFixed(1)}% des conversations nécessitent une assistance humaine. Vous pourriez améliorer ce taux en ajoutant plus de questions fréquentes.
+                          </>
+                        ) : (
+                          <>
+                            Performance à améliorer. {needsHumanPercentage.toFixed(1)}% des conversations nécessitent une assistance humaine. Examinez les messages des utilisateurs pour identifier les thèmes récurrents et ajoutez des questions fréquentes correspondantes.
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
       </Tabs>
+      
+      {/* Dialog pour afficher les détails d'une conversation */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Détails de la conversation</DialogTitle>
+            <DialogDescription>
+              {selectedConversation && (
+                <div className="flex items-center gap-2 mt-1">
+                  <span>
+                    {new Date(selectedConversation.created_at).toLocaleDateString()} à {new Date(selectedConversation.created_at).toLocaleTimeString()} sur 
+                  </span>
+                  <Badge variant="outline">
+                    {selectedConversation.page || "Page inconnue"}
+                  </Badge>
+                  {selectedConversation.needs_human && (
+                    <Badge className="bg-amber-100 text-amber-800">
+                      Assistance humaine
+                    </Badge>
+                  )}
+                </div>
+              )}
+            </DialogDescription>
+            </DialogHeader>
+            
+            {selectedConversation && (
+              <div className="space-y-6 mt-4">
+                <div className="space-y-2">
+                  <h3 className="font-medium text-gray-700 flex items-center gap-2">
+                    <UserCheck className="h-4 w-4 text-gray-500" />
+                    Message de l'utilisateur
+                  </h3>
+                  <div className="p-4 bg-gray-50 rounded-lg border">
+                    <p className="whitespace-pre-wrap">{selectedConversation.user_message}</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="font-medium text-gray-700 flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4 text-[#0f4c81]" />
+                    Réponse du chatbot
+                  </h3>
+                  <div className="p-4 bg-[#0f4c81]/5 rounded-lg border">
+                    <p className="whitespace-pre-wrap">{selectedConversation.assistant_response}</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="font-medium text-gray-700">Informations complémentaires</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-gray-50 rounded border">
+                      <div className="text-sm font-medium mb-1">URL</div>
+                      <div className="text-sm text-gray-600 break-all">
+                        {selectedConversation.url || "Non disponible"}
+                      </div>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded border">
+                      <div className="text-sm font-medium mb-1">ID Conversation</div>
+                      <div className="text-sm text-gray-600">
+                        {selectedConversation.id}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Fermer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      
     </div>
   );
 }

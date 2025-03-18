@@ -27,16 +27,34 @@ interface PageContext {
   url: string;
 }
 
-// Questions suggérées initiales
-const initialSuggestions = [
+interface ChatbotConfig {
+  id: string;
+  initial_suggestions: string[];
+  welcome_message: string;
+  human_trigger_phrases: string[];
+  prompt_boost: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Suggestions critiques à toujours afficher
+const criticalSuggestions = [
+  "Contacter le service client",
+  "Ouvrir WhatsApp",
+  "Retour à l'accueil",
+  "Voir nos business"
+];
+
+// Suggestions par défaut au cas où la configuration n'est pas chargée
+const defaultSuggestions = [
   "Je veux acheter un de vos business",
   "Je veux un site e-commerce",
   "Je veux me former en e-commerce",
   "Je veux plus d'infos sur un business"
 ];
 
-// Fonction pour obtenir un message de bienvenue contextualisé à l'heure
-const getWelcomeMessage = (): string => {
+// Message de bienvenue par défaut au cas où la configuration n'est pas chargée
+const getDefaultWelcomeMessage = (): string => {
   const hour = new Date().getHours();
   let greeting = '';
   
@@ -48,7 +66,7 @@ const getWelcomeMessage = (): string => {
     greeting = 'Bonsoir';
   }
 
-  return `${greeting} 👋🏼 Je suis Sara, Assisante Commerciale chez TEKKI Studio. Comment puis-je vous aider ?`;
+  return `${greeting} 👋🏼 Je suis Sara, Assistante Commerciale chez TEKKI Studio. Comment puis-je vous aider ?`;
 };
 
 export default function TekkiChatbot() {
@@ -57,17 +75,143 @@ export default function TekkiChatbot() {
   const [showBubble, setShowBubble] = useState(true);
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      content: getWelcomeMessage(),
-      type: 'assistant',
-      timestamp: new Date(),
-      suggestions: initialSuggestions
-    }
-  ]);
+  const [config, setConfig] = useState<ChatbotConfig | null>(null);
+  const [isConfigLoading, setIsConfigLoading] = useState(true);
+  const [messages, setMessages] = useState<Message[]>([]);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Si nous sommes sur une page admin, on ne rend pas le chatbot
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
+  // Charger la configuration du chatbot au démarrage
+  useEffect(() => {
+    const fetchChatbotConfig = async () => {
+      try {
+        setIsConfigLoading(true);
+        
+        const { data, error } = await supabase
+          .from('chatbot_config')
+          .select('*')
+          .single();
+        
+        if (error) {
+          console.error('Erreur lors du chargement de la configuration du chatbot:', error);
+          // En cas d'erreur, on utilise les valeurs par défaut
+          initializeChatWithDefaults();
+        } else if (data) {
+          setConfig(data);
+          
+          // Initialiser les messages avec le message de bienvenue de la configuration
+          setMessages([{
+            id: 1,
+            content: data.welcome_message || getDefaultWelcomeMessage(),
+            type: 'assistant',
+            timestamp: new Date(),
+            suggestions: data.initial_suggestions && data.initial_suggestions.length > 0 
+              ? data.initial_suggestions 
+              : defaultSuggestions
+          }]);
+        } else {
+          // Si pas de données, on utilise les valeurs par défaut
+          initializeChatWithDefaults();
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération de la configuration:', error);
+        initializeChatWithDefaults();
+      } finally {
+        setIsConfigLoading(false);
+      }
+    };
+
+    fetchChatbotConfig();
+  }, []);
+
+  // Fonction pour initialiser le chat avec des valeurs par défaut
+  const initializeChatWithDefaults = () => {
+    setMessages([{
+      id: 1,
+      content: getDefaultWelcomeMessage(),
+      type: 'assistant',
+      timestamp: new Date(),
+      suggestions: defaultSuggestions
+    }]);
+  };
+
+  // Fonction pour rendre les liens cliquables dans les messages de l'IA
+  const parseMessageWithLinks = (text: string) => {
+    // Regex pour identifier les liens Markdown de la forme [texte](url)
+    const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+
+    // Si aucun lien Markdown n'est trouvé, retourner le texte tel quel
+    if (!markdownLinkRegex.test(text)) {
+      return text;
+    }
+
+    // Diviser le texte en segments (texte normal et liens)
+    const segments = [];
+    let lastIndex = 0;
+    let match;
+
+    // Réinitialiser le regex pour une nouvelle recherche
+    markdownLinkRegex.lastIndex = 0;
+
+    while ((match = markdownLinkRegex.exec(text)) !== null) {
+      // Ajouter le texte avant le lien
+      if (match.index > lastIndex) {
+        segments.push(text.substring(lastIndex, match.index));
+      }
+
+      // Ajouter le lien en tant qu'élément cliquable
+      segments.push(
+        <a 
+          key={match.index} 
+          href={match[2]} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-[#FF7F50] hover:underline"
+        >
+          {match[1]}
+        </a>
+      );
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Ajouter le reste du texte après le dernier lien
+    if (lastIndex < text.length) {
+      segments.push(text.substring(lastIndex));
+    }
+
+    return <>{segments}</>;
+  };
+
+  // Déterminer si nous devons afficher les suggestions pour un message
+  const shouldShowSuggestions = (msg: Message): boolean => {
+    // Toujours afficher les suggestions pour le premier message d'accueil
+    if (msg.id === 1) return true;
+    
+    // Si le message ne contient pas de suggestions, ne rien afficher
+    if (!msg.suggestions || msg.suggestions.length === 0) return false;
+    
+    // Afficher les suggestions si elles contiennent des options critiques
+    const hasCriticalSuggestion = msg.suggestions.some(suggestion =>
+      criticalSuggestions.some(critical => suggestion.includes(critical))
+    );
+    
+    // Vérifier si le message concerne une promotion d'achat spécifique
+    const isPromotionalMessage = 
+      msg.content.includes("recommande") || 
+      msg.content.includes("adapté à votre profil") ||
+      msg.content.includes("vous intéresse") ||
+      msg.content.includes("quel budget") ||
+      msg.content.includes("acquérir") || 
+      msg.content.includes("acheter");
+    
+    return hasCriticalSuggestion || isPromotionalMessage;
+  };
 
   // Faire défiler jusqu'au dernier message
   const scrollToBottom = () => {
@@ -93,25 +237,37 @@ export default function TekkiChatbot() {
     
     if (pathname === '/') {
       pageName = "Accueil";
-    } else if (pathname.startsWith('/business')) {
+    } else if (pathname?.startsWith('/business')) {
       pageName = "Business";
-    } else if (pathname.startsWith('/formations')) {
+    } else if (pathname?.startsWith('/formations')) {
       pageName = "Formations";
-    } else if (pathname.startsWith('/marques')) {
+    } else if (pathname?.startsWith('/marques')) {
       pageName = "Marques";
-    } else if (pathname.startsWith('/a-propos')) {
+    } else if (pathname?.startsWith('/a-propos')) {
       pageName = "À propos";
-    } else if (pathname.startsWith('/services/sites-ecommerce')) {
+    } else if (pathname?.startsWith('/services/sites-ecommerce')) {
       pageName = "Services";
     } else {
-      pageName = pathname.replace('/', '').charAt(0).toUpperCase() + 
-                pathname.slice(1).replace('/', ' ');
+      pageName = pathname?.replace('/', '').charAt(0).toUpperCase() + 
+                pathname?.slice(1).replace('/', ' ') || "Page inconnue";
     }
     
     return {
       page: pageName,
-      url: pathname
+      url: pathname || "/"
     };
+  };
+
+  // Fonction pour vérifier si un message déclenche une réponse humaine
+  const requiresHumanAssistance = (messageText: string): boolean => {
+    if (!config || !config.human_trigger_phrases || config.human_trigger_phrases.length === 0) {
+      return false;
+    }
+    
+    const lowerCaseMessage = messageText.toLowerCase();
+    return config.human_trigger_phrases.some(phrase => 
+      lowerCaseMessage.includes(phrase.toLowerCase())
+    );
   };
 
   // Fonction pour traiter la réponse de l'IA
@@ -120,6 +276,17 @@ export default function TekkiChatbot() {
     suggestions: string[];
     needs_human: boolean;
   }> => {
+    // Vérifier d'abord si le message contient des déclencheurs d'assistance humaine
+    const needsHuman = requiresHumanAssistance(userQuery);
+    
+    if (needsHuman) {
+      return {
+        content: "Je détecte que vous avez besoin d'une assistance plus personnalisée. Souhaitez-vous être mis en relation avec un membre de notre équipe ?",
+        suggestions: ["Contacter le service client", "Non merci, continuer"],
+        needs_human: true
+      };
+    }
+    
     try {
       // Appel à l'API pour obtenir une réponse de l'IA
       const response = await fetch('/api/chatbot', {
@@ -269,6 +436,68 @@ export default function TekkiChatbot() {
     }
   };
 
+  // Fonction pour générer des suggestions contextuelles
+  const generateContextualSuggestions = (message: string, response: string, context: any): string[] => {
+    // Si le message montre un intérêt pour l'achat
+    if (message.toLowerCase().includes("acheter") || 
+        message.toLowerCase().includes("acquérir") || 
+        message.toLowerCase().includes("prix") || 
+        message.toLowerCase().includes("budget") ||
+        message.toLowerCase().includes("investir")) {
+      return [
+        "Comment se passe l'accompagnement?",
+        "Quelles sont les étapes pour l'acquisition?",
+        "Je veux ce business, comment procéder?",
+        "Contacter le service client"
+      ];
+    }
+    
+    // Si le message parle de frais mensuels ou d'investissement
+    if (message.toLowerCase().includes("frais") || 
+        message.toLowerCase().includes("coût") || 
+        message.toLowerCase().includes("mensuel") ||
+        message.toLowerCase().includes("rentabilité") ||
+        message.toLowerCase().includes("retour sur investissement")) {
+      return [
+        "Quel business me recommandez-vous?",
+        "Puis-je parler à un de vos clients?",
+        "Contacter le service client"
+      ];
+    }
+    
+    // Si l'IA recommande un business spécifique
+    if (response.toLowerCase().includes("recommande") ||
+        response.toLowerCase().includes("parfait pour vous") ||
+        response.toLowerCase().includes("correspond à vos critères")) {
+      return [
+        "Je veux ce business, comment procéder?",
+        "Quels sont les délais d'acquisition?",
+        "Comment se passe l'accompagnement?"
+      ];
+    }
+    
+    // Si on est sur une page business
+    if (context.url.startsWith('/business')) {
+      return [
+        "Je souhaite acquérir ce business",
+        "Quels sont les frais mensuels?",
+        "Contacter le service client"
+      ];
+    }
+    
+    // Par défaut, utiliser les suggestions de la configuration si disponibles
+    if (config && config.initial_suggestions && config.initial_suggestions.length > 0) {
+      return config.initial_suggestions;
+    }
+    
+    // Ou utiliser des suggestions par défaut
+    return [
+      "Quel business me recommandez-vous?",
+      "Je veux en savoir plus sur vos formations",
+      "Contacter le service client"
+    ];
+  };
+
   // Fonction pour gérer les clics sur les suggestions
   const handleSuggestionClick = (suggestion: string) => {
     if (suggestion === "Ouvrir WhatsApp") {
@@ -305,6 +534,11 @@ export default function TekkiChatbot() {
       await sendMessage(message);
     }
   };
+
+  // Afficher un chargement pendant que la configuration se charge
+  if (isConfigLoading) {
+    return null; // On ne montre rien pendant le chargement initial
+  }
 
   return (
     <>
@@ -441,7 +675,12 @@ export default function TekkiChatbot() {
                         ? "bg-gray-100 dark:bg-gray-700" 
                         : "bg-[#0f4c81]"
                     }`}>
-                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      <div className="text-sm whitespace-pre-wrap">
+                        {msg.type === 'assistant' 
+                          ? parseMessageWithLinks(msg.content)
+                          : msg.content
+                        }
+                      </div>
                       <p className="text-[10px] mt-1 text-gray-500 dark:text-gray-400">
                         {msg.timestamp.toLocaleTimeString([], { 
                           hour: '2-digit', 
@@ -450,8 +689,8 @@ export default function TekkiChatbot() {
                       </p>
                     </div>
 
-                    {/* Suggestions cliquables */}
-                    {msg.type === 'assistant' && msg.suggestions && msg.suggestions.length > 0 && (
+                    {/* Suggestions cliquables - uniquement pour le message d'accueil ou suggestions spéciales */}
+                    {msg.type === 'assistant' && msg.suggestions && msg.suggestions.length > 0 && shouldShowSuggestions(msg) && (
                       <div className="flex flex-wrap gap-2">
                         {msg.suggestions.map((suggestion, index) => (
                           <button

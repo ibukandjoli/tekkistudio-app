@@ -70,6 +70,25 @@ interface Business {
   // Autres propriétés
 }
 
+interface ChatbotConfig {
+  id: string;
+  initial_suggestions: string[];
+  welcome_message: string;
+  human_trigger_phrases: string[];
+  prompt_boost: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface CommonQuestion {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+  is_active: boolean;
+  created_at: string;
+}
+
 // Fonctions de cache pour réduire les appels à l'API OpenAI
 async function getFromCache(query: string, context: string) {
   const queryHash = hashString(query + context);
@@ -140,6 +159,60 @@ function isComplexQuery(query: string) {
   return complexPatterns.some(pattern => pattern.test(query));
 }
 
+// Fonction pour vérifier si le message de l'utilisateur correspond à une question fréquente
+async function matchCommonQuestion(query: string): Promise<CommonQuestion | null> {
+  try {
+    // Récupérer toutes les questions fréquentes actives
+    const { data: questions, error } = await supabase
+      .from('chatbot_common_questions')
+      .select('*')
+      .eq('is_active', true);
+
+    if (error || !questions || questions.length === 0) {
+      return null;
+    }
+
+    // Normaliser la requête de l'utilisateur pour la recherche
+    const normalizedQuery = query.toLowerCase().trim().replace(/[.,?!;:]/g, '');
+    
+    // Vérifier si la requête correspond à une question fréquente
+    // 1. D'abord rechercher une correspondance exacte
+    const exactMatch = questions.find(q => 
+      q.question.toLowerCase().trim().replace(/[.,?!;:]/g, '') === normalizedQuery
+    );
+    
+    if (exactMatch) return exactMatch;
+    
+    // 2. Ensuite, rechercher une correspondance partielle
+    // On considère une correspondance si 80% des mots de la question fréquente se trouvent dans la requête
+    const queryWords = normalizedQuery.split(/\s+/);
+    
+    for (const question of questions) {
+      const questionWords = question.question.toLowerCase().trim().replace(/[.,?!;:]/g, '').split(/\s+/);
+      
+      // Si la question est trop courte (moins de 3 mots), on exige une correspondance exacte
+      if (questionWords.length < 3) continue;
+      
+      // Calculer combien de mots de la question fréquente apparaissent dans la requête
+      const matchingWords = questionWords.filter((word: string) => 
+        queryWords.includes(word) && word.length > 3 // On ignore les mots courts comme "le", "la", "de"
+      );
+      
+      const matchRatio = matchingWords.length / questionWords.length;
+      
+      // Si plus de 70% des mots significatifs correspondent, on considère que c'est une correspondance
+      if (matchRatio >= 0.7) {
+        return question;
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Erreur lors de la recherche de questions fréquentes:', error);
+    return null;
+  }
+}
+
 // Fonction auxiliaire pour récupérer les données avec gestion d'erreur améliorée
 async function fetchDataSafely<T>(
   tableName: string, 
@@ -179,6 +252,26 @@ async function fetchDataSafely<T>(
   } catch (e) {
     console.error(`Exception lors de la récupération des données de ${tableName}:`, e);
     return [] as T[];
+  }
+}
+
+// Récupérer la configuration du chatbot
+async function getChatbotConfig(): Promise<ChatbotConfig | null> {
+  try {
+    const { data, error } = await supabase
+      .from('chatbot_config')
+      .select('*')
+      .single();
+    
+    if (error) {
+      console.error('Erreur lors de la récupération de la configuration du chatbot:', error);
+      return null;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Exception lors de la récupération de la configuration du chatbot:', error);
+    return null;
   }
 }
 
@@ -242,6 +335,110 @@ URL: https://tekkistudio.com/formations/${f.slug || ''}
     .join('\n\n---\n\n');
 }
 
+// Générer des suggestions plus pertinentes en fonction du contexte de la conversation
+function generateContextualSuggestions(message: string, response: string, context: any, config: ChatbotConfig | null): string[] {
+  // Utiliser les suggestions initiales de la configuration si disponibles
+  if (config && config.initial_suggestions && config.initial_suggestions.length > 0) {
+    return config.initial_suggestions;
+  }
+
+  // Si le message montre un intérêt pour l'achat
+  if (message.toLowerCase().includes("acheter") || 
+      message.toLowerCase().includes("acquérir") || 
+      message.toLowerCase().includes("prix") || 
+      message.toLowerCase().includes("budget") ||
+      message.toLowerCase().includes("investir")) {
+    return [
+      "Comment se passe l'accompagnement?",
+      "Quelles sont les étapes pour l'acquisition?",
+      "Je veux ce business, comment procéder?",
+      "Contacter le service client"
+    ];
+  }
+  
+  // Si le message parle de frais mensuels ou d'investissement
+  if (message.toLowerCase().includes("frais") || 
+      message.toLowerCase().includes("coût") || 
+      message.toLowerCase().includes("mensuel") ||
+      message.toLowerCase().includes("rentabilité") ||
+      message.toLowerCase().includes("retour sur investissement")) {
+    return [
+      "Quel business me recommandez-vous?",
+      "Puis-je parler à un de vos clients?",
+      "Contacter le service client"
+    ];
+  }
+  
+  // Si l'IA recommande un business spécifique
+  if (response.toLowerCase().includes("recommande") ||
+      response.toLowerCase().includes("parfait pour vous") ||
+      response.toLowerCase().includes("correspond à vos critères")) {
+    return [
+      "Je veux ce business, comment procéder?",
+      "Quels sont les délais d'acquisition?",
+      "Comment se passe l'accompagnement?"
+    ];
+  }
+  
+  // Si on est sur une page business
+  if (context.url.startsWith('/business')) {
+    return [
+      "Je souhaite acquérir ce business",
+      "Quels sont les frais mensuels?",
+      "Contacter le service client"
+    ];
+  }
+  
+  // Par défaut
+  return [
+    "Quel business me recommandez-vous?",
+    "Je veux en savoir plus sur vos formations",
+    "Contacter le service client"
+  ];
+}
+
+// Fonction pour créer le contexte des questions fréquentes
+async function createCommonQuestionsContext(): Promise<string> {
+  try {
+    const { data: questions, error } = await supabase
+      .from('chatbot_common_questions')
+      .select('*')
+      .eq('is_active', true);
+    
+    if (error || !questions || questions.length === 0) {
+      return "";
+    }
+    
+    // Regrouper les questions par catégorie
+    const categorizedQuestions: Record<string, CommonQuestion[]> = {};
+    
+    questions.forEach(question => {
+      if (!categorizedQuestions[question.category]) {
+        categorizedQuestions[question.category] = [];
+      }
+      categorizedQuestions[question.category].push(question);
+    });
+    
+    // Formater les questions par catégorie
+    let context = "QUESTIONS FRÉQUEMMENT POSÉES PAR CATÉGORIE:\n\n";
+    
+    Object.entries(categorizedQuestions).forEach(([category, categoryQuestions]) => {
+      context += `CATÉGORIE: ${category.toUpperCase()}\n`;
+      
+      categoryQuestions.forEach((q, index) => {
+        context += `Q${index + 1}: ${q.question}\nR${index + 1}: ${q.answer}\n\n`;
+      });
+      
+      context += '\n';
+    });
+    
+    return context;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des questions fréquentes:', error);
+    return "";
+  }
+}
+
 export async function POST(request: Request) {
   try {
     console.log("Traitement d'une nouvelle requête chatbot");
@@ -265,6 +462,33 @@ export async function POST(request: Request) {
       console.log("Réponse trouvée en cache");
       return NextResponse.json(cachedResponse);
     }
+
+    // Vérifier si le message correspond à une question fréquente
+    const matchedQuestion = await matchCommonQuestion(message);
+    if (matchedQuestion) {
+      console.log("Question fréquente identifiée:", matchedQuestion.question);
+      
+      // Créer des suggestions adaptées à la catégorie de la question
+      const categorySuggestions = await createCategorySuggestions(matchedQuestion.category);
+      
+      const response = {
+        content: matchedQuestion.answer,
+        suggestions: categorySuggestions,
+        needs_human: false
+      };
+      
+      // Sauvegarder dans le cache
+      await saveToCache(message, contextKey, response);
+      
+      // Enregistrer la conversation
+      await saveConversation(message, response.content, context, response.needs_human);
+      
+      return NextResponse.json(response);
+    }
+
+    // Récupérer la configuration du chatbot
+    const config = await getChatbotConfig();
+    console.log("Configuration du chatbot récupérée:", config ? "Oui" : "Non");
 
     // Récupérer les données pertinentes en fonction du contexte
     let businessesData: Business[] = [];
@@ -305,6 +529,7 @@ export async function POST(request: Request) {
     const businessesContextString = createBusinessContext(businessesData);
     const brandsContextString = createBrandsContext(brandsData);
     const formationsContextString = createFormationsContext(formationsData);
+    const commonQuestionsContext = await createCommonQuestionsContext();
 
     // Service de création de site e-commerce
     const ecommerceServiceContext = {
@@ -404,7 +629,7 @@ COMMENT QUALIFIER LES PROSPECTS:
 4. Recommander le business ou la formation adaptée à leur profil
 `;
 
-    // Construire le prompt système pour l'IA - version optimisée
+    // Construire le prompt système pour l'IA - version optimisée avec les configurations
     const systemPrompt = `
 Tu es l'assistant virtuel commercial de TEKKI Studio, une fabrique de marques et de business e-commerce basée au Sénégal. Ton rôle est de répondre aux questions des prospects et les guider vers l'acquisition de l'un des business e-commerce proposés à la vente, ou du service de création de sites e-commerce professionnels optimisés pour la conversion. Tu dois fournir des informations supplémentaires et pertinentes sur les business proposés à la vente et les formations. Sois concis mais informatif.
 
@@ -418,18 +643,30 @@ ACTIVITÉS DE TEKKI STUDIO:
 - Formations en e-commerce et marketing digital
 - Service de création de sites e-commerce professionnels (695 000 FCFA, payable en 2 fois)
 
-TON RÔLE COMMERCIAL:
-- Comprendre les besoins des prospects
-- Qualifier le prospect (situation, budget, disponibilité, expérience)
-- Recommander le business ou la formation adapté
-- Répondre aux objections avec des arguments persuasifs
-- Convaincre le prospect d'acquérir le business ou de s'inscrire à la formation
-- Fournir des liens clickables vers les pages pertinentes
+TON RÔLE COMMERCIAL (TRÈS IMPORTANT):
+- Tu es d'abord un VENDEUR EXPÉRIMENTÉ, pas juste un assistant informatif
+- Tu dois ACTIVEMENT chercher à CONVAINCRE le prospect d'ACHETER un business
+- Dès que le prospect montre de l'intérêt, guide-le vers l'achat avec des phrases comme:
+  * "Ce business serait parfait pour vous! Souhaitez-vous l'acquérir dès aujourd'hui?"
+  * "Vu votre profil, je vous recommande fortement ce business. Êtes-vous prêt à passer à l'étape suivante?"
+  * "C'est une excellente opportunité qui correspond à vos critères. Voulez-vous que j'organise un appel avec notre équipe pour finaliser l'acquisition?"
+- Ne te contente pas juste de donner des informations: PERSUADE et POUSSE À L'ACTION
+- Utilise des techniques de vente comme la rareté ("Ce business est très demandé"), l'urgence ("L'offre est limitée"), et la preuve sociale ("Plusieurs clients ont déjà réussi avec ce business")
+- Rassure le prospect sur ses inquiétudes et lève ses objections
+- Propose toujours un APPEL À L'ACTION clair en fin de message
 
 INSTRUCTIONS IMPORTANTES POUR LES LIENS:
 - Quand tu mentionnes un business, ajoute un lien clickable vers sa page avec: https://tekkistudio.com/business/slug-du-business
 - Pour le service de création de site e-commerce: https://tekkistudio.com/services/sites-ecommerce
 - Pour les formations: https://tekkistudio.com/formations/slug-de-la-formation
+
+FORMATAGE DES LIENS - TRÈS IMPORTANT:
+- N'utilise JAMAIS de formulations génériques comme "Découvrez le business" ou "Cliquez ici"
+- Les liens doivent être intégrés naturellement dans le texte, avec des formulations incitatives:
+  * "✅ [Commencez votre business fitness rentable dès aujourd'hui](url)"
+  * "🔥 [Réservez votre business de livres personnalisés avant qu'il ne soit plus disponible](url)"
+  * "💰 [Investissez dans ce business à fort potentiel](url)"
+- L'intitulé du lien doit créer un sentiment d'opportunité et d'urgence
 
 INSTRUCTIONS POUR LE SERVICE DE SITE E-COMMERCE:
 - Si l'utilisateur demande "Je veux un site e-commerce", parle du SERVICE DE CRÉATION DE SITE E-COMMERCE, et non des business à vendre
@@ -441,10 +678,14 @@ INSTRUCTIONS POUR LES FRAIS MENSUELS:
 
 ${qualificationExamples}
 
+${commonQuestionsContext}
+
 CONTEXTE SPÉCIFIQUE À LA PAGE ACTUELLE:
 ${pageSpecificContext}
 
 ${faqContent}
+
+${config?.prompt_boost ? `\nINSTRUCTIONS SUPPLÉMENTAIRES:\n${config.prompt_boost}\n` : ''}
 
 INSTRUCTIONS:
 - Sois amical, professionnel et CONCIS
@@ -473,6 +714,29 @@ URL: ${context.url}
       })),
       { role: 'user', content: message }
     ];
+
+    // Vérifier si le message contient des déclencheurs d'assistance humaine depuis la config
+    let needsHumanAssistance = false;
+    if (config && config.human_trigger_phrases && config.human_trigger_phrases.length > 0) {
+      const lowerCaseMessage = message.toLowerCase();
+      needsHumanAssistance = config.human_trigger_phrases.some(phrase => 
+        lowerCaseMessage.includes(phrase.toLowerCase())
+      );
+    }
+
+    // Si une assistance humaine est nécessaire, on retourne directement une réponse
+    if (needsHumanAssistance) {
+      const humanResponse = {
+        content: "Je détecte que vous avez besoin d'une assistance plus personnalisée. Souhaitez-vous être mis en relation avec un membre de notre équipe ?",
+        suggestions: ["Contacter le service client", "Non merci, continuer"],
+        needs_human: true
+      };
+      
+      // Enregistrer la conversation
+      await saveConversation(message, humanResponse.content, context, true);
+      
+      return NextResponse.json(humanResponse);
+    }
 
     // Déterminer si la requête est complexe et choisir le modèle approprié
     const isComplex = isComplexQuery(message);
@@ -544,7 +808,7 @@ URL: ${context.url}
       } else if (completion.choices[0].message.content) {
         console.log("Utilisation du contenu de message standard (pas de function call)");
         aiResponse.content = completion.choices[0].message.content;
-        aiResponse.suggestions = [
+        aiResponse.suggestions = config?.initial_suggestions || [
           "Parlez-moi de vos business en vente",
           "Quelles formations proposez-vous?",
           "Contacter le service client"
@@ -557,31 +821,17 @@ URL: ${context.url}
       aiResponse.suggestions.push("Contacter le service client");
     }
 
-    // S'assurer qu'il y a toujours des suggestions utiles
+    // S'assurer qu'il y a toujours des suggestions utiles et contextuelles
     if (aiResponse.suggestions.length === 0) {
-      if (context.url.startsWith('/business')) {
-        aiResponse.suggestions = [
-          "Quel business me recommandez-vous?",
-          "Comment se passe l'accompagnement?",
-          "Contacter le service client"
-        ];
-      } else if (context.url.startsWith('/formations')) {
-        aiResponse.suggestions = [
-          "Quelle formation me conviendrait?",
-          "Comment se déroulent les formations?",
-          "Contacter le service client"
-        ];
-      } else {
-        aiResponse.suggestions = [
-          "Parlez-moi de vos business en vente",
-          "Quelles formations proposez-vous?",
-          "Contacter le service client"
-        ];
-      }
+      aiResponse.suggestions = generateContextualSuggestions(message, aiResponse.content, context, config);
     }
 
-    // Pour la question "Je veux un site e-commerce clé en main", s'assurer que la réponse parle du service
-    if (message.toLowerCase().includes("site e-commerce clé en main") && !context.url.startsWith('/business/')) {
+    // Pour la question concernant un site e-commerce, s'assurer que la réponse parle du service
+    if ((message.toLowerCase().includes("site e-commerce") || 
+         message.toLowerCase().includes("site web") || 
+         message.toLowerCase().includes("créer un site") || 
+         message.toLowerCase().includes("conception de site")) && 
+        !context.url.startsWith('/business/')) {
       const serviceURL = "https://tekkistudio.com/services/sites-ecommerce";
       if (!aiResponse.content.includes(serviceURL)) {
         // La réponse ne contient pas le bon lien, on ajoute une suggestion spécifique
@@ -602,27 +852,7 @@ URL: ${context.url}
     await saveToCache(message, contextKey, aiResponse);
 
     // Enregistrer la conversation dans Supabase
-    try {
-      console.log("Enregistrement de la conversation dans Supabase...");
-      const { data, error } = await supabase
-        .from('chat_conversations')
-        .insert([{
-          user_message: message,
-          assistant_response: aiResponse.content,
-          page: context.page,
-          url: context.url,
-          needs_human: aiResponse.needs_human,
-          created_at: new Date().toISOString()
-        }]);
-        
-      if (error) {
-        console.warn('Erreur lors de l\'enregistrement de la conversation:', error);
-      } else {
-        console.log("Conversation enregistrée avec succès");
-      }
-    } catch (error) {
-      console.warn('Exception lors de l\'enregistrement de la conversation:', error);
-    }
+    await saveConversation(message, aiResponse.content, context, aiResponse.needs_human);
     
     console.log("Réponse envoyée au client");
     return NextResponse.json(aiResponse);
@@ -638,5 +868,69 @@ URL: ${context.url}
       },
       { status: 500 }
     );
+  }
+}
+
+// Fonction pour générer des suggestions basées sur la catégorie d'une question fréquente
+async function createCategorySuggestions(category: string): Promise<string[]> {
+  try {
+    // Récupérer d'autres questions de la même catégorie
+    const { data: relatedQuestions, error } = await supabase
+      .from('chatbot_common_questions')
+      .select('question')
+      .eq('category', category)
+      .eq('is_active', true)
+      .limit(3);
+    
+    if (error || !relatedQuestions || relatedQuestions.length === 0) {
+      // Utiliser des suggestions par défaut si aucune question liée n'est trouvée
+      return [
+        "Quel business me recommandez-vous?",
+        "Je veux en savoir plus sur vos formations",
+        "Contacter le service client"
+      ];
+    }
+    
+    // Extraire les questions comme suggestions
+    let suggestions = relatedQuestions.map(q => q.question);
+    
+    // Toujours ajouter l'option de contacter le service client
+    if (!suggestions.includes("Contacter le service client")) {
+      suggestions.push("Contacter le service client");
+    }
+    
+    return suggestions;
+  } catch (error) {
+    console.error('Erreur lors de la création des suggestions par catégorie:', error);
+    return ["Contacter le service client"];
+  }
+}
+
+// Fonction pour enregistrer une conversation dans Supabase
+async function saveConversation(
+  userMessage: string, 
+  assistantResponse: string, 
+  context: {page: string, url: string}, 
+  needsHuman: boolean
+): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from('chat_conversations')
+      .insert([{
+        user_message: userMessage,
+        assistant_response: assistantResponse,
+        page: context.page,
+        url: context.url,
+        needs_human: needsHuman,
+        created_at: new Date().toISOString()
+      }]);
+      
+    if (error) {
+      console.warn('Erreur lors de l\'enregistrement de la conversation:', error);
+    } else {
+      console.log("Conversation enregistrée avec succès");
+    }
+  } catch (error) {
+    console.warn('Exception lors de l\'enregistrement de la conversation:', error);
   }
 }
