@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Obtenir les données utilisateur et IP pour un meilleur matching
-    const userIp = request.headers.get('x-forwarded-for') || request.ip || '';
+    const userIp = request.headers.get('x-forwarded-for') || '';
     const userAgent = request.headers.get('user-agent') || '';
 
     // Créer un hash des données utilisateur pour la confidentialité
