@@ -15,16 +15,17 @@ body {
 
 /* Scrollbar personnalisée pour les navigateurs WebKit (Chrome, Safari, Edge) */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px; /* Largeur de la scrollbar */
+  width: 4px; /* Largeur de la scrollbar réduite */
+  height: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Couleur de fond */
+  background: transparent; /* Fond transparent pour un look plus minimaliste */
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #c5c5c5; /* Couleur de la scrollbar */
-  border-radius: 3px;
+  background: rgba(180, 180, 180, 0.5); /* Couleur de la scrollbar semi-transparente */
+  border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
@@ -34,7 +35,7 @@ body {
 /* Pour Firefox */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #c5c5c5 #f1f1f1;
+  scrollbar-color: rgba(180, 180, 180, 0.5) transparent;
 }
 
 /* Style global pour les conteneurs avec défilement */
@@ -123,9 +124,25 @@ body {
   z-index: 9999 !important;
 }
 
+/* ========= STYLES CHATBOT - DÉBUT ========= */
+
 /* Styles spécifiques pour le chatbot */
 .tekki-chatbot-container {
   z-index: 9999 !important;
+}
+
+/* Styles pour le comportement mobile du chatbot */
+.tekki-chatbot-mobile {
+  /* Force le contenu à rester dans la fenêtre du viewport */
+  overscroll-behavior: contain;
+  /* Empêche le "pull-to-refresh" sur iOS */
+  touch-action: pan-x pan-y;
+}
+
+/* Fix pour le surplus de scroll sur iOS */
+.tekki-chatbot-messages {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 /* Assurer que le chatbot prend tout l'écran en mobile */
@@ -147,6 +164,12 @@ body {
     height: calc(100% - 120px) !important; /* Hauteur moins l'en-tête et la zone de saisie */
     overflow-y: auto !important;
     padding-bottom: 100px !important; /* Augmenter l'espace en bas */
+  }
+  
+  /* Fix pour l'agrandissement avec le clavier virtuel */
+  .tekki-chatbot-keyboard-open {
+    max-height: calc(100vh - 140px);
+    height: calc(100vh - 140px);
   }
   
   .tekki-chatbot-input {
@@ -181,6 +204,12 @@ body {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+  }
+  
+  /* Force l'overscroll-behavior pour toute la zone de chat mobile */
+  .tekki-chatbot-container {
+    overscroll-behavior: contain;
+    touch-action: pan-x pan-y;
   }
 }
 
@@ -238,10 +267,6 @@ body.dark .tekki-chatbot-suggestion {
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-.tekki-chatbot-suggestion:hover {
-  background-color: #e8e8e8 !important;
-}
-
 html.dark .tekki-chatbot-suggestion:hover,
 body.dark .tekki-chatbot-suggestion:hover {
   background-color: #42424f !important;
@@ -270,3 +295,13 @@ body.dark .tekki-chatbot-suggestion:hover {
   outline: none !important;
   box-shadow: none !important;
 }
+
+/* Hack pour iOS pour empêcher le clavier de briser la mise en page */
+@supports (-webkit-touch-callout: none) {
+  .tekki-chatbot-ios-fix {
+    /* Pour iOS uniquement */
+    padding-bottom: max(env(safe-area-inset-bottom), 20px);
+  }
+}
+
+/* ========= STYLES CHATBOT - FIN ========= */

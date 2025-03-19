@@ -1,3 +1,4 @@
+// app/components/global/TekkiChatbot.tsx
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -119,6 +120,13 @@ const isMobile = () => {
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 };
 
+// Détection d'iOS
+const isIOS = () => {
+  if (typeof window === 'undefined') return false;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+};
+
 export default function TekkiChatbot() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
@@ -129,6 +137,7 @@ export default function TekkiChatbot() {
   const [isConfigLoading, setIsConfigLoading] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [isIOSDevice, setIsIOSDevice] = useState(false);
   const [sessionId] = useState(() => uuidv4()); // ID unique pour la session
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const [businessFallbacks, setBusinessFallbacks] = useState<BusinessFallbacks>(defaultBusinessFallbacks);
@@ -136,6 +145,7 @@ export default function TekkiChatbot() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   
   // État du funnel de conversion
   const [conversionFunnel, setConversionFunnel] = useState<ConversionFunnel>({
@@ -152,9 +162,10 @@ export default function TekkiChatbot() {
     return null;
   }
 
-  // Détection du mobile
+  // Détection du mobile et iOS
   useEffect(() => {
     setIsMobileDevice(isMobile());
+    setIsIOSDevice(isIOS());
     const handleResize = () => setIsMobileDevice(isMobile());
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -198,51 +209,38 @@ export default function TekkiChatbot() {
     loadBusinessFallbacks();
   }, []);
 
-  // Gestion du clavier mobile
+  // Gestion améliorée du clavier mobile
   useEffect(() => {
     if (!isMobileDevice) return;
 
     // Détection de l'ouverture du clavier virtuel
     const detectKeyboard = () => {
-      // Sur la plupart des appareils, la hauteur de la fenêtre change quand le clavier s'ouvre
       const isKeyboardOpen = window.innerHeight < window.outerHeight * 0.8;
       setKeyboardOpen(isKeyboardOpen);
       
-      // Ajuster le scroll quand le clavier s'ouvre
       if (isKeyboardOpen) {
-        // Attendre que le clavier soit complètement ouvert
         setTimeout(() => {
           scrollToBottom();
-          // Focus sur l'input
-          messageInputRef.current?.focus();
-        }, 300);
+        }, 100);
       }
     };
 
     window.addEventListener('resize', detectKeyboard);
 
-    // Gestion du chat en plein écran fixe
-    if (isOpen && chatContainerRef.current) {
-      // Empêcher le défilement de la page
+    // Gestion du chat en plein écran sur mobile
+    if (isOpen) {
+      // Bloquer le scroll du body quand le chat est ouvert sur mobile
       document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
       
-      // S'assurer que le contenu visible du chat s'adapte quand le clavier s'ouvre
-      chatContainerRef.current.style.height = '100vh';
-      chatContainerRef.current.style.position = 'fixed';
-      chatContainerRef.current.style.top = '0';
-      chatContainerRef.current.style.left = '0';
-      chatContainerRef.current.style.right = '0';
-      chatContainerRef.current.style.bottom = '0';
+      // Assurer que le scroll est bien activé dans la zone des messages
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
     }
 
     return () => {
       window.removeEventListener('resize', detectKeyboard);
-      // Restaurer le défilement normal quand le chat se ferme
       document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
     };
   }, [isOpen, isMobileDevice]);
 
@@ -583,13 +581,30 @@ export default function TekkiChatbot() {
     return false;
   };
 
-  // Faire défiler jusqu'au dernier message
+  // Améliorer la fonction scrollToBottom pour être plus fiable
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
-      // Utiliser setTimeout pour s'assurer que le DOM est mis à jour
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-      }, 100);
+      try {
+        // Utiliser auto au lieu de smooth sur mobile pour éviter les problèmes
+        messagesEndRef.current.scrollIntoView({ 
+          behavior: isMobileDevice ? "auto" : "smooth", 
+          block: "end" 
+        });
+        
+        // Pour iOS, ajouter une petite pause puis réessayer
+        if (isIOSDevice) {
+          setTimeout(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: "auto", block: "end" });
+          }, 100);
+        }
+      } catch (e) {
+        console.warn('Erreur de scroll:', e);
+        
+        // Méthode alternative si scrollIntoView échoue
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        }
+      }
     }
   };
 
@@ -935,9 +950,9 @@ export default function TekkiChatbot() {
                 initial={{ opacity: 0, y: '100%' }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: '100%' }}
-                className="fixed inset-0 z-[9999] flex flex-col bg-[#F2F2F2] dark:bg-gray-800"
+                className="fixed inset-0 z-[9999] flex flex-col bg-[#F2F2F2] dark:bg-gray-800 tekki-chatbot-mobile"
               >
-                {/* Header */}
+                {/* Header - reste fixe, ne change pas de taille */}
                 <div className="p-4 bg-[#0f4c81] text-white sticky top-0 z-10">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -984,14 +999,19 @@ export default function TekkiChatbot() {
                   className="w-full flex flex-col items-center py-1 bg-[#0f4c81]" 
                   onClick={() => setIsOpen(false)}
                 >
+                  <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
+                  <span className="text-xs text-gray-300 -mt-1">Glisser pour fermer</span>
                 </div>
 
-                {/* Messages */}
+                {/* Messages - Utilise flex-1 avec overflow-auto pour permettre le défilement */}
                 <div 
-                  className="flex-1 overflow-y-auto p-4 space-y-4"
+                  ref={messagesContainerRef}
+                  className={`flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar tekki-chatbot-messages ${
+                    keyboardOpen ? 'tekki-chatbot-keyboard-open' : ''
+                  } ${isIOSDevice ? 'tekki-chatbot-ios-fix' : ''}`}
                   style={{ 
-                    height: keyboardOpen ? 'calc(100vh - 180px)' : '',
-                    paddingBottom: '80px'
+                    height: keyboardOpen ? 'calc(100vh - 160px)' : 'auto',
+                    paddingBottom: keyboardOpen ? '8px' : '80px' 
                   }}
                 >
                   {messages.map((msg) => (
@@ -1067,11 +1087,13 @@ export default function TekkiChatbot() {
                       <span className="text-sm">Sara écrit...</span>
                     </div>
                   )}
-                  <div ref={messagesEndRef} className="h-4" />
+                  <div ref={messagesEndRef} className="h-0" />
                 </div>
 
                 {/* Input - fixed at bottom */}
-                <div className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 fixed bottom-0 left-0 right-0 z-20">
+                <div className={`p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 fixed bottom-0 left-0 right-0 z-20 ${
+                  isIOSDevice ? 'tekki-chatbot-ios-fix' : ''
+                }`}>
                   <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 rounded-full p-2 pl-4 border dark:border-gray-600">
                     <input
                       ref={messageInputRef}
@@ -1169,7 +1191,10 @@ export default function TekkiChatbot() {
                 </div>
 
                 {/* Messages - flexible height */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div 
+                  ref={messagesContainerRef}
+                  className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar"
+                >
                   {messages.map((msg) => (
                     <div
                       key={msg.id}
@@ -1243,7 +1268,7 @@ export default function TekkiChatbot() {
                       <span className="text-sm">Sara écrit...</span>
                     </div>
                   )}
-                  <div ref={messagesEndRef} className="h-4" />
+                  <div ref={messagesEndRef} className="h-0" />
                 </div>
 
                 {/* Input */}
