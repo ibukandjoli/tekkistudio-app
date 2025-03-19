@@ -100,6 +100,7 @@ export default function TekkiChatbot() {
   const [sessionId] = useState(() => uuidv4()); // ID unique pour la session
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   
   // État du funnel de conversion
   const [conversionFunnel, setConversionFunnel] = useState<ConversionFunnel>({
@@ -166,6 +167,25 @@ export default function TekkiChatbot() {
 
     fetchChatbotConfig();
   }, []);
+
+  // Observer les nouveaux messages pour un défilement automatique
+  useEffect(() => {
+    scrollToBottom();
+    
+    // Si nous sommes sur mobile, assurons-nous que le conteneur de chat s'adapte correctement
+    if (isMobileDevice && isOpen && chatContainerRef.current) {
+      // Ajuster la hauteur si le clavier virtuel est visible
+      const adjustHeight = () => {
+        const viewportHeight = window.innerHeight;
+        chatContainerRef.current!.style.height = `${viewportHeight}px`;
+      };
+      
+      window.addEventListener('resize', adjustHeight);
+      adjustHeight();
+      
+      return () => window.removeEventListener('resize', adjustHeight);
+    }
+  }, [messages, isOpen, isMobileDevice]);
 
   // Enregistrer l'état du funnel
   useEffect(() => {
@@ -366,35 +386,31 @@ export default function TekkiChatbot() {
 
   // Déterminer si nous devons afficher les suggestions pour un message
   const shouldShowSuggestions = (msg: Message): boolean => {
-  // Premier message d'accueil
-  if (msg.id === 1) return true;
-  
-  // Contact service client uniquement si explicitement demandé
-  const needsContactOption = msg.content.toLowerCase().includes("besoin d'aide") || 
-                            msg.content.toLowerCase().includes("assistance") ||
-                            msg.content.toLowerCase().includes("parler à quelqu'un");
-  
-  if (needsContactOption && msg.suggestions?.includes("Contacter le service client")) {
-    // Ne conserver que les suggestions critiques
-    msg.suggestions = msg.suggestions.filter(s => 
-      s === "Contacter le service client" || 
-      s === "Ouvrir WhatsApp"
-    );
-    return true;
-  }
-  
-  // Pas de suggestions pour les autres messages
-  return false;
-};
+    // Premier message d'accueil
+    if (msg.id === 1) return true;
+    
+    // Contact service client uniquement si explicitement demandé
+    const needsContactOption = msg.content.toLowerCase().includes("besoin d'aide") || 
+                              msg.content.toLowerCase().includes("assistance") ||
+                              msg.content.toLowerCase().includes("parler à quelqu'un");
+    
+    if (needsContactOption && msg.suggestions?.includes("Contacter le service client")) {
+      // Ne conserver que les suggestions critiques
+      msg.suggestions = msg.suggestions.filter(s => 
+        s === "Contacter le service client" || 
+        s === "Ouvrir WhatsApp"
+      );
+      return true;
+    }
+    
+    // Pas de suggestions pour les autres messages
+    return false;
+  };
 
   // Faire défiler jusqu'au dernier message
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   // Afficher la bulle après un délai
   useEffect(() => {
@@ -707,12 +723,12 @@ export default function TekkiChatbot() {
             className="bg-[#FF7F50] text-white rounded-full shadow-lg hover:bg-[#FF7F50]/90 transition-all w-16 h-16 flex items-center justify-center"
             aria-label="Ouvrir le chat"
           >
-                    <Image 
-                      src="/images/logos/fav_tekki.svg" 
-                      alt="TEKKI Studio" 
-                      width={40} 
-                      height={40}
-                    />
+            <Image 
+              src="/images/logos/fav_tekki.svg" 
+              alt="TEKKI Studio" 
+              width={40} 
+              height={40}
+            />
           </button>
         </div>
       )}
@@ -721,66 +737,66 @@ export default function TekkiChatbot() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            ref={chatContainerRef}
             initial={{ opacity: 0, y: isMobileDevice ? '100%' : 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: isMobileDevice ? '100%' : 20 }}
             className={`fixed ${
               isMobileDevice 
-                ? 'inset-0 z-50' 
+                ? 'inset-0 z-50 h-full' 
                 : 'bottom-6 right-6 w-[350px] md:w-[400px] h-[600px]'
             } bg-[#F2F2F2] dark:bg-gray-800 rounded-2xl shadow-xl flex flex-col overflow-hidden border dark:border-gray-700 z-50`}
           >
             {/* Header */}
             <div className="p-4 bg-[#0f4c81] text-white">
-            <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                <div className="bg-[#FF7F50] rounded-full p-1">
+                  <div className="bg-[#FF7F50] rounded-full p-1">
                     <Image 
-                    src="/images/logos/fav_tekki.svg" 
-                    alt="TEKKI Studio" 
-                    width={30} 
-                    height={30}
+                      src="/images/logos/fav_tekki.svg" 
+                      alt="TEKKI Studio" 
+                      width={30} 
+                      height={30}
                     />
-                </div>
-                <div>
+                  </div>
+                  <div>
                     <h3 className="font-semibold">Sara de TEKKI Studio</h3>
                     <p className="text-sm text-white/80">
-                    Assistante Commerciale
+                      Assistante Commerciale
                     </p>
-                </div>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
-                {/* Bouton WhatsApp avec logo officiel */}
-                <button
+                  {/* Bouton WhatsApp */}
+                  <button
                     onClick={openWhatsApp}
                     className="flex items-center justify-center w-8 h-8 bg-[#25D366] hover:bg-[#20ba5a] rounded-full transition-colors"
                     aria-label="Contacter sur WhatsApp"
                     title="Parler à un conseiller"
-                >
-                    <WhatsAppIcon size={16} className="text-white" />
-                </button>
-                {isMobileDevice ? (
-                  <div className="h-1 w-6 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto"></div>
-                ) : (
-                  <button
-                      onClick={() => setIsOpen(false)}
-                      className="p-2 hover:bg-white/10 rounded-full transition-colors"
-                      aria-label="Fermer"
                   >
-                      <X className="w-5 h-5" />
+                    <WhatsAppIcon size={16} className="text-white" />
                   </button>
-                )}
+                  
+                  {/* Toujours afficher le bouton X, même sur mobile */}
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                    aria-label="Fermer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-            </div>
+              </div>
             </div>
             
             {/* Indicateur de glissement pour fermer sur mobile */}
             {isMobileDevice && (
               <div 
-                className="w-full flex justify-center py-1 cursor-pointer" 
+                className="w-full flex flex-col items-center py-2 cursor-pointer" 
                 onClick={() => setIsOpen(false)}
               >
                 <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                <span className="text-xs text-gray-400 mt-1">Glisser pour fermer</span>
               </div>
             )}
 
@@ -829,7 +845,7 @@ export default function TekkiChatbot() {
                       </p>
                     </div>
 
-                    {/* Suggestions cliquables - uniquement pour le message d'accueil ou suggestions spéciales */}
+                    {/* Suggestions cliquables */}
                     {msg.type === 'assistant' && msg.suggestions && msg.suggestions.length > 0 && shouldShowSuggestions(msg) && (
                       <div className="flex flex-wrap gap-2">
                         {msg.suggestions.map((suggestion, index) => (
@@ -893,17 +909,17 @@ export default function TekkiChatbot() {
               </div>
               <div className="text-center mt-2">
                 <p className="text-[12px] text-gray-400 dark:text-gray-500">
-                    Chatbot IA créé par{" "}
-                    <a
+                  Chatbot IA créé par{" "}
+                  <a
                     href="https://getdukka.com"
                     target="_blank"
                     rel="noopener noreferrer" 
                     className="font-bold text-[#066AC3] hover:underline"
-                    >
+                  >
                     Dukka
-                    </a> 
+                  </a> 
                 </p>
-                </div>
+              </div>
             </div>
           </motion.div>
         )}
