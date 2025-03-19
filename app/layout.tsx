@@ -1,6 +1,5 @@
 // app/layout.tsx
 import './globals.css';
-import './styles/chatbot.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Suspense } from 'react';

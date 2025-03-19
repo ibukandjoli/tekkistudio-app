@@ -1,4 +1,3 @@
-// app/components/global/TekkiChatbot.tsx
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -11,6 +10,7 @@ import WhatsAppIcon from '../ui/WhatsAppIcon';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 
+// Définition des interfaces pour la gestion des types
 interface Message {
   id: number;
   content: string;
@@ -38,7 +38,7 @@ interface ChatbotConfig {
   updated_at: string;
 }
 
-// Suivi du funnel de conversion
+// Interface pour le suivi du funnel de conversion
 interface ConversionFunnel {
   stage: 'awareness' | 'interest' | 'consideration' | 'decision';
   lastActive: Date;
@@ -48,9 +48,21 @@ interface ConversionFunnel {
   readyToBuy: boolean;
 }
 
+// Interface pour les fallbacks de business
+interface BusinessFallback {
+  description: string;
+  keywords: string[];
+  price?: number;
+  roi?: string;
+}
+
+interface BusinessFallbacks {
+  [key: string]: BusinessFallback;
+}
+
 // Suggestions critiques à toujours afficher
 const criticalSuggestions = [
-  "Contacter le service client",
+  "Contacter un conseiller",
   "Ouvrir WhatsApp",
   "Retour à l'accueil",
   "Voir nos business"
@@ -80,6 +92,26 @@ const getDefaultWelcomeMessage = (): string => {
   return `${greeting} 👋🏼 Je suis Sara, Assistante Commerciale chez TEKKI Studio. Comment puis-je vous aider ?`;
 };
 
+// Fallback par défaut au cas où le chargement échoue
+const defaultBusinessFallbacks: BusinessFallbacks = {
+  "livres pour enfants": {
+    description: "Notre business de livres pour enfants est conçu pour le marché sénégalais avec une sélection attentive d'ouvrages adaptés aux enfants de 3 à 12 ans. Ce business comprend un site e-commerce, des relations avec des fournisseurs de qualité, et un système de livraison optimisé pour Dakar et les grandes villes du Sénégal. Le prix est de 1 500 000 FCFA avec un ROI estimé entre 6 et 10 mois. Souhaitez-vous connaître les détails spécifiques du lancement au Sénégal?",
+    keywords: ["livre", "enfant", "littérature", "jeunesse", "éducation"]
+  },
+  "vêtements": {
+    description: "Notre business de vêtements en ligne inclut un site e-commerce, des partenariats avec des fournisseurs internationaux, et une stratégie marketing ciblée. L'investissement est de 1 800 000 FCFA avec un potentiel de rentabilité à partir du 5ème mois. Aimeriez-vous en savoir plus sur la mise en place au Sénégal?",
+    keywords: ["vêtement", "habit", "mode", "textile", "habillement"]
+  },
+  "cosmétiques": {
+    description: "Le business de cosmétiques naturels comprend un site complet, des relations avec des laboratoires producteurs, et une stratégie marketing dédiée. Proposé à 2 200 000 FCFA, ce business a un potentiel mensuel de 800 000 FCFA après 3-4 mois. Souhaitez-vous des détails sur l'adaptation au marché sénégalais?",
+    keywords: ["cosmétique", "beauté", "soin", "make up", "maquillage"]
+  },
+  "épicerie": {
+    description: "Notre business d'épicerie en ligne est optimisé pour le marché sénégalais avec un site e-commerce, un système de gestion des stocks, et des relations avec des fournisseurs locaux. L'investissement est de 1 700 000 FCFA avec un ROI estimé entre 8 et 12 mois. Voulez-vous des informations sur la logistique au Sénégal?",
+    keywords: ["alimentation", "épicerie", "nourriture", "supermarché", "produits alimentaires"]
+  }
+};
+
 // Détection d'appareil mobile
 const isMobile = () => {
   if (typeof window === 'undefined') return false;
@@ -98,9 +130,12 @@ export default function TekkiChatbot() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [sessionId] = useState(() => uuidv4()); // ID unique pour la session
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+  const [businessFallbacks, setBusinessFallbacks] = useState<BusinessFallbacks>(defaultBusinessFallbacks);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const messageInputRef = useRef<HTMLInputElement>(null);
   
   // État du funnel de conversion
   const [conversionFunnel, setConversionFunnel] = useState<ConversionFunnel>({
@@ -124,6 +159,92 @@ export default function TekkiChatbot() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Chargement des fallbacks de business depuis Supabase
+  useEffect(() => {
+    const loadBusinessFallbacks = async () => {
+      try {
+        // Charger les business et leurs fallbacks depuis Supabase
+        const { data, error } = await supabase
+          .from('business_fallbacks')
+          .select('*');
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          // Transformer les données en format utilisable
+          const fallbacksMap: BusinessFallbacks = {};
+          data.forEach(item => {
+            fallbacksMap[item.name] = {
+              description: item.description,
+              keywords: item.keywords || [],
+              price: item.price,
+              roi: item.roi
+            };
+          });
+          
+          setBusinessFallbacks(fallbacksMap);
+        } else {
+          // Utiliser les fallbacks par défaut si aucune donnée
+          setBusinessFallbacks(defaultBusinessFallbacks);
+        }
+      } catch (err) {
+        console.error("Erreur lors du chargement des fallbacks:", err);
+        // Fallbacks par défaut en cas d'erreur
+        setBusinessFallbacks(defaultBusinessFallbacks);
+      }
+    };
+    
+    loadBusinessFallbacks();
+  }, []);
+
+  // Gestion du clavier mobile
+  useEffect(() => {
+    if (!isMobileDevice) return;
+
+    // Détection de l'ouverture du clavier virtuel
+    const detectKeyboard = () => {
+      // Sur la plupart des appareils, la hauteur de la fenêtre change quand le clavier s'ouvre
+      const isKeyboardOpen = window.innerHeight < window.outerHeight * 0.8;
+      setKeyboardOpen(isKeyboardOpen);
+      
+      // Ajuster le scroll quand le clavier s'ouvre
+      if (isKeyboardOpen) {
+        // Attendre que le clavier soit complètement ouvert
+        setTimeout(() => {
+          scrollToBottom();
+          // Focus sur l'input
+          messageInputRef.current?.focus();
+        }, 300);
+      }
+    };
+
+    window.addEventListener('resize', detectKeyboard);
+
+    // Gestion du chat en plein écran fixe
+    if (isOpen && chatContainerRef.current) {
+      // Empêcher le défilement de la page
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      
+      // S'assurer que le contenu visible du chat s'adapte quand le clavier s'ouvre
+      chatContainerRef.current.style.height = '100vh';
+      chatContainerRef.current.style.position = 'fixed';
+      chatContainerRef.current.style.top = '0';
+      chatContainerRef.current.style.left = '0';
+      chatContainerRef.current.style.right = '0';
+      chatContainerRef.current.style.bottom = '0';
+    }
+
+    return () => {
+      window.removeEventListener('resize', detectKeyboard);
+      // Restaurer le défilement normal quand le chat se ferme
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
+  }, [isOpen, isMobileDevice]);
 
   // Charger la configuration du chatbot au démarrage
   useEffect(() => {
@@ -171,21 +292,7 @@ export default function TekkiChatbot() {
   // Observer les nouveaux messages pour un défilement automatique
   useEffect(() => {
     scrollToBottom();
-    
-    // Si nous sommes sur mobile, assurons-nous que le conteneur de chat s'adapte correctement
-    if (isMobileDevice && isOpen && chatContainerRef.current) {
-      // Ajuster la hauteur si le clavier virtuel est visible
-      const adjustHeight = () => {
-        const viewportHeight = window.innerHeight;
-        chatContainerRef.current!.style.height = `${viewportHeight}px`;
-      };
-      
-      window.addEventListener('resize', adjustHeight);
-      adjustHeight();
-      
-      return () => window.removeEventListener('resize', adjustHeight);
-    }
-  }, [messages, isOpen, isMobileDevice]);
+  }, [messages, isTyping]);
 
   // Enregistrer l'état du funnel
   useEffect(() => {
@@ -224,6 +331,46 @@ export default function TekkiChatbot() {
       suggestions: defaultSuggestions
     }]);
   };
+  
+  // Fonction pour détecter le business mentionné dans le message
+  const detectBusinessType = (messageText: string): string | null => {
+    const messageLC = messageText.toLowerCase();
+    
+    // Vérifier parmi tous les business disponibles
+    for (const [businessName, businessInfo] of Object.entries(businessFallbacks)) {
+      // Vérifier si le nom du business est mentionné directement
+      if (messageLC.includes(businessName.toLowerCase())) {
+        return businessName;
+      }
+      
+      // Vérifier les mots-clés associés à ce business
+      if (businessInfo.keywords && businessInfo.keywords.some(keyword => 
+        messageLC.includes(keyword.toLowerCase()))) {
+        return businessName;
+      }
+    }
+  
+    return null;
+  };
+  
+  // Génération de réponse dynamique pour un business
+  const generateBusinessResponse = (businessName: string): string => {
+    const business = businessFallbacks[businessName];
+    if (!business) return "";
+    
+    // Créer une réponse structurée à partir des données
+    let response = business.description || "";
+    
+    if (business.price) {
+      response += ` Le prix est de ${business.price.toLocaleString()} FCFA.`;
+    }
+    
+    if (business.roi) {
+      response += ` ${business.roi}`;
+    }
+    
+    return response;
+  };
 
   // Fonction pour mettre à jour le funnel de conversion
   const updateConversionFunnel = (message: string, isUserMessage: boolean) => {
@@ -248,6 +395,12 @@ export default function TekkiChatbot() {
       const businessMentioned = extractBusinessName(message);
       if (businessMentioned && !prev.businessesViewed.includes(businessMentioned)) {
         newFunnel.businessesViewed = [...prev.businessesViewed, businessMentioned];
+      }
+      
+      // Vérifier également le type de business
+      const businessType = detectBusinessType(message);
+      if (businessType && !prev.businessesViewed.includes(businessType)) {
+        newFunnel.businessesViewed = [...prev.businessesViewed, businessType];
       }
       
       // Mettre à jour l'étape du funnel
@@ -384,19 +537,42 @@ export default function TekkiChatbot() {
     return <>{segments}</>;
   };
 
+  // Vérifier si le message concerne un business spécifique et utiliser le fallback
+  const handleBusinessSpecificMessage = (messageText: string): { handled: boolean, content?: string, suggestions?: string[] } => {
+    const businessName = detectBusinessType(messageText);
+    
+    if (businessName && businessFallbacks[businessName]) {
+      return {
+        handled: true,
+        content: generateBusinessResponse(businessName),
+        suggestions: [
+          "Combien ça coûte exactement ?",
+          "Quelles sont les étapes pour lancer ?",
+          "Contacter un conseiller"
+        ]
+      };
+    }
+    
+    return { handled: false };
+  };
+
   // Déterminer si nous devons afficher les suggestions pour un message
   const shouldShowSuggestions = (msg: Message): boolean => {
     // Premier message d'accueil
     if (msg.id === 1) return true;
+    
+    // Messages d'erreur techniques
+    if (msg.content.includes("difficultés techniques") || msg.content.includes("momentanément indisponible")) return true;
     
     // Contact service client uniquement si explicitement demandé
     const needsContactOption = msg.content.toLowerCase().includes("besoin d'aide") || 
                               msg.content.toLowerCase().includes("assistance") ||
                               msg.content.toLowerCase().includes("parler à quelqu'un");
     
-    if (needsContactOption && msg.suggestions?.includes("Contacter le service client")) {
+    if (needsContactOption && (msg.suggestions?.includes("Contacter un conseiller") || msg.suggestions?.includes("Contacter le service client"))) {
       // Ne conserver que les suggestions critiques
       msg.suggestions = msg.suggestions.filter(s => 
+        s === "Contacter un conseiller" || 
         s === "Contacter le service client" || 
         s === "Ouvrir WhatsApp"
       );
@@ -409,7 +585,12 @@ export default function TekkiChatbot() {
 
   // Faire défiler jusqu'au dernier message
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      // Utiliser setTimeout pour s'assurer que le DOM est mis à jour
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+      }, 100);
+    }
   };
 
   // Afficher la bulle après un délai
@@ -466,13 +647,23 @@ export default function TekkiChatbot() {
     suggestions: string[];
     needs_human: boolean;
   }> => {
-    // Vérifier d'abord si le message contient des déclencheurs d'assistance humaine
+    // Vérifier d'abord si le message concerne un business spécifique
+    const businessResponse = handleBusinessSpecificMessage(userQuery);
+    if (businessResponse.handled) {
+      return {
+        content: businessResponse.content!,
+        suggestions: businessResponse.suggestions!,
+        needs_human: false
+      };
+    }
+    
+    // Vérifier si le message contient des déclencheurs d'assistance humaine
     const needsHuman = requiresHumanAssistance(userQuery);
     
     if (needsHuman) {
       return {
-        content: "Je détecte que vous avez besoin d'une assistance plus personnalisée. Souhaitez-vous être mis en relation avec un membre de notre équipe ?",
-        suggestions: ["Contacter le service client", "Non merci, continuer"],
+        content: "Je comprends que votre demande nécessite une attention particulière. Préférez-vous échanger directement avec un membre de notre équipe pour une assistance plus personnalisée ?",
+        suggestions: ["Contacter un conseiller", "Non merci, continuer"],
         needs_human: true
       };
     }
@@ -501,17 +692,23 @@ export default function TekkiChatbot() {
       }
 
       const data = await response.json();
+      
+      // Remplacer "Contacter le service client" par "Contacter un conseiller" dans les suggestions
+      const suggestions = data.suggestions?.map((suggestion: string) => 
+        suggestion === "Contacter le service client" ? "Contacter un conseiller" : suggestion
+      ) || [];
+      
       return {
         content: data.content,
-        suggestions: data.suggestions || [],
+        suggestions: suggestions,
         needs_human: data.needs_human || false
       };
     } catch (error) {
       console.error('Erreur:', error);
       // Réponse de secours en cas d'erreur
       return {
-        content: "Je suis désolé, je rencontre des difficultés techniques. Pourriez-vous reformuler votre question ou contacter directement notre équipe sur WhatsApp ?",
-        suggestions: ["Contacter le service client", "Retour à l'accueil", "Voir nos business"],
+        content: "Je suis momentanément indisponible. Puis-je vous proposer d'échanger directement avec un membre de l'équipe qui pourra répondre à toutes vos questions ?",
+        suggestions: ["Contacter un conseiller", "Réessayer plus tard"],
         needs_human: true
       };
     }
@@ -548,6 +745,7 @@ export default function TekkiChatbot() {
   
       // Si c'est une demande de contact direct
       if (messageContent.toLowerCase().includes('contacter le service client') || 
+          messageContent.toLowerCase().includes('contacter un conseiller') ||
           messageContent.toLowerCase().includes('parler à un conseiller')) {
         setTimeout(() => {
           const contactMessage: Message = {
@@ -583,14 +781,14 @@ export default function TekkiChatbot() {
       updateConversionFunnel(assistantMessage.content, false);
   
       // Si la réponse indique qu'un humain est nécessaire
-      if (aiResponse.needs_human && !aiResponse.suggestions.includes("Contacter le service client")) {
+      if (aiResponse.needs_human && !aiResponse.suggestions.includes("Contacter le service client") && !aiResponse.suggestions.includes("Contacter un conseiller")) {
         setTimeout(() => {
           const humanSuggestionMessage: Message = {
             id: Date.now() + 2,
-            content: "Souhaitez-vous être mis en relation avec notre équipe pour une réponse plus précise?",
+            content: "Souhaitez-vous échanger directement avec un conseiller pour plus de précisions sur ce sujet ?",
             type: 'assistant',
             timestamp: new Date(),
-            suggestions: ["Contacter le service client", "Non merci, continuer"]
+            suggestions: ["Contacter un conseiller", "Non merci, continuer"]
           };
           
           setMessages(prev => [...prev, humanSuggestionMessage]);
@@ -620,30 +818,22 @@ export default function TekkiChatbot() {
       
       const errorMessage: Message = {
         id: Date.now() + 1,
-        content: "Je suis désolé, je rencontre des difficultés techniques. Pourriez-vous reformuler votre question ou contacter notre équipe directement ?",
+        content: "Je suis momentanément indisponible. Puis-je vous proposer d'échanger directement avec un conseiller qui pourra répondre à toutes vos questions ?",
         type: 'assistant',
         timestamp: new Date(),
-        suggestions: ["Contacter le service client", "Réessayer"]
+        suggestions: ["Contacter un conseiller", "Réessayer plus tard"]
       };
   
       setMessages(prev => [...prev, errorMessage]);
-      
-      toast("Quelque chose s'est mal passé. Réessayez ou contactez-nous directement.", {
-        description: "Oups !",
-      });
     } finally {
       setIsTyping(false);
+      setTimeout(scrollToBottom, 100);
     }
   };
 
   // Fonction pour gérer les clics sur les suggestions
   const handleSuggestionClick = (suggestion: string) => {
-    if (suggestion === "Ouvrir WhatsApp") {
-      openWhatsApp();
-      return;
-    }
-    
-    if (suggestion === "Contacter le service client") {
+    if (suggestion === "Ouvrir WhatsApp" || suggestion === "Contacter un conseiller" || suggestion === "Contacter le service client") {
       openWhatsApp();
       return;
     }
@@ -658,7 +848,7 @@ export default function TekkiChatbot() {
       return;
     }
     
-    if (suggestion === "Non merci, continuer") {
+    if (suggestion === "Non merci, continuer" || suggestion === "Réessayer plus tard") {
       return;
     }
     
@@ -678,6 +868,7 @@ export default function TekkiChatbot() {
     return null; // On ne montre rien pendant le chargement initial
   }
 
+  // Composant rendu
   return (
     <>
       {/* Bouton flottant avec bulle de message */}
@@ -701,11 +892,11 @@ export default function TekkiChatbot() {
               <div className="flex items-center space-x-3">
                 <div className="bg-[#FF7F50] rounded-full">
                   <Image 
-                      src="/images/logos/fav_tekki.svg" 
-                      alt="TEKKI Studio" 
-                      width={40} 
-                      height={40}
-                    />
+                    src="/images/logos/fav_tekki.svg" 
+                    alt="TEKKI Studio" 
+                    width={40} 
+                    height={40}
+                  />
                 </div>
                 <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">
                   Besoin d'aide ? Je suis là !
@@ -736,192 +927,372 @@ export default function TekkiChatbot() {
       {/* Interface de chat */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            ref={chatContainerRef}
-            initial={{ opacity: 0, y: isMobileDevice ? '100%' : 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: isMobileDevice ? '100%' : 20 }}
-            className={`fixed ${
-              isMobileDevice 
-                ? 'inset-0 z-50 h-full' 
-                : 'bottom-6 right-6 w-[350px] md:w-[400px] h-[600px]'
-            } bg-[#F2F2F2] dark:bg-gray-800 rounded-2xl shadow-xl flex flex-col overflow-hidden border dark:border-gray-700 z-50`}
-          >
-            {/* Header */}
-            <div className="p-4 bg-[#0f4c81] text-white">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="bg-[#FF7F50] rounded-full p-1">
-                    <Image 
-                      src="/images/logos/fav_tekki.svg" 
-                      alt="TEKKI Studio" 
-                      width={30} 
-                      height={30}
-                    />
+          <>
+            {/* Version Mobile (plein écran) */}
+            {isMobileDevice && (
+              <motion.div
+                ref={chatContainerRef}
+                initial={{ opacity: 0, y: '100%' }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: '100%' }}
+                className="fixed inset-0 z-[9999] flex flex-col bg-[#F2F2F2] dark:bg-gray-800"
+              >
+                {/* Header */}
+                <div className="p-4 bg-[#0f4c81] text-white sticky top-0 z-10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-[#FF7F50] rounded-full p-1">
+                        <Image 
+                          src="/images/logos/fav_tekki.svg" 
+                          alt="TEKKI Studio" 
+                          width={30} 
+                          height={30}
+                        />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">Sara de TEKKI Studio</h3>
+                        <p className="text-sm text-white/80">
+                          Assistante Commerciale
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {/* Bouton WhatsApp */}
+                      <button
+                        onClick={openWhatsApp}
+                        className="flex items-center justify-center w-8 h-8 bg-[#25D366] hover:bg-[#20ba5a] rounded-full transition-colors"
+                        aria-label="Contacter sur WhatsApp"
+                        title="Parler à un conseiller"
+                      >
+                        <WhatsAppIcon size={16} className="text-white" />
+                      </button>
+                      
+                      {/* Bouton de fermeture */}
+                      <button
+                        onClick={() => setIsOpen(false)}
+                        className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                        aria-label="Fermer"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold">Sara de TEKKI Studio</h3>
-                    <p className="text-sm text-white/80">
-                      Assistante Commerciale
+                </div>
+                
+                {/* Indicateur de glissement pour fermer sur mobile */}
+                <div 
+                  className="w-full flex flex-col items-center py-1 bg-[#0f4c81]" 
+                  onClick={() => setIsOpen(false)}
+                >
+                </div>
+
+                {/* Messages */}
+                <div 
+                  className="flex-1 overflow-y-auto p-4 space-y-4"
+                  style={{ 
+                    height: keyboardOpen ? 'calc(100vh - 180px)' : '',
+                    paddingBottom: '80px'
+                  }}
+                >
+                  {messages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`flex gap-3 ${
+                        msg.type === 'user' ? "justify-end" : ""
+                      }`}
+                    >
+                      {msg.type === 'assistant' && (
+                        <div className="w-8 h-8 rounded-full bg-[#FF7F50] flex items-center justify-center flex-shrink-0">
+                          <Image 
+                            src="/images/logos/fav_tekki.svg" 
+                            alt="TEKKI Studio" 
+                            width={20} 
+                            height={20}
+                          />
+                        </div>
+                      )}
+                      
+                      <div className={`max-w-[80%] space-y-3 ${
+                        msg.type === 'assistant' 
+                          ? "text-gray-800 dark:text-gray-200" 
+                          : "text-white"
+                      }`}>
+                        {/* Message principal */}
+                        <div className={`rounded-2xl p-3 ${
+                          msg.type === 'assistant' 
+                            ? "bg-gray-100 dark:bg-gray-700" 
+                            : "bg-[#0f4c81]"
+                        }`}>
+                          <div className="text-sm whitespace-pre-wrap">
+                            {msg.type === 'assistant' 
+                              ? parseMessageWithLinks(msg.content)
+                              : msg.content
+                            }
+                          </div>
+                          <p className="text-[10px] mt-1 text-gray-500 dark:text-gray-400">
+                            {msg.timestamp.toLocaleTimeString([], { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </p>
+                        </div>
+
+                        {/* Suggestions cliquables */}
+                        {msg.type === 'assistant' && msg.suggestions && msg.suggestions.length > 0 && shouldShowSuggestions(msg) && (
+                          <div className="flex flex-wrap gap-2">
+                            {msg.suggestions.map((suggestion, index) => (
+                              <button
+                                key={index}
+                                onClick={() => handleSuggestionClick(suggestion)}
+                                className="px-3 py-1.5 text-xs bg-[#F2F2F2] dark:bg-gray-600 
+                                         rounded-full border border-gray-200 dark:border-gray-500
+                                         hover:bg-gray-50 dark:hover:bg-gray-500
+                                         transition-colors text-gray-700 dark:text-gray-200"
+                              >
+                                {suggestion}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {isTyping && (
+                    <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-500 animate-pulse"></div>
+                        <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-500 animate-pulse delay-75"></div>
+                        <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-500 animate-pulse delay-150"></div>
+                      </div>
+                      <span className="text-sm">Sara écrit...</span>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} className="h-4" />
+                </div>
+
+                {/* Input - fixed at bottom */}
+                <div className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 fixed bottom-0 left-0 right-0 z-20">
+                  <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 rounded-full p-2 pl-4 border dark:border-gray-600">
+                    <input
+                      ref={messageInputRef}
+                      type="text"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendMessage();
+                        }
+                      }}
+                      placeholder="Posez votre question..."
+                      className="flex-1 bg-transparent text-sm text-gray-600 dark:text-gray-300 focus:outline-none border-none"
+                    />
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={!message.trim() || isTyping}
+                      className={`rounded-full p-2 ${
+                        message.trim() && !isTyping
+                          ? "bg-[#0f4c81] text-white hover:bg-[#0f4c81]/90"
+                          : "bg-gray-100 dark:bg-gray-600 text-gray-400 dark:text-gray-500"
+                      }`}
+                      aria-label="Envoyer"
+                    >
+                      <Send className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="text-center mt-2">
+                    <p className="text-[12px] text-gray-400 dark:text-gray-500">
+                      Chatbot IA créé par{" "}
+                      <a
+                        href="https://getdukka.com"
+                        target="_blank"
+                        rel="noopener noreferrer" 
+                        className="font-bold text-[#066AC3] hover:underline"
+                      >
+                        Dukka
+                      </a> 
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {/* Bouton WhatsApp */}
-                  <button
-                    onClick={openWhatsApp}
-                    className="flex items-center justify-center w-8 h-8 bg-[#25D366] hover:bg-[#20ba5a] rounded-full transition-colors"
-                    aria-label="Contacter sur WhatsApp"
-                    title="Parler à un conseiller"
-                  >
-                    <WhatsAppIcon size={16} className="text-white" />
-                  </button>
-                  
-                  {/* Toujours afficher le bouton X, même sur mobile */}
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
-                    aria-label="Fermer"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            {/* Indicateur de glissement pour fermer sur mobile */}
-            {isMobileDevice && (
-              <div 
-                className="w-full flex flex-col items-center py-2 cursor-pointer" 
-                onClick={() => setIsOpen(false)}
-              >
-                <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
-                <span className="text-xs text-gray-400 mt-1">Glisser pour fermer</span>
-              </div>
+              </motion.div>
             )}
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex gap-3 ${
-                    msg.type === 'user' ? "justify-end" : ""
-                  }`}
-                >
-                  {msg.type === 'assistant' && (
-                    <div className="w-8 h-8 rounded-full bg-[#FF7F50] flex items-center justify-center flex-shrink-0">
-                      <Image 
-                        src="/images/logos/fav_tekki.svg" 
-                        alt="TEKKI Studio" 
-                        width={20} 
-                        height={20}
-                      />
+            {/* Version Desktop (fenêtre flottante) */}
+            {!isMobileDevice && (
+              <motion.div
+                ref={chatContainerRef}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="fixed bottom-6 right-6 w-[350px] md:w-[400px] h-[600px] z-[9999] flex flex-col bg-[#F2F2F2] dark:bg-gray-800 rounded-2xl shadow-xl border dark:border-gray-700"
+              >
+                {/* Header */}
+                <div className="p-4 bg-[#0f4c81] text-white rounded-t-2xl">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-[#FF7F50] rounded-full p-1">
+                        <Image 
+                          src="/images/logos/fav_tekki.svg" 
+                          alt="TEKKI Studio" 
+                          width={30} 
+                          height={30}
+                        />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">Sara de TEKKI Studio</h3>
+                        <p className="text-sm text-white/80">
+                          Assistante Commerciale
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {/* Bouton WhatsApp */}
+                      <button
+                        onClick={openWhatsApp}
+                        className="flex items-center justify-center w-8 h-8 bg-[#25D366] hover:bg-[#20ba5a] rounded-full transition-colors"
+                        aria-label="Contacter sur WhatsApp"
+                        title="Parler à un conseiller"
+                      >
+                        <WhatsAppIcon size={16} className="text-white" />
+                      </button>
+                      
+                      {/* Bouton de fermeture */}
+                      <button
+                        onClick={() => setIsOpen(false)}
+                        className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                        aria-label="Fermer"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Messages - flexible height */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {messages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`flex gap-3 ${
+                        msg.type === 'user' ? "justify-end" : ""
+                      }`}
+                    >
+                      {msg.type === 'assistant' && (
+                        <div className="w-8 h-8 rounded-full bg-[#FF7F50] flex items-center justify-center flex-shrink-0">
+                          <Image 
+                            src="/images/logos/fav_tekki.svg" 
+                            alt="TEKKI Studio" 
+                            width={20} 
+                            height={20}
+                          />
+                        </div>
+                      )}
+                      
+                      <div className={`max-w-[80%] space-y-3 ${
+                        msg.type === 'assistant' 
+                          ? "text-gray-800 dark:text-gray-200" 
+                          : "text-white"
+                      }`}>
+                        {/* Message principal */}
+                        <div className={`rounded-2xl p-3 ${
+                          msg.type === 'assistant' 
+                            ? "bg-gray-100 dark:bg-gray-700" 
+                            : "bg-[#0f4c81]"
+                        }`}>
+                          <div className="text-sm whitespace-pre-wrap">
+                            {msg.type === 'assistant' 
+                              ? parseMessageWithLinks(msg.content)
+                              : msg.content
+                            }
+                          </div>
+                          <p className="text-[10px] mt-1 text-gray-500 dark:text-gray-400">
+                            {msg.timestamp.toLocaleTimeString([], { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </p>
+                        </div>
+
+                        {/* Suggestions cliquables */}
+                        {msg.type === 'assistant' && msg.suggestions && msg.suggestions.length > 0 && shouldShowSuggestions(msg) && (
+                          <div className="flex flex-wrap gap-2">
+                            {msg.suggestions.map((suggestion, index) => (
+                              <button
+                                key={index}
+                                onClick={() => handleSuggestionClick(suggestion)}
+                                className="px-3 py-1.5 text-xs bg-[#F2F2F2] dark:bg-gray-600 
+                                         rounded-full border border-gray-200 dark:border-gray-500
+                                         hover:bg-gray-50 dark:hover:bg-gray-500
+                                         transition-colors text-gray-700 dark:text-gray-200"
+                              >
+                                {suggestion}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {isTyping && (
+                    <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-500 animate-pulse"></div>
+                        <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-500 animate-pulse delay-75"></div>
+                        <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-500 animate-pulse delay-150"></div>
+                      </div>
+                      <span className="text-sm">Sara écrit...</span>
                     </div>
                   )}
-                  
-                  <div className={`max-w-[80%] space-y-3 ${
-                    msg.type === 'assistant' 
-                      ? "text-gray-800 dark:text-gray-200" 
-                      : "text-white"
-                  }`}>
-                    {/* Message principal */}
-                    <div className={`rounded-2xl p-3 ${
-                      msg.type === 'assistant' 
-                        ? "bg-gray-100 dark:bg-gray-700" 
-                        : "bg-[#0f4c81]"
-                    }`}>
-                      <div className="text-sm whitespace-pre-wrap">
-                        {msg.type === 'assistant' 
-                          ? parseMessageWithLinks(msg.content)
-                          : msg.content
+                  <div ref={messagesEndRef} className="h-4" />
+                </div>
+
+                {/* Input */}
+                <div className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 rounded-b-2xl">
+                  <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 rounded-full p-2 pl-4 border dark:border-gray-600">
+                    <input
+                      ref={messageInputRef}
+                      type="text"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendMessage();
                         }
-                      </div>
-                      <p className="text-[10px] mt-1 text-gray-500 dark:text-gray-400">
-                        {msg.timestamp.toLocaleTimeString([], { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
-                        })}
-                      </p>
-                    </div>
-
-                    {/* Suggestions cliquables */}
-                    {msg.type === 'assistant' && msg.suggestions && msg.suggestions.length > 0 && shouldShowSuggestions(msg) && (
-                      <div className="flex flex-wrap gap-2">
-                        {msg.suggestions.map((suggestion, index) => (
-                          <button
-                            key={index}
-                            onClick={() => handleSuggestionClick(suggestion)}
-                            className="px-3 py-1.5 text-xs bg-[#F2F2F2] dark:bg-gray-600 
-                                     rounded-full border border-gray-200 dark:border-gray-500
-                                     hover:bg-gray-50 dark:hover:bg-gray-500
-                                     transition-colors text-gray-700 dark:text-gray-200"
-                          >
-                            {suggestion}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                      }}
+                      placeholder="Posez votre question..."
+                      className="flex-1 bg-transparent text-sm text-gray-600 dark:text-gray-300 focus:outline-none border-none"
+                    />
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={!message.trim() || isTyping}
+                      className={`rounded-full p-2 ${
+                        message.trim() && !isTyping
+                          ? "bg-[#0f4c81] text-white hover:bg-[#0f4c81]/90"
+                          : "bg-gray-100 dark:bg-gray-600 text-gray-400 dark:text-gray-500"
+                      }`}
+                      aria-label="Envoyer"
+                    >
+                      <Send className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="text-center mt-2">
+                    <p className="text-[12px] text-gray-400 dark:text-gray-500">
+                      Chatbot IA créé par{" "}
+                      <a
+                        href="https://getdukka.com"
+                        target="_blank"
+                        rel="noopener noreferrer" 
+                        className="font-bold text-[#066AC3] hover:underline"
+                      >
+                        Dukka
+                      </a> 
+                    </p>
                   </div>
                 </div>
-              ))}
-              {isTyping && (
-                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-500 animate-pulse"></div>
-                    <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-500 animate-pulse delay-75"></div>
-                    <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-500 animate-pulse delay-150"></div>
-                  </div>
-                  <span className="text-sm">Sara écrit...</span>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input */}
-            <div className={`p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 ${isMobileDevice ? 'pb-safe-area-bottom' : ''}`}>
-              <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 rounded-full p-2 pl-4 border dark:border-gray-600">
-                <input
-                  type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
-                  }}
-                  placeholder="Posez votre question..."
-                  className="flex-1 bg-transparent text-sm text-gray-600 dark:text-gray-300 focus:outline-none border-none"
-                />
-                <button
-                  onClick={handleSendMessage}
-                  disabled={!message.trim() || isTyping}
-                  className={`rounded-full p-2 ${
-                    message.trim() && !isTyping
-                      ? "bg-[#0f4c81] text-white hover:bg-[#0f4c81]/90"
-                      : "bg-gray-100 dark:bg-gray-600 text-gray-400 dark:text-gray-500"
-                  }`}
-                  aria-label="Envoyer"
-                >
-                  <Send className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="text-center mt-2">
-                <p className="text-[12px] text-gray-400 dark:text-gray-500">
-                  Chatbot IA créé par{" "}
-                  <a
-                    href="https://getdukka.com"
-                    target="_blank"
-                    rel="noopener noreferrer" 
-                    className="font-bold text-[#066AC3] hover:underline"
-                  >
-                    Dukka
-                  </a> 
-                </p>
-              </div>
-            </div>
-          </motion.div>
+              </motion.div>
+            )}
+          </>
         )}
       </AnimatePresence>
     </>
