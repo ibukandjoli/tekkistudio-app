@@ -122,3 +122,151 @@ body {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
   z-index: 9999 !important;
 }
+
+/* Styles spécifiques pour le chatbot */
+.tekki-chatbot-container {
+  z-index: 9999 !important;
+}
+
+/* Assurer que le chatbot prend tout l'écran en mobile */
+@media (max-width: 768px) {
+  .tekki-chatbot-fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+  }
+  
+  .tekki-chatbot-content {
+    height: calc(100% - 120px) !important; /* Hauteur moins l'en-tête et la zone de saisie */
+    overflow-y: auto !important;
+    padding-bottom: 100px !important; /* Augmenter l'espace en bas */
+  }
+  
+  .tekki-chatbot-input {
+    border-top-width: 1px;
+    border-top-style: solid;
+  }
+  
+  /* Assurer un espacement correct entre le dernier message et l'input */
+  .tekki-chatbot-message:last-of-type {
+    margin-bottom: 16px !important;
+  }
+  
+  /* Améliorer l'indication de fermeture mobile */
+  .tekki-chatbot-container .mobile-close-indicator {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #9CA3AF;
+    padding: 4px 0;
+    width: 100%;
+  }
+  
+  /* Style pour le bouton de fermeture */
+  .tekki-chatbot-close {
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    z-index: 9999 !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 36px !important;
+    height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* Styles de base pour les messages */
+.tekki-chatbot-message {
+  max-width: 85% !important;
+  word-break: break-word !important;
+}
+
+/* Message de l'utilisateur - identique en mode clair et sombre */
+.tekki-chatbot-user-message {
+  background-color: #0f4c81 !important;
+  color: white !important;
+  border-radius: 18px 18px 0 18px !important;
+}
+
+/* Message de l'assistant - mode clair par défaut */
+.tekki-chatbot-assistant-message {
+  background-color: #f0f0f0 !important;
+  color: #333 !important;
+  border-radius: 18px 18px 18px 0 !important;
+  padding: 12px !important;
+}
+
+/* IMPORTANT: Redéfinition pour le mode sombre avec une spécificité plus élevée */
+html.dark .tekki-chatbot-assistant-message,
+body.dark .tekki-chatbot-assistant-message {
+  background-color: #2d2d3a !important;
+  color: #e0e0e0 !important;
+}
+
+/* Suggestions - mode clair par défaut */
+.tekki-chatbot-suggestion {
+  background-color: #f2f2f2 !important;
+  color: #333 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 9999px !important;
+  padding: 6px 12px !important;
+  font-size: 0.75rem !important;
+  margin: 4px !important;
+  cursor: pointer !important;
+}
+
+.tekki-chatbot-suggestion:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  background-color: #e8e8e8 !important;
+}
+
+/* Suggestions - mode sombre */
+html.dark .tekki-chatbot-suggestion,
+body.dark .tekki-chatbot-suggestion {
+  background-color: #363644 !important;
+  color: #f0f0f0 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.tekki-chatbot-suggestion:hover {
+  background-color: #e8e8e8 !important;
+}
+
+html.dark .tekki-chatbot-suggestion:hover,
+body.dark .tekki-chatbot-suggestion:hover {
+  background-color: #42424f !important;
+}
+
+/* Animations améliorées */
+@keyframes tekki-chatbot-typing {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.tekki-chatbot-typing-dot {
+  animation: tekki-chatbot-typing 1s ease infinite;
+  animation-delay: calc(var(--dot-index) * 0.2s);
+}
+
+/* Pour résoudre les problèmes d'affichage des formulaires et inputs dans le chat */
+.tekki-chatbot-input input,
+.tekki-chatbot-input button {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  border-radius: 9999px !important;
+}
+
+.tekki-chatbot-input input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}

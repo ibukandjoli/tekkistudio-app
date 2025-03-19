@@ -21,6 +21,8 @@ interface RequestBody {
     url: string;
   };
   history?: ChatMessage[];
+  sessionId?: string;
+  conversionState?: any;
 }
 
 interface Brand {
@@ -175,7 +177,7 @@ function isCommercialQuery(query: string) {
   return commercialPatterns.some(pattern => pattern.test(query));
 }
 
-// Fonction pour déterminer si une question est complexe (conservée pour rétrocompatibilité)
+// Fonction pour déterminer si une question est complexe 
 function isComplexQuery(query: string) {
   const complexPatterns = [
     /compare|comparer|différence/i,
@@ -559,7 +561,8 @@ async function saveConversation(
   userMessage: string, 
   assistantResponse: string, 
   context: {page: string, url: string}, 
-  needsHuman: boolean
+  needsHuman: boolean,
+  sessionId?: string
 ): Promise<void> {
   try {
     const { error } = await supabase
@@ -570,6 +573,7 @@ async function saveConversation(
         page: context.page,
         url: context.url,
         needs_human: needsHuman,
+        session_id: sessionId || 'anonymous',
         created_at: new Date().toISOString()
       }]);
       
@@ -587,7 +591,7 @@ export async function POST(request: Request) {
   try {
     console.log("Traitement d'une nouvelle requête chatbot");
     const body: RequestBody = await request.json();
-    const { message, context, history = [] } = body;
+    const { message, context: requestContext, history = [], sessionId, conversionState } = body;
     
     if (!message) {
       return NextResponse.json(
@@ -597,7 +601,19 @@ export async function POST(request: Request) {
     }
 
     console.log("Message reçu:", message);
-    console.log("Contexte:", context);
+    console.log("Contexte:", requestContext);
+    console.log("Session ID:", sessionId || "Non fourni");
+
+    // Vérifier que le contexte est valide et créer une copie modifiable
+    let context = { ...requestContext };
+    if (!context || !context.page || !context.url) {
+      console.warn("Contexte invalide reçu:", context);
+      // Créer un contexte par défaut
+      context = {
+        page: "Page inconnue",
+        url: "/"
+      };
+    }
 
     // Vérifier si la réponse est en cache
     const contextKey = `${context.page}:${context.url}`;
@@ -625,7 +641,7 @@ export async function POST(request: Request) {
       await saveToCache(message, contextKey, response);
       
       // Enregistrer la conversation
-      await saveConversation(message, response.content, context, response.needs_human);
+      await saveConversation(message, response.content, context, response.needs_human, sessionId);
       
       return NextResponse.json(response);
     }
@@ -639,35 +655,40 @@ export async function POST(request: Request) {
     let brandsData: Brand[] = [];
     let formationsData: Formation[] = [];
     
-    // Optimisation: ne récupérer que les données nécessaires selon le contexte
-    if (context.url.startsWith('/business/') && !context.url.endsWith('/business')) {
-      // Page d'un business spécifique
-      const businessSlug = context.url.split('/').pop();
-      businessesData = await fetchDataSafely<Business>('businesses', '*', undefined, undefined, { slug: businessSlug });
-    } 
-    else if (context.url.startsWith('/business')) {
-      // Page des business en général
-      businessesData = await fetchDataSafely<Business>('businesses', '*', { column: 'created_at', ascending: false });
-    }
-    else {
-      // Autres pages: limiter le nombre de business à 3 pour réduire les tokens
-      businessesData = await fetchDataSafely<Business>('businesses', '*', { column: 'created_at', ascending: false }, 3);
-    }
+    try {
+      // Optimisation: ne récupérer que les données nécessaires selon le contexte
+      if (context.url.startsWith('/business/') && !context.url.endsWith('/business')) {
+        // Page d'un business spécifique
+        const businessSlug = context.url.split('/').pop();
+        businessesData = await fetchDataSafely<Business>('businesses', '*', undefined, undefined, { slug: businessSlug });
+      } 
+      else if (context.url.startsWith('/business')) {
+        // Page des business en général
+        businessesData = await fetchDataSafely<Business>('businesses', '*', { column: 'created_at', ascending: false });
+      }
+      else {
+        // Autres pages: limiter le nombre de business à 3 pour réduire les tokens
+        businessesData = await fetchDataSafely<Business>('businesses', '*', { column: 'created_at', ascending: false }, 3);
+      }
 
-    // Récupérer les marques et formations selon la page visitée
-    if (context.url.startsWith('/marques')) {
-      brandsData = await fetchDataSafely<Brand>('brands');
-    } else if (context.url.startsWith('/formations')) {
-      formationsData = await fetchDataSafely<Formation>('formations');
-    } else {
-      // Sur d'autres pages, récupérer un échantillon limité
-      brandsData = await fetchDataSafely<Brand>('brands', '*', undefined, 2);
-      formationsData = await fetchDataSafely<Formation>('formations', '*', undefined, 2);
-    }
+      // Récupérer les marques et formations selon la page visitée
+      if (context.url.startsWith('/marques')) {
+        brandsData = await fetchDataSafely<Brand>('brands');
+      } else if (context.url.startsWith('/formations')) {
+        formationsData = await fetchDataSafely<Formation>('formations');
+      } else {
+        // Sur d'autres pages, récupérer un échantillon limité
+        brandsData = await fetchDataSafely<Brand>('brands', '*', undefined, 2);
+        formationsData = await fetchDataSafely<Formation>('formations', '*', undefined, 2);
+      }
 
-    console.log(`${businessesData.length} business récupérés`);
-    console.log(`${brandsData.length} marques récupérées`);
-    console.log(`${formationsData.length} formations récupérées`);
+      console.log(`${businessesData.length} business récupérés`);
+      console.log(`${brandsData.length} marques récupérées`);
+      console.log(`${formationsData.length} formations récupérées`);
+    } catch (dataError) {
+      console.error('Erreur lors de la récupération des données:', dataError);
+      // Continuer même si la récupération des données échoue
+    }
 
     // Utiliser nos fonctions pour formater les contextes
     const businessesContextString = createBusinessContext(businessesData);
@@ -743,8 +764,31 @@ TRÈS IMPORTANT: Ne confondez PAS ces business e-commerce à vendre avec les mar
     }
 
     // Analyser l'état de conversion du visiteur
-    const conversionState = analyzeConversionState([...history, { role: 'user', content: message }]);
-    console.log("État de conversion:", conversionState);
+    const conversionStateAnalysis = analyzeConversionState([...history, { role: 'user', content: message }]);
+    console.log("État de conversion:", conversionStateAnalysis);
+
+    // Vérifier si le message contient des déclencheurs d'assistance humaine depuis la config
+    let needsHumanAssistance = false;
+    if (config && config.human_trigger_phrases && config.human_trigger_phrases.length > 0) {
+      const lowerCaseMessage = message.toLowerCase();
+      needsHumanAssistance = config.human_trigger_phrases.some(phrase => 
+        lowerCaseMessage.includes(phrase.toLowerCase())
+      );
+    }
+
+    // Si une assistance humaine est nécessaire, on retourne directement une réponse
+    if (needsHumanAssistance) {
+      const humanResponse = {
+        content: "Je détecte que vous avez besoin d'une assistance plus personnalisée. Souhaitez-vous être mis en relation avec un membre de notre équipe ?",
+        suggestions: ["Contacter le service client", "Non merci, continuer"],
+        needs_human: true
+      };
+      
+      // Enregistrer la conversation
+      await saveConversation(message, humanResponse.content, context, true, sessionId);
+      
+      return NextResponse.json(humanResponse);
+    }
 
     // Utiliser le prompt système optimisé
     const systemPrompt = `
@@ -814,20 +858,20 @@ CONTEXTE ACTUEL DE LA PAGE:
 ${pageSpecificContext}
 
 ÉTAT DE CONVERSION DU VISITEUR:
-- A montré de l'intérêt: ${conversionState.hasShownInterest ? "OUI" : "NON"}
-- A demandé des prix: ${conversionState.hasAskedAboutPrice ? "OUI" : "NON"}
-- S'intéresse à un business spécifique: ${conversionState.hasConsideredSpecificBusiness ? "OUI" : "NON"}
-- Prêt à acheter: ${conversionState.readyToBuy ? "OUI" : "NON"}
-- Business recommandé: ${conversionState.recommendedBusiness || "Aucun encore"}
+- A montré de l'intérêt: ${conversionStateAnalysis.hasShownInterest ? "OUI" : "NON"}
+- A demandé des prix: ${conversionStateAnalysis.hasAskedAboutPrice ? "OUI" : "NON"}
+- S'intéresse à un business spécifique: ${conversionStateAnalysis.hasConsideredSpecificBusiness ? "OUI" : "NON"}
+- Prêt à acheter: ${conversionStateAnalysis.readyToBuy ? "OUI" : "NON"}
+- Business recommandé: ${conversionStateAnalysis.recommendedBusiness || "Aucun encore"}
 
 INSTRUCTION SPÉCIALE BASÉE SUR L'ÉTAT:
-${conversionState.readyToBuy 
+${conversionStateAnalysis.readyToBuy 
   ? "⚠️ PRIORITÉ: Pousser à contacter immédiatement le service client ou à finaliser l'acquisition" 
-  : conversionState.hasConsideredSpecificBusiness 
+  : conversionStateAnalysis.hasConsideredSpecificBusiness 
     ? "⚠️ PRIORITÉ: Détailler les avantages spécifiques et inciter à l'achat" 
-    : conversionState.hasAskedAboutPrice 
+    : conversionStateAnalysis.hasAskedAboutPrice 
       ? "⚠️ PRIORITÉ: Expliquer la valeur et le ROI, pas seulement le prix" 
-      : conversionState.hasShownInterest 
+      : conversionStateAnalysis.hasShownInterest 
         ? "⚠️ PRIORITÉ: Recommander un business spécifique adapté à son profil" 
         : "⚠️ PRIORITÉ: Captiver l'intérêt et qualifier les besoins"
 }
@@ -847,29 +891,6 @@ GARDE TOUJOURS EN TÊTE QUE TU ES UNE VENDEUSE D'EXCEPTION QUI DOIT CONVERTIR CE
 
     console.log(`Utilisation du modèle: ${modelToUse}, première interaction: ${isFirstInteraction}, message simple: ${isSimpleGreeting || isGeneralQuestion}`);
 
-    // Vérifier si le message contient des déclencheurs d'assistance humaine depuis la config
-    let needsHumanAssistance = false;
-    if (config && config.human_trigger_phrases && config.human_trigger_phrases.length > 0) {
-      const lowerCaseMessage = message.toLowerCase();
-      needsHumanAssistance = config.human_trigger_phrases.some(phrase => 
-        lowerCaseMessage.includes(phrase.toLowerCase())
-      );
-    }
-
-    // Si une assistance humaine est nécessaire, on retourne directement une réponse
-    if (needsHumanAssistance) {
-      const humanResponse = {
-        content: "Je détecte que vous avez besoin d'une assistance plus personnalisée. Souhaitez-vous être mis en relation avec un membre de notre équipe ?",
-        suggestions: ["Contacter le service client", "Non merci, continuer"],
-        needs_human: true
-      };
-      
-      // Enregistrer la conversation
-      await saveConversation(message, humanResponse.content, context, true);
-      
-      return NextResponse.json(humanResponse);
-    }
-
     // Limiter l'historique de conversation pour réduire les tokens
     // Ne garder que les 5 derniers messages
     const limitedHistory = history.slice(-5);
@@ -886,130 +907,144 @@ GARDE TOUJOURS EN TÊTE QUE TU ES UNE VENDEUSE D'EXCEPTION QUI DOIT CONVERTIR CE
     ];
 
     console.log(`Appel à l'API OpenAI avec le modèle ${modelToUse}...`);
+    console.log("Premier message système:", conversationHistory[0].content.substring(0, 100) + "...");
     
-    // Appel à l'API OpenAI
-    const completion = await openai.chat.completions.create({
-      model: modelToUse,
-      messages: conversationHistory as any,
-      max_tokens: modelToUse === "gpt-4-turbo-preview" ? 800 : 400, // Augmenter la taille pour GPT-4
-      temperature: 0.7, // Légèrement plus créatif pour être persuasif
-      functions: [
-        {
-          name: "format_assistant_response",
-          description: "Format the assistant response with content and suggestions",
-          parameters: {
-            type: "object",
-            properties: {
-              content: {
-                type: "string",
-                description: "The main response text"
-              },
-              suggestions: {
-                type: "array",
-                items: {
-                  type: "string"
+    try {
+      // Appel à l'API OpenAI
+      const completion = await openai.chat.completions.create({
+        model: modelToUse,
+        messages: conversationHistory as any,
+        max_tokens: modelToUse === "gpt-4-turbo-preview" ? 800 : 400, // Augmenter la taille pour GPT-4
+        temperature: 0.7, // Légèrement plus créatif pour être persuasif
+        functions: [
+          {
+            name: "format_assistant_response",
+            description: "Format the assistant response with content and suggestions",
+            parameters: {
+              type: "object",
+              properties: {
+                content: {
+                  type: "string",
+                  description: "The main response text"
                 },
-                description: "List of 2-3 follow-up question suggestions"
+                suggestions: {
+                  type: "array",
+                  items: {
+                    type: "string"
+                  },
+                  description: "List of 2-3 follow-up question suggestions"
+                },
+                needs_human: {
+                  type: "boolean",
+                  description: "Whether the query needs human assistance"
+                }
               },
-              needs_human: {
-                type: "boolean",
-                description: "Whether the query needs human assistance"
-              }
-            },
-            required: ["content", "suggestions", "needs_human"]
+              required: ["content", "suggestions", "needs_human"]
+            }
+          }
+        ],
+        function_call: { name: "format_assistant_response" }
+      });
+
+      console.log("Réponse reçue de l'API OpenAI");
+
+      // Extraire et formater la réponse
+      let aiResponse: { 
+        content: string; 
+        suggestions: string[]; 
+        needs_human: boolean;
+      } = { 
+        content: '', 
+        suggestions: [], 
+        needs_human: false 
+      };
+
+      if (completion.choices && completion.choices.length > 0) {
+        const functionCall = completion.choices[0].message.function_call;
+        
+        if (functionCall && functionCall.arguments) {
+          try {
+            aiResponse = JSON.parse(functionCall.arguments as string);
+            console.log("Réponse formatée avec succès");
+          } catch (jsonError) {
+            console.error('Erreur lors du parsing de la réponse formatée:', jsonError);
+            aiResponse.content = "Je n'ai pas pu traiter correctement votre demande. Pourriez-vous reformuler votre question?";
+            aiResponse.needs_human = true;
+          }
+        } else if (completion.choices[0].message.content) {
+          console.log("Utilisation du contenu de message standard (pas de function call)");
+          aiResponse.content = completion.choices[0].message.content;
+          aiResponse.suggestions = config?.initial_suggestions || [
+            "Parlez-moi de vos business en vente",
+            "Quelles formations proposez-vous?",
+            "Contacter le service client"
+          ];
+        }
+      }
+      
+      // Ajouter l'option de contacter le service client si nécessaire
+      if (aiResponse.needs_human && !aiResponse.suggestions.includes("Contacter le service client")) {
+        aiResponse.suggestions.push("Contacter le service client");
+      }
+
+      // S'assurer qu'il y a toujours des suggestions utiles et contextuelles
+      if (aiResponse.suggestions.length === 0) {
+        aiResponse.suggestions = generateContextualSuggestions(message, aiResponse.content, context, config);
+      }
+
+      // Pour la question concernant un site e-commerce, s'assurer que la réponse parle du service
+      if ((message.toLowerCase().includes("site e-commerce") || 
+          message.toLowerCase().includes("site web") || 
+          message.toLowerCase().includes("créer un site") || 
+          message.toLowerCase().includes("conception de site")) && 
+          !context.url.startsWith('/business/')) {
+        const serviceURL = "https://tekkistudio.com/services/sites-ecommerce";
+        if (!aiResponse.content.includes(serviceURL)) {
+          // La réponse ne contient pas le bon lien, on ajoute une suggestion spécifique
+          aiResponse.suggestions = [
+            "Quels sont les délais de livraison?",
+            "Que comprend exactement ce service?",
+            "Voir la page du service"
+          ];
+          
+          // Assurons-nous que la réponse parle bien du service et non des business
+          if (!aiResponse.content.includes("695 000 FCFA")) {
+            aiResponse.content = `Notre service de création de site e-commerce professionnel est disponible à 695 000 FCFA. Il comprend un site entièrement fonctionnel et optimisé pour la conversion, une stratégie Meta et une formation vidéo pour la prise en main. Vous pouvez découvrir tous les détails en cliquant ici : [Créez votre site e-commerce professionnel](${serviceURL}). Le délai de livraison de votre site est de 7 jours ouvrés.`;
           }
         }
-      ],
-      function_call: { name: "format_assistant_response" }
-    });
+      }
 
-    console.log("Réponse reçue de l'API OpenAI");
+      // Enregistrer la réponse dans le cache
+      await saveToCache(message, contextKey, aiResponse);
 
-    // Extraire et formater la réponse
-    let aiResponse: { 
-      content: string; 
-      suggestions: string[]; 
-      needs_human: boolean;
-    } = { 
-      content: '', 
-      suggestions: [], 
-      needs_human: false 
-    };
-
-    if (completion.choices && completion.choices.length > 0) {
-      const functionCall = completion.choices[0].message.function_call;
+      // Enregistrer la conversation dans Supabase
+      await saveConversation(message, aiResponse.content, context, aiResponse.needs_human, sessionId);
       
-      if (functionCall && functionCall.arguments) {
-        try {
-          aiResponse = JSON.parse(functionCall.arguments as string);
-          console.log("Réponse formatée avec succès");
-        } catch (jsonError) {
-          console.error('Erreur lors du parsing de la réponse formatée:', jsonError);
-          aiResponse.content = "Je n'ai pas pu traiter correctement votre demande. Pourriez-vous reformuler votre question?";
-          aiResponse.needs_human = true;
-        }
-      } else if (completion.choices[0].message.content) {
-        console.log("Utilisation du contenu de message standard (pas de function call)");
-        aiResponse.content = completion.choices[0].message.content;
-        aiResponse.suggestions = config?.initial_suggestions || [
-          "Parlez-moi de vos business en vente",
-          "Quelles formations proposez-vous?",
-          "Contacter le service client"
-        ];
-      }
+      console.log("Réponse envoyée au client");
+      return NextResponse.json(aiResponse);
+    } catch (openaiError) {
+      console.error('Erreur détaillée OpenAI:', openaiError);
+      
+      // Répondre avec une erreur plus informative
+      return NextResponse.json(
+        { 
+          content: "Je rencontre des difficultés à traiter votre demande actuellement. Notre équipe est disponible pour vous aider directement.", 
+          suggestions: ["Contacter le service client", "Voir nos business disponibles", "Explorer nos formations"],
+          needs_human: true
+        },
+        { status: 200 } // Toujours renvoyer 200 pour que le frontend puisse traiter la réponse
+      );
     }
-    
-    // Ajouter l'option de contacter le service client si nécessaire
-    if (aiResponse.needs_human && !aiResponse.suggestions.includes("Contacter le service client")) {
-      aiResponse.suggestions.push("Contacter le service client");
-    }
-
-    // S'assurer qu'il y a toujours des suggestions utiles et contextuelles
-    if (aiResponse.suggestions.length === 0) {
-      aiResponse.suggestions = generateContextualSuggestions(message, aiResponse.content, context, config);
-    }
-
-    // Pour la question concernant un site e-commerce, s'assurer que la réponse parle du service
-    if ((message.toLowerCase().includes("site e-commerce") || 
-         message.toLowerCase().includes("site web") || 
-         message.toLowerCase().includes("créer un site") || 
-         message.toLowerCase().includes("conception de site")) && 
-        !context.url.startsWith('/business/')) {
-      const serviceURL = "https://tekkistudio.com/services/sites-ecommerce";
-      if (!aiResponse.content.includes(serviceURL)) {
-        // La réponse ne contient pas le bon lien, on ajoute une suggestion spécifique
-        aiResponse.suggestions = [
-          "Quels sont les délais de livraison?",
-          "Que comprend exactement ce service?",
-          "Voir la page du service"
-        ];
-        
-        // Assurons-nous que la réponse parle bien du service et non des business
-        if (!aiResponse.content.includes("695 000 FCFA")) {
-          aiResponse.content = `Notre service de création de site e-commerce professionnel est disponible à 695 000 FCFA. Il comprend un site entièrement fonctionnel et optimisé pour la conversion, une stratégie Meta et une formation vidéo pour la prise en main. Vous pouvez découvrir tous les détails en cliquant ici : [Créez votre site e-commerce professionnel](${serviceURL}). Le délai de livraison de votre site est de 7 jours ouvrés.`;
-        }
-      }
-    }
-
-    // Enregistrer la réponse dans le cache
-    await saveToCache(message, contextKey, aiResponse);
-
-    // Enregistrer la conversation dans Supabase
-    await saveConversation(message, aiResponse.content, context, aiResponse.needs_human);
-    
-    console.log("Réponse envoyée au client");
-    return NextResponse.json(aiResponse);
-
   } catch (error) {
-    console.error('Erreur dans l\'API chatbot:', error);
+    console.error('Erreur détaillée dans l\'API chatbot:', error);
     
     return NextResponse.json(
       { 
         content: "Désolé, j'ai rencontré un problème technique. Voulez-vous contacter notre équipe directement?", 
-        suggestions: ["Contacter le service client", "Réessayer plus tard"],
+        suggestions: ["Contacter le service client", "Réessayer plus tard", "Voir nos business"],
         needs_human: true
       },
-      { status: 500 }
+      { status: 200 } // Toujours renvoyer 200
     );
   }
 }

@@ -366,26 +366,26 @@ export default function TekkiChatbot() {
 
   // Déterminer si nous devons afficher les suggestions pour un message
   const shouldShowSuggestions = (msg: Message): boolean => {
-    // Premier message d'accueil
-    if (msg.id === 1) return true;
-    
-    // Contact service client uniquement si explicitement demandé
-    const needsContactOption = msg.content.toLowerCase().includes("besoin d'aide") || 
-                              msg.content.toLowerCase().includes("assistance") ||
-                              msg.content.toLowerCase().includes("parler à quelqu'un");
-    
-    if (needsContactOption && msg.suggestions?.includes("Contacter le service client")) {
-      // Ne conserver que les suggestions critiques
-      msg.suggestions = msg.suggestions.filter(s => 
-        s === "Contacter le service client" || 
-        s === "Ouvrir WhatsApp"
-      );
-      return true;
-    }
-    
-    // Pas de suggestions pour les autres messages
-    return false;
-  };
+  // Premier message d'accueil
+  if (msg.id === 1) return true;
+  
+  // Contact service client uniquement si explicitement demandé
+  const needsContactOption = msg.content.toLowerCase().includes("besoin d'aide") || 
+                            msg.content.toLowerCase().includes("assistance") ||
+                            msg.content.toLowerCase().includes("parler à quelqu'un");
+  
+  if (needsContactOption && msg.suggestions?.includes("Contacter le service client")) {
+    // Ne conserver que les suggestions critiques
+    msg.suggestions = msg.suggestions.filter(s => 
+      s === "Contacter le service client" || 
+      s === "Ouvrir WhatsApp"
+    );
+    return true;
+  }
+  
+  // Pas de suggestions pour les autres messages
+  return false;
+};
 
   // Faire défiler jusqu'au dernier message
   const scrollToBottom = () => {
