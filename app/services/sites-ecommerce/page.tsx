@@ -61,6 +61,7 @@ const serviceData = {
   woocommerceDisadvantages: [
     "Maintenance technique régulière requise",
     "Interface beaucoup moins intuitive",
+    "Nécessite un ordinateur pour la gestion",
     "Performance variable selon l'hébergement"
   ],
   faqs: [
@@ -169,7 +170,7 @@ export default function EcommerceServicePage() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-10">
                 <div className="text-center">
                   <div className="text-white font-bold text-3xl sm:text-4xl">
-                    <PriceFormatter amount={serviceData.price} /> FCFA
+                    <PriceFormatter amount={serviceData.price} />
                   </div>
                   <span className="text-white/80">
                     Site e-commerce + Stratégie Meta
@@ -179,10 +180,9 @@ export default function EcommerceServicePage() {
                 <div className="h-full w-px bg-white/20 hidden sm:block"></div>
                 
                 <div className="text-center">
-                <div className="text-white/80 max-w-xl mx-auto">
-                    Paiement facilité : 60% à la commande (<PriceFormatter amount={serviceData.price * 0.6} />), 
-                    40% à la livraison (<PriceFormatter amount={serviceData.price * 0.4} />)
-                </div>
+                  <div className="text-white/80 mb-1">Paiement facilité</div>
+                  <div className="text-white font-bold text-xl">60% à la commande</div>
+                  <div className="text-white font-bold text-xl">40% à la livraison</div>
                 </div>
               </div>
             </div>
@@ -360,8 +360,8 @@ export default function EcommerceServicePage() {
               </div>
               
               <div className="text-xl font-bold mb-6 text-[#0f4c81]">
-              <PriceFormatter amount={695000} />
-                <span className="text-sm text-gray-500 font-normal ml-2">+ hébergement (environ <PriceFormatter amount={21000} />/an)</span>
+              <PriceFormatter amount={495000} />
+                <span className="text-sm text-gray-500 font-normal ml-2">+ hébergement (environ <PriceFormatter amount={94000} />/an)</span>
               </div>
               
               <div className="space-y-6">
@@ -633,12 +633,10 @@ export default function EcommerceServicePage() {
           </p>
           
           <div className="mb-8">
-            <div className="text-2xl font-bold mb-4">
-              {formatPrice(serviceData.price)} FCFA
-            </div>
+            
             <div className="text-white/80 max-w-xl mx-auto">
-              Paiement facilité : 60% à la commande ({formatPrice(serviceData.price * 0.6)} FCFA), 
-              40% à la livraison ({formatPrice(serviceData.price * 0.4)} FCFA)
+                Paiement facilité : 60% à la commande (<PriceFormatter amount={serviceData.price * 0.6} />), 
+                40% à la livraison (<PriceFormatter amount={serviceData.price * 0.4} />)
             </div>
           </div>
           
@@ -651,7 +649,7 @@ export default function EcommerceServicePage() {
           </button>
           
           <div className="mt-6 text-white/70">
-            Votre site est livré en {serviceData.deliveryTime} avec formation incluse
+            Votre site + stratégie Meta est livré en {serviceData.deliveryTime}
           </div>
         </div>
       </section>

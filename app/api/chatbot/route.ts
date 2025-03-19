@@ -89,6 +89,14 @@ interface CommonQuestion {
   created_at: string;
 }
 
+interface ConversionState {
+  hasShownInterest: boolean;
+  hasAskedAboutPrice: boolean;
+  hasConsideredSpecificBusiness: boolean;
+  readyToBuy: boolean;
+  recommendedBusiness: string | null;
+}
+
 // Fonctions de cache pour réduire les appels à l'API OpenAI
 async function getFromCache(query: string, context: string) {
   const queryHash = hashString(query + context);
@@ -143,7 +151,31 @@ function hashString(str: string) {
   return hash.toString();
 }
 
-// Fonction pour déterminer si une question est complexe
+// Fonction pour déterminer si une question est commerciale
+function isCommercialQuery(query: string) {
+  const commercialPatterns = [
+    // Mots liés à l'achat
+    /acheter|achat|acquérir|acquisition|prix|tarif|coût|cout|payer|investir/i,
+    // Questions sur la rentabilité
+    /rentab|profit|revenu|bénéfice|benefice|retour|roi|investissement/i,
+    // Questions sur le fonctionnement
+    /comment ça (marche|fonctionne)|comment[- ]faire|fonctionnement/i,
+    // Questions sur le support
+    /support|aide|assist|accompagnement|formation/i,
+    // Questions de comparaison
+    /différence|meilleur|comparer|versus|vs|ou bien/i,
+    // Expressions d'intérêt
+    /je veux|je souhaite|je cherche|intéressé|interesse/i,
+    // Qualifications
+    /débutant|experience|temps|compétence|competence/i,
+    // Objections
+    /difficile|complexe|risque|problème|probleme|inqui[eè]t/i
+  ];
+  
+  return commercialPatterns.some(pattern => pattern.test(query));
+}
+
+// Fonction pour déterminer si une question est complexe (conservée pour rétrocompatibilité)
 function isComplexQuery(query: string) {
   const complexPatterns = [
     /compare|comparer|différence/i,
@@ -157,6 +189,53 @@ function isComplexQuery(query: string) {
   ];
   
   return complexPatterns.some(pattern => pattern.test(query));
+}
+
+// Analyser l'état de conversion à partir de l'historique
+function analyzeConversionState(history: ChatMessage[]): ConversionState {
+  const state: ConversionState = {
+    hasShownInterest: false,
+    hasAskedAboutPrice: false,
+    hasConsideredSpecificBusiness: false,
+    readyToBuy: false,
+    recommendedBusiness: null
+  };
+  
+  for (const msg of history) {
+    const content = msg.content.toLowerCase();
+    
+    // Détecter l'intérêt
+    if (content.includes("intéressé") || content.includes("plus d'info")) {
+      state.hasShownInterest = true;
+    }
+    
+    // Détecter les questions de prix
+    if (content.includes("prix") || content.includes("coût") || content.includes("tarif")) {
+      state.hasAskedAboutPrice = true;
+    }
+    
+    // Détecter l'intérêt pour un business spécifique
+    if (content.includes("business") && (content.includes("specific") || content.includes("particulier"))) {
+      state.hasConsideredSpecificBusiness = true;
+    }
+    
+    // Détecter l'intention d'achat
+    if (content.includes("acheter") || content.includes("acquérir")) {
+      state.readyToBuy = true;
+    }
+    
+    // Extraire le business recommandé (si mentionné par l'assistant)
+    if (msg.role === 'assistant' && 
+        (content.includes("recommande") || content.includes("parfait pour vous"))) {
+      // Essayer d'extraire le nom du business
+      const businessMatch = content.match(/business\s+([a-z0-9&\s-]+)/i);
+      if (businessMatch && businessMatch[1]) {
+        state.recommendedBusiness = businessMatch[1].trim();
+      }
+    }
+  }
+  
+  return state;
 }
 
 // Fonction pour vérifier si le message de l'utilisateur correspond à une question fréquente
@@ -335,53 +414,49 @@ URL: https://tekkistudio.com/formations/${f.slug || ''}
     .join('\n\n---\n\n');
 }
 
-// Générer des suggestions plus pertinentes en fonction du contexte de la conversation
+// Amélioration de la fonction pour générer des suggestions contextuelles
 function generateContextualSuggestions(message: string, response: string, context: any, config: ChatbotConfig | null): string[] {
-  // Utiliser les suggestions initiales de la configuration si disponibles
-  if (config && config.initial_suggestions && config.initial_suggestions.length > 0) {
-    return config.initial_suggestions;
-  }
-
-  // Si le message montre un intérêt pour l'achat
-  if (message.toLowerCase().includes("acheter") || 
-      message.toLowerCase().includes("acquérir") || 
-      message.toLowerCase().includes("prix") || 
-      message.toLowerCase().includes("budget") ||
-      message.toLowerCase().includes("investir")) {
+  // Détecter l'étape du funnel de vente
+  const isAwarenessStage = message.toLowerCase().includes("quoi") || message.toLowerCase().includes("c'est quoi") || message.length < 20;
+  const isInterestStage = message.toLowerCase().includes("comment") || message.toLowerCase().includes("plus d'infos");
+  const isConsiderationStage = message.toLowerCase().includes("prix") || message.toLowerCase().includes("combien") || message.toLowerCase().includes("frais");
+  const isDecisionStage = message.toLowerCase().includes("acheter") || message.toLowerCase().includes("acquérir") || message.toLowerCase().includes("intéressé");
+  
+  // Suggestions basées sur l'étape du funnel
+  if (isDecisionStage) {
     return [
-      "Comment se passe l'accompagnement?",
-      "Quelles sont les étapes pour l'acquisition?",
-      "Je veux ce business, comment procéder?",
+      "Comment procéder pour l'acquisition?",
+      "Quels sont les délais de mise en place?",
       "Contacter le service client"
     ];
   }
   
-  // Si le message parle de frais mensuels ou d'investissement
-  if (message.toLowerCase().includes("frais") || 
-      message.toLowerCase().includes("coût") || 
-      message.toLowerCase().includes("mensuel") ||
-      message.toLowerCase().includes("rentabilité") ||
-      message.toLowerCase().includes("retour sur investissement")) {
+  if (isConsiderationStage) {
     return [
       "Quel business me recommandez-vous?",
-      "Puis-je parler à un de vos clients?",
-      "Contacter le service client"
+      "Comment se passe l'accompagnement?",
+      "Je souhaite acquérir ce business"
     ];
   }
   
-  // Si l'IA recommande un business spécifique
-  if (response.toLowerCase().includes("recommande") ||
-      response.toLowerCase().includes("parfait pour vous") ||
-      response.toLowerCase().includes("correspond à vos critères")) {
+  if (isInterestStage) {
     return [
-      "Je veux ce business, comment procéder?",
-      "Quels sont les délais d'acquisition?",
-      "Comment se passe l'accompagnement?"
+      "Quels sont les business les plus rentables?",
+      "Quel est le budget nécessaire?",
+      "Combien de temps faut-il y consacrer?"
     ];
   }
   
-  // Si on est sur une page business
-  if (context.url.startsWith('/business')) {
+  if (isAwarenessStage) {
+    return [
+      "Quels sont les avantages d'un business clé en main?",
+      "Montrez-moi des exemples de business",
+      "Comment fonctionnent vos business?"
+    ];
+  }
+  
+  // Si nous sommes sur une page business spécifique
+  if (context.url.startsWith('/business/') && !context.url.endsWith('/business')) {
     return [
       "Je souhaite acquérir ce business",
       "Quels sont les frais mensuels?",
@@ -389,7 +464,12 @@ function generateContextualSuggestions(message: string, response: string, contex
     ];
   }
   
-  // Par défaut
+  // Utiliser les suggestions initiales de la configuration si disponibles
+  if (config && config.initial_suggestions && config.initial_suggestions.length > 0) {
+    return config.initial_suggestions;
+  }
+  
+  // Suggestions par défaut
   return [
     "Quel business me recommandez-vous?",
     "Je veux en savoir plus sur vos formations",
@@ -436,6 +516,70 @@ async function createCommonQuestionsContext(): Promise<string> {
   } catch (error) {
     console.error('Erreur lors de la récupération des questions fréquentes:', error);
     return "";
+  }
+}
+
+// Fonction pour générer des suggestions basées sur la catégorie d'une question fréquente
+async function createCategorySuggestions(category: string): Promise<string[]> {
+  try {
+    // Récupérer d'autres questions de la même catégorie
+    const { data: relatedQuestions, error } = await supabase
+      .from('chatbot_common_questions')
+      .select('question')
+      .eq('category', category)
+      .eq('is_active', true)
+      .limit(3);
+    
+    if (error || !relatedQuestions || relatedQuestions.length === 0) {
+      // Utiliser des suggestions par défaut si aucune question liée n'est trouvée
+      return [
+        "Quel business me recommandez-vous?",
+        "Je veux en savoir plus sur vos formations",
+        "Contacter le service client"
+      ];
+    }
+    
+    // Extraire les questions comme suggestions
+    let suggestions = relatedQuestions.map(q => q.question);
+    
+    // Toujours ajouter l'option de contacter le service client
+    if (!suggestions.includes("Contacter le service client")) {
+      suggestions.push("Contacter le service client");
+    }
+    
+    return suggestions;
+  } catch (error) {
+    console.error('Erreur lors de la création des suggestions par catégorie:', error);
+    return ["Contacter le service client"];
+  }
+}
+
+// Fonction pour enregistrer une conversation dans Supabase
+async function saveConversation(
+  userMessage: string, 
+  assistantResponse: string, 
+  context: {page: string, url: string}, 
+  needsHuman: boolean
+): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from('chat_conversations')
+      .insert([{
+        user_message: userMessage,
+        assistant_response: assistantResponse,
+        page: context.page,
+        url: context.url,
+        needs_human: needsHuman,
+        created_at: new Date().toISOString()
+      }]);
+      
+    if (error) {
+      console.warn('Erreur lors de l\'enregistrement de la conversation:', error);
+    } else {
+      console.log("Conversation enregistrée avec succès");
+    }
+  } catch (error) {
+    console.warn('Exception lors de l\'enregistrement de la conversation:', error);
   }
 }
 
@@ -598,122 +742,110 @@ TRÈS IMPORTANT: Ne confondez PAS ces business e-commerce à vendre avec les mar
       `;
     }
 
-    // FAQ pour enrichir le contexte - version condensée pour réduire les tokens
-    const faqContent = `
-QUESTIONS FRÉQUEMMENT POSÉES:
+    // Analyser l'état de conversion du visiteur
+    const conversionState = analyzeConversionState([...history, { role: 'user', content: message }]);
+    console.log("État de conversion:", conversionState);
 
-1. Qu'est-ce qu'un business e-commerce clé en main?
-   Un business e-commerce clé en main est un business en ligne entièrement configuré et prêt à être exploité. Il comprend un site e-commerce optimisé, des fournisseurs validés, des produits sourcés, une stratégie marketing complète, une formation et un accompagnement de 2 mois.
-
-2. Comment se passe le transfert du business?
-   Une fois le contrat signé et le paiement effectué, nous effectuons les modifications souhaitées au site, puis nous vous remettons tous les accès au site et éléments nécessaires pour lancer votre business.
-
-3. Quels sont les frais mensuels à prévoir?
-   Pour les business de produits physiques: Entre 80,000 et 500,000 FCFA, selon le business, ce qui inclus l'achat du stock de produits, les frais mensuels du site, le marketing (Publicité payante inclus), la création de contenus, et éventuellement les frais de stockage, si cela est confié à une entreprise de logistique.
-   Pour les business de produits digitaux: Entre 50,000 et 300,000 FCFA principalement pour les frais mensuels du site, le marketing (publicité payante inclus), et la création de contenus.
-
-4. Combien de temps faut-il pour démarrer?
-   Une fois l'acquisition finalisée, vous pouvez démarrer en 1 à 2 semaines, selon le business choisi et la disponibilité des produits.
-
-5. Pourquoi les prix des business que vous vendez sont aussi élevés?
-   Les prix fixés pour les business e-commerce proposés prennent en compte tout le travail fait en amont et qui sera fait après l'acquisition du business, notamment l'accompagnement de 2 mois proposés. Nous ne vendons pas que des sites e-commerce clés en main. Nous vendons notre savoir-faire, notre expertise et nos compétences en e-commerce, pour garantir le succès de votre activité.
-   `;
-
-    // Système de qualification et exemples - version réduite
-    const qualificationExamples = `
-COMMENT QUALIFIER LES PROSPECTS:
-
-1. Comprendre leurs motivations et objectifs de revenus
-2. Évaluer leur budget d'investissement
-3. Comprendre leur expérience et disponibilité en temps
-4. Recommander le business ou la formation adaptée à leur profil
-`;
-
-    // Construire le prompt système pour l'IA - version optimisée avec les configurations
+    // Utiliser le prompt système optimisé
     const systemPrompt = `
-Tu es l'assistant virtuel commercial de TEKKI Studio, une fabrique de marques et de business e-commerce basée au Sénégal. Ton rôle est de répondre aux questions des prospects et les guider vers l'acquisition de l'un des business e-commerce proposés à la vente, ou du service de création de sites e-commerce professionnels optimisés pour la conversion. Tu dois fournir des informations supplémentaires et pertinentes sur les business proposés à la vente et les formations. Sois concis mais informatif.
+Tu es Sara, Assistante Commerciale experte chez TEKKI Studio, entreprise spécialisée dans la vente de business e-commerce clé en main au Sénégal. Ton OBJECTIF PRINCIPAL est de CONVERTIR les visiteurs en ACHETEURS.
 
-DISTINCTION FONDAMENTALE - MÉMORISER ABSOLUMENT:
-1) TEKKI Studio CRÉE ses propres MARQUES DE PRODUITS (comme Viens on s'connaît, Amani, Ecoboom) qui appartiennent à TEKKI Studio et ne sont PAS à vendre
-2) TEKKI Studio VEND des BUSINESS E-COMMERCE CLÉ EN MAIN prêts à être lancés que n'importe qui peut acheter
+====== TON PROFIL DE VENDEUSE ÉLITE ======
+• Style: Assertif, confiant et dynamique
+• Ton: Chaleureux, accessible mais professionnel
+• Expertise: Connaissance approfondie de l'e-commerce et de l'entrepreneuriat
+• Approche: Qualifier rapidement les besoins, recommander précisément, lever les objections, pousser à l'action
 
-ACTIVITÉS DE TEKKI STUDIO:
-- Création de marques: VIENS ON S'CONNAÎT (jeux de cartes), AMANI (ceintures chauffantes), ECOBOOM (couches écologiques).
-- Vente de business e-commerce clé en main: des business e-commerce tout finis, prêts à être lancés, avec tout inclus
-- Formations en e-commerce et marketing digital
-- Service de création de sites e-commerce professionnels (695 000 FCFA, payable en 2 fois)
+====== PRINCIPES DE VENTE FONDAMENTAUX ======
+1. QUALIFICATION: Identifie rapidement le profil (débutant/expérimenté, budget, temps disponible)
+2. PERSONNALISATION: Recommande LE business spécifique qui correspond au profil, jamais de généralités
+3. CRÉDIBILITÉ: Utilise des chiffres précis, des faits concrets, des témoignages
+4. OBJECTIONS: Anticipe et lève les doutes (temps, compétences, rentabilité)
+5. CALL-TO-ACTION: Chaque réponse doit inciter à la prochaine étape vers l'achat
 
-TON RÔLE COMMERCIAL (TRÈS IMPORTANT):
-- Tu es d'abord un VENDEUR EXPÉRIMENTÉ, pas juste un assistant informatif
-- Tu dois ACTIVEMENT chercher à CONVAINCRE le prospect d'ACHETER un business
-- Dès que le prospect montre de l'intérêt, guide-le vers l'achat avec des phrases comme:
-  * "Ce business serait parfait pour vous! Souhaitez-vous l'acquérir dès aujourd'hui?"
-  * "Vu votre profil, je vous recommande fortement ce business. Êtes-vous prêt à passer à l'étape suivante?"
-  * "C'est une excellente opportunité qui correspond à vos critères. Voulez-vous que j'organise un appel avec notre équipe pour finaliser l'acquisition?"
-- Ne te contente pas juste de donner des informations: PERSUADE et POUSSE À L'ACTION
-- Utilise des techniques de vente comme la rareté ("Ce business est très demandé"), l'urgence ("L'offre est limitée"), et la preuve sociale ("Plusieurs clients ont déjà réussi avec ce business")
-- Rassure le prospect sur ses inquiétudes et lève ses objections
-- Propose toujours un APPEL À L'ACTION clair en fin de message
+====== FORMULATIONS À UTILISER (EXEMPLES) ======
+• "Vu votre profil, le Business X à Y FCFA serait parfaitement adapté car..."
+• "Investissez-y seulement Z heures/semaine pour un potentiel de X FCFA/mois"
+• "Nos clients dans votre situation atteignent généralement la rentabilité en X mois"
+• "Pour démarrer ce business spécifique, vous aurez besoin d'environ X FCFA de stock initial"
+• "Êtes-vous prêt à passer à l'étape suivante et acquérir ce business aujourd'hui?"
 
-INSTRUCTIONS IMPORTANTES POUR LES LIENS:
-- Quand tu mentionnes un business, ajoute un lien clickable vers sa page avec: https://tekkistudio.com/business/slug-du-business
-- Pour le service de création de site e-commerce: https://tekkistudio.com/services/sites-ecommerce
-- Pour les formations: https://tekkistudio.com/formations/slug-de-la-formation
+====== FORMULATIONS À ÉVITER ======
+• "Je suis un assistant IA..."
+• "Je ne peux pas..."
+• Réponses vagues comme "X FCFA" sans montant précis
+• Phrases trop longues et complexes
+• Répétitions de structure
 
-FORMATAGE DES LIENS - TRÈS IMPORTANT:
-- N'utilise JAMAIS de formulations génériques comme "Découvrez le business" ou "Cliquez ici"
-- Les liens doivent être intégrés naturellement dans le texte, avec des formulations incitatives:
-  * "✅ [Commencez votre business fitness rentable dès aujourd'hui](url)"
-  * "🔥 [Réservez votre business de livres personnalisés avant qu'il ne soit plus disponible](url)"
-  * "💰 [Investissez dans ce business à fort potentiel](url)"
-- L'intitulé du lien doit créer un sentiment d'opportunité et d'urgence
+====== SÉQUENCE DE VENTE À SUIVRE ======
+1. Premier contact: Accueil chaleureux + question pour qualifier
+2. Qualification: 2-3 questions ciblées sur budget/expérience/temps disponible
+3. Proposition: Recommandation précise basée sur le profil
+4. Avantages: 3 bénéfices clés du business recommandé
+5. Objection: Anticiper et résoudre la principale objection
+6. Closing: Proposition claire pour avancer vers l'achat
 
-INSTRUCTIONS POUR LE SERVICE DE SITE E-COMMERCE:
-- Si l'utilisateur demande "Je veux un site e-commerce", parle du SERVICE DE CRÉATION DE SITE E-COMMERCE, et non des business à vendre
-- Fournis le lien vers la page de ce service et mentionne le délai de 7 jours, la stratégie Meta incluse, et l'attention particulière accordée à la conversion des visiteurs en clients
+====== LINKS FORMATTING ======
+• Business spécifique: "[Acquérez ce business rentable dès maintenant](https://tekkistudio.com/business/slug-du-business)"
+• Service site: "[Créez votre site e-commerce professionnel](https://tekkistudio.com/services/sites-ecommerce)"
 
-INSTRUCTIONS POUR LES FRAIS MENSUELS:
-- Business physiques: Entre 80,000 et 500,000 FCFA (achat de stock, frais du site, marketing, création de contenus, stockage)
-- Business digitaux: Entre 50,000 et 300,000 FCFA (frais du site, marketing, création de contenus)
+====== INFORMATIONS CLÉS À RETENIR ======
+• DISTINCTION FONDAMENTALE:
+  - TEKKI STUDIO VEND des BUSINESS E-COMMERCE CLÉ EN MAIN (à promouvoir)
+  - TEKKI STUDIO a ses propres MARQUES (Viens on s'connaît, Amani, Ecoboom) qui ne sont PAS à vendre
 
-${qualificationExamples}
+• FRAIS MENSUELS À MENTIONNER:
+  - Business physiques: 80,000-500,000 FCFA (stock, site, marketing, contenus)
+  - Business digitaux: 50,000-300,000 FCFA (site, marketing, contenus)
 
-${commonQuestionsContext}
+• ARGUMENTS COMMERCIAUX CLÉS:
+  - Accompagnement de 2 mois inclus
+  - Business déjà validés sur le marché
+  - ROI généralement entre 4-12 mois
+  - Formation complète fournie
+  - Assistance technique incluse
 
-CONTEXTE SPÉCIFIQUE À LA PAGE ACTUELLE:
+• SERVICE CRÉATION SITE E-COMMERCE:
+  - Prix: 695,000 FCFA (payable en 2 fois)
+  - Délai: 7 jours ouvrés
+  - Inclus: Stratégie Marketing Meta
+
+CONTEXTE ACTUEL DE LA PAGE:
 ${pageSpecificContext}
 
-${faqContent}
+ÉTAT DE CONVERSION DU VISITEUR:
+- A montré de l'intérêt: ${conversionState.hasShownInterest ? "OUI" : "NON"}
+- A demandé des prix: ${conversionState.hasAskedAboutPrice ? "OUI" : "NON"}
+- S'intéresse à un business spécifique: ${conversionState.hasConsideredSpecificBusiness ? "OUI" : "NON"}
+- Prêt à acheter: ${conversionState.readyToBuy ? "OUI" : "NON"}
+- Business recommandé: ${conversionState.recommendedBusiness || "Aucun encore"}
 
-${config?.prompt_boost ? `\nINSTRUCTIONS SUPPLÉMENTAIRES:\n${config.prompt_boost}\n` : ''}
+INSTRUCTION SPÉCIALE BASÉE SUR L'ÉTAT:
+${conversionState.readyToBuy 
+  ? "⚠️ PRIORITÉ: Pousser à contacter immédiatement le service client ou à finaliser l'acquisition" 
+  : conversionState.hasConsideredSpecificBusiness 
+    ? "⚠️ PRIORITÉ: Détailler les avantages spécifiques et inciter à l'achat" 
+    : conversionState.hasAskedAboutPrice 
+      ? "⚠️ PRIORITÉ: Expliquer la valeur et le ROI, pas seulement le prix" 
+      : conversionState.hasShownInterest 
+        ? "⚠️ PRIORITÉ: Recommander un business spécifique adapté à son profil" 
+        : "⚠️ PRIORITÉ: Captiver l'intérêt et qualifier les besoins"
+}
 
-INSTRUCTIONS:
-- Sois amical, professionnel et CONCIS
-- Donne des informations précises et pertinentes
-- Mets en avant les avantages et la valeur ajoutée
-- Mentionne l'accompagnement de 2 mois comme argument clé
-- Inclus TOUJOURS des liens clickables dans ta réponse, lorsque c'est pertinent
-- N'hésite pas à suggérer de contacter directement l'équipe pour les questions spécifiques
-- Ne confonds JAMAIS les marques de TEKKI Studio avec les business e-commerce à vendre
-
-Page actuelle: ${context.page}
-URL: ${context.url}
+GARDE TOUJOURS EN TÊTE QUE TU ES UNE VENDEUSE D'EXCEPTION QUI DOIT CONVERTIR CE VISITEUR EN CLIENT.
 `;
 
-    // Limiter l'historique de conversation pour réduire les tokens
-    // Ne garder que les 3 derniers messages
-    const limitedHistory = history.slice(-3);
+    // Vérifier s'il s'agit d'un premier contact simple ou d'une demande commerciale
+    const isFirstInteraction = !history || history.length <= 1;
+    const isSimpleGreeting = /^(bonjour|salut|hello|hi|hey|coucou|bonsoir)$/i.test(message.trim());
+    const isGeneralQuestion = /^(qu'est-ce que|c'est quoi|qu'est ce que|c'est qui).*$/i.test(message.trim());
 
-    console.log("Construction de l'historique des messages...");
-    // Construire l'historique des messages pour la conversation
-    const conversationHistory = [
-      { role: 'system', content: systemPrompt },
-      ...limitedHistory.map((msg: ChatMessage) => ({
-        role: msg.role,
-        content: msg.content
-      })),
-      { role: 'user', content: message }
-    ];
+    // Utiliser GPT-3.5 pour les premiers contacts simples, GPT-4 pour tout ce qui est commercial
+    const modelToUse = (isFirstInteraction && (isSimpleGreeting || isGeneralQuestion)) 
+      ? "gpt-3.5-turbo" 
+      : "gpt-4-turbo-preview";
+
+    console.log(`Utilisation du modèle: ${modelToUse}, première interaction: ${isFirstInteraction}, message simple: ${isSimpleGreeting || isGeneralQuestion}`);
 
     // Vérifier si le message contient des déclencheurs d'assistance humaine depuis la config
     let needsHumanAssistance = false;
@@ -738,18 +870,29 @@ URL: ${context.url}
       return NextResponse.json(humanResponse);
     }
 
-    // Déterminer si la requête est complexe et choisir le modèle approprié
-    const isComplex = isComplexQuery(message);
-    const modelToUse = isComplex ? "gpt-4-turbo-preview" : "gpt-3.5-turbo";
-    
-    console.log(`Requête complexe: ${isComplex}, utilisation du modèle: ${modelToUse}`);
-    console.log("Appel à l'API OpenAI...");
+    // Limiter l'historique de conversation pour réduire les tokens
+    // Ne garder que les 5 derniers messages
+    const limitedHistory = history.slice(-5);
+
+    console.log("Construction de l'historique des messages...");
+    // Construire l'historique des messages pour la conversation
+    const conversationHistory = [
+      { role: 'system', content: systemPrompt },
+      ...limitedHistory.map((msg: ChatMessage) => ({
+        role: msg.role,
+        content: msg.content
+      })),
+      { role: 'user', content: message }
+    ];
+
+    console.log(`Appel à l'API OpenAI avec le modèle ${modelToUse}...`);
     
     // Appel à l'API OpenAI
     const completion = await openai.chat.completions.create({
       model: modelToUse,
       messages: conversationHistory as any,
-      max_tokens: isComplex ? 500 : 300, // Limiter la longueur des réponses pour les requêtes simples
+      max_tokens: modelToUse === "gpt-4-turbo-preview" ? 800 : 400, // Augmenter la taille pour GPT-4
+      temperature: 0.7, // Légèrement plus créatif pour être persuasif
       functions: [
         {
           name: "format_assistant_response",
@@ -843,7 +986,7 @@ URL: ${context.url}
         
         // Assurons-nous que la réponse parle bien du service et non des business
         if (!aiResponse.content.includes("695 000 FCFA")) {
-          aiResponse.content = `Notre service de création de site e-commerce professionnel est disponible à 695 000 FCFA. Il comprend un site entièrement fonctionnel et optimisé pour la conversion, une stratégie Meta et une formation vidéo pour la prise en main. Vous pouvez découvrir tous les détails en cliquant ici : ${serviceURL}. Le délai de livraison de votre site est de 7 jours ouvrés.`;
+          aiResponse.content = `Notre service de création de site e-commerce professionnel est disponible à 695 000 FCFA. Il comprend un site entièrement fonctionnel et optimisé pour la conversion, une stratégie Meta et une formation vidéo pour la prise en main. Vous pouvez découvrir tous les détails en cliquant ici : [Créez votre site e-commerce professionnel](${serviceURL}). Le délai de livraison de votre site est de 7 jours ouvrés.`;
         }
       }
     }
@@ -868,69 +1011,5 @@ URL: ${context.url}
       },
       { status: 500 }
     );
-  }
-}
-
-// Fonction pour générer des suggestions basées sur la catégorie d'une question fréquente
-async function createCategorySuggestions(category: string): Promise<string[]> {
-  try {
-    // Récupérer d'autres questions de la même catégorie
-    const { data: relatedQuestions, error } = await supabase
-      .from('chatbot_common_questions')
-      .select('question')
-      .eq('category', category)
-      .eq('is_active', true)
-      .limit(3);
-    
-    if (error || !relatedQuestions || relatedQuestions.length === 0) {
-      // Utiliser des suggestions par défaut si aucune question liée n'est trouvée
-      return [
-        "Quel business me recommandez-vous?",
-        "Je veux en savoir plus sur vos formations",
-        "Contacter le service client"
-      ];
-    }
-    
-    // Extraire les questions comme suggestions
-    let suggestions = relatedQuestions.map(q => q.question);
-    
-    // Toujours ajouter l'option de contacter le service client
-    if (!suggestions.includes("Contacter le service client")) {
-      suggestions.push("Contacter le service client");
-    }
-    
-    return suggestions;
-  } catch (error) {
-    console.error('Erreur lors de la création des suggestions par catégorie:', error);
-    return ["Contacter le service client"];
-  }
-}
-
-// Fonction pour enregistrer une conversation dans Supabase
-async function saveConversation(
-  userMessage: string, 
-  assistantResponse: string, 
-  context: {page: string, url: string}, 
-  needsHuman: boolean
-): Promise<void> {
-  try {
-    const { error } = await supabase
-      .from('chat_conversations')
-      .insert([{
-        user_message: userMessage,
-        assistant_response: assistantResponse,
-        page: context.page,
-        url: context.url,
-        needs_human: needsHuman,
-        created_at: new Date().toISOString()
-      }]);
-      
-    if (error) {
-      console.warn('Erreur lors de l\'enregistrement de la conversation:', error);
-    } else {
-      console.log("Conversation enregistrée avec succès");
-    }
-  } catch (error) {
-    console.warn('Exception lors de l\'enregistrement de la conversation:', error);
   }
 }

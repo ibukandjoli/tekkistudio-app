@@ -189,7 +189,11 @@ export default function BusinessPage() {
               {/* Affichage du carousel d'images dès le début */}
               <BusinessGallery images={business.images} className="mb-6" />
               
-              <p className="text-gray-600 mb-8 mt-8">{business.description}</p>
+              <div className="text-gray-600 mb-8 mt-8">
+                {business.description.split('\n\n').map((paragraph, i) => (
+                  <p key={i} className="mb-4">{paragraph}</p>
+                ))}
+              </div>
               
               {/* Indicateurs clés */}
               <KeyMetrics business={business} />
@@ -582,8 +586,8 @@ export default function BusinessPage() {
       {/* CTA final */}
       <section className="py-12 bg-[#0f3c81] text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Prêt à lancer votre business ?</h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">Ne laissez pas passer cette opportunité unique de démarrer avec un business clé en main et un accompagnement expert.</p>
+          <h2 className="text-3xl font-bold mb-4">Prêt(e) à lancer ce business ?</h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto">Ne laissez pas passer cette opportunité unique de démarrer avec un business en ligne clé en main et un accompagnement expert.</p>
           <button 
             className="bg-[#ff7f50] text-white px-10 py-4 rounded-lg text-lg font-bold hover:bg-[#ff6b3d] transition-colors"
             onClick={() => setIsModalOpen(true)}

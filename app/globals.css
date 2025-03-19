@@ -41,3 +41,84 @@ body {
 .overflow-y-auto {
   -webkit-overflow-scrolling: touch; /* Défilement fluide sur iOS */
 }
+
+/* Correction pour les dropdowns et menus déroulants */
+.SelectContent,
+.Select--content,
+.SelectTrigger,
+.select-content,
+.select-trigger,
+.DropdownMenuContent,
+.dropdown-menu-content,
+[data-state="open"] .select-content,
+[data-radix-popper-content-wrapper] {
+  background-color: white !important;
+  color: #333 !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  z-index: 9999 !important;
+}
+
+/* Styles pour les options des menus déroulants */
+.SelectItem,
+.SelectLabel,
+.DropdownMenuItem,
+.select-item,
+.dropdown-menu-item {
+  background-color: transparent !important;
+  color: #333 !important;
+}
+
+.SelectItem[data-highlighted],
+.DropdownMenuItem[data-highlighted],
+.SelectItem:hover,
+.DropdownMenuItem:hover,
+.select-item:hover,
+.dropdown-menu-item:hover {
+  background-color: #f7fafc !important;
+  color: #0f4c81 !important;
+}
+
+/* Correction pour le calendrier */
+.rdp, 
+.rdp-months,
+.rdp-month,
+.PopoverContent,
+.popover-content,
+.Calendar,
+.calendar {
+  background-color: white !important;
+  color: #333 !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  z-index: 9999 !important;
+}
+
+/* Style pour améliorer la lisibilité des jours du calendrier */
+.rdp-day, 
+.rdp-cell,
+.rdp-head_cell,
+.rdp-button {
+  background-color: transparent !important;
+  color: #333 !important;
+}
+
+.rdp-day_selected,
+.rdp-day_selected:hover {
+  background-color: #0f4c81 !important;
+  color: white !important;
+}
+
+/* Styles pour toutes les popovers et modals */
+.Dialog,
+.AlertDialog,
+.PopoverContent,
+.popper-content,
+.dialog,
+.alert-dialog,
+.popover-content {
+  background-color: white !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  z-index: 9999 !important;
+}

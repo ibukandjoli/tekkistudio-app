@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 import WhatsAppIcon from '../ui/WhatsAppIcon';
 import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Message {
   id: number;
@@ -35,6 +36,16 @@ interface ChatbotConfig {
   prompt_boost: string;
   created_at: string;
   updated_at: string;
+}
+
+// Suivi du funnel de conversion
+interface ConversionFunnel {
+  stage: 'awareness' | 'interest' | 'consideration' | 'decision';
+  lastActive: Date;
+  businessesViewed: string[];
+  topicsDiscussed: string[];
+  objections: string[];
+  readyToBuy: boolean;
 }
 
 // Suggestions critiques à toujours afficher
@@ -69,6 +80,13 @@ const getDefaultWelcomeMessage = (): string => {
   return `${greeting} 👋🏼 Je suis Sara, Assistante Commerciale chez TEKKI Studio. Comment puis-je vous aider ?`;
 };
 
+// Détection d'appareil mobile
+const isMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth <= 768 || 
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
 export default function TekkiChatbot() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
@@ -78,13 +96,33 @@ export default function TekkiChatbot() {
   const [config, setConfig] = useState<ChatbotConfig | null>(null);
   const [isConfigLoading, setIsConfigLoading] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [sessionId] = useState(() => uuidv4()); // ID unique pour la session
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // État du funnel de conversion
+  const [conversionFunnel, setConversionFunnel] = useState<ConversionFunnel>({
+    stage: 'awareness',
+    lastActive: new Date(),
+    businessesViewed: [],
+    topicsDiscussed: [],
+    objections: [],
+    readyToBuy: false
+  });
 
   // Si nous sommes sur une page admin, on ne rend pas le chatbot
   if (pathname?.startsWith('/admin')) {
     return null;
   }
+
+  // Détection du mobile
+  useEffect(() => {
+    setIsMobileDevice(isMobile());
+    const handleResize = () => setIsMobileDevice(isMobile());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Charger la configuration du chatbot au démarrage
   useEffect(() => {
@@ -129,6 +167,33 @@ export default function TekkiChatbot() {
     fetchChatbotConfig();
   }, []);
 
+  // Enregistrer l'état du funnel
+  useEffect(() => {
+    // Sauvegarder l'état du funnel à chaque changement d'étape
+    const saveFunnelState = async () => {
+      try {
+        // Ne sauvegarder que si l'utilisateur a interagi
+        if (messages.length <= 1) return;
+        
+        // Enregistrer dans une nouvelle table 'chat_conversion_funnel'
+        await supabase.from('chat_conversion_funnel').insert([{
+          session_id: sessionId,
+          funnel_stage: conversionFunnel.stage,
+          businesses_viewed: conversionFunnel.businessesViewed,
+          topics_discussed: conversionFunnel.topicsDiscussed,
+          objections: conversionFunnel.objections,
+          ready_to_buy: conversionFunnel.readyToBuy,
+          url: pathname || '/',
+          created_at: new Date().toISOString()
+        }]);
+      } catch (error) {
+        console.warn('Erreur lors de la sauvegarde du funnel:', error);
+      }
+    };
+    
+    saveFunnelState();
+  }, [conversionFunnel.stage, conversionFunnel.readyToBuy, messages.length, pathname, sessionId]);
+
   // Fonction pour initialiser le chat avec des valeurs par défaut
   const initializeChatWithDefaults = () => {
     setMessages([{
@@ -138,6 +203,117 @@ export default function TekkiChatbot() {
       timestamp: new Date(),
       suggestions: defaultSuggestions
     }]);
+  };
+
+  // Fonction pour mettre à jour le funnel de conversion
+  const updateConversionFunnel = (message: string, isUserMessage: boolean) => {
+    setConversionFunnel(prev => {
+      const newFunnel = { ...prev, lastActive: new Date() };
+      
+      // Extraire les sujets discutés
+      const topics = extractTopics(message);
+      if (topics.length > 0) {
+        newFunnel.topicsDiscussed = [...new Set([...prev.topicsDiscussed, ...topics])];
+      }
+      
+      // Détecter les objections (seulement dans les messages utilisateur)
+      if (isUserMessage) {
+        const objections = detectObjections(message);
+        if (objections.length > 0) {
+          newFunnel.objections = [...new Set([...prev.objections, ...objections])];
+        }
+      }
+      
+      // Extraire les business mentionnés
+      const businessMentioned = extractBusinessName(message);
+      if (businessMentioned && !prev.businessesViewed.includes(businessMentioned)) {
+        newFunnel.businessesViewed = [...prev.businessesViewed, businessMentioned];
+      }
+      
+      // Mettre à jour l'étape du funnel
+      newFunnel.stage = determineStage(message, prev.stage, isUserMessage);
+      
+      // Détecter si prêt à acheter
+      if (isReadyToBuy(message) && isUserMessage) {
+        newFunnel.readyToBuy = true;
+      }
+      
+      return newFunnel;
+    });
+  };
+
+  // Fonctions d'analyse pour le funnel de conversion
+  const extractTopics = (message: string): string[] => {
+    const topics = [];
+    
+    if (/prix|coût|tarif|budget|investir/i.test(message)) topics.push('prix');
+    if (/temps|heures|disponible|gérer/i.test(message)) topics.push('temps');
+    if (/accompagnement|support|aide|formation/i.test(message)) topics.push('accompagnement');
+    if (/rentab|profit|revenue|gagner|mois/i.test(message)) topics.push('rentabilité');
+    if (/experience|compétence|débutant|savoir/i.test(message)) topics.push('expérience');
+    
+    return topics;
+  };
+
+  const detectObjections = (message: string): string[] => {
+    const objections = [];
+    
+    if (/cher|élevé|trop|budget/i.test(message)) objections.push('prix');
+    if (/temps|occupé|chargé|disponible/i.test(message)) objections.push('temps');
+    if (/difficile|compliqué|complexe/i.test(message)) objections.push('complexité');
+    if (/risque|peur|inquiet|échec/i.test(message)) objections.push('risque');
+    if (/expérience|compétence|savoir|capable/i.test(message)) objections.push('compétence');
+    
+    return objections;
+  };
+
+  const extractBusinessName = (message: string): string | null => {
+    // Patterns pour détecter les noms de business courants
+    const patterns = [
+      /business\s+([a-z0-9&\s-]+)/i,
+      /e-commerce\s+de\s+([a-z0-9&\s-]+)/i,
+      /boutique\s+de\s+([a-z0-9&\s-]+)/i
+    ];
+    
+    for (const pattern of patterns) {
+      const match = message.match(pattern);
+      if (match && match[1]) {
+        return match[1].trim();
+      }
+    }
+    
+    return null;
+  };
+
+  const determineStage = (
+    message: string, 
+    currentStage: 'awareness' | 'interest' | 'consideration' | 'decision',
+    isUserMessage: boolean
+  ): 'awareness' | 'interest' | 'consideration' | 'decision' => {
+    if (!isUserMessage) return currentStage;
+    
+    // Progression vers étape décision
+    if (/acheter|acquérir|procéder|achat|prêt|acquisition|comment faire/i.test(message)) {
+      return 'decision';
+    }
+    
+    // Progression vers étape considération
+    if (/prix|coût|combien|frais|investissement|comparaison|différence/i.test(message)) {
+      return currentStage === 'decision' ? 'decision' : 'consideration';
+    }
+    
+    // Progression vers étape intérêt
+    if (/plus d'info|détails|fonctionnement|comment ça marche|avantage|intéressé/i.test(message)) {
+      return currentStage === 'decision' || currentStage === 'consideration' 
+        ? currentStage 
+        : 'interest';
+    }
+    
+    return currentStage;
+  };
+
+  const isReadyToBuy = (message: string): boolean => {
+    return /je veux acheter|je veux acquérir|je suis prêt|je souhaite acheter|comment procéder/i.test(message);
   };
 
   // Fonction pour rendre les liens cliquables dans les messages de l'IA
@@ -190,27 +366,25 @@ export default function TekkiChatbot() {
 
   // Déterminer si nous devons afficher les suggestions pour un message
   const shouldShowSuggestions = (msg: Message): boolean => {
-    // Toujours afficher les suggestions pour le premier message d'accueil
+    // Premier message d'accueil
     if (msg.id === 1) return true;
     
-    // Si le message ne contient pas de suggestions, ne rien afficher
-    if (!msg.suggestions || msg.suggestions.length === 0) return false;
+    // Contact service client uniquement si explicitement demandé
+    const needsContactOption = msg.content.toLowerCase().includes("besoin d'aide") || 
+                              msg.content.toLowerCase().includes("assistance") ||
+                              msg.content.toLowerCase().includes("parler à quelqu'un");
     
-    // Afficher les suggestions si elles contiennent des options critiques
-    const hasCriticalSuggestion = msg.suggestions.some(suggestion =>
-      criticalSuggestions.some(critical => suggestion.includes(critical))
-    );
+    if (needsContactOption && msg.suggestions?.includes("Contacter le service client")) {
+      // Ne conserver que les suggestions critiques
+      msg.suggestions = msg.suggestions.filter(s => 
+        s === "Contacter le service client" || 
+        s === "Ouvrir WhatsApp"
+      );
+      return true;
+    }
     
-    // Vérifier si le message concerne une promotion d'achat spécifique
-    const isPromotionalMessage = 
-      msg.content.includes("recommande") || 
-      msg.content.includes("adapté à votre profil") ||
-      msg.content.includes("vous intéresse") ||
-      msg.content.includes("quel budget") ||
-      msg.content.includes("acquérir") || 
-      msg.content.includes("acheter");
-    
-    return hasCriticalSuggestion || isPromotionalMessage;
+    // Pas de suggestions pour les autres messages
+    return false;
   };
 
   // Faire défiler jusqu'au dernier message
@@ -300,7 +474,9 @@ export default function TekkiChatbot() {
           history: messages.slice(-5).map(msg => ({
             role: msg.type === 'user' ? 'user' : 'assistant',
             content: msg.content
-          }))
+          })),
+          sessionId: sessionId,
+          conversionState: conversionFunnel
         }),
       });
 
@@ -347,6 +523,9 @@ export default function TekkiChatbot() {
     };
   
     try {
+      // Mettre à jour le funnel avec le message utilisateur
+      updateConversionFunnel(messageContent, true);
+      
       setMessages(prev => [...prev, userMessage]);
       setMessage('');
       setIsTyping(true);
@@ -383,6 +562,9 @@ export default function TekkiChatbot() {
       };
   
       setMessages(prev => [...prev, assistantMessage]);
+      
+      // Mettre à jour le funnel avec la réponse du chatbot
+      updateConversionFunnel(assistantMessage.content, false);
   
       // Si la réponse indique qu'un humain est nécessaire
       if (aiResponse.needs_human && !aiResponse.suggestions.includes("Contacter le service client")) {
@@ -409,6 +591,8 @@ export default function TekkiChatbot() {
             page: context.page,
             url: context.url,
             needs_human: aiResponse.needs_human,
+            session_id: sessionId,
+            funnel_stage: conversionFunnel.stage,
             created_at: new Date().toISOString()
           }]);
       } catch (supabaseError) {
@@ -434,68 +618,6 @@ export default function TekkiChatbot() {
     } finally {
       setIsTyping(false);
     }
-  };
-
-  // Fonction pour générer des suggestions contextuelles
-  const generateContextualSuggestions = (message: string, response: string, context: any): string[] => {
-    // Si le message montre un intérêt pour l'achat
-    if (message.toLowerCase().includes("acheter") || 
-        message.toLowerCase().includes("acquérir") || 
-        message.toLowerCase().includes("prix") || 
-        message.toLowerCase().includes("budget") ||
-        message.toLowerCase().includes("investir")) {
-      return [
-        "Comment se passe l'accompagnement?",
-        "Quelles sont les étapes pour l'acquisition?",
-        "Je veux ce business, comment procéder?",
-        "Contacter le service client"
-      ];
-    }
-    
-    // Si le message parle de frais mensuels ou d'investissement
-    if (message.toLowerCase().includes("frais") || 
-        message.toLowerCase().includes("coût") || 
-        message.toLowerCase().includes("mensuel") ||
-        message.toLowerCase().includes("rentabilité") ||
-        message.toLowerCase().includes("retour sur investissement")) {
-      return [
-        "Quel business me recommandez-vous?",
-        "Puis-je parler à un de vos clients?",
-        "Contacter le service client"
-      ];
-    }
-    
-    // Si l'IA recommande un business spécifique
-    if (response.toLowerCase().includes("recommande") ||
-        response.toLowerCase().includes("parfait pour vous") ||
-        response.toLowerCase().includes("correspond à vos critères")) {
-      return [
-        "Je veux ce business, comment procéder?",
-        "Quels sont les délais d'acquisition?",
-        "Comment se passe l'accompagnement?"
-      ];
-    }
-    
-    // Si on est sur une page business
-    if (context.url.startsWith('/business')) {
-      return [
-        "Je souhaite acquérir ce business",
-        "Quels sont les frais mensuels?",
-        "Contacter le service client"
-      ];
-    }
-    
-    // Par défaut, utiliser les suggestions de la configuration si disponibles
-    if (config && config.initial_suggestions && config.initial_suggestions.length > 0) {
-      return config.initial_suggestions;
-    }
-    
-    // Ou utiliser des suggestions par défaut
-    return [
-      "Quel business me recommandez-vous?",
-      "Je veux en savoir plus sur vos formations",
-      "Contacter le service client"
-    ];
   };
 
   // Fonction pour gérer les clics sur les suggestions
@@ -599,10 +721,14 @@ export default function TekkiChatbot() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: isMobileDevice ? '100%' : 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 right-6 w-[350px] md:w-[400px] h-[600px] bg-[#F2F2F2] dark:bg-gray-800 rounded-2xl shadow-xl flex flex-col overflow-hidden border dark:border-gray-700 z-50"
+            exit={{ opacity: 0, y: isMobileDevice ? '100%' : 20 }}
+            className={`fixed ${
+              isMobileDevice 
+                ? 'inset-0 z-50' 
+                : 'bottom-6 right-6 w-[350px] md:w-[400px] h-[600px]'
+            } bg-[#F2F2F2] dark:bg-gray-800 rounded-2xl shadow-xl flex flex-col overflow-hidden border dark:border-gray-700 z-50`}
           >
             {/* Header */}
             <div className="p-4 bg-[#0f4c81] text-white">
@@ -633,16 +759,30 @@ export default function TekkiChatbot() {
                 >
                     <WhatsAppIcon size={16} className="text-white" />
                 </button>
-                <button
-                    onClick={() => setIsOpen(false)}
-                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
-                    aria-label="Fermer"
-                >
-                    <X className="w-5 h-5" />
-                </button>
+                {isMobileDevice ? (
+                  <div className="h-1 w-6 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto"></div>
+                ) : (
+                  <button
+                      onClick={() => setIsOpen(false)}
+                      className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                      aria-label="Fermer"
+                  >
+                      <X className="w-5 h-5" />
+                  </button>
+                )}
                 </div>
             </div>
             </div>
+            
+            {/* Indicateur de glissement pour fermer sur mobile */}
+            {isMobileDevice && (
+              <div 
+                className="w-full flex justify-center py-1 cursor-pointer" 
+                onClick={() => setIsOpen(false)}
+              >
+                <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+              </div>
+            )}
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -723,7 +863,7 @@ export default function TekkiChatbot() {
             </div>
 
             {/* Input */}
-            <div className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700">
+            <div className={`p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 ${isMobileDevice ? 'pb-safe-area-bottom' : ''}`}>
               <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 rounded-full p-2 pl-4 border dark:border-gray-600">
                 <input
                   type="text"

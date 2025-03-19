@@ -160,7 +160,7 @@ function BusinessesPage() {
           <h2 className="text-3xl font-bold text-[#0f4c81]">Business</h2>
           <p className="text-gray-500">Gérez vos business en vente</p>
         </div>
-        <Link href="/admin/businesses/add">
+        <Link href="/admin/businesses/new/edit">
           <Button className="bg-[#ff7f50] hover:bg-[#ff6b3d]">
             <Plus className="w-4 h-4 mr-2" />
             Nouveau Business

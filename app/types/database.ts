@@ -1,71 +1,127 @@
 // app/types/database.ts
+
+// Structure pour les questions fréquentes
+export interface FAQ {
+  question: string;
+  answer: string;
+}
+
+// Structure pour les histoires de réussite
+export interface SuccessStory {
+  name: string;
+  business: string;
+  testimonial: string;
+  revenue?: string;
+  photo?: string;
+}
+
+// Structure pour les données de projection graphique
+export interface ProjectionGraphData {
+  months: string[];
+  revenue: number[];
+  expenses: number[];
+  profit: number[];
+}
+
+// Structure pour la répartition des coûts mensuels
+export interface MonthlyCostsBreakdown {
+  hosting?: number;
+  marketing?: number;
+  stock?: number;
+  other?: number;
+  [key: string]: number | undefined;
+}
+
+// Structure pour l'image
+export interface BusinessImage {
+  src: string;
+  alt: string;
+}
+
+// Structure pour l'analyse du marché
+export interface MarketAnalysis {
+  size: string;
+  growth: string;
+  competition: string;
+  opportunity: string;
+}
+
+// Structure pour les détails du produit
+export interface ProductDetails {
+  type: string;
+  margin: string;
+  suppliers: string;
+  logistics: string;
+}
+
+// Structure pour la stratégie marketing
+export interface MarketingStrategy {
+  channels: string[] | string;
+  targetAudience: string;
+  acquisitionCost: string;
+  conversionRate: string;
+}
+
+// Structure pour les aspects financiers
+export interface Financials {
+  setupCost: string;
+  monthlyExpenses: string;
+  breakevenPoint: string;
+  roi: string;
+}
+
+// Business type complet
 export interface Business {
   id: string;
+  created_at: string;
+  updated_at: string;
+  
+  // Informations de base
   slug: string;
   name: string;
   category: string;
   type: 'physical' | 'digital';
-  status: 'available' | 'sold';
+  status: 'available' | 'reserved' | 'sold';
   price: number;
   original_price: number;
   monthly_potential: number;
   pitch: string;
   description: string;
-  images: {
-    src: string;
-    alt: string;
-  }[];
-  market_analysis: {
-    size: string;
-    growth: string;
-    competition: string;
-    opportunity: string;
-  };
-  product_details: {
-    type: string;
-    margin: string;
-    suppliers: string;
-    logistics: string;
-  };
-  marketing_strategy: {
-    channels: string[] | string;
-    targetAudience: string;
-    acquisitionCost: string;
-    conversionRate: string;
-  };
-  financials: {
-    setupCost: string;
-    monthlyExpenses: string;
-    breakevenPoint: string;
-    roi: string;
-  };
-  includes: string[];
-  created_at: string;
-  updated_at: string;
   
-  // Propriétés additionnelles
+  // Données structurées
+  images: BusinessImage[];
+  market_analysis: MarketAnalysis;
+  product_details: ProductDetails;
+  marketing_strategy: MarketingStrategy;
+  financials: Financials;
+  
+  // Caractéristiques et inclusions
+  includes: string[];
+  benefits?: string[];
+  
+  // Données pour le public cible
   target_audience?: string;
   skill_level_required?: string;
   time_required_weekly?: number | null;
+  
+  // Données financières additionnelles
   roi_estimation_months?: number | null;
+  monthly_costs_breakdown?: MonthlyCostsBreakdown | null;
+  
+  // Historique et preuves sociales
+  success_stories?: SuccessStory[];
+  
+  // Questions et réponses
+  common_questions?: FAQ[] | null;
+  faqs?: FAQ[] | null;
+  
+  // Dynamique de l'offre
   active_viewers_count?: number | null;
-  garantee_days?: number | null;
   offer_expiry_date?: string | null;
-  success_stories?: string[];
-  benefits?: string[];
+  garantee_days?: number | null;
   
-  // Structures complexes additionnelles
-  common_questions?: Array<{
-    question: string;
-    answer: string;
-  }> | null;
-  
-  monthly_costs_breakdown?: {
-    [key: string]: number | string;
-  } | null;
-  
-  projection_graph_data?: any | null;
-  faqs?: any | null;
+  // Données pour visualisations
+  projection_graph_data?: ProjectionGraphData | null;
 }
 
 export interface BusinessGalleryProps {

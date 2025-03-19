@@ -109,7 +109,7 @@ export default function BusinessesPage() {
               Business E-commerce à Vendre
             </h1>
             <p className="text-xl opacity-90">
-              Découvrez nos business e-commerce clé en main, prêts à générer des revenus
+              Acquerrez un business complet prêts à générer des revenus
             </p>
           </div>
         </div>
