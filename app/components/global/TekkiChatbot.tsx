@@ -1,7 +1,8 @@
+// app/components/global/TekkiChatbot.tsx
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Loader2, MessageSquare, ArrowRight } from 'lucide-react';
+import { X, Send, Loader2, MessageSquare, ArrowRight, ArrowDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -142,6 +143,8 @@ export default function TekkiChatbot() {
   const [businessFallbacks, setBusinessFallbacks] = useState<BusinessFallbacks>(defaultBusinessFallbacks);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isFirstRenderComplete, setIsFirstRenderComplete] = useState(false);
+  const [userScrolling, setUserScrolling] = useState(false);
+  const [lastScrollTop, setLastScrollTop] = useState(0);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -447,33 +450,34 @@ export default function TekkiChatbot() {
     
     // Spécifique à iOS: gérer le redimensionnement de la page quand le clavier s'ouvre
     const handleIOSKeyboard = () => {
-      // S'assurer que le champ d'entrée reste visible
-      if (messagesContainerRef.current && keyboardOpen) {
-        // Sur iOS, nous devons décaler le contenu vers le haut
-        messagesContainerRef.current.style.height = `calc(100vh - 160px - ${document.activeElement === messageInputRef.current ? '300px' : '0px'})`;
+    // S'assurer que le champ d'entrée reste visible
+    if (messagesContainerRef.current && keyboardOpen) {
+      // Sur iOS, nous devons décaler le contenu vers le haut
+      messagesContainerRef.current.style.height = `calc(100vh - 160px - ${document.activeElement === messageInputRef.current ? '300px' : '0px'})`;
+    }
+    
+    // Définir des fonctions spécifiques de gestion d'événements
+    const handleFocus = () => scrollToBottom();
+    const handleBlur = () => {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.style.height = keyboardOpen ? 'calc(100vh - 160px)' : 'auto';
       }
-      
-      // Restaurer la taille normale lorsque l'entrée perd le focus
-      const handleBlur = () => {
-        if (messagesContainerRef.current) {
-          messagesContainerRef.current.style.height = keyboardOpen ? 'calc(100vh - 160px)' : 'auto';
-        }
-        setTimeout(scrollToBottom, 100);
-      };
-      
-      // S'assurer que le focus et le blur sont correctement gérés
-      if (messageInputRef.current) {
-        messageInputRef.current.addEventListener('focus', scrollToBottom);
-        messageInputRef.current.addEventListener('blur', handleBlur);
-      }
-      
-      return () => {
-        if (messageInputRef.current) {
-          messageInputRef.current.removeEventListener('focus', scrollToBottom);
-          messageInputRef.current.removeEventListener('blur', handleBlur);
-        }
-      };
+      setTimeout(scrollToBottom, 100);
     };
+    
+    // S'assurer que le focus et le blur sont correctement gérés
+    if (messageInputRef.current) {
+      messageInputRef.current.addEventListener('focus', handleFocus);
+      messageInputRef.current.addEventListener('blur', handleBlur);
+    }
+    
+    return () => {
+      if (messageInputRef.current) {
+        messageInputRef.current.removeEventListener('focus', handleFocus);
+        messageInputRef.current.removeEventListener('blur', handleBlur);
+      }
+    };
+  };
     
     handleIOSKeyboard();
     
@@ -554,29 +558,47 @@ export default function TekkiChatbot() {
     fetchChatbotConfig();
   }, []);
 
+  // Ajouter un effet pour détecter le défilement de l'utilisateur
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!messagesContainerRef.current) return;
+      
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      const isScrollingUp = scrollTop < lastScrollTop;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 50;
+      
+      setLastScrollTop(scrollTop);
+      
+      if (isScrollingUp) {
+        setUserScrolling(true);
+      } else if (isNearBottom) {
+        setUserScrolling(false);
+      }
+    };
+    
+    const messagesContainer = messagesContainerRef.current;
+    if (messagesContainer) {
+      messagesContainer.addEventListener('scroll', handleScroll);
+    }
+    
+    return () => {
+      if (messagesContainer) {
+        messagesContainer.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [lastScrollTop]);
+
   // Observer les nouveaux messages pour un défilement automatique
-  // Cette fonction a été améliorée pour forcer le scrolling
   useEffect(() => {
     if (isFirstRenderComplete) {
-      // Utiliser une approche en plusieurs étapes pour assurer le scrolling
-      const doScroll = () => {
-        scrollToBottom();
-        
-        // Forcer un second scrolling après un délai plus long pour s'assurer
-        // que tout le contenu a été rendu
-        setTimeout(() => {
-          scrollToBottom();
-          
-          // Troisième tentative pour iOS, qui est particulièrement problématique
-          if (isIOSDevice) {
-            setTimeout(scrollToBottom, 300);
-          }
-        }, 100);
-      };
-      
-      doScroll();
+      // Scroll automatique uniquement pour les nouveaux messages ou si l'utilisateur n'est pas en train de défiler
+      const isNewMessage = messages.length > 0;
+      if (isNewMessage && !userScrolling) {
+        // Utiliser un seul timeout au lieu de multiples défilements forcés
+        setTimeout(() => scrollToBottom(), 100);
+      }
     }
-  }, [messages, isTyping, isFirstRenderComplete, isIOSDevice]);
+  }, [messages, isTyping, isFirstRenderComplete, userScrolling]);
 
   // Forcer le scrolling lorsque le chatbot est ouvert
   useEffect(() => {
@@ -627,20 +649,47 @@ export default function TekkiChatbot() {
   const detectBusinessType = (messageText: string): string | null => {
     const messageLC = messageText.toLowerCase();
     
-    // Vérifier parmi tous les business disponibles
+    // 1. Essayer d'abord la correspondance directe
     for (const [businessName, businessInfo] of Object.entries(businessFallbacks)) {
-      // Vérifier si le nom du business est mentionné directement
       if (messageLC.includes(businessName.toLowerCase())) {
         return businessName;
       }
       
-      // Vérifier les mots-clés associés à ce business
       if (businessInfo.keywords && businessInfo.keywords.some(keyword => 
         messageLC.includes(keyword.toLowerCase()))) {
         return businessName;
       }
     }
-  
+    
+    // 2. Essayer une correspondance floue - vérifier si un mot du message est similaire à un nom de business
+    const words = messageLC.split(/\s+/);
+    for (const [businessName, _] of Object.entries(businessFallbacks)) {
+      const businessNameWords = businessName.toLowerCase().split(/\s+/);
+      
+      // Vérifier si un mot du message est similaire à un mot du nom de business
+      for (const word of words) {
+        if (word.length < 3) continue; // Ignorer les mots courts
+        
+        for (const businessWord of businessNameWords) {
+          if (businessWord.length < 3) continue; // Ignorer les mots courts
+          
+          // Vérifier la correspondance partielle
+          if (businessWord.includes(word) || word.includes(businessWord)) {
+            return businessName;
+          }
+        }
+      }
+    }
+    
+    // Si aucune correspondance claire mais que le message semble lié à un business, retourner le premier business comme solution de repli
+    if (messageLC.includes('business') || messageLC.includes('acheter') || 
+        messageLC.includes('vente') || messageLC.includes('prix')) {
+      const businessEntries = Object.entries(businessFallbacks);
+      if (businessEntries.length > 0) {
+        return businessEntries[0][0]; // Retourner le premier business comme solution de repli
+      }
+    }
+    
     return null;
   };
   
@@ -885,59 +934,26 @@ export default function TekkiChatbot() {
     return false;
   };
 
-  // Améliorer la fonction scrollToBottom pour être plus fiable - version améliorée avec support iOS intégré
-  const scrollToBottom = () => {
-    if (!messagesEndRef.current) return;
+  // Version améliorée de scrollToBottom
+  const scrollToBottom = (force = false) => {
+    if (!messagesEndRef.current || (userScrolling && !force)) return;
     
     try {
-      // Essayer de forcer le défilement de plusieurs façons pour maximiser les chances de succès
-      
-      // 1. Utiliser scrollIntoView
-      messagesEndRef.current.scrollIntoView({ 
-        behavior: "auto", // On utilise toujours "auto" pour plus de fiabilité
-        block: "end" 
-      });
-      
-      // 2. Utiliser scrollTop sur le container des messages (méthode la plus fiable)
+      // Approche simplifiée - utiliser juste la méthode scrollTop standard
       if (messagesContainerRef.current) {
-        const scrollHeight = messagesContainerRef.current.scrollHeight;
-        messagesContainerRef.current.scrollTop = scrollHeight + 1000; // Ajout de marge pour être sûr
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
         
-        // Pour mobile, spécialement iOS, parfois un délai est nécessaire
-        if (isMobileDevice) {
+        // Pour iOS, parfois un léger délai est nécessaire
+        if (isIOSDevice) {
           setTimeout(() => {
             if (messagesContainerRef.current) {
-              messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight + 1000;
+              messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
             }
           }, 50);
         }
       }
-      
-      // 3. Pour iOS, utiliser une approche plus agressive si les autres méthodes échouent
-      if (isIOSDevice && messagesContainerRef.current) {
-        // Force scroll avec position sticky et translation
-        messagesEndRef.current.style.position = 'sticky';
-        messagesEndRef.current.style.bottom = '0';
-        messagesEndRef.current.style.transform = 'translateY(0)';
-        
-        // ScrollTo spécifique à iOS
-        const scrollY = messagesContainerRef.current.scrollHeight + 2000;
-        window.scrollTo(0, scrollY);
-        messagesContainerRef.current.scrollTo(0, scrollY);
-      }
     } catch (e) {
-      console.warn('Erreur de scroll, tentative avec méthode alternative:', e);
-      
-      // Méthode alternative si toutes les autres échouent
-      if (messagesContainerRef.current) {
-        try {
-          // Accéder directement au style pour forcer le défilement
-          messagesContainerRef.current.style.scrollBehavior = 'auto';
-          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight * 2;
-        } catch (finalError) {
-          console.error('Échec de toutes les méthodes de défilement:', finalError);
-        }
-      }
+      console.warn('Erreur de scroll:', e);
     }
   };
 
@@ -1117,6 +1133,9 @@ export default function TekkiChatbot() {
       setMessages(prev => [...prev, userMessage]);
       setMessage('');
       setIsTyping(true);
+      
+      // Réinitialiser l'état de défilement utilisateur pour permettre un défilement automatique
+      setUserScrolling(false);
   
       // Si c'est une demande de contact direct
       if (messageContent.toLowerCase().includes('contacter le service client') || 
@@ -1202,7 +1221,7 @@ export default function TekkiChatbot() {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsTyping(false);
-      setTimeout(scrollToBottom, 100);
+      setTimeout(() => scrollToBottom(true), 100);
     }
   };
 
@@ -1312,9 +1331,9 @@ export default function TekkiChatbot() {
                 exit={{ opacity: 0, y: '100%' }}
                 className="fixed inset-0 z-[9999] flex flex-col bg-[#F2F2F2] dark:bg-gray-800 tekki-chatbot-mobile"
                 style={{
-                  width: '100vw',        // Force la largeur à 100% de la fenêtre
-                  maxWidth: '100%',      // Empêche tout dépassement
-                  overflow: 'hidden',    // Empêche le scroll horizontal
+                  width: '100vw',
+                  maxWidth: '100%',
+                  overflow: 'hidden',
                 }}
               >
                 {/* Header - reste fixe, ne change pas de taille */}
@@ -1364,11 +1383,11 @@ export default function TekkiChatbot() {
                   ref={messagesContainerRef}
                   className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar tekki-chatbot-messages"
                   style={{ 
-                    height: keyboardOpen ? 'calc(100vh - 160px)' : 'auto',
-                    width: '100%',             // Force la largeur à 100%
-                    overflow: 'auto',          // Permet le défilement
-                    paddingBottom: keyboardOpen ? '8px' : '80px',
-                    maxWidth: '100vw',         // Ne jamais dépasser la largeur de la fenêtre
+                    height: keyboardOpen ? 'calc(100vh - 220px)' : 'calc(100vh - 160px)',
+                    width: '100%',
+                    overflow: 'auto',
+                    paddingBottom: '120px',
+                    maxWidth: '100vw',
                   }}
                 >
                   {messages.map((msg) => (
@@ -1448,12 +1467,26 @@ export default function TekkiChatbot() {
                   <div ref={messagesEndRef} className="h-1 min-h-[1px] w-full" />
                 </div>
 
-                {/* Input - fixed at bottom with width constraints */}
+                {/* Bouton "Retour en bas" */}
+                {userScrolling && (
+                  <button
+                    onClick={() => {
+                      setUserScrolling(false);
+                      scrollToBottom(true);
+                    }}
+                    className="fixed bottom-20 right-4 bg-[#0f4c81] text-white rounded-full p-2 shadow-lg z-30"
+                  >
+                    <ArrowDown className="h-5 w-5" />
+                  </button>
+                )}
+
+                {/* Input - sticky at bottom with width constraints */}
                 <div 
-                  className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 fixed bottom-0 left-0 right-0 z-20 input-container"
+                  className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 sticky bottom-0 left-0 right-0 z-20 input-container"
                   style={{
-                    width: '100%',      // Force la largeur à 100%
-                    maxWidth: '100vw',  // Empêche tout dépassement
+                    width: '100%',
+                    maxWidth: '100vw',
+                    boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)',
                   }}
                 >
                   <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 rounded-full p-2 pl-4 border dark:border-gray-600">
@@ -1471,14 +1504,14 @@ export default function TekkiChatbot() {
                       placeholder="Posez votre question..."
                       className="flex-1 bg-transparent text-sm text-gray-600 dark:text-gray-300 focus:outline-none border-none"
                       style={{
-                        width: '100%',         // Assure que l'input prend toute la largeur disponible
-                        minWidth: 0,           // Permet à l'input de rétrécir si nécessaire
+                        width: '100%',
+                        minWidth: 0,
                       }}
                     />
                     <button
                       onClick={handleSendMessage}
                       disabled={!message.trim() || isTyping}
-                      className={`rounded-full p-2 flex-shrink-0 ${  // Empêche le bouton de rétrécir
+                      className={`rounded-full p-2 flex-shrink-0 ${
                         message.trim() && !isTyping
                           ? "bg-[#0f4c81] text-white hover:bg-[#0f4c81]/90"
                           : "bg-gray-100 dark:bg-gray-600 text-gray-400 dark:text-gray-500"
