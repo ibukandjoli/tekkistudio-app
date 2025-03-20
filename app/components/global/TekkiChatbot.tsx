@@ -162,6 +162,120 @@ export default function TekkiChatbot() {
     return null;
   }
 
+  // Fonction auxiliaire pour traiter les URLs ordinaires dans un segment de texte
+  const parseUrlsInText = (text: string) => {
+    if (!text.includes('http')) return text;
+    
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const segments: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match;
+    
+    // Réinitialiser le regex pour une nouvelle recherche
+    urlRegex.lastIndex = 0;
+    
+    while ((match = urlRegex.exec(text)) !== null) {
+      // Ajouter le texte avant l'URL
+      if (match.index > lastIndex) {
+        segments.push(text.substring(lastIndex, match.index));
+      }
+      
+      // Ajouter l'URL en tant qu'élément cliquable
+      segments.push(
+        <a 
+          key={`url-${match.index}`} 
+          href={match[0]} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-[#FF7F50] hover:underline font-medium"
+        >
+          {match[0]}
+        </a>
+      );
+      
+      lastIndex = match.index + match[0].length;
+    }
+    
+    // Ajouter le reste du texte après la dernière URL
+    if (lastIndex < text.length) {
+      segments.push(text.substring(lastIndex));
+    }
+    
+    return <>{segments}</>;
+  };
+
+  // Fonction améliorée pour rendre les liens cliquables
+  const parseMessageWithLinks = (text: string) => {
+    // Regex pour identifier les liens Markdown de la forme [texte](url)
+    const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    
+    // Si aucun lien potentiel détecté, retourner le texte intact
+    if (!text.includes('http') && !text.includes('[')) {
+      return text;
+    }
+
+    // Traiter les liens Markdown
+    if (text.includes('[') && text.includes('](')) {
+      // Diviser le texte en segments (texte normal et liens)
+      const segments: React.ReactNode[] = [];
+      let lastIndex = 0;
+      let match;
+      
+      // Réinitialiser le regex pour une nouvelle recherche
+      markdownLinkRegex.lastIndex = 0;
+      
+      while ((match = markdownLinkRegex.exec(text)) !== null) {
+        // Ajouter le texte avant le lien
+        if (match.index > lastIndex) {
+          // Traiter ce segment pour les URLs ordinaires
+          const beforeText = text.substring(lastIndex, match.index);
+          segments.push(parseUrlsInText(beforeText));
+        }
+        
+        // Ajouter le lien Markdown en tant qu'élément cliquable
+        segments.push(
+          <a 
+            key={`md-${match.index}`} 
+            href={match[2]} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-[#FF7F50] hover:underline font-medium"
+          >
+            {match[1]}
+          </a>
+        );
+        
+        lastIndex = match.index + match[0].length;
+      }
+      
+      // Ajouter le reste du texte après le dernier lien
+      if (lastIndex < text.length) {
+        segments.push(parseUrlsInText(text.substring(lastIndex)));
+      }
+      
+      return <>{segments}</>;
+    }
+    
+    // Si pas de liens Markdown, traiter les URLs ordinaires
+    return parseUrlsInText(text);
+  };
+
+  // Fonction pour formater le texte avec des paragraphes
+  const formatMessageText = (text: string) => {
+    // Diviser le texte en paragraphes (séparés par des lignes vides ou simples)
+    const paragraphs = text.split(/\n{1,}/g);
+    
+    return (
+      <>
+        {paragraphs.map((paragraph, index) => (
+          <p key={index} className={index > 0 ? "mt-3" : ""}>
+            {parseMessageWithLinks(paragraph)}
+          </p>
+        ))}
+      </>
+    );
+  };
+
   // Détection du mobile et iOS
   useEffect(() => {
     setIsMobileDevice(isMobile());
@@ -209,40 +323,158 @@ export default function TekkiChatbot() {
     loadBusinessFallbacks();
   }, []);
 
-  // Gestion améliorée du clavier mobile
+  // Gestion avancée du clavier mobile
   useEffect(() => {
     if (!isMobileDevice) return;
 
-    // Détection de l'ouverture du clavier virtuel
+    // Variables pour suivre la hauteur de la fenêtre
+    let originalWindowHeight = window.innerHeight;
+    
+    // Détection améliorée de l'ouverture du clavier virtuel
     const detectKeyboard = () => {
-      const isKeyboardOpen = window.innerHeight < window.outerHeight * 0.8;
-      setKeyboardOpen(isKeyboardOpen);
+      // Sur iOS, la hauteur de window ne change pas nécessairement comme prévu
+      // On utilise une approche basée sur la différence de hauteur
+      const currentWindowHeight = window.innerHeight;
+      const heightDifference = originalWindowHeight - currentWindowHeight;
       
-      if (isKeyboardOpen) {
+      // Si la différence est significative (plus de 150px), le clavier est probablement ouvert
+      const isKeyboardVisible = heightDifference > 150;
+      
+      setKeyboardOpen(isKeyboardVisible);
+      
+      if (isKeyboardVisible) {
+        // Ajuster les styles quand le clavier est ouvert
+        document.body.classList.add('keyboard-visible');
+        
+        // Assurer que l'interface reste fixe
+        if (chatContainerRef.current) {
+          chatContainerRef.current.style.width = '100vw';
+          chatContainerRef.current.style.maxWidth = '100%';
+          chatContainerRef.current.style.overflowX = 'hidden';
+        }
+        
+        // S'assurer que le champ de saisie est visible
         setTimeout(() => {
           scrollToBottom();
+          messageInputRef.current?.focus();
         }, 100);
+      } else {
+        // Restaurer les styles quand le clavier se ferme
+        document.body.classList.remove('keyboard-visible');
+        
+        // Réinitialiser la hauteur originale lors d'un changement d'orientation
+        if (Math.abs(originalWindowHeight - currentWindowHeight) < 150) {
+          originalWindowHeight = currentWindowHeight;
+        }
+        
+        setTimeout(scrollToBottom, 100);
       }
     };
 
+    // Détecter les changements dans la taille de fenêtre (ouverture/fermeture du clavier)
     window.addEventListener('resize', detectKeyboard);
-
-    // Gestion du chat en plein écran sur mobile
-    if (isOpen) {
-      // Bloquer le scroll du body quand le chat est ouvert sur mobile
-      document.body.style.overflow = 'hidden';
-      
-      // Assurer que le scroll est bien activé dans la zone des messages
+    
+    // Pour iOS, nous surveillons également l'orientation
+    window.addEventListener('orientationchange', () => {
+      // Laisser le temps au navigateur de mettre à jour les dimensions
       setTimeout(() => {
-        scrollToBottom();
-      }, 100);
+        originalWindowHeight = window.innerHeight;
+        detectKeyboard();
+      }, 300);
+    });
+
+    // Empêcher le scroll du body quand le chat est ouvert sur mobile
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.height = '100%';
+      
+      // Stocker la hauteur originale au moment de l'ouverture
+      originalWindowHeight = window.innerHeight;
+      
+      // Vérifier immédiatement l'état du clavier
+      detectKeyboard();
     }
 
     return () => {
       window.removeEventListener('resize', detectKeyboard);
+      window.removeEventListener('orientationchange', detectKeyboard);
       document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      document.body.classList.remove('keyboard-visible');
     };
   }, [isOpen, isMobileDevice]);
+
+  // Gestion spécifique pour iOS - version corrigée sans réassignation
+  useEffect(() => {
+    if (!isMobileDevice || !isIOSDevice) return;
+    
+    // Spécifique à iOS: gérer le redimensionnement de la page quand le clavier s'ouvre
+    const handleIOSKeyboard = () => {
+      // S'assurer que le champ d'entrée reste visible
+      if (messagesContainerRef.current && keyboardOpen) {
+        // Sur iOS, nous devons décaler le contenu vers le haut
+        messagesContainerRef.current.style.height = `calc(100vh - 160px - ${document.activeElement === messageInputRef.current ? '300px' : '0px'})`;
+      }
+      
+      // Restaurer la taille normale lorsque l'entrée perd le focus
+      const handleBlur = () => {
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.style.height = keyboardOpen ? 'calc(100vh - 160px)' : 'auto';
+        }
+        setTimeout(scrollToBottom, 100);
+      };
+      
+      // S'assurer que le focus et le blur sont correctement gérés
+      if (messageInputRef.current) {
+        messageInputRef.current.addEventListener('focus', scrollToBottom);
+        messageInputRef.current.addEventListener('blur', handleBlur);
+      }
+      
+      return () => {
+        if (messageInputRef.current) {
+          messageInputRef.current.removeEventListener('focus', scrollToBottom);
+          messageInputRef.current.removeEventListener('blur', handleBlur);
+        }
+      };
+    };
+    
+    handleIOSKeyboard();
+    
+    // Ajouter un gestionnaire pour améliorer le défilement sur iOS
+    const enhancedIOSScroll = () => {
+      // Technique de défilement supplémentaire pour iOS
+      if (messagesContainerRef.current && messagesEndRef.current) {
+        setTimeout(() => {
+          if (messagesContainerRef.current) {
+            const scrollHeight = messagesContainerRef.current.scrollHeight;
+            messagesContainerRef.current.scrollTop = scrollHeight;
+            
+            // Parfois le premier scroll ne fonctionne pas sur iOS, donc on réessaie
+            setTimeout(() => {
+              if (messagesContainerRef.current) {
+                messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+              }
+            }, 50);
+          }
+        }, 10);
+      }
+    };
+    
+    // Attacher le gestionnaire aux événements de défilement
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.addEventListener('touchend', enhancedIOSScroll);
+    }
+    
+    return () => {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.removeEventListener('touchend', enhancedIOSScroll);
+      }
+    };
+  }, [keyboardOpen, isMobileDevice, isIOSDevice]);
 
   // Charger la configuration du chatbot au démarrage
   useEffect(() => {
@@ -487,54 +719,6 @@ export default function TekkiChatbot() {
     return /je veux acheter|je veux acquérir|je suis prêt|je souhaite acheter|comment procéder/i.test(message);
   };
 
-  // Fonction pour rendre les liens cliquables dans les messages de l'IA
-  const parseMessageWithLinks = (text: string) => {
-    // Regex pour identifier les liens Markdown de la forme [texte](url)
-    const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-
-    // Si aucun lien Markdown n'est trouvé, retourner le texte tel quel
-    if (!markdownLinkRegex.test(text)) {
-      return text;
-    }
-
-    // Diviser le texte en segments (texte normal et liens)
-    const segments = [];
-    let lastIndex = 0;
-    let match;
-
-    // Réinitialiser le regex pour une nouvelle recherche
-    markdownLinkRegex.lastIndex = 0;
-
-    while ((match = markdownLinkRegex.exec(text)) !== null) {
-      // Ajouter le texte avant le lien
-      if (match.index > lastIndex) {
-        segments.push(text.substring(lastIndex, match.index));
-      }
-
-      // Ajouter le lien en tant qu'élément cliquable
-      segments.push(
-        <a 
-          key={match.index} 
-          href={match[2]} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-[#FF7F50] hover:underline"
-        >
-          {match[1]}
-        </a>
-      );
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    // Ajouter le reste du texte après le dernier lien
-    if (lastIndex < text.length) {
-      segments.push(text.substring(lastIndex));
-    }
-
-    return <>{segments}</>;
-  };
-
   // Vérifier si le message concerne un business spécifique et utiliser le fallback
   const handleBusinessSpecificMessage = (messageText: string): { handled: boolean, content?: string, suggestions?: string[] } => {
     const businessName = detectBusinessType(messageText);
@@ -581,7 +765,7 @@ export default function TekkiChatbot() {
     return false;
   };
 
-  // Améliorer la fonction scrollToBottom pour être plus fiable
+  // Améliorer la fonction scrollToBottom pour être plus fiable - version améliorée avec support iOS intégré
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       try {
@@ -591,11 +775,17 @@ export default function TekkiChatbot() {
           block: "end" 
         });
         
-        // Pour iOS, ajouter une petite pause puis réessayer
-        if (isIOSDevice) {
+        // Technique de défilement supplémentaire pour iOS
+        if (isIOSDevice && messagesContainerRef.current) {
+          const scrollHeight = messagesContainerRef.current.scrollHeight;
+          messagesContainerRef.current.scrollTop = scrollHeight;
+          
+          // Parfois le premier scroll ne fonctionne pas sur iOS, donc on réessaie
           setTimeout(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: "auto", block: "end" });
-          }, 100);
+            if (messagesContainerRef.current) {
+              messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+            }
+          }, 50);
         }
       } catch (e) {
         console.warn('Erreur de scroll:', e);
@@ -951,6 +1141,11 @@ export default function TekkiChatbot() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: '100%' }}
                 className="fixed inset-0 z-[9999] flex flex-col bg-[#F2F2F2] dark:bg-gray-800 tekki-chatbot-mobile"
+                style={{
+                  width: '100vw',        // Force la largeur à 100% de la fenêtre
+                  maxWidth: '100%',      // Empêche tout dépassement
+                  overflow: 'hidden',    // Empêche le scroll horizontal
+                }}
               >
                 {/* Header - reste fixe, ne change pas de taille */}
                 <div className="p-4 bg-[#0f4c81] text-white sticky top-0 z-10">
@@ -993,25 +1188,17 @@ export default function TekkiChatbot() {
                     </div>
                   </div>
                 </div>
-                
-                {/* Indicateur de glissement pour fermer sur mobile */}
-                <div 
-                  className="w-full flex flex-col items-center py-1 bg-[#0f4c81]" 
-                  onClick={() => setIsOpen(false)}
-                >
-                  <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
-                  <span className="text-xs text-gray-300 -mt-1">Glisser pour fermer</span>
-                </div>
 
                 {/* Messages - Utilise flex-1 avec overflow-auto pour permettre le défilement */}
                 <div 
                   ref={messagesContainerRef}
-                  className={`flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar tekki-chatbot-messages ${
-                    keyboardOpen ? 'tekki-chatbot-keyboard-open' : ''
-                  } ${isIOSDevice ? 'tekki-chatbot-ios-fix' : ''}`}
+                  className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar tekki-chatbot-messages"
                   style={{ 
                     height: keyboardOpen ? 'calc(100vh - 160px)' : 'auto',
-                    paddingBottom: keyboardOpen ? '8px' : '80px' 
+                    width: '100%',             // Force la largeur à 100%
+                    overflow: 'auto hidden',   // Permet le défilement vertical mais pas horizontal
+                    paddingBottom: keyboardOpen ? '8px' : '80px',
+                    maxWidth: '100vw',         // Ne jamais dépasser la largeur de la fenêtre
                   }}
                 >
                   {messages.map((msg) => (
@@ -1043,9 +1230,9 @@ export default function TekkiChatbot() {
                             ? "bg-gray-100 dark:bg-gray-700" 
                             : "bg-[#0f4c81]"
                         }`}>
-                          <div className="text-sm whitespace-pre-wrap">
+                          <div className="text-sm">
                             {msg.type === 'assistant' 
-                              ? parseMessageWithLinks(msg.content)
+                              ? formatMessageText(msg.content)
                               : msg.content
                             }
                           </div>
@@ -1064,10 +1251,11 @@ export default function TekkiChatbot() {
                               <button
                                 key={index}
                                 onClick={() => handleSuggestionClick(suggestion)}
-                                className="px-3 py-1.5 text-xs bg-[#F2F2F2] dark:bg-gray-600 
+                                className="px-2 py-2 text-sm bg-[#F2F2F2] dark:bg-gray-600 
                                          rounded-full border border-gray-200 dark:border-gray-500
                                          hover:bg-gray-50 dark:hover:bg-gray-500
-                                         transition-colors text-gray-700 dark:text-gray-200"
+                                         transition-colors text-gray-700 dark:text-gray-200
+                                         min-h-[20px] min-w-[80px] font-medium"
                               >
                                 {suggestion}
                               </button>
@@ -1090,10 +1278,14 @@ export default function TekkiChatbot() {
                   <div ref={messagesEndRef} className="h-0" />
                 </div>
 
-                {/* Input - fixed at bottom */}
-                <div className={`p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 fixed bottom-0 left-0 right-0 z-20 ${
-                  isIOSDevice ? 'tekki-chatbot-ios-fix' : ''
-                }`}>
+                {/* Input - fixed at bottom with width constraints */}
+                <div 
+                  className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 fixed bottom-0 left-0 right-0 z-20 input-container"
+                  style={{
+                    width: '100%',      // Force la largeur à 100%
+                    maxWidth: '100vw',  // Empêche tout dépassement
+                  }}
+                >
                   <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 rounded-full p-2 pl-4 border dark:border-gray-600">
                     <input
                       ref={messageInputRef}
@@ -1108,11 +1300,15 @@ export default function TekkiChatbot() {
                       }}
                       placeholder="Posez votre question..."
                       className="flex-1 bg-transparent text-sm text-gray-600 dark:text-gray-300 focus:outline-none border-none"
+                      style={{
+                        width: '100%',         // Assure que l'input prend toute la largeur disponible
+                        minWidth: 0,           // Permet à l'input de rétrécir si nécessaire
+                      }}
                     />
                     <button
                       onClick={handleSendMessage}
                       disabled={!message.trim() || isTyping}
-                      className={`rounded-full p-2 ${
+                      className={`rounded-full p-2 flex-shrink-0 ${  
                         message.trim() && !isTyping
                           ? "bg-[#0f4c81] text-white hover:bg-[#0f4c81]/90"
                           : "bg-gray-100 dark:bg-gray-600 text-gray-400 dark:text-gray-500"
@@ -1224,9 +1420,9 @@ export default function TekkiChatbot() {
                             ? "bg-gray-100 dark:bg-gray-700" 
                             : "bg-[#0f4c81]"
                         }`}>
-                          <div className="text-sm whitespace-pre-wrap">
+                          <div className="text-sm">
                             {msg.type === 'assistant' 
-                              ? parseMessageWithLinks(msg.content)
+                              ? formatMessageText(msg.content)
                               : msg.content
                             }
                           </div>
@@ -1245,10 +1441,11 @@ export default function TekkiChatbot() {
                               <button
                                 key={index}
                                 onClick={() => handleSuggestionClick(suggestion)}
-                                className="px-3 py-1.5 text-xs bg-[#F2F2F2] dark:bg-gray-600 
+                                className="px-3 py-2 text-xs bg-[#F2F2F2] dark:bg-gray-600 
                                          rounded-full border border-gray-200 dark:border-gray-500
                                          hover:bg-gray-50 dark:hover:bg-gray-500
-                                         transition-colors text-gray-700 dark:text-gray-200"
+                                         transition-colors text-gray-700 dark:text-gray-200
+                                         min-h-[34px] min-w-[80px] font-medium"
                               >
                                 {suggestion}
                               </button>

@@ -1,4 +1,5 @@
 // app/layout.tsx
+
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
@@ -13,8 +14,8 @@ import CurrencySelectorWrapper from './components/common/CurrencySelectorWrapper
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'TEKKI Studio - Fabrique de Marques',
-  description: 'Première Fabrique de Marques d\'Afrique de l\'Ouest',
+  title: 'TEKKI Studio - Fabrique de Marques & Business E-commerce',
+  description: 'Vous souhaitez vous lancer dans l\'E-commerce? Nous vous aidons à le faire sans que vous ayez à partir de zéro. Achetez l\'un de nos business e-commerce complet et prêt à être lancé, ou sollicitez nos services pour la création de votre business de A à Z, ou la conception de votre site e-commerce.',
   keywords: 'fabrique de marques, business ecommerce, formation entrepreneuriat, marques de niche',
 };
 
@@ -27,7 +28,10 @@ export default function RootLayout({
     <html lang="fr">
       <head>
         {/* Balises meta supplémentaires pour SEO */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta 
+          name="viewport" 
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" 
+        />
         <meta name="robots" content="index, follow" />
         <link rel="icon" href="/favicon.ico" />
       </head>

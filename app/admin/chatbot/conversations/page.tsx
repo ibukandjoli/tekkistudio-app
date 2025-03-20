@@ -13,7 +13,7 @@ import {
 } from '@/app/components/ui/table';
 import { Button } from '@/app/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
-import { Calendar, Filter, Search, BarChart, MessageSquare, UserCheck, AlertTriangle, Download, RefreshCw, ChevronLeft, ChevronRight, Eye, X } from 'lucide-react';
+import { Calendar, Filter, Search, BarChart, MessageSquare, UserCheck, AlertTriangle, Download, RefreshCw, ChevronLeft, ChevronRight, Eye, X, Database } from 'lucide-react';
 import { supabase } from '@/app/lib/supabase';
 import { formatDistanceToNow, format, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -55,6 +55,8 @@ interface Conversation {
   url: string;
   needs_human: boolean;
   created_at: string;
+  session_id?: string;
+  funnel_stage?: string;
 }
 
 interface Stat {
@@ -83,6 +85,7 @@ function ChatbotConversationsPage() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'unknown' | 'connected' | 'error'>('unknown');
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -110,17 +113,66 @@ function ChatbotConversationsPage() {
     [needsHumanCount, conversations]
   );
 
+  // Initialisation du composant
   useEffect(() => {
+    console.log("Initialisation du composant ChatbotConversations");
+    testSupabaseConnection();
     fetchConversations();
-  }, [filter, timeRange, currentPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Effet pour les changements de filtres
+  useEffect(() => {
+    console.log("Changement des paramètres:", { filter, timeRange, currentPage });
+    if (connectionStatus !== 'unknown') {
+      fetchConversations();
+    }
+  }, [filter, timeRange, currentPage, connectionStatus]);
+
+  // Fonction pour tester la connexion à Supabase
+  const testSupabaseConnection = async () => {
+    try {
+      console.log("Test de connexion à Supabase...");
+      const { data, error } = await supabase
+        .from('chat_conversations')
+        .select('id')
+        .limit(1);
+      
+      console.log("Résultat du test:", { data, error });
+      
+      if (error) {
+        console.error("Erreur lors du test de connexion:", error);
+        toast.error("Erreur de connexion à Supabase");
+        setConnectionStatus('error');
+      } else {
+        console.log("Connexion réussie");
+        setConnectionStatus('connected');
+        
+        if (data && data.length > 0) {
+          console.log("Données trouvées dans chat_conversations");
+          toast.success("Connexion à Supabase établie avec succès");
+        } else {
+          console.log("Aucune donnée dans chat_conversations");
+          toast.info("Connexion réussie, mais aucune conversation trouvée");
+        }
+      }
+    } catch (error) {
+      console.error("Exception lors du test de connexion:", error);
+      toast.error("Exception lors de la connexion à Supabase");
+      setConnectionStatus('error');
+    }
+  };
 
   // Fonction pour récupérer les conversations avec pagination
   const fetchConversations = async () => {
     try {
       setLoading(true);
       
+      console.log("Tentative de récupération des conversations...");
+      
       // Obtenir la date de début en fonction du filtre de temps
       const startDate = dateRanges[timeRange as keyof typeof dateRanges];
+      console.log("Date de début pour le filtre:", startDate.toISOString());
       
       // Compter le nombre total de conversations pour la pagination
       let countQuery = supabase
@@ -138,9 +190,13 @@ function ChatbotConversationsPage() {
         countQuery = countQuery.or(`user_message.ilike.%${searchQuery}%,assistant_response.ilike.%${searchQuery}%`);
       }
       
+      console.log("Exécution de la requête de comptage...");
       const { count, error: countError } = await countQuery;
       
+      console.log("Résultat du comptage:", { count, error: countError });
+      
       if (countError) {
+        console.error("Erreur lors du comptage:", countError);
         throw countError;
       }
       
@@ -169,20 +225,78 @@ function ChatbotConversationsPage() {
       const to = from + conversationsPerPage - 1;
       query = query.range(from, to);
       
+      console.log("Exécution de la requête principale...");
       const { data, error } = await query;
       
-      if (error) throw error;
+      console.log("Résultat de la requête principale:", { 
+        dataLength: data?.length, 
+        error,
+        firstItem: data && data.length > 0 ? {
+          id: data[0].id,
+          user_message: data[0].user_message ? data[0].user_message.substring(0, 50) + '...' : null,
+          created_at: data[0].created_at
+        } : null 
+      });
+      
+      if (error) {
+        console.error("Erreur lors de la récupération des conversations:", error);
+        throw error;
+      }
+      
+      // Si aucune donnée n'est trouvée, vérifier si la table existe
+      if (!data || data.length === 0) {
+        console.log("Aucune conversation trouvée, vérification de la structure de la table...");
+        
+        // Vérifier la structure de la table
+        const { data: tableInfo, error: tableError } = await supabase
+          .from('chat_conversations')
+          .select('id')
+          .limit(1);
+        
+        if (tableError) {
+          console.error("Erreur lors de la vérification de la table:", tableError);
+          if (tableError.message.includes("does not exist")) {
+            toast.error("La table 'chat_conversations' n'existe pas");
+          }
+        } else {
+          console.log("La table existe mais ne contient pas de données correspondant aux filtres");
+        }
+      }
       
       setConversations(data || []);
       
       // Lancer les analyses une fois les données chargées
-      if (data) {
+      if (data && data.length > 0) {
         analyzeConversations(data);
+      } else {
+        // Réinitialiser les statistiques si aucune donnée
+        setStats([
+          {
+            label: 'Total conversations',
+            value: 0,
+            icon: <MessageSquare className="h-5 w-5" />,
+            color: '#0f4c81'
+          },
+          {
+            label: "Besoin d'assistance",
+            value: 0,
+            icon: <AlertTriangle className="h-5 w-5" />,
+            color: '#ff7f50'
+          },
+          {
+            label: 'Pages visitées',
+            value: 0,
+            icon: <BarChart className="h-5 w-5" />,
+            color: '#10b981'
+          },
+        ]);
+        setTopQuestions([]);
+        setPageDistribution([]);
       }
       
     } catch (error) {
-      console.error('Erreur lors du chargement des conversations:', error);
-      toast.error('Erreur lors du chargement des données');
+      console.error('Erreur détaillée lors du chargement des conversations:', error);
+      toast.error('Erreur lors du chargement des données. Vérifiez la console pour plus de détails.');
     } finally {
       setLoading(false);
     }
@@ -191,6 +305,9 @@ function ChatbotConversationsPage() {
   // Fonction pour analyser les conversations et calculer les statistiques
   const analyzeConversations = async (conversationsData: Conversation[]) => {
     try {
+      console.log("Début de l'analyse des conversations...");
+      console.log("Nombre de conversations à analyser:", conversationsData.length);
+      
       // Récupérer toutes les conversations pour les statistiques (sans pagination)
       const startDate = dateRanges[timeRange as keyof typeof dateRanges];
       
@@ -203,11 +320,42 @@ function ChatbotConversationsPage() {
         statsQuery = statsQuery.eq('needs_human', true);
       }
       
+      console.log("Récupération des données pour les statistiques...");
       const { data: allConversations, error } = await statsQuery;
       
-      if (error) throw error;
+      if (error) {
+        console.error("Erreur lors de la récupération des données pour les statistiques:", error);
+        throw error;
+      }
       
-      if (!allConversations) return;
+      console.log("Nombre total de conversations pour les statistiques:", allConversations?.length || 0);
+      
+      if (!allConversations || allConversations.length === 0) {
+        console.log("Aucune conversation à analyser, initialisation des stats à zéro");
+        setStats([
+          {
+            label: 'Total conversations',
+            value: 0,
+            icon: <MessageSquare className="h-5 w-5" />,
+            color: '#0f4c81'
+          },
+          {
+            label: "Besoin d'assistance",
+            value: 0,
+            icon: <AlertTriangle className="h-5 w-5" />,
+            color: '#ff7f50'
+          },
+          {
+            label: 'Pages visitées',
+            value: 0,
+            icon: <BarChart className="h-5 w-5" />,
+            color: '#10b981'
+          },
+        ]);
+        setTopQuestions([]);
+        setPageDistribution([]);
+        return;
+      }
       
       // Calculer les statistiques générales
       const convCount = allConversations.length;
@@ -244,6 +392,8 @@ function ChatbotConversationsPage() {
       // Calculer les questions les plus fréquentes
       const questions: Record<string, number> = {};
       allConversations.forEach(conv => {
+        if (!conv.user_message) return;
+        
         // Simplification de la question pour regroupement
         const simplifiedQ = conv.user_message
           .toLowerCase()
@@ -280,18 +430,24 @@ function ChatbotConversationsPage() {
       
       setPageDistribution(pageDistribution);
       
+      console.log("Analyse des conversations terminée avec succès");
+      
     } catch (error) {
       console.error('Erreur lors de l\'analyse des conversations:', error);
+      toast.error("Erreur lors de l'analyse des conversations");
     }
   };
 
+  // Gestionnaires d'événements
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Recherche avec la requête:", searchQuery);
     setCurrentPage(1); // Réinitialiser à la première page lors d'une recherche
     fetchConversations();
   };
 
   const clearSearch = () => {
+    console.log("Effacement de la recherche");
     setSearchQuery('');
     setCurrentPage(1);
     fetchConversations();
@@ -308,23 +464,28 @@ function ChatbotConversationsPage() {
   };
 
   const handleFilterChange = (value: string) => {
+    console.log("Changement de filtre:", value);
     setFilter(value);
     setCurrentPage(1); // Réinitialiser à la première page lors d'un changement de filtre
   };
 
   const handleTimeRangeChange = (value: string) => {
+    console.log("Changement de période:", value);
     setTimeRange(value);
     setCurrentPage(1); // Réinitialiser à la première page lors d'un changement de période
   };
 
   const viewConversation = (conversation: Conversation) => {
+    console.log("Affichage de la conversation:", conversation.id);
     setSelectedConversation(conversation);
     setIsDialogOpen(true);
   };
 
+  // Exporter les données au format CSV
   const exportToCSV = async () => {
     try {
       setExportLoading(true);
+      console.log("Export CSV en cours...");
       
       // Récupérer toutes les conversations pour l'export
       const startDate = dateRanges[timeRange as keyof typeof dateRanges];
@@ -344,24 +505,34 @@ function ChatbotConversationsPage() {
         exportQuery = exportQuery.or(`user_message.ilike.%${searchQuery}%,assistant_response.ilike.%${searchQuery}%`);
       }
       
+      console.log("Exécution de la requête d'export...");
       const { data, error } = await exportQuery;
       
-      if (error) throw error;
+      if (error) {
+        console.error("Erreur lors de l'export:", error);
+        throw error;
+      }
       
       if (!data || data.length === 0) {
+        console.log("Aucune donnée à exporter");
         toast.warning('Aucune donnée à exporter');
         return;
       }
       
+      console.log(`${data.length} conversations à exporter`);
+      
       // Formater les données pour le CSV
-      const headers = ['ID', 'Date', 'Page', 'URL', 'Message utilisateur', 'Réponse assistant', 'Besoin humain'];
+      const headers = ['ID', 'Date', 'Page', 'URL', 'Message utilisateur', 'Réponse assistant', 'Besoin humain', 'Session ID', 'Étape funnel'];
       
       const csvRows = [
         headers.join(','),
         ...data.map(conv => {
           const date = new Date(conv.created_at).toLocaleDateString();
           // Échapper les virgules et les guillemets dans les champs de texte
-          const escapeCsvField = (field: string) => `"${field.replace(/"/g, '""')}"`;
+          const escapeCsvField = (field: string | null | undefined) => {
+            if (field === null || field === undefined) return '""';
+            return `"${String(field).replace(/"/g, '""')}"`;
+          };
           
           return [
             conv.id,
@@ -370,7 +541,9 @@ function ChatbotConversationsPage() {
             escapeCsvField(conv.url || ''),
             escapeCsvField(conv.user_message || ''),
             escapeCsvField(conv.assistant_response || ''),
-            conv.needs_human ? 'Oui' : 'Non'
+            conv.needs_human ? 'Oui' : 'Non',
+            escapeCsvField(conv.session_id || ''),
+            escapeCsvField(conv.funnel_stage || '')
           ].join(',');
         })
       ].join('\n');
@@ -385,6 +558,7 @@ function ChatbotConversationsPage() {
       link.click();
       document.body.removeChild(link);
       
+      console.log("Export CSV terminé avec succès");
       toast.success('Export CSV réussi');
       
     } catch (error) {
@@ -392,6 +566,45 @@ function ChatbotConversationsPage() {
       toast.error('Erreur lors de l\'export');
     } finally {
       setExportLoading(false);
+    }
+  };
+
+  // Créer une conversation de test
+  const createTestConversation = async () => {
+    try {
+      console.log("Création d'une conversation de test...");
+      
+      const testConversation = {
+        user_message: "Test de la fonctionnalité de conversations",
+        assistant_response: "Ceci est une réponse de test pour vérifier l'affichage des conversations",
+        page: "Page de test",
+        url: "/test",
+        needs_human: false,
+        session_id: "test-session",
+        funnel_stage: "awareness",
+        created_at: new Date().toISOString()
+      };
+      
+      const { data, error } = await supabase
+        .from('chat_conversations')
+        .insert([testConversation])
+        .select();
+      
+      if (error) {
+        console.error("Erreur lors de la création de la conversation de test:", error);
+        toast.error("Erreur lors de la création de la conversation de test");
+        return;
+      }
+      
+      console.log("Conversation de test créée avec succès:", data);
+      toast.success("Conversation de test créée avec succès");
+      
+      // Rafraîchir les données
+      fetchConversations();
+      
+    } catch (error) {
+      console.error("Exception lors de la création de la conversation de test:", error);
+      toast.error("Exception lors de la création de la conversation de test");
     }
   };
 
@@ -509,7 +722,29 @@ function ChatbotConversationsPage() {
           </p>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Button 
+            variant={connectionStatus === 'connected' ? 'outline' : 'destructive'} 
+            onClick={testSupabaseConnection} 
+            className="flex items-center gap-2"
+          >
+            <Database className="h-4 w-4" />
+            {connectionStatus === 'unknown' 
+              ? 'Vérifier la connexion' 
+              : connectionStatus === 'connected' 
+                ? 'Connexion OK' 
+                : 'Problème de connexion'}
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            onClick={createTestConversation} 
+            className="flex items-center gap-2"
+          >
+            <MessageSquare className="h-4 w-4" />
+            Créer test
+          </Button>
+          
           <Button 
             variant="outline" 
             onClick={exportToCSV} 
@@ -1023,6 +1258,28 @@ function ChatbotConversationsPage() {
                       </div>
                     </div>
                   </div>
+                  {(selectedConversation.session_id || selectedConversation.funnel_stage) && (
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                      {selectedConversation.session_id && (
+                        <div className="p-3 bg-gray-50 rounded border">
+                          <div className="text-sm font-medium mb-1">Session ID</div>
+                          <div className="text-sm text-gray-600 break-all">
+                            {selectedConversation.session_id}
+                          </div>
+                        </div>
+                      )}
+                      {selectedConversation.funnel_stage && (
+                        <div className="p-3 bg-gray-50 rounded border">
+                          <div className="text-sm font-medium mb-1">Étape du funnel</div>
+                          <div className="text-sm text-gray-600">
+                            <Badge className="bg-blue-100 text-blue-800">
+                              {selectedConversation.funnel_stage}
+                            </Badge>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
