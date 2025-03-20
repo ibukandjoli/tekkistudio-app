@@ -35,6 +35,8 @@ interface ChatbotConfig {
   welcome_message: string;
   human_trigger_phrases: string[];
   prompt_boost: string;
+  ai_model?: string;
+  behavior_profile?: string;
   created_at: string;
   updated_at: string;
 }
@@ -89,7 +91,7 @@ const defaultSuggestions = [
   "Je veux plus d'infos sur un business"
 ];
 
-// Message de bienvenue par défaut au cas où la configuration n'est pas chargée
+// Message de bienvenue par défaut
 const getDefaultWelcomeMessage = (): string => {
   const hour = new Date().getHours();
   let greeting = '';
@@ -107,11 +109,11 @@ const getDefaultWelcomeMessage = (): string => {
 
 // Fallback par défaut au cas où le chargement échoue
 const defaultBusinessFallbacks: BusinessFallbacks = {
-    "livres pour enfants": {
-      description: "Je suis très heureuse de le savoir ! Puis-je savoir lequel de nos business vous intéresse, et quelles informations vous souhaitez avoir à son sujet ? Cela me permettra de vous aider de manière efficace.",
-      keywords: ["livre", "enfant", "littérature", "jeunesse", "éducation"]
-    }
-  };
+  "livres pour enfants": {
+    description: "Je suis très heureuse de le savoir ! Puis-je savoir lequel de nos business vous intéresse, et quelles informations vous souhaitez avoir à son sujet ? Cela me permettra de vous aider de manière efficace.",
+    keywords: ["livre", "enfant", "littérature", "jeunesse", "éducation"]
+  }
+};
 
 // Détection d'appareil mobile
 const isMobile = () => {
@@ -298,6 +300,27 @@ export default function TekkiChatbot() {
         if (data && data.length > 0) {
           console.log("Businesses chargés avec succès:", data.length);
           setBusinesses(data);
+          
+          // Créer également des fallbacks basés sur les businesses chargés
+          const fallbacksMap: BusinessFallbacks = {};
+          data.forEach(business => {
+            const keywords = business.category 
+              ? [business.category, ...business.name.toLowerCase().split(/\s+/)]
+              : business.name.toLowerCase().split(/\s+/);
+            
+            fallbacksMap[business.name] = {
+              description: business.description || `${business.name} est l'un de nos business e-commerce clé en main à ${business.price.toLocaleString()} FCFA avec un potentiel mensuel de ${business.monthly_potential?.toLocaleString() || 'N/A'} FCFA.`,
+              keywords: [...new Set(keywords.filter((k: string) => k.length > 2))] as string[],
+              price: business.price,
+              roi: business.roi_estimation_months ? `Le ROI estimé est d'environ ${business.roi_estimation_months} mois.` : undefined
+            };
+          });
+          
+          // Fusionner avec les fallbacks existants
+          setBusinessFallbacks(prevFallbacks => ({
+            ...prevFallbacks,
+            ...fallbacksMap
+          }));
         }
       } catch (err) {
         console.error("Exception lors du chargement des business:", err);
@@ -444,40 +467,40 @@ export default function TekkiChatbot() {
     };
   }, [isOpen, isMobileDevice]);
 
-  // Gestion spécifique pour iOS - version corrigée sans réassignation
+  // Gestion spécifique pour iOS
   useEffect(() => {
     if (!isMobileDevice || !isIOSDevice) return;
     
     // Spécifique à iOS: gérer le redimensionnement de la page quand le clavier s'ouvre
     const handleIOSKeyboard = () => {
-    // S'assurer que le champ d'entrée reste visible
-    if (messagesContainerRef.current && keyboardOpen) {
-      // Sur iOS, nous devons décaler le contenu vers le haut
-      messagesContainerRef.current.style.height = `calc(100vh - 160px - ${document.activeElement === messageInputRef.current ? '300px' : '0px'})`;
-    }
-    
-    // Définir des fonctions spécifiques de gestion d'événements
-    const handleFocus = () => scrollToBottom();
-    const handleBlur = () => {
-      if (messagesContainerRef.current) {
-        messagesContainerRef.current.style.height = keyboardOpen ? 'calc(100vh - 160px)' : 'auto';
+      // S'assurer que le champ d'entrée reste visible
+      if (messagesContainerRef.current && keyboardOpen) {
+        // Sur iOS, nous devons décaler le contenu vers le haut
+        messagesContainerRef.current.style.height = `calc(100vh - 160px - ${document.activeElement === messageInputRef.current ? '300px' : '0px'})`;
       }
-      setTimeout(scrollToBottom, 100);
-    };
-    
-    // S'assurer que le focus et le blur sont correctement gérés
-    if (messageInputRef.current) {
-      messageInputRef.current.addEventListener('focus', handleFocus);
-      messageInputRef.current.addEventListener('blur', handleBlur);
-    }
-    
-    return () => {
+      
+      // Définir des fonctions spécifiques de gestion d'événements
+      const handleFocus = () => scrollToBottom();
+      const handleBlur = () => {
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.style.height = keyboardOpen ? 'calc(100vh - 160px)' : 'auto';
+        }
+        setTimeout(scrollToBottom, 100);
+      };
+      
+      // S'assurer que le focus et le blur sont correctement gérés
       if (messageInputRef.current) {
-        messageInputRef.current.removeEventListener('focus', handleFocus);
-        messageInputRef.current.removeEventListener('blur', handleBlur);
+        messageInputRef.current.addEventListener('focus', handleFocus);
+        messageInputRef.current.addEventListener('blur', handleBlur);
       }
+      
+      return () => {
+        if (messageInputRef.current) {
+          messageInputRef.current.removeEventListener('focus', handleFocus);
+          messageInputRef.current.removeEventListener('blur', handleBlur);
+        }
+      };
     };
-  };
     
     handleIOSKeyboard();
     
@@ -645,71 +668,120 @@ export default function TekkiChatbot() {
     }]);
   };
   
-  // Fonction pour détecter le business mentionné dans le message
+  // Fonction améliorée pour détecter le business mentionné dans le message
+  // Cette version utilise une approche par score de pertinence
   const detectBusinessType = (messageText: string): string | null => {
     const messageLC = messageText.toLowerCase();
     
-    // 1. Essayer d'abord la correspondance directe
-    for (const [businessName, businessInfo] of Object.entries(businessFallbacks)) {
-      if (messageLC.includes(businessName.toLowerCase())) {
-        return businessName;
-      }
-      
-      if (businessInfo.keywords && businessInfo.keywords.some(keyword => 
-        messageLC.includes(keyword.toLowerCase()))) {
-        return businessName;
-      }
+    // Structure pour stocker les scores de chaque business
+    interface BusinessScore {
+      name: string;
+      score: number; 
     }
     
-    // 2. Essayer une correspondance floue - vérifier si un mot du message est similaire à un nom de business
-    const words = messageLC.split(/\s+/);
-    for (const [businessName, _] of Object.entries(businessFallbacks)) {
-      const businessNameWords = businessName.toLowerCase().split(/\s+/);
+    const scores: BusinessScore[] = [];
+    
+    // Calculer un score pour chaque business
+    for (const [businessName, businessInfo] of Object.entries(businessFallbacks)) {
+      let score = 0;
       
-      // Vérifier si un mot du message est similaire à un mot du nom de business
-      for (const word of words) {
-        if (word.length < 3) continue; // Ignorer les mots courts
-        
-        for (const businessWord of businessNameWords) {
-          if (businessWord.length < 3) continue; // Ignorer les mots courts
-          
-          // Vérifier la correspondance partielle
-          if (businessWord.includes(word) || word.includes(businessWord)) {
-            return businessName;
+      // Correspondance directe avec le nom du business (poids élevé)
+      if (messageLC.includes(businessName.toLowerCase())) {
+        score += 10;
+      }
+      
+      // Recherche de correspondance partielle du nom (ex: "livres" dans "livres pour enfants")
+      const businessNameWords = businessName.toLowerCase().split(/\s+/);
+      for (const word of businessNameWords) {
+        if (word.length > 3 && messageLC.includes(word)) {
+          score += 5;
+        }
+      }
+      
+      // Correspondance avec les mots-clés (poids moyen)
+      if (businessInfo.keywords) {
+        for (const keyword of businessInfo.keywords) {
+          if (messageLC.includes(keyword.toLowerCase())) {
+            score += 3;
           }
         }
       }
-    }
-    
-    // Si aucune correspondance claire mais que le message semble lié à un business, retourner le premier business comme solution de repli
-    if (messageLC.includes('business') || messageLC.includes('acheter') || 
-        messageLC.includes('vente') || messageLC.includes('prix')) {
-      const businessEntries = Object.entries(businessFallbacks);
-      if (businessEntries.length > 0) {
-        return businessEntries[0][0]; // Retourner le premier business comme solution de repli
+      
+      // Recherche de correspondance contextuelle
+      if (messageLC.includes('prix') && businessInfo.price) {
+        score += 2;
+      }
+      
+      if (messageLC.includes('rentab') || messageLC.includes('roi') || messageLC.includes('retour')) {
+        score += 2;
+      }
+      
+      // Ajouter le business avec son score à notre liste
+      if (score > 0) {
+        scores.push({ name: businessName, score });
       }
     }
     
+    // Si nous avons des correspondances, prendre celle avec le score le plus élevé
+    if (scores.length > 0) {
+      // Trier par score décroissant
+      scores.sort((a, b) => b.score - a.score);
+      
+      // Un score minimum pour considérer une correspondance valide
+      if (scores[0].score >= 3) {
+        return scores[0].name;
+      }
+    }
+    
+    // Vérifier s'il s'agit d'une demande de liste de business
+    if (isAskingForBusinessList(messageLC)) {
+      return "BUSINESS_LIST";
+    }
+    
+    // Pas de correspondance trouvée
     return null;
   };
   
-  // Génération de réponse dynamique pour un business
-  const generateBusinessResponse = (businessName: string): string => {
-    const business = businessFallbacks[businessName];
-    if (!business) return "";
+  // Fonction pour vérifier si un message correspond à plusieurs business 
+  // afin de générer une réponse spéciale
+  const detectMultipleBusinessInterest = (messageText: string): Business[] => {
+    const messageLC = messageText.toLowerCase();
+    const matchedBusinesses: Business[] = [];
     
-    // Créer une réponse structurée à partir des données
-    let response = business.description || "";
+    // Mots-clés indiquant un intérêt général pour les business
+    const generalInterestKeywords = [
+      'tous', 'toutes', 'liste', 'quels', 'quelles', 'types de business', 
+      'business disponibles', 'business proposés', 'business en vente',
+      'montrez-moi', 'business avez-vous', 'ensemble des business'
+    ];
     
-    if (business.price) {
-      response += ` Le prix est de ${business.price.toLocaleString()} FCFA.`;
+    // Si le message contient des mots-clés d'intérêt général
+    const hasGeneralInterest = generalInterestKeywords.some(keyword => 
+      messageLC.includes(keyword.toLowerCase())
+    );
+    
+    if (hasGeneralInterest) {
+        // Lister tous les business disponibles (limités à 5)
+        const businessSuggestions = businesses.slice(0, 6).map(b => `En savoir plus sur ${b.name}`);
+        return businesses.slice(0, 6);
+      }
+    
+    // Sinon, chercher des correspondances spécifiques
+    for (const business of businesses) {
+      const businessNameLC = business.name.toLowerCase();
+      const categoryLC = business.category?.toLowerCase() || '';
+      
+      // Vérifier si le nom du business est mentionné
+      if (messageLC.includes(businessNameLC)) {
+        matchedBusinesses.push(business);
+      } 
+      // Vérifier si la catégorie est mentionnée
+      else if (categoryLC && messageLC.includes(categoryLC)) {
+        matchedBusinesses.push(business);
+      }
     }
     
-    if (business.roi) {
-      response += ` ${business.roi}`;
-    }
-    
-    return response;
+    return matchedBusinesses;
   };
 
   // Fonction pour vérifier si le message demande une liste des business
@@ -726,73 +798,104 @@ export default function TekkiChatbot() {
       'montrer les business',
       'business proposé',
       'quel business',
+      'quels business',
       'business que vous avez',
-      'business que vous proposez'
+      'business que vous proposez',
+      'tous vos business'
     ];
     
     return businessKeywords.some(keyword => lowerCaseMessage.includes(keyword));
   };
 
   // Fonction pour générer une réponse avec la liste des business disponibles
-  const generateBusinessListResponse = (): string => {
+  const generateBusinessListResponse = (): { content: string; suggestions: string[] } => {
     if (!businesses || businesses.length === 0) {
-      return "Je suis désolée, je n'ai pas pu récupérer la liste des business actuellement disponibles. Veuillez réessayer ultérieurement ou contacter directement nos conseillers pour plus d'informations.";
+      return {
+        content: "Je suis désolée, je n'ai pas pu récupérer la liste des business actuellement disponibles. Veuillez réessayer ultérieurement ou contacter directement nos conseillers pour plus d'informations.",
+        suggestions: ["Contacter un conseiller", "Voir nos formations", "Revenir plus tard"]
+      };
     }
     
-    let response = "Voici les business actuellement disponibles à la vente chez TEKKI Studio :\n\n";
+    let responseText = "Voici les business actuellement disponibles à la vente chez TEKKI Studio :\n\n";
     
     businesses.forEach((business, index) => {
-      response += `${index + 1}. **${business.name}** - ${business.price.toLocaleString()} FCFA\n`;
+      responseText += `${index + 1}. **${business.name}** - ${business.price.toLocaleString()} FCFA\n`;
       if (business.monthly_potential) {
-        response += `   Potentiel mensuel: ${business.monthly_potential.toLocaleString()} FCFA\n`;
+        responseText += `   Potentiel mensuel: ${business.monthly_potential.toLocaleString()} FCFA\n`;
       }
       if (business.roi_estimation_months) {
-        response += `   ROI estimé: ${business.roi_estimation_months} mois\n`;
+        responseText += `   ROI estimé: ${business.roi_estimation_months} mois\n`;
       }
-      response += "\n";
+      responseText += "\n";
     });
     
-    response += "Pour plus de détails sur un business spécifique, n'hésitez pas à me demander. Lequel vous intéresse le plus ?";
+    responseText += "Pour plus de détails sur un business spécifique, n'hésitez pas à me demander. Lequel vous intéresse le plus ?";
     
-    return response;
+    // Générer des suggestions basées sur les business disponibles (limité à 4)
+    const businessSuggestions = businesses
+      .slice(0, 4)
+      .map(b => `En savoir plus sur ${b.name}`);
+      
+    // Ajouter une option pour contacter un conseiller
+    const allSuggestions = [...businessSuggestions];
+    if (allSuggestions.length < 5) {
+      allSuggestions.push("Contacter un conseiller");
+    }
+    
+    return {
+      content: responseText,
+      suggestions: allSuggestions
+    };
   };
 
   // Fonction pour mettre à jour le funnel de conversion
-  const updateConversionFunnel = (message: string, isUserMessage: boolean) => {
+  const updateConversionFunnel = (messageText: string, isUserMessage: boolean) => {
     setConversionFunnel(prev => {
       const newFunnel = { ...prev, lastActive: new Date() };
       
       // Extraire les sujets discutés
-      const topics = extractTopics(message);
+      const topics = extractTopics(messageText);
       if (topics.length > 0) {
         newFunnel.topicsDiscussed = [...new Set([...prev.topicsDiscussed, ...topics])];
       }
       
       // Détecter les objections (seulement dans les messages utilisateur)
       if (isUserMessage) {
-        const objections = detectObjections(message);
+        const objections = detectObjections(messageText);
         if (objections.length > 0) {
           newFunnel.objections = [...new Set([...prev.objections, ...objections])];
         }
       }
       
       // Extraire les business mentionnés
-      const businessMentioned = extractBusinessName(message);
+      const businessMentioned = extractBusinessName(messageText);
       if (businessMentioned && !prev.businessesViewed.includes(businessMentioned)) {
         newFunnel.businessesViewed = [...prev.businessesViewed, businessMentioned];
       }
       
       // Vérifier également le type de business
-      const businessType = detectBusinessType(message);
-      if (businessType && !prev.businessesViewed.includes(businessType)) {
+      const businessType = detectBusinessType(messageText);
+      if (businessType && businessType !== "BUSINESS_LIST" && !prev.businessesViewed.includes(businessType)) {
         newFunnel.businessesViewed = [...prev.businessesViewed, businessType];
       }
       
+      // Mise en correspondance avec des business spécifiques
+      const matchedBusinesses = detectMultipleBusinessInterest(messageText);
+      if (matchedBusinesses.length > 0) {
+        const newBusinesses = matchedBusinesses
+          .map(b => b.name)
+          .filter(name => !prev.businessesViewed.includes(name));
+        
+        if (newBusinesses.length > 0) {
+          newFunnel.businessesViewed = [...prev.businessesViewed, ...newBusinesses];
+        }
+      }
+      
       // Mettre à jour l'étape du funnel
-      newFunnel.stage = determineStage(message, prev.stage, isUserMessage);
+      newFunnel.stage = determineStage(messageText, prev.stage, isUserMessage);
       
       // Détecter si prêt à acheter
-      if (isReadyToBuy(message) && isUserMessage) {
+      if (isReadyToBuy(messageText) && isUserMessage) {
         newFunnel.readyToBuy = true;
       }
       
@@ -878,21 +981,44 @@ export default function TekkiChatbot() {
   const handleBusinessSpecificMessage = (messageText: string): { handled: boolean, content?: string, suggestions?: string[] } => {
     // Vérifier d'abord si l'utilisateur demande une liste des business
     if (isAskingForBusinessList(messageText)) {
+      const response = generateBusinessListResponse();
       return {
         handled: true,
-        content: generateBusinessListResponse(),
-        suggestions: [
-          "Détails sur un business spécifique",
-          "Quel business me recommandez-vous?",
-          "Quels sont les coûts mensuels?"
-        ]
+        content: response.content,
+        suggestions: response.suggestions
+      };
+    }
+    
+    // Vérifier la correspondance avec plusieurs business
+    const matchedBusinesses = detectMultipleBusinessInterest(messageText);
+    if (matchedBusinesses.length > 1) {
+      // Générer une réponse qui présente plusieurs business
+      let content = "Voici les business qui pourraient vous intéresser :\n\n";
+      
+      matchedBusinesses.forEach((business, index) => {
+        content += `**${business.name}** - ${business.price.toLocaleString()} FCFA\n`;
+        if (business.monthly_potential) {
+          content += `Potentiel mensuel: ${business.monthly_potential.toLocaleString()} FCFA\n`;
+        }
+        if (business.roi_estimation_months) {
+          content += `ROI estimé: ${business.roi_estimation_months} mois\n`;
+        }
+        content += `\n`;
+      });
+      
+      content += "Lequel de ces business vous intéresse le plus ? Je peux vous donner plus de détails sur celui de votre choix.";
+      
+      return {
+        handled: true,
+        content,
+        suggestions: matchedBusinesses.map(b => `Parlez-moi du business ${b.name}`).slice(0, 3)
       };
     }
     
     // Vérifier ensuite pour un business spécifique
     const businessName = detectBusinessType(messageText);
     
-    if (businessName && businessFallbacks[businessName]) {
+    if (businessName && businessName !== "BUSINESS_LIST" && businessFallbacks[businessName]) {
       return {
         handled: true,
         content: generateBusinessResponse(businessName),
@@ -905,6 +1031,50 @@ export default function TekkiChatbot() {
     }
     
     return { handled: false };
+  };
+
+  // Génération de réponse dynamique pour un business
+  const generateBusinessResponse = (businessName: string): string => {
+    const business = businessFallbacks[businessName];
+    if (!business) return "";
+    
+    // Rechercher le business correspondant dans la liste des business chargés
+    const matchedBusiness = businesses.find(b => b.name.toLowerCase() === businessName.toLowerCase());
+    
+    // Créer une réponse structurée à partir des données
+    let response = business.description || "";
+    
+    if (matchedBusiness) {
+      // Utiliser les données du business chargé si disponible
+      response += `\n\nLe prix est de ${matchedBusiness.price.toLocaleString()} FCFA.`;
+      
+      if (matchedBusiness.monthly_potential) {
+        response += `\nLe potentiel mensuel est estimé à ${matchedBusiness.monthly_potential.toLocaleString()} FCFA.`;
+      }
+      
+      if (matchedBusiness.roi_estimation_months) {
+        response += `\nLe retour sur investissement estimé est d'environ ${matchedBusiness.roi_estimation_months} mois.`;
+      }
+      
+      // Ajouter la page du business
+      if (matchedBusiness.slug) {
+        response += `\n\nVous pouvez consulter tous les détails sur la page du business : [${matchedBusiness.name}](https://tekkistudio.com/business/${matchedBusiness.slug})`;
+      }
+    } else {
+      // Utiliser les données du fallback
+      if (business.price) {
+        response += `\n\nLe prix est de ${business.price.toLocaleString()} FCFA.`;
+      }
+      
+      if (business.roi) {
+        response += ` ${business.roi}`;
+      }
+    }
+    
+    // Ajouter une phrase finale encourageant à l'action
+    response += "\n\nCe business inclut un accompagnement de 2 mois pour vous aider à le lancer efficacement. Êtes-vous intéressé(e) par ce business ?";
+    
+    return response;
   };
 
   // Déterminer si nous devons afficher les suggestions pour un message
@@ -920,18 +1090,18 @@ export default function TekkiChatbot() {
                               msg.content.toLowerCase().includes("assistance") ||
                               msg.content.toLowerCase().includes("parler à quelqu'un");
     
-    if (needsContactOption && (msg.suggestions?.includes("Contacter un conseiller") || msg.suggestions?.includes("Contacter le service client"))) {
-      // Ne conserver que les suggestions critiques
-      msg.suggestions = msg.suggestions.filter(s => 
-        s === "Contacter un conseiller" || 
-        s === "Contacter le service client" || 
+    if (needsContactOption && msg.suggestions && (msg.suggestions.includes("Contacter un conseiller") || msg.suggestions.includes("Contacter le service client"))) {
+        // Ne conserver que les suggestions critiques
+        msg.suggestions = msg.suggestions.filter(s =>
+        s === "Contacter un conseiller" ||
+        s === "Contacter le service client" ||
         s === "Ouvrir WhatsApp"
-      );
-      return true;
+        );
+        return true;
     }
     
-    // Pas de suggestions pour les autres messages
-    return false;
+    // Afficher les suggestions pour les réponses significatives avec des suggestions
+    return msg.suggestions ? msg.suggestions.length > 0 : false;
   };
 
   // Version améliorée de scrollToBottom
@@ -1013,18 +1183,15 @@ export default function TekkiChatbot() {
   }> => {
     // Vérifier d'abord si l'utilisateur demande une liste des business
     if (isAskingForBusinessList(userQuery)) {
+      const response = generateBusinessListResponse();
       return {
-        content: generateBusinessListResponse(),
-        suggestions: [
-          "Détails sur un business spécifique",
-          "Quel business me recommandez-vous?",
-          "Contacter un conseiller"
-        ],
+        content: response.content,
+        suggestions: response.suggestions,
         needs_human: false
       };
     }
     
-    // Vérifier si le message concerne un business spécifique
+    // 2. Vérifier si le message concerne un business spécifique
     const businessResponse = handleBusinessSpecificMessage(userQuery);
     if (businessResponse.handled) {
       return {
@@ -1034,7 +1201,7 @@ export default function TekkiChatbot() {
       };
     }
     
-    // Vérifier si le message contient des déclencheurs d'assistance humaine
+    // 3. Vérifier si le message contient des déclencheurs d'assistance humaine
     const needsHuman = requiresHumanAssistance(userQuery);
     
     if (needsHuman) {
@@ -1085,20 +1252,17 @@ export default function TekkiChatbot() {
       
       // Si nous avons des business chargés localement, utilisez-les pour répondre
       if (isAskingForBusinessList(userQuery) && businesses.length > 0) {
+        const response = generateBusinessListResponse();
         return {
-          content: generateBusinessListResponse(),
-          suggestions: [
-            "Détails sur un business spécifique",
-            "Quel business me recommandez-vous?",
-            "Contacter un conseiller"
-          ],
+          content: response.content,
+          suggestions: response.suggestions,
           needs_human: false
         };
       }
       
       // Réponse de secours en cas d'erreur
       return {
-        content: "Je n'ai présentement pas la réponse à adéquate à votre message. Puis-je vous proposer d'échanger directement avec un membre de l'équipe TEKKI Studio qui pourra répondre à toutes vos questions ?",
+        content: "Je n'ai présentement pas la réponse adéquate à votre message. Puis-je vous proposer d'échanger directement avec un membre de l'équipe TEKKI Studio qui pourra répondre à toutes vos questions ?",
         suggestions: ["Contacter un conseiller", "Réessayer plus tard"],
         needs_human: true
       };
@@ -1261,6 +1425,38 @@ export default function TekkiChatbot() {
   if (isConfigLoading) {
     return null; // On ne montre rien pendant le chargement initial
   }
+
+  // Fonction pour obtenir les termes associés à une catégorie de business
+  const getCategoryTermsForBusiness = (businessName: string): string[] => {
+    // Implémentation simplifiée - à enrichir selon vos catégories
+    if (businessName.toLowerCase().includes('livre')) {
+      return ['lecture', 'education', 'enfant', 'jeunesse'];
+    }
+    if (businessName.toLowerCase().includes('meuble')) {
+      return ['décoration', 'ameublement', 'mobilier', 'chambre'];
+    }
+    if (businessName.toLowerCase().includes('sécurité')) {
+      return ['protection', 'surveillance', 'camera', 'alarme'];
+    }
+    // Par défaut retourner un tableau vide
+    return [];
+  };
+
+  // Fonction pour obtenir les termes connexes à un business
+  const getRelatedTermsForBusiness = (businessName: string): string[] => {
+    // Implémentation simplifiée - à enrichir selon vos business
+    if (businessName.toLowerCase().includes('livre')) {
+      return ['histoire', 'conte', 'personnalisé', 'lecture'];
+    }
+    if (businessName.toLowerCase().includes('meuble')) {
+      return ['décoration', 'accessoire', 'design', 'enfant'];
+    }
+    if (businessName.toLowerCase().includes('sécurité')) {
+      return ['protection', 'caméra', 'alarme', 'maison', 'entreprise'];
+    }
+    // Par défaut retourner un tableau vide
+    return [];
+  };
 
   // Composant rendu
   return (

@@ -53,6 +53,8 @@ interface ChatbotConfig {
   welcome_message: string;
   human_trigger_phrases: string[];
   prompt_boost: string;
+  ai_model: string;
+  behavior_profile: string;
   created_at: string;
   updated_at: string;
 }
@@ -76,6 +78,25 @@ const questionCategories = [
   { value: "prix", label: "Prix & Paiement" }
 ];
 
+// Modèles d'IA disponibles
+const aiModels = [
+  { value: "gpt-3.5-turbo", label: "GPT-3.5 Turbo - Rapide et économique" },
+  { value: "gpt-4-turbo", label: "GPT-4 Turbo - Performance supérieure (recommandé)" },
+  { value: "gpt-4o", label: "GPT-4o - Dernière version OpenAI" },
+  { value: "claude-3-opus-20240229", label: "Claude 3 Opus - Haute qualité" },
+  { value: "claude-3-sonnet-20240229", label: "Claude 3 Sonnet - Équilibré" },
+  { value: "claude-3-haiku-20240307", label: "Claude 3 Haiku - Rapide" }
+];
+
+// Profils de comportement pré-définis
+const behaviorProfiles = [
+  { value: "sales_expert", label: "Expert en vente - Axé conversion" },
+  { value: "customer_support", label: "Support client - Axé assistance" },
+  { value: "product_expert", label: "Expert produit - Axé information" },
+  { value: "balanced", label: "Équilibré - Approche générale" },
+  { value: "custom", label: "Personnalisé - Défini par le prompt boost" }
+];
+
 function ChatbotConfigPage() {
   const [config, setConfig] = useState<ChatbotConfig>({
     id: '',
@@ -83,6 +104,8 @@ function ChatbotConfigPage() {
     welcome_message: '',
     human_trigger_phrases: [],
     prompt_boost: '',
+    ai_model: 'gpt-4-turbo',
+    behavior_profile: 'sales_expert',
     created_at: '',
     updated_at: ''
   });
@@ -133,7 +156,13 @@ function ChatbotConfigPage() {
         toast.error('Erreur lors du chargement de la configuration: ' + configRequest.error.message);
       } else if (configRequest.data && configRequest.data.length > 0) {
         console.log("Configuration trouvée:", configRequest.data[0]);
-        setConfig(configRequest.data[0]);
+        // Si ai_model ou behavior_profile ne sont pas définis, ajouter des valeurs par défaut
+        const configData = {
+          ...configRequest.data[0],
+          ai_model: configRequest.data[0].ai_model || 'gpt-4-turbo',
+          behavior_profile: configRequest.data[0].behavior_profile || 'sales_expert'
+        };
+        setConfig(configData);
       } else {
         console.warn("Aucune configuration trouvée, création d'une configuration par défaut");
         setConfig({
@@ -142,6 +171,8 @@ function ChatbotConfigPage() {
           welcome_message: '',
           human_trigger_phrases: [],
           prompt_boost: '',
+          ai_model: 'gpt-4-turbo',
+          behavior_profile: 'sales_expert',
           created_at: '',
           updated_at: ''
         });
@@ -203,6 +234,8 @@ function ChatbotConfigPage() {
             welcome_message: configToSave.welcome_message,
             human_trigger_phrases: configToSave.human_trigger_phrases,
             prompt_boost: configToSave.prompt_boost,
+            ai_model: configToSave.ai_model,
+            behavior_profile: configToSave.behavior_profile,
             updated_at: configToSave.updated_at
           })
           .eq('id', config.id);
@@ -214,7 +247,9 @@ function ChatbotConfigPage() {
             initial_suggestions: configToSave.initial_suggestions,
             welcome_message: configToSave.welcome_message,
             human_trigger_phrases: configToSave.human_trigger_phrases,
-            prompt_boost: configToSave.prompt_boost
+            prompt_boost: configToSave.prompt_boost,
+            ai_model: configToSave.ai_model,
+            behavior_profile: configToSave.behavior_profile
           }]);
       }
       
@@ -489,6 +524,55 @@ function ChatbotConfigPage() {
     return commonQuestions.filter(q => q.category === category).length;
   };
 
+  // Fonction pour obtenir des suggestions de prompt boost en fonction du profil de comportement
+  const getPromptBoostSuggestion = (profile: string) => {
+    switch (profile) {
+      case 'sales_expert':
+        return "Sois très proactif dans ton approche de vente. Mets l'accent sur les bénéfices des business plutôt que leurs caractéristiques. N'hésite pas à proposer directement l'achat quand tu sens que l'utilisateur est intéressé.";
+      case 'customer_support':
+        return "Adopte une approche centrée sur l'aide et le support. Réponds de manière détaillée aux questions techniques. Évite de pousser à la vente, concentre-toi sur la résolution des problèmes et préoccupations.";
+      case 'product_expert':
+        return "Sois très précis et détaillé sur les caractéristiques techniques des business. Donne des informations approfondies sur le fonctionnement, la maintenance et les spécificités de chaque offre.";
+      case 'balanced':
+        return "Maintiens un équilibre entre informer et vendre. Réponds clairement aux questions, fournis des informations précises, et suggère poliment l'achat quand cela semble approprié.";
+      default:
+        return "";
+    }
+  };
+
+  // Gestionnaire pour le changement de profil de comportement
+  const handleBehaviorProfileChange = (value: string) => {
+    // Si l'utilisateur choisit un profil prédéfini et qu'il n'y a pas de prompt boost personnalisé
+    // ou si le prompt boost actuel correspond à une suggestion précédente, proposer le nouveau prompt boost
+    const currentPromptBoost = config.prompt_boost || "";
+    const previousSuggestion = getPromptBoostSuggestion(config.behavior_profile);
+    
+    // Mettre à jour le profil
+    setConfig(prev => ({ 
+      ...prev, 
+      behavior_profile: value
+    }));
+    
+    // Si le prompt boost est vide ou correspond à la suggestion précédente, proposer la nouvelle suggestion
+    if (currentPromptBoost === "" || currentPromptBoost === previousSuggestion) {
+      const newPromptBoost = getPromptBoostSuggestion(value);
+      setConfig(prev => ({ 
+        ...prev, 
+        prompt_boost: newPromptBoost
+      }));
+    } else if (value !== 'custom') {
+      // Si le prompt boost est personnalisé et qu'on choisit un profil prédéfini, demander confirmation
+      const confirmed = window.confirm("Voulez-vous remplacer votre prompt boost personnalisé par celui du profil sélectionné ?");
+      if (confirmed) {
+        const newPromptBoost = getPromptBoostSuggestion(value);
+        setConfig(prev => ({ 
+          ...prev, 
+          prompt_boost: newPromptBoost
+        }));
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-96">
@@ -586,6 +670,86 @@ function ChatbotConfigPage() {
                 />
                 <p className="text-xs text-gray-500">
                   Si aucun message n'est défini, un message par défaut sera utilisé en fonction de l'heure de la journée.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="ai_model">Modèle d'IA</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-sm">
+                        <p>Sélectionnez le modèle d'IA à utiliser pour le chatbot. Les modèles plus avancés offrent de meilleures performances.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <Select
+                  value={config.ai_model || "gpt-4-turbo"}
+                  onValueChange={(value) => setConfig(prev => ({ ...prev, ai_model: value }))}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Sélectionner un modèle d'IA" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Modèles OpenAI</SelectLabel>
+                      {aiModels.filter(m => m.value.startsWith('gpt')).map((model) => (
+                        <SelectItem key={model.value} value={model.value}>
+                          {model.label}
+                        </SelectItem>
+                      ))}
+                      <SelectLabel className="mt-2">Modèles Anthropic</SelectLabel>
+                      {aiModels.filter(m => m.value.startsWith('claude')).map((model) => (
+                        <SelectItem key={model.value} value={model.value}>
+                          {model.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500">
+                  GPT-4 Turbo offre le meilleur équilibre entre performance et coût pour un assistant commercial.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="behavior_profile">Profil de comportement</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-sm">
+                        <p>Définit le style de communication et l'approche du chatbot.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <Select
+                  value={config.behavior_profile || "sales_expert"}
+                  onValueChange={handleBehaviorProfileChange}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Sélectionner un profil de comportement" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Profils prédéfinis</SelectLabel>
+                      {behaviorProfiles.map((profile) => (
+                        <SelectItem key={profile.value} value={profile.value}>
+                          {profile.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500">
+                  Chaque profil ajuste automatiquement le comportement du chatbot via le prompt boost.
                 </p>
               </div>
             </CardContent>
@@ -899,7 +1063,15 @@ function ChatbotConfigPage() {
                   <Textarea
                     id="prompt_boost"
                     value={config.prompt_boost || ''}
-                    onChange={(e) => setConfig(prev => ({ ...prev, prompt_boost: e.target.value }))}
+                    onChange={(e) => {
+                      setConfig(prev => ({ 
+                        ...prev, 
+                        prompt_boost: e.target.value,
+                        behavior_profile: e.target.value === getPromptBoostSuggestion(config.behavior_profile) 
+                          ? config.behavior_profile 
+                          : 'custom'
+                      }));
+                    }}
                     placeholder="Instructions supplémentaires pour l'IA..."
                     rows={5}
                   />

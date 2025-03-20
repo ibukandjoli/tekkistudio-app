@@ -2,15 +2,24 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '../../lib/supabase';
 import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 
 // Initialiser OpenAI avec la clé API
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Initialiser Anthropic si la clé API est disponible
+let anthropic: Anthropic | null = null;
+if (process.env.ANTHROPIC_API_KEY) {
+  anthropic = new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY,
+  });
+}
+
 // Types pour la requête et les messages
 interface ChatMessage {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
@@ -25,81 +34,133 @@ interface RequestBody {
   conversionState?: any;
 }
 
-interface Brand {
-  id: string;
-  name: string;
-  category?: string;
-  short_description?: string;
-  slug?: string;
-  // Autres propriétés
-}
-
-interface Formation {
-  id: string;
-  title: string;
-  price?: string | number;
-  category?: string;
-  description?: string;
-  slug?: string;
-  // Autres propriétés
-}
-
-interface Business {
-  id: string;
-  name: string;
-  slug: string;
-  category?: string;
-  type?: 'physical' | 'digital';
-  status?: string;
-  price: number;
-  original_price?: number;
-  monthly_potential?: number;
-  pitch?: string;
-  description?: string;
-  images: Array<{src: string, alt: string}>;
-  market_analysis: any;
-  product_details: any;
-  marketing_strategy: any;
-  financials: any;
-  includes: string[];
-  target_audience?: string;
-  skill_level_required?: string;
-  time_required_weekly?: number;
-  roi_estimation_months?: number;
-  success_stories?: string[];
-  common_questions?: any;
-  benefits?: string[];
-  // Autres propriétés
-}
-
 interface ChatbotConfig {
   id: string;
   initial_suggestions: string[];
   welcome_message: string;
   human_trigger_phrases: string[];
   prompt_boost: string;
+  ai_model?: string;
+  behavior_profile?: string;
   created_at: string;
   updated_at: string;
 }
 
-interface CommonQuestion {
-  id: string;
-  question: string;
-  answer: string;
-  category: string;
-  is_active: boolean;
-  created_at: string;
-}
+// Fonction pour créer un prompt système modulaire
+const createSystemPrompt = (
+  config: ChatbotConfig | null, 
+  pageContext: string, 
+  businessContext: string,
+  formationsContext: string,
+  brandsContext: string,
+  conversionState: any
+) => {
+  // Partie BASE: comportement générique d'assistant commercial
+  const basePrompt = `
+Tu es Sara, Assistante Commerciale virtuelle experte. Ta mission est de reproduire l'expérience d'achat africaine, où la relation et la conversation précèdent la transaction. Tu accompagnes chaque visiteur comme le ferait un excellent vendeur en magasin physique - accueillante, à l'écoute, experte des produits, et capable de construire une relation de confiance menant naturellement à l'achat.
 
-interface ConversionState {
-  hasShownInterest: boolean;
-  hasAskedAboutPrice: boolean;
-  hasConsideredSpecificBusiness: boolean;
-  readyToBuy: boolean;
-  recommendedBusiness: string | null;
-}
+====== PRINCIPES FONDAMENTAUX ======
+1. Prioritise la relation humaine - En Afrique, l'achat est avant tout une relation de confiance avant d'être une transaction.
+2. Sois culturellement pertinente - Adapte ton langage, ton ton et tes références au contexte local du marché sénégalais et ouest-africain.
+3. Guide sans forcer - Ton objectif est de convertir, mais jamais au détriment de l'expérience client ou de la confiance.
+4. Sois utile avant tout - Si tu ne peux pas répondre ou aider, dirige vers un conseiller humain.
+5. Sois proactive - N'attends pas toujours que le client pose des questions, propose ton aide au bon moment.
 
-// Fonctions de cache pour réduire les appels à l'API OpenAI
+====== TON PROFIL D'ASSISTANTE COMMERCIALE ======
+• Style: Assertif, confiant et dynamique
+• Ton: Chaleureux, accessible et professionnel
+• Approche conversationnelle: Utilise des phrases naturelles et fluides, évite les listes à puces dans tes réponses
+
+====== SÉQUENCE DE CONVERSATION ======
+1. ACCUEIL: Salutation chaleureuse adaptée à l'heure locale
+2. DÉCOUVERTE: Questions ouvertes pour comprendre le besoin, reformulation pour montrer que tu comprends
+3. QUALIFICATION: Identifie rapidement le profil (débutant/expérimenté, budget, temps disponible)
+4. RECOMMANDATION: Propose 2-3 produits maximum adaptés aux besoins exprimés, en justifiant chaque recommandation
+5. OBJECTIONS: Anticipe et lève les doutes (temps, compétences, rentabilité)
+6. VENTE ADDITIONNELLE: Suggère des produits complémentaires uniquement si pertinents
+7. ACCOMPAGNEMENT: Guide le client dans le processus d'achat, étape par étape
+
+====== FORMULATIONS EFFICACES ======
+• "Je vois que vous vous intéressez à [produit/catégorie]. Cherchez-vous quelque chose en particulier?"
+• "Que recherchez-vous exactement dans un business e-commerce?"
+• "Si je comprends bien, vous cherchez..." (reformulation)
+• "Vu votre profil, le Business X à Y FCFA serait parfaitement adapté car..."
+• "Investissez-y seulement Z heures/semaine pour un potentiel de X FCFA/mois"
+• "Nos clients dans votre situation atteignent généralement la rentabilité en X mois"
+• "Êtes-vous prêt à passer à l'étape suivante et acquérir ce business aujourd'hui?"
+
+====== TRAITEMENT DES OBJECTIONS ======
+• Prix: "Ce prix inclut [avantages spécifiques]. C'est un investissement qui vous permettra de gagner X FCFA/mois."
+• Compétences: "Nos business sont conçus pour les débutants. L'accompagnement de 2 mois inclus vous aidera à maîtriser tous les aspects."
+• Temps: "Ce business nécessite seulement X heures/semaine et peut être géré depuis votre smartphone."
+• Rentabilité: "Nos clients atteignent généralement le point d'équilibre après X mois, avec un potentiel de Y FCFA/mois."
+`;
+
+  // Partie CONFIGURATION: intégration des paramètres personnalisés
+  const configPrompt = config && config.prompt_boost ? `
+====== PERSONNALISATION ======
+${config.prompt_boost}
+  ` : '';
+
+  // Partie ADAPTATION: ajustement du comportement selon l'étape du funnel
+  const adaptationPrompt = `
+====== ADAPTATION AUX ÉTAPES DU FUNNEL DE VENTE ======
+${conversionState && conversionState.readyToBuy 
+  ? "⚠️ PRIORITÉ: Pousser à finaliser l'acquisition ou à contacter immédiatement un conseiller" 
+  : conversionState && conversionState.hasConsideredSpecificBusiness 
+    ? "⚠️ PRIORITÉ: Détailler les avantages spécifiques du business et inciter à l'acquisition" 
+    : conversionState && conversionState.hasAskedAboutPrice 
+      ? "⚠️ PRIORITÉ: Expliquer la valeur, le ROI, et tout le travail abattu par l'équipe experte pour offrir l'opportunité, pas seulement le prix" 
+      : conversionState && conversionState.hasShownInterest 
+        ? "⚠️ PRIORITÉ: Demander si intéressé par un business spécifique, ou recommander un business spécifique adapté à son profil" 
+        : "⚠️ PRIORITÉ: Captiver l'intérêt et qualifier les besoins"
+}
+`;
+
+  // Partie CONTEXTE: informations spécifiques aux produits et à la page
+  const contextPrompt = `
+====== INFORMATIONS SUR NOS OFFRES ======
+
+BUSINESS E-COMMERCE EN VENTE:
+${businessContext}
+
+FORMATIONS E-COMMERCE:
+${formationsContext}
+
+MARQUES DE TEKKI STUDIO:
+${brandsContext}
+
+INFORMATIONS CLÉS À RETENIR:
+• DISTINCTION FONDAMENTALE:
+  - TEKKI STUDIO VEND des BUSINESS E-COMMERCE CLÉ EN MAIN (à promouvoir activement)
+  - TEKKI STUDIO a ses propres MARQUES (Viens on s'connaît, Amani, Ecoboom) qui ne sont PAS à vendre
+
+• FRAIS MENSUELS À MENTIONNER:
+  - Business physiques: entre 80,000 et 500,000 FCFA (stock, site, marketing, contenus)
+  - Business digitaux: entre 50,000 et 300,000 FCFA (site, marketing, contenus)
+
+• ARGUMENTS COMMERCIAUX CLÉS:
+  - Accompagnement de 2 mois inclus
+  - Business déjà validés sur le marché
+  - ROI généralement entre 2-4 mois
+  - Formation vidéo fournie
+  - Assistance technique incluse
+  - Business unique : une seule acquisition possible
+
+• SERVICE CRÉATION SITE E-COMMERCE:
+  - Prix: 695,000 FCFA pour site Shopify (payable en 2 fois), 495,000 FCFA pour site Wordpress/WooCommerce 
+  - Délai: 7 jours ouvrés
+  - Inclus: Stratégie d'acquisition de clients via Meta
+
+====== CONTEXTE ACTUEL DE LA PAGE ======
+${pageContext}
+`;
+
+  // Assemblage du prompt complet
+  return `${basePrompt}\n${configPrompt}\n${adaptationPrompt}\n${contextPrompt}`;
+};
+
+// Fonctions de cache pour réduire les appels à l'API 
 async function getFromCache(query: string, context: string) {
   const queryHash = hashString(query + context);
   
@@ -136,8 +197,6 @@ async function saveToCache(query: string, context: string, response: any) {
         response: response,
         expires_at: expires_at.toISOString()
       }], { onConflict: 'query_hash' });
-      
-    console.log('Réponse sauvegardée en cache');
   } catch (error) {
     console.error('Erreur lors de l\'enregistrement en cache:', error);
   }
@@ -193,55 +252,8 @@ function isComplexQuery(query: string) {
   return complexPatterns.some(pattern => pattern.test(query));
 }
 
-// Analyser l'état de conversion à partir de l'historique
-function analyzeConversionState(history: ChatMessage[]): ConversionState {
-  const state: ConversionState = {
-    hasShownInterest: false,
-    hasAskedAboutPrice: false,
-    hasConsideredSpecificBusiness: false,
-    readyToBuy: false,
-    recommendedBusiness: null
-  };
-  
-  for (const msg of history) {
-    const content = msg.content.toLowerCase();
-    
-    // Détecter l'intérêt
-    if (content.includes("intéressé") || content.includes("plus d'info")) {
-      state.hasShownInterest = true;
-    }
-    
-    // Détecter les questions de prix
-    if (content.includes("prix") || content.includes("coût") || content.includes("tarif")) {
-      state.hasAskedAboutPrice = true;
-    }
-    
-    // Détecter l'intérêt pour un business spécifique
-    if (content.includes("business") && (content.includes("specific") || content.includes("particulier"))) {
-      state.hasConsideredSpecificBusiness = true;
-    }
-    
-    // Détecter l'intention d'achat
-    if (content.includes("acheter") || content.includes("acquérir")) {
-      state.readyToBuy = true;
-    }
-    
-    // Extraire le business recommandé (si mentionné par l'assistant)
-    if (msg.role === 'assistant' && 
-        (content.includes("recommande") || content.includes("parfait pour vous"))) {
-      // Essayer d'extraire le nom du business
-      const businessMatch = content.match(/business\s+([a-z0-9&\s-]+)/i);
-      if (businessMatch && businessMatch[1]) {
-        state.recommendedBusiness = businessMatch[1].trim();
-      }
-    }
-  }
-  
-  return state;
-}
-
-// Fonction pour vérifier si le message de l'utilisateur correspond à une question fréquente
-async function matchCommonQuestion(query: string): Promise<CommonQuestion | null> {
+// Fonction pour vérifier si le message concerne une question fréquente
+async function matchCommonQuestion(query: string): Promise<any | null> {
   try {
     // Récupérer toutes les questions fréquentes actives
     const { data: questions, error } = await supabase
@@ -302,8 +314,6 @@ async function fetchDataSafely<T>(
   limit?: number, 
   filters?: any
 ): Promise<T[]> {
-  console.log(`Tentative de récupération des données depuis la table: ${tableName}`);
-  
   try {
     let query = supabase.from(tableName).select(select);
     
@@ -328,7 +338,6 @@ async function fetchDataSafely<T>(
       return [] as T[];
     }
     
-    console.log(`Données récupérées avec succès depuis ${tableName}, nombre d'éléments: ${data?.length || 0}`);
     return (data || []) as T[];
   } catch (e) {
     console.error(`Exception lors de la récupération des données de ${tableName}:`, e);
@@ -357,7 +366,7 @@ async function getChatbotConfig(): Promise<ChatbotConfig | null> {
 }
 
 // Fonction pour formater les business pour le contexte
-function createBusinessContext(businesses: Business[]) {
+function createBusinessContext(businesses: any[]) {
   if (!businesses || businesses.length === 0) {
     return "Aucun business disponible actuellement.";
   }
@@ -384,7 +393,7 @@ URL: https://tekkistudio.com/business/${b.slug || ''}
 }
 
 // Fonction pour formater les marques pour le contexte
-function createBrandsContext(brands: Brand[]) {
+function createBrandsContext(brands: any[]) {
   if (!brands || brands.length === 0) {
     return "Aucune marque disponible actuellement.";
   }
@@ -400,7 +409,7 @@ URL: https://tekkistudio.com/marques/${b.slug || ''}
 }
 
 // Fonction pour formater les formations pour le contexte
-function createFormationsContext(formations: Formation[]) {
+function createFormationsContext(formations: any[]) {
   if (!formations || formations.length === 0) {
     return "Aucune formation disponible actuellement.";
   }
@@ -429,7 +438,7 @@ function generateContextualSuggestions(message: string, response: string, contex
     return [
       "Comment procéder pour l'acquisition?",
       "Quels sont les délais de mise en place?",
-      "Contacter le service client"
+      "Contacter un conseiller"
     ];
   }
   
@@ -458,11 +467,11 @@ function generateContextualSuggestions(message: string, response: string, contex
   }
   
   // Si nous sommes sur une page business spécifique
-  if (context.url.startsWith('/business/') && !context.url.endsWith('/business')) {
+  if (context.url && context.url.startsWith('/business/') && !context.url.endsWith('/business')) {
     return [
       "Je souhaite acquérir ce business",
       "Quels sont les frais mensuels?",
-      "Contacter le service client"
+      "Contacter un conseiller"
     ];
   }
   
@@ -475,85 +484,69 @@ function generateContextualSuggestions(message: string, response: string, contex
   return [
     "Quel business me recommandez-vous?",
     "Je veux en savoir plus sur vos formations",
-    "Contacter le service client"
+    "Contacter un conseiller"
   ];
 }
 
-// Fonction pour créer le contexte des questions fréquentes
-async function createCommonQuestionsContext(): Promise<string> {
-  try {
-    const { data: questions, error } = await supabase
-      .from('chatbot_common_questions')
-      .select('*')
-      .eq('is_active', true);
-    
-    if (error || !questions || questions.length === 0) {
-      return "";
-    }
-    
-    // Regrouper les questions par catégorie
-    const categorizedQuestions: Record<string, CommonQuestion[]> = {};
-    
-    questions.forEach(question => {
-      if (!categorizedQuestions[question.category]) {
-        categorizedQuestions[question.category] = [];
-      }
-      categorizedQuestions[question.category].push(question);
-    });
-    
-    // Formater les questions par catégorie
-    let context = "QUESTIONS FRÉQUEMMENT POSÉES PAR CATÉGORIE:\n\n";
-    
-    Object.entries(categorizedQuestions).forEach(([category, categoryQuestions]) => {
-      context += `CATÉGORIE: ${category.toUpperCase()}\n`;
-      
-      categoryQuestions.forEach((q, index) => {
-        context += `Q${index + 1}: ${q.question}\nR${index + 1}: ${q.answer}\n\n`;
+// Fonction qui détermine quel modèle d'IA utiliser
+async function getAICompletion(
+  config: ChatbotConfig | null,
+  messages: any[],
+  functionsConfig?: any
+) {
+  // Déterminer le modèle à utiliser
+  let modelToUse = "gpt-4-turbo";
+  
+  // Utiliser le modèle configuré si disponible
+  if (config && config.ai_model) {
+    modelToUse = config.ai_model;
+  }
+  
+  // Si c'est un modèle Claude et que Anthropic est configuré
+  if (modelToUse.startsWith('claude') && anthropic) {
+    try {
+      const response = await anthropic.messages.create({
+        model: modelToUse,
+        max_tokens: 1024,
+        temperature: 0.7,
+        messages: messages.map(msg => {
+          // Anthropic ne prend pas en charge le rôle "system", donc on l'adapte
+          if (msg.role === 'system') {
+            return {
+              role: 'user',
+              content: `<instructions>\n${msg.content}\n</instructions>\n\nRéponds comme si tu étais Sara, l'Assistante Commerciale de TEKKI Studio.`
+            };
+          }
+          return msg;
+        }),
       });
       
-      context += '\n';
-    });
-    
-    return context;
-  } catch (error) {
-    console.error('Erreur lors de la récupération des questions fréquentes:', error);
-    return "";
-  }
-}
-
-// Fonction pour générer des suggestions basées sur la catégorie d'une question fréquente
-async function createCategorySuggestions(category: string): Promise<string[]> {
-  try {
-    // Récupérer d'autres questions de la même catégorie
-    const { data: relatedQuestions, error } = await supabase
-      .from('chatbot_common_questions')
-      .select('question')
-      .eq('category', category)
-      .eq('is_active', true)
-      .limit(3);
-    
-    if (error || !relatedQuestions || relatedQuestions.length === 0) {
-      // Utiliser des suggestions par défaut si aucune question liée n'est trouvée
-      return [
-        "Quel business me recommandez-vous?",
-        "Je veux en savoir plus sur vos formations",
-        "Contacter le service client"
-      ];
+      return {
+        choices: [{
+          message: {
+            content: 'text' in response.content[0] 
+            ? response.content[0].text 
+            : (response.content[0] as any).text || response.content[0].toString(),
+            role: 'assistant'
+          }
+        }]
+      };
+    } catch (error) {
+      console.error('Erreur avec l\'API Anthropic:', error);
+      // Fallback vers OpenAI en cas d'erreur
+      modelToUse = "gpt-4-turbo";
     }
-    
-    // Extraire les questions comme suggestions
-    let suggestions = relatedQuestions.map(q => q.question);
-    
-    // Toujours ajouter l'option de contacter le service client
-    if (!suggestions.includes("Contacter le service client")) {
-      suggestions.push("Contacter le service client");
-    }
-    
-    return suggestions;
-  } catch (error) {
-    console.error('Erreur lors de la création des suggestions par catégorie:', error);
-    return ["Contacter le service client"];
   }
+  
+  // Utiliser OpenAI
+  return await openai.chat.completions.create({
+    model: modelToUse,
+    messages: messages,
+    max_tokens: modelToUse.includes('gpt-4') ? 1024 : 600,
+    temperature: 0.7,
+    functions: functionsConfig?.functions,
+    function_call: functionsConfig?.function_call
+  });
 }
 
 // Fonction pour enregistrer une conversation dans Supabase
@@ -579,8 +572,6 @@ async function saveConversation(
       
     if (error) {
       console.warn('Erreur lors de l\'enregistrement de la conversation:', error);
-    } else {
-      console.log("Conversation enregistrée avec succès");
     }
   } catch (error) {
     console.warn('Exception lors de l\'enregistrement de la conversation:', error);
@@ -589,7 +580,6 @@ async function saveConversation(
 
 export async function POST(request: Request) {
   try {
-    console.log("Traitement d'une nouvelle requête chatbot");
     const body: RequestBody = await request.json();
     const { message, context: requestContext, history = [], sessionId, conversionState } = body;
     
@@ -599,10 +589,6 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    console.log("Message reçu:", message);
-    console.log("Contexte:", requestContext);
-    console.log("Session ID:", sessionId || "Non fourni");
 
     // Vérifier que le contexte est valide et créer une copie modifiable
     let context = { ...requestContext };
@@ -648,43 +634,38 @@ export async function POST(request: Request) {
 
     // Récupérer la configuration du chatbot
     const config = await getChatbotConfig();
-    console.log("Configuration du chatbot récupérée:", config ? "Oui" : "Non");
 
     // Récupérer les données pertinentes en fonction du contexte
-    let businessesData: Business[] = [];
-    let brandsData: Brand[] = [];
-    let formationsData: Formation[] = [];
+    let businessesData: any[] = [];
+    let brandsData: any[] = [];
+    let formationsData: any[] = [];
     
     try {
       // Optimisation: ne récupérer que les données nécessaires selon le contexte
       if (context.url.startsWith('/business/') && !context.url.endsWith('/business')) {
         // Page d'un business spécifique
         const businessSlug = context.url.split('/').pop();
-        businessesData = await fetchDataSafely<Business>('businesses', '*', undefined, undefined, { slug: businessSlug });
+        businessesData = await fetchDataSafely('businesses', '*', undefined, undefined, { slug: businessSlug });
       } 
       else if (context.url.startsWith('/business')) {
         // Page des business en général
-        businessesData = await fetchDataSafely<Business>('businesses', '*', { column: 'created_at', ascending: false });
+        businessesData = await fetchDataSafely('businesses', '*', { column: 'created_at', ascending: false });
       }
       else {
         // Autres pages: limiter le nombre de business à 3 pour réduire les tokens
-        businessesData = await fetchDataSafely<Business>('businesses', '*', { column: 'created_at', ascending: false }, 3);
+        businessesData = await fetchDataSafely('businesses', '*', { column: 'created_at', ascending: false }, 3);
       }
 
       // Récupérer les marques et formations selon la page visitée
       if (context.url.startsWith('/marques')) {
-        brandsData = await fetchDataSafely<Brand>('brands');
+        brandsData = await fetchDataSafely('brands');
       } else if (context.url.startsWith('/formations')) {
-        formationsData = await fetchDataSafely<Formation>('formations');
+        formationsData = await fetchDataSafely('formations');
       } else {
         // Sur d'autres pages, récupérer un échantillon limité
-        brandsData = await fetchDataSafely<Brand>('brands', '*', undefined, 2);
-        formationsData = await fetchDataSafely<Formation>('formations', '*', undefined, 2);
+        brandsData = await fetchDataSafely('brands', '*', undefined, 2);
+        formationsData = await fetchDataSafely('formations', '*', undefined, 2);
       }
-
-      console.log(`${businessesData.length} business récupérés`);
-      console.log(`${brandsData.length} marques récupérées`);
-      console.log(`${formationsData.length} formations récupérées`);
     } catch (dataError) {
       console.error('Erreur lors de la récupération des données:', dataError);
       // Continuer même si la récupération des données échoue
@@ -694,7 +675,6 @@ export async function POST(request: Request) {
     const businessesContextString = createBusinessContext(businessesData);
     const brandsContextString = createBrandsContext(brandsData);
     const formationsContextString = createFormationsContext(formationsData);
-    const commonQuestionsContext = await createCommonQuestionsContext();
 
     // Service de création de site e-commerce
     const ecommerceServiceContext = {
@@ -756,16 +736,18 @@ ${JSON.stringify(ecommerceServiceContext, null, 2)}
       // Sur la page d'accueil ou autre page, incluons quand même les informations sur les business
       pageSpecificContext = `
 L'utilisateur est sur ${context.page || "la page d'accueil"}.
-Voici les business actuellement disponibles à la vente:
-${businessesContextString}
-
-TRÈS IMPORTANT: Ne confondez PAS ces business e-commerce à vendre avec les marques créées par TEKKI Studio. Amani et Ecoboom sont des MARQUES de TEKKI Studio, PAS des business à vendre.
       `;
     }
 
-    // Analyser l'état de conversion du visiteur
-    const conversionStateAnalysis = analyzeConversionState([...history, { role: 'user', content: message }]);
-    console.log("État de conversion:", conversionStateAnalysis);
+    // Créer le prompt système avec notre nouvelle fonction
+    const systemPrompt = createSystemPrompt(
+      config, 
+      pageSpecificContext, 
+      businessesContextString,
+      formationsContextString,
+      brandsContextString,
+      conversionState || {}
+    );
 
     // Vérifier si le message contient des déclencheurs d'assistance humaine depuis la config
     let needsHumanAssistance = false;
@@ -780,7 +762,7 @@ TRÈS IMPORTANT: Ne confondez PAS ces business e-commerce à vendre avec les mar
     if (needsHumanAssistance) {
       const humanResponse = {
         content: "Je détecte que vous avez besoin d'une assistance plus personnalisée. Souhaitez-vous être mis en relation avec un membre de notre équipe ?",
-        suggestions: ["Contacter le service client", "Non merci, continuer"],
+        suggestions: ["Contacter un conseiller", "Non merci, continuer"],
         needs_human: true
       };
       
@@ -790,114 +772,9 @@ TRÈS IMPORTANT: Ne confondez PAS ces business e-commerce à vendre avec les mar
       return NextResponse.json(humanResponse);
     }
 
-    // Utiliser le prompt système optimisé
-    const systemPrompt = `
-Tu es Sara, Assistante Commerciale experte chez TEKKI Studio, une fabrique de marques qui propose la vente de business e-commerce clé en main. Ta mission est d'accompagner chaque visiteur comme le ferait un excellent vendeur en magasin physique - accueillante, à l'écoute, experte des produits, et capable de construire une relation de confiance menant naturellement à l'achat.
-
-====== PRINCIPES FONDAMENTAUX ======
-1. Prioritise la relation humaine - En Afrique, l'achat est avant tout une relation de confiance avant d'être une transaction.
-2. Sois culturellement pertinente - Adapte ton langage, ton ton et tes références au contexte local du marché sénégalais et ouest-africain.
-3. Guide sans forcer - Ton objectif est de convertir, mais jamais au détriment de l'expérience client ou de la confiance.
-4. Sois utile avant tout - Si tu ne peux pas répondre ou aider, dirige vers un conseiller humain.
-
-====== TON PROFIL DE VENDEUSE ÉLITE ======
-• Style: Assertif, confiant et dynamique
-• Ton: Chaleureux, accessible mais professionnel
-• Expertise: Connaissance approfondie de l'e-commerce et de l'entrepreneuriat
-• Approche conversationnelle: Utilise des phrases naturelles, pas de listes à puces
-
-====== SÉQUENCE DE CONVERSATION ======
-1. ACCUEIL: Salutation chaleureuse adaptée à l'heure locale
-2. DÉCOUVERTE: Questions ouvertes pour comprendre le besoin, reformulation pour montrer que tu comprends
-3. QUALIFICATION: Identifie rapidement le profil (débutant/expérimenté, budget, temps disponible)
-4. RECOMMANDATION: Propose 2-3 produits maximum adaptés aux besoins exprimés, en justifiant chaque recommandation
-5. OBJECTIONS: Anticipe et lève les doutes (temps, compétences, rentabilité)
-6. VENTE ADDITIONNELLE: Suggère des produits complémentaires uniquement si pertinents
-7. ACCOMPAGNEMENT: Guide le client dans le processus d'achat, étape par étape
-
-====== FORMULATIONS EFFICACES À UTILISER ======
-• "Je vois que vous vous intéressez à [produit/catégorie]. Cherchez-vous quelque chose en particulier?"
-• "Que recherchez-vous exactement dans un business e-commerce?"
-• "Si je comprends bien, vous cherchez..." (reformulation)
-• "Vu votre profil, le Business X à Y FCFA serait parfaitement adapté car..."
-• "Investissez-y seulement Z heures/semaine pour un potentiel de X FCFA/mois"
-• "Nos clients dans votre situation atteignent généralement la rentabilité en X mois"
-• "Êtes-vous prêt à passer à l'étape suivante et acquérir ce business aujourd'hui?"
-
-====== TRAITEMENT DES OBJECTIONS ======
-• Prix: "Ce prix inclut [avantages spécifiques]. C'est un investissement qui vous permettra de gagner X FCFA/mois."
-• Compétences: "Nos business sont conçus pour les débutants. L'accompagnement de 2 mois inclus vous aidera à maîtriser tous les aspects."
-• Temps: "Ce business nécessite seulement X heures/semaine et peut être géré depuis votre smartphone."
-• Rentabilité: "Nos clients atteignent généralement le point d'équilibre après X mois, avec un potentiel de Y FCFA/mois."
-
-====== INFORMATION PRODUIT ======
-• Traduis les caractéristiques techniques en bénéfices concrets: "Cette boutique e-commerce complète vous permet de commencer à vendre sans aucune connaissance technique."
-• Contextualise l'usage en fonction des réalités locales: "Ce système de paiement est parfaitement adapté au marché sénégalais et accepte les solutions mobiles locales."
-
-====== INFORMATIONS CLÉS À RETENIR ======
-• DISTINCTION FONDAMENTALE:
-  - TEKKI STUDIO VEND des BUSINESS E-COMMERCE CLÉ EN MAIN (à promouvoir activement)
-  - TEKKI STUDIO a ses propres MARQUES (Viens on s'connaît, Amani, Ecoboom) qui ne sont PAS à vendre
-
-• FRAIS MENSUELS À MENTIONNER:
-  - Business physiques: entre 80,000 et 500,000 FCFA (stock, site, marketing, contenus)
-  - Business digitaux: entre 50,000 et 300,000 FCFA (site, marketing, contenus)
-
-• ARGUMENTS COMMERCIAUX CLÉS:
-  - Accompagnement de 2 mois inclus
-  - Business déjà validés sur le marché
-  - ROI généralement entre 2-4 mois
-  - Formation vidéo fournie
-  - Assistance technique incluse
-  - Business unique : une seule acquisition possible
-
-• SERVICE CRÉATION SITE E-COMMERCE:
-  - Prix: 695,000 FCFA pour site Shopify (payable en 2 fois), 495,000 FCFA pour site Wordpress/WooCommerce 
-  - Délai: 7 jours ouvrés
-  - Inclus: Stratégie d'acquisition de clients via Meta
-
-====== ADAPTATION AUX ÉTAPES DU FUNNEL DE VENTE ======
-• AWARENESS: Sois éducative, explique les concepts, présente les options disponibles
-• INTEREST: Explique les détails de fonctionnement, partage des exemples concrets
-• CONSIDERATION: Focalise sur les avantages spécifiques, le ROI, les témoignages
-• DECISION: Sois directe, propose des étapes claires pour finaliser l'achat
-
-INSTRUCTIONS BASÉES SUR LE CONTEXTE:
-${conversionStateAnalysis.readyToBuy 
-  ? "⚠️ PRIORITÉ: Pousser à finaliser l'acquisition ou à contacter immédiatement un conseiller" 
-  : conversionStateAnalysis.hasConsideredSpecificBusiness 
-    ? "⚠️ PRIORITÉ: Détailler les avantages spécifiques du business et inciter à l'acquisition" 
-    : conversionStateAnalysis.hasAskedAboutPrice 
-      ? "⚠️ PRIORITÉ: Expliquer la valeur, le ROI, et tout le travail abattu par l'équipe experte pour offrir l'opportunité, pas seulement le prix" 
-      : conversionStateAnalysis.hasShownInterest 
-        ? "⚠️ PRIORITÉ: Demander si intéressé par un business spécifique, ou recommander un business spécifique adapté à son profil" 
-        : "⚠️ PRIORITÉ: Captiver l'intérêt et qualifier les besoins"
-}
-
-CONTEXTE ACTUEL DE LA PAGE:
-${pageSpecificContext}
-
-GARDE TOUJOURS EN TÊTE QUE TON OBJECTIF PRINCIPAL EST DE CONVERTIR LES VISITEURS EN ACHETEURS, EN CONSTRUISANT UNE RELATION DE CONFIANCE. 
-N'OUBLIE JAMAIS QUE TU REPRÉSENTES TEKKI STUDIO ET QUE TA MANIÈRE DE COMMUNIQUER REFLÈTE L'IMAGE DE L'ENTREPRISE.
-`;
-
-    // Vérifier s'il s'agit d'un premier contact simple ou d'une demande commerciale
-    const isFirstInteraction = !history || history.length <= 1;
-    const isSimpleGreeting = /^(bonjour|salut|hello|hi|hey|coucou|bonsoir)$/i.test(message.trim());
-    const isGeneralQuestion = /^(qu'est-ce que|c'est quoi|qu'est ce que|c'est qui).*$/i.test(message.trim());
-
-    // Utiliser GPT-3.5 pour les premiers contacts simples, GPT-4 pour tout ce qui est commercial
-    const modelToUse = (isFirstInteraction && (isSimpleGreeting || isGeneralQuestion)) 
-      ? "gpt-3.5-turbo" 
-      : "gpt-4-turbo-preview";
-
-    console.log(`Utilisation du modèle: ${modelToUse}, première interaction: ${isFirstInteraction}, message simple: ${isSimpleGreeting || isGeneralQuestion}`);
-
     // Limiter l'historique de conversation pour réduire les tokens
-    // Ne garder que les 5 derniers messages
     const limitedHistory = history.slice(-5);
 
-    console.log("Construction de l'historique des messages...");
     // Construire l'historique des messages pour la conversation
     const conversationHistory = [
       { role: 'system', content: systemPrompt },
@@ -908,47 +785,41 @@ N'OUBLIE JAMAIS QUE TU REPRÉSENTES TEKKI STUDIO ET QUE TA MANIÈRE DE COMMUNIQU
       { role: 'user', content: message }
     ];
 
-    console.log(`Appel à l'API OpenAI avec le modèle ${modelToUse}...`);
-    console.log("Premier message système:", conversationHistory[0].content.substring(0, 100) + "...");
+    // Définir les fonctions pour l'API OpenAI
+    const functionsConfig = {
+      functions: [
+        {
+          name: "format_assistant_response",
+          description: "Format the assistant response with content and suggestions",
+          parameters: {
+            type: "object",
+            properties: {
+              content: {
+                type: "string",
+                description: "The main response text"
+              },
+              suggestions: {
+                type: "array",
+                items: {
+                  type: "string"
+                },
+                description: "List of 2-3 follow-up question suggestions"
+              },
+              needs_human: {
+                type: "boolean",
+                description: "Whether the query needs human assistance"
+              }
+            },
+            required: ["content", "suggestions", "needs_human"]
+          }
+        }
+      ],
+      function_call: { name: "format_assistant_response" }
+    };
     
     try {
-      // Appel à l'API OpenAI
-      const completion = await openai.chat.completions.create({
-        model: modelToUse,
-        messages: conversationHistory as any,
-        max_tokens: modelToUse === "gpt-4-turbo-preview" ? 800 : 400, // Augmenter la taille pour GPT-4
-        temperature: 0.7, // Légèrement plus créatif pour être persuasif
-        functions: [
-          {
-            name: "format_assistant_response",
-            description: "Format the assistant response with content and suggestions",
-            parameters: {
-              type: "object",
-              properties: {
-                content: {
-                  type: "string",
-                  description: "The main response text"
-                },
-                suggestions: {
-                  type: "array",
-                  items: {
-                    type: "string"
-                  },
-                  description: "List of 2-3 follow-up question suggestions"
-                },
-                needs_human: {
-                  type: "boolean",
-                  description: "Whether the query needs human assistance"
-                }
-              },
-              required: ["content", "suggestions", "needs_human"]
-            }
-          }
-        ],
-        function_call: { name: "format_assistant_response" }
-      });
-
-      console.log("Réponse reçue de l'API OpenAI");
+      // Appel à l'API IA avec notre nouvelle fonction
+      const completion = await getAICompletion(config, conversationHistory, functionsConfig);
 
       // Extraire et formater la réponse
       let aiResponse: { 
@@ -962,31 +833,31 @@ N'OUBLIE JAMAIS QUE TU REPRÉSENTES TEKKI STUDIO ET QUE TA MANIÈRE DE COMMUNIQU
       };
 
       if (completion.choices && completion.choices.length > 0) {
-        const functionCall = completion.choices[0].message.function_call;
+        const messageObject = completion.choices[0].message as any;
+        const functionCall = messageObject?.function_call;
         
         if (functionCall && functionCall.arguments) {
           try {
             aiResponse = JSON.parse(functionCall.arguments as string);
-            console.log("Réponse formatée avec succès");
           } catch (jsonError) {
             console.error('Erreur lors du parsing de la réponse formatée:', jsonError);
             aiResponse.content = "Je n'ai pas pu traiter correctement votre demande. Pourriez-vous reformuler votre question?";
             aiResponse.needs_human = true;
           }
         } else if (completion.choices[0].message.content) {
-          console.log("Utilisation du contenu de message standard (pas de function call)");
+          // Si le modèle n'a pas utilisé la fonction (Claude par exemple)
           aiResponse.content = completion.choices[0].message.content;
           aiResponse.suggestions = config?.initial_suggestions || [
             "Parlez-moi de vos business en vente",
             "Quelles formations proposez-vous?",
-            "Contacter le service client"
+            "Contacter un conseiller"
           ];
         }
       }
       
       // Ajouter l'option de contacter le service client si nécessaire
-      if (aiResponse.needs_human && !aiResponse.suggestions.includes("Contacter le service client")) {
-        aiResponse.suggestions.push("Contacter le service client");
+      if (aiResponse.needs_human && !aiResponse.suggestions.includes("Contacter un conseiller")) {
+        aiResponse.suggestions.push("Contacter un conseiller");
       }
 
       // S'assurer qu'il y a toujours des suggestions utiles et contextuelles
@@ -1022,16 +893,15 @@ N'OUBLIE JAMAIS QUE TU REPRÉSENTES TEKKI STUDIO ET QUE TA MANIÈRE DE COMMUNIQU
       // Enregistrer la conversation dans Supabase
       await saveConversation(message, aiResponse.content, context, aiResponse.needs_human, sessionId);
       
-      console.log("Réponse envoyée au client");
       return NextResponse.json(aiResponse);
-    } catch (openaiError) {
-      console.error('Erreur détaillée OpenAI:', openaiError);
+    } catch (aiError) {
+      console.error('Erreur avec l\'API IA:', aiError);
       
       // Répondre avec une erreur plus informative
       return NextResponse.json(
         { 
           content: "Je rencontre des difficultés à traiter votre demande actuellement. Notre équipe est disponible pour vous aider directement.", 
-          suggestions: ["Contacter le service client", "Voir nos business disponibles", "Explorer nos formations"],
+          suggestions: ["Contacter un conseiller", "Voir nos business disponibles", "Explorer nos formations"],
           needs_human: true
         },
         { status: 200 } // Toujours renvoyer 200 pour que le frontend puisse traiter la réponse
@@ -1043,10 +913,45 @@ N'OUBLIE JAMAIS QUE TU REPRÉSENTES TEKKI STUDIO ET QUE TA MANIÈRE DE COMMUNIQU
     return NextResponse.json(
       { 
         content: "Désolé, j'ai rencontré un problème technique. Voulez-vous contacter notre équipe directement?", 
-        suggestions: ["Contacter le service client", "Réessayer plus tard", "Voir nos business"],
+        suggestions: ["Contacter un conseiller", "Réessayer plus tard", "Voir nos business"],
         needs_human: true
       },
       { status: 200 } // Toujours renvoyer 200
     );
+  }
+}
+
+// Fonction auxiliaire pour créer des suggestions basées sur la catégorie
+async function createCategorySuggestions(category: string): Promise<string[]> {
+  try {
+    // Récupérer d'autres questions de la même catégorie
+    const { data: relatedQuestions, error } = await supabase
+      .from('chatbot_common_questions')
+      .select('question')
+      .eq('category', category)
+      .eq('is_active', true)
+      .limit(3);
+    
+    if (error || !relatedQuestions || relatedQuestions.length === 0) {
+      // Utiliser des suggestions par défaut si aucune question liée n'est trouvée
+      return [
+        "Quel business me recommandez-vous?",
+        "Je veux en savoir plus sur vos formations",
+        "Contacter un conseiller"
+      ];
+    }
+    
+    // Extraire les questions comme suggestions
+    let suggestions = relatedQuestions.map(q => q.question);
+    
+    // Toujours ajouter l'option de contacter le service client
+    if (!suggestions.includes("Contacter un conseiller")) {
+      suggestions.push("Contacter un conseiller");
+    }
+    
+    return suggestions;
+  } catch (error) {
+    console.error('Erreur lors de la création des suggestions par catégorie:', error);
+    return ["Contacter un conseiller"];
   }
 }
