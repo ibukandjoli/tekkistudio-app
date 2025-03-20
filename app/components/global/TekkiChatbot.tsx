@@ -96,20 +96,8 @@ const getDefaultWelcomeMessage = (): string => {
 // Fallback par défaut au cas où le chargement échoue
 const defaultBusinessFallbacks: BusinessFallbacks = {
   "livres pour enfants": {
-    description: "Notre business de livres pour enfants est conçu pour le marché sénégalais avec une sélection attentive d'ouvrages adaptés aux enfants de 3 à 12 ans. Ce business comprend un site e-commerce, des relations avec des fournisseurs de qualité, et un système de livraison optimisé pour Dakar et les grandes villes du Sénégal. Le prix est de 1 500 000 FCFA avec un ROI estimé entre 6 et 10 mois. Souhaitez-vous connaître les détails spécifiques du lancement au Sénégal?",
+    description: "Notre business de livres personnalisés pour enfants vous permet de proposer à la vente des livres pour enfants personnalisables avec les prénoms et âges de leurs enfants de 3 à 12 ans. Ce business comprend un site e-commerce innovant, 3 livres personnalisables, et des contacts avec des imprimeurs potentiels partenaires. Le prix est de 2 445 000 FCFA avec un retour sur investissement estimé entre 3 et 4 mois. Voulez-vous l'acquérir maintenant ou avez-vous d'autres questions ?",
     keywords: ["livre", "enfant", "littérature", "jeunesse", "éducation"]
-  },
-  "vêtements": {
-    description: "Notre business de vêtements en ligne inclut un site e-commerce, des partenariats avec des fournisseurs internationaux, et une stratégie marketing ciblée. L'investissement est de 1 800 000 FCFA avec un potentiel de rentabilité à partir du 5ème mois. Aimeriez-vous en savoir plus sur la mise en place au Sénégal?",
-    keywords: ["vêtement", "habit", "mode", "textile", "habillement"]
-  },
-  "cosmétiques": {
-    description: "Le business de cosmétiques naturels comprend un site complet, des relations avec des laboratoires producteurs, et une stratégie marketing dédiée. Proposé à 2 200 000 FCFA, ce business a un potentiel mensuel de 800 000 FCFA après 3-4 mois. Souhaitez-vous des détails sur l'adaptation au marché sénégalais?",
-    keywords: ["cosmétique", "beauté", "soin", "make up", "maquillage"]
-  },
-  "épicerie": {
-    description: "Notre business d'épicerie en ligne est optimisé pour le marché sénégalais avec un site e-commerce, un système de gestion des stocks, et des relations avec des fournisseurs locaux. L'investissement est de 1 700 000 FCFA avec un ROI estimé entre 8 et 12 mois. Voulez-vous des informations sur la logistique au Sénégal?",
-    keywords: ["alimentation", "épicerie", "nourriture", "supermarché", "produits alimentaires"]
   }
 };
 
