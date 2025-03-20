@@ -108,7 +108,7 @@ const getDefaultWelcomeMessage = (): string => {
 // Fallback par défaut au cas où le chargement échoue
 const defaultBusinessFallbacks: BusinessFallbacks = {
     "livres pour enfants": {
-      description: "Notre business de livres personnalisés pour enfants vous permet de proposer à la vente des livres pour enfants personnalisables avec les prénoms et âges de leurs enfants de 3 à 12 ans. Ce business comprend un site e-commerce innovant, 3 livres personnalisables, et des contacts avec des imprimeurs potentiels partenaires. Le prix est de 2 445 000 FCFA avec un retour sur investissement estimé entre 3 et 4 mois. Voulez-vous l'acquérir maintenant ou avez-vous d'autres questions ?",
+      description: "Je suis très heureuse de le savoir ! Puis-je savoir lequel de nos business vous intéresse, et quelles informations vous souhaitez avoir à son sujet ? Cela me permettra de vous aider de manière efficace.",
       keywords: ["livre", "enfant", "littérature", "jeunesse", "éducation"]
     }
   };
@@ -1325,17 +1325,19 @@ export default function TekkiChatbot() {
             {/* Version Mobile (plein écran) */}
             {isMobileDevice && (
               <motion.div
-                ref={chatContainerRef}
-                initial={{ opacity: 0, y: '100%' }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: '100%' }}
-                className="fixed inset-0 z-[9999] flex flex-col bg-[#F2F2F2] dark:bg-gray-800 tekki-chatbot-mobile"
-                style={{
-                  width: '100vw',
-                  maxWidth: '100%',
-                  overflow: 'hidden',
-                }}
-              >
+              ref={chatContainerRef}
+              initial={{ opacity: 0, y: '100%' }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: '100%' }}
+              className="fixed inset-0 z-[9999] flex flex-col bg-[#F2F2F2] dark:bg-gray-800 tekki-chatbot-mobile"
+              style={{
+                width: '100vw',
+                maxWidth: '100%',
+                overflow: 'hidden',
+                // Ajouter cette ligne pour tenir compte de la zone sécurisée sur iOS
+                paddingBottom: 'env(safe-area-inset-bottom, 80px)',
+              }}
+            >
                 {/* Header - reste fixe, ne change pas de taille */}
                 <div className="p-4 bg-[#0f4c81] text-white sticky top-0 z-10">
                   <div className="flex items-center justify-between">
@@ -1482,12 +1484,14 @@ export default function TekkiChatbot() {
 
                 {/* Input - sticky at bottom with width constraints */}
                 <div 
-                  className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 sticky bottom-0 left-0 right-0 z-20 input-container"
-                  style={{
+                    className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 sticky bottom-0 left-0 right-0 z-30 input-container"
+                    style={{
                     width: '100%',
                     maxWidth: '100vw',
                     boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)',
-                  }}
+                    paddingBottom: 'calc(env(safe-area-inset-bottom, 16px) + 16px)', 
+                    marginBottom: 0,
+                    }}
                 >
                   <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 rounded-full p-2 pl-4 border dark:border-gray-600">
                     <input

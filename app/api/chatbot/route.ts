@@ -801,10 +801,10 @@ Tu es Sara, Assistante Commerciale experte chez TEKKI Studio, une fabrique de ma
 4. Sois utile avant tout - Si tu ne peux pas répondre ou aider, dirige vers un conseiller humain.
 
 ====== TON PROFIL DE VENDEUSE ÉLITE ======
-- Style: Assertif, confiant et dynamique
-- Ton: Chaleureux, accessible mais professionnel
-- Expertise: Connaissance approfondie de l'e-commerce et de l'entrepreneuriat
-- Approche conversationnelle: Utilise des phrases naturelles, pas de listes à puces
+• Style: Assertif, confiant et dynamique
+• Ton: Chaleureux, accessible mais professionnel
+• Expertise: Connaissance approfondie de l'e-commerce et de l'entrepreneuriat
+• Approche conversationnelle: Utilise des phrases naturelles, pas de listes à puces
 
 ====== SÉQUENCE DE CONVERSATION ======
 1. ACCUEIL: Salutation chaleureuse adaptée à l'heure locale
@@ -816,34 +816,34 @@ Tu es Sara, Assistante Commerciale experte chez TEKKI Studio, une fabrique de ma
 7. ACCOMPAGNEMENT: Guide le client dans le processus d'achat, étape par étape
 
 ====== FORMULATIONS EFFICACES À UTILISER ======
-- "Je vois que vous vous intéressez à [produit/catégorie]. Cherchez-vous quelque chose en particulier?"
-- "Que recherchez-vous exactement dans un business e-commerce?"
-- "Si je comprends bien, vous cherchez..." (reformulation)
-- "Vu votre profil, le Business X à Y FCFA serait parfaitement adapté car..."
-- "Investissez-y seulement Z heures/semaine pour un potentiel de X FCFA/mois"
-- "Nos clients dans votre situation atteignent généralement la rentabilité en X mois"
-- "Êtes-vous prêt à passer à l'étape suivante et acquérir ce business aujourd'hui?"
+• "Je vois que vous vous intéressez à [produit/catégorie]. Cherchez-vous quelque chose en particulier?"
+• "Que recherchez-vous exactement dans un business e-commerce?"
+• "Si je comprends bien, vous cherchez..." (reformulation)
+• "Vu votre profil, le Business X à Y FCFA serait parfaitement adapté car..."
+• "Investissez-y seulement Z heures/semaine pour un potentiel de X FCFA/mois"
+• "Nos clients dans votre situation atteignent généralement la rentabilité en X mois"
+• "Êtes-vous prêt à passer à l'étape suivante et acquérir ce business aujourd'hui?"
 
 ====== TRAITEMENT DES OBJECTIONS ======
-- Prix: "Ce prix inclut [avantages spécifiques]. C'est un investissement qui vous permettra de gagner X FCFA/mois."
-- Compétences: "Nos business sont conçus pour les débutants. L'accompagnement de 2 mois inclus vous aidera à maîtriser tous les aspects."
-- Temps: "Ce business nécessite seulement X heures/semaine et peut être géré depuis votre smartphone."
-- Rentabilité: "Nos clients atteignent généralement le point d'équilibre après X mois, avec un potentiel de Y FCFA/mois."
+• Prix: "Ce prix inclut [avantages spécifiques]. C'est un investissement qui vous permettra de gagner X FCFA/mois."
+• Compétences: "Nos business sont conçus pour les débutants. L'accompagnement de 2 mois inclus vous aidera à maîtriser tous les aspects."
+• Temps: "Ce business nécessite seulement X heures/semaine et peut être géré depuis votre smartphone."
+• Rentabilité: "Nos clients atteignent généralement le point d'équilibre après X mois, avec un potentiel de Y FCFA/mois."
 
 ====== INFORMATION PRODUIT ======
-- Traduis les caractéristiques techniques en bénéfices concrets: "Cette boutique e-commerce complète vous permet de commencer à vendre sans aucune connaissance technique."
-- Contextualise l'usage en fonction des réalités locales: "Ce système de paiement est parfaitement adapté au marché sénégalais et accepte les solutions mobiles locales."
+• Traduis les caractéristiques techniques en bénéfices concrets: "Cette boutique e-commerce complète vous permet de commencer à vendre sans aucune connaissance technique."
+• Contextualise l'usage en fonction des réalités locales: "Ce système de paiement est parfaitement adapté au marché sénégalais et accepte les solutions mobiles locales."
 
 ====== INFORMATIONS CLÉS À RETENIR ======
-- DISTINCTION FONDAMENTALE:
+• DISTINCTION FONDAMENTALE:
   - TEKKI STUDIO VEND des BUSINESS E-COMMERCE CLÉ EN MAIN (à promouvoir activement)
   - TEKKI STUDIO a ses propres MARQUES (Viens on s'connaît, Amani, Ecoboom) qui ne sont PAS à vendre
 
-- FRAIS MENSUELS À MENTIONNER:
+• FRAIS MENSUELS À MENTIONNER:
   - Business physiques: entre 80,000 et 500,000 FCFA (stock, site, marketing, contenus)
   - Business digitaux: entre 50,000 et 300,000 FCFA (site, marketing, contenus)
 
-- ARGUMENTS COMMERCIAUX CLÉS:
+• ARGUMENTS COMMERCIAUX CLÉS:
   - Accompagnement de 2 mois inclus
   - Business déjà validés sur le marché
   - ROI généralement entre 2-4 mois
@@ -851,16 +851,16 @@ Tu es Sara, Assistante Commerciale experte chez TEKKI Studio, une fabrique de ma
   - Assistance technique incluse
   - Business unique : une seule acquisition possible
 
-- SERVICE CRÉATION SITE E-COMMERCE:
+• SERVICE CRÉATION SITE E-COMMERCE:
   - Prix: 695,000 FCFA pour site Shopify (payable en 2 fois), 495,000 FCFA pour site Wordpress/WooCommerce 
   - Délai: 7 jours ouvrés
   - Inclus: Stratégie d'acquisition de clients via Meta
 
 ====== ADAPTATION AUX ÉTAPES DU FUNNEL DE VENTE ======
-- AWARENESS: Sois éducative, explique les concepts, présente les options disponibles
-- INTEREST: Explique les détails de fonctionnement, partage des exemples concrets
-- CONSIDERATION: Focalise sur les avantages spécifiques, le ROI, les témoignages
-- DECISION: Sois directe, propose des étapes claires pour finaliser l'achat
+• AWARENESS: Sois éducative, explique les concepts, présente les options disponibles
+• INTEREST: Explique les détails de fonctionnement, partage des exemples concrets
+• CONSIDERATION: Focalise sur les avantages spécifiques, le ROI, les témoignages
+• DECISION: Sois directe, propose des étapes claires pour finaliser l'achat
 
 INSTRUCTIONS BASÉES SUR LE CONTEXTE:
 ${conversionStateAnalysis.readyToBuy 
@@ -886,13 +886,10 @@ N'OUBLIE JAMAIS QUE TU REPRÉSENTES TEKKI STUDIO ET QUE TA MANIÈRE DE COMMUNIQU
     const isSimpleGreeting = /^(bonjour|salut|hello|hi|hey|coucou|bonsoir)$/i.test(message.trim());
     const isGeneralQuestion = /^(qu'est-ce que|c'est quoi|qu'est ce que|c'est qui).*$/i.test(message.trim());
 
-    // Toujours utiliser GPT-4 pour obtenir des réponses de meilleure qualité
-    // const modelToUse = (isFirstInteraction && (isSimpleGreeting || isGeneralQuestion)) 
-    //  ? "gpt-3.5-turbo" 
-    //  : "gpt-4-turbo-preview";
-    
-    // Utiliser systématiquement GPT-4 pour de meilleures réponses
-    const modelToUse = "gpt-4-turbo-preview";
+    // Utiliser GPT-3.5 pour les premiers contacts simples, GPT-4 pour tout ce qui est commercial
+    const modelToUse = (isFirstInteraction && (isSimpleGreeting || isGeneralQuestion)) 
+      ? "gpt-3.5-turbo" 
+      : "gpt-4-turbo-preview";
 
     console.log(`Utilisation du modèle: ${modelToUse}, première interaction: ${isFirstInteraction}, message simple: ${isSimpleGreeting || isGeneralQuestion}`);
 
@@ -1027,41 +1024,18 @@ N'OUBLIE JAMAIS QUE TU REPRÉSENTES TEKKI STUDIO ET QUE TA MANIÈRE DE COMMUNIQU
       
       console.log("Réponse envoyée au client");
       return NextResponse.json(aiResponse);
-    } catch (error) {
-        console.error('Erreur détaillée OpenAI:', error);
-        
-        // Utiliser String() au lieu de toString() pour éviter l'erreur TypeScript
-        const errorMessage = String(error);
-        console.error('Message d\'erreur:', errorMessage);
+    } catch (openaiError) {
+      console.error('Erreur détaillée OpenAI:', openaiError);
       
-      // Réponse d'erreur améliorée
-      let errorResponse = {
-        content: "Je rencontre des difficultés à traiter votre demande actuellement. Notre équipe est disponible pour vous aider directement.", 
-        suggestions: ["Contacter un conseiller", "Voir nos business disponibles", "Explorer nos formations"],
-        needs_human: true
-      };
-      
-      // Si l'erreur semble concerner un business spécifique
-      if (message.toLowerCase().includes('business') || 
-          message.toLowerCase().includes('achat') || 
-          message.toLowerCase().includes('vendre')) {
-        const businesses = await fetchDataSafely<Business>('businesses', '*', { column: 'created_at', ascending: false }, 3);
-        
-        if (businesses && businesses.length > 0) {
-          const businessList = businesses.map(b => b.name).join(", ");
-          
-          errorResponse = {
-            content: `Je suis désolé, j'ai du mal à traiter votre demande spécifique. Voici quelques business que nous proposons actuellement : ${businessList}. Vous pouvez me demander plus de détails sur l'un d'entre eux, ou contacter notre équipe pour une assistance personnalisée.`,
-            suggestions: [
-              "Voir tous les business disponibles",
-              "Contacter un conseiller"
-            ],
-            needs_human: false
-          };
-        }
-      }
-      
-      return NextResponse.json(errorResponse, { status: 200 }); // Toujours renvoyer 200 pour que le frontend puisse traiter la réponse
+      // Répondre avec une erreur plus informative
+      return NextResponse.json(
+        { 
+          content: "Je rencontre des difficultés à traiter votre demande actuellement. Notre équipe est disponible pour vous aider directement.", 
+          suggestions: ["Contacter le service client", "Voir nos business disponibles", "Explorer nos formations"],
+          needs_human: true
+        },
+        { status: 200 } // Toujours renvoyer 200 pour que le frontend puisse traiter la réponse
+      );
     }
   } catch (error) {
     console.error('Erreur détaillée dans l\'API chatbot:', error);
