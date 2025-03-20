@@ -1082,7 +1082,7 @@ export default function TekkiChatbot() {
       
       // Réponse de secours en cas d'erreur
       return {
-        content: "Je suis momentanément indisponible. Puis-je vous proposer d'échanger directement avec un membre de l'équipe qui pourra répondre à toutes vos questions ?",
+        content: "Je n'ai présentement pas la réponse à adéquate à votre message. Puis-je vous proposer d'échanger directement avec un membre de l'équipe TEKKI Studio qui pourra répondre à toutes vos questions ?",
         suggestions: ["Contacter un conseiller", "Réessayer plus tard"],
         needs_human: true
       };
