@@ -1,4 +1,3 @@
-// app/components/global/TekkiChatbot.tsx
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -61,6 +60,18 @@ interface BusinessFallbacks {
   [key: string]: BusinessFallback;
 }
 
+// Interface pour les business depuis la BDD
+interface Business {
+  id: string;
+  name: string;
+  price: number;
+  monthly_potential?: number;
+  slug: string;
+  category?: string;
+  description?: string;
+  roi_estimation_months?: number;
+}
+
 // Suggestions critiques à toujours afficher
 const criticalSuggestions = [
   "Contacter un conseiller",
@@ -95,11 +106,11 @@ const getDefaultWelcomeMessage = (): string => {
 
 // Fallback par défaut au cas où le chargement échoue
 const defaultBusinessFallbacks: BusinessFallbacks = {
-  "livres pour enfants": {
-    description: "Notre business de livres personnalisés pour enfants vous permet de proposer à la vente des livres pour enfants personnalisables avec les prénoms et âges de leurs enfants de 3 à 12 ans. Ce business comprend un site e-commerce innovant, 3 livres personnalisables, et des contacts avec des imprimeurs potentiels partenaires. Le prix est de 2 445 000 FCFA avec un retour sur investissement estimé entre 3 et 4 mois. Voulez-vous l'acquérir maintenant ou avez-vous d'autres questions ?",
-    keywords: ["livre", "enfant", "littérature", "jeunesse", "éducation"]
-  }
-};
+    "livres pour enfants": {
+      description: "Notre business de livres personnalisés pour enfants vous permet de proposer à la vente des livres pour enfants personnalisables avec les prénoms et âges de leurs enfants de 3 à 12 ans. Ce business comprend un site e-commerce innovant, 3 livres personnalisables, et des contacts avec des imprimeurs potentiels partenaires. Le prix est de 2 445 000 FCFA avec un retour sur investissement estimé entre 3 et 4 mois. Voulez-vous l'acquérir maintenant ou avez-vous d'autres questions ?",
+      keywords: ["livre", "enfant", "littérature", "jeunesse", "éducation"]
+    }
+  };
 
 // Détection d'appareil mobile
 const isMobile = () => {
@@ -129,6 +140,8 @@ export default function TekkiChatbot() {
   const [sessionId] = useState(() => uuidv4()); // ID unique pour la session
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const [businessFallbacks, setBusinessFallbacks] = useState<BusinessFallbacks>(defaultBusinessFallbacks);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [isFirstRenderComplete, setIsFirstRenderComplete] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -263,6 +276,38 @@ export default function TekkiChatbot() {
       </>
     );
   };
+
+  // Charger les businesses depuis Supabase à l'initialisation
+  useEffect(() => {
+    const fetchBusinesses = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('businesses')
+          .select('id, name, price, monthly_potential, slug, category, description, roi_estimation_months')
+          .eq('status', 'available')
+          .order('name');
+        
+        if (error) {
+          console.error("Erreur lors du chargement des business:", error);
+          return;
+        }
+        
+        if (data && data.length > 0) {
+          console.log("Businesses chargés avec succès:", data.length);
+          setBusinesses(data);
+        }
+      } catch (err) {
+        console.error("Exception lors du chargement des business:", err);
+      }
+    };
+    
+    fetchBusinesses();
+  }, []);
+
+  // Marquage du premier rendu terminé
+  useEffect(() => {
+    setIsFirstRenderComplete(true);
+  }, []);
 
   // Détection du mobile et iOS
   useEffect(() => {
@@ -452,14 +497,16 @@ export default function TekkiChatbot() {
       }
     };
     
-    // Attacher le gestionnaire aux événements de défilement
+    // Attacher le gestionnaire aux événements de défilement et de touch
     if (messagesContainerRef.current) {
       messagesContainerRef.current.addEventListener('touchend', enhancedIOSScroll);
+      messagesContainerRef.current.addEventListener('touchmove', enhancedIOSScroll);
     }
     
     return () => {
       if (messagesContainerRef.current) {
         messagesContainerRef.current.removeEventListener('touchend', enhancedIOSScroll);
+        messagesContainerRef.current.removeEventListener('touchmove', enhancedIOSScroll);
       }
     };
   }, [keyboardOpen, isMobileDevice, isIOSDevice]);
@@ -508,9 +555,35 @@ export default function TekkiChatbot() {
   }, []);
 
   // Observer les nouveaux messages pour un défilement automatique
+  // Cette fonction a été améliorée pour forcer le scrolling
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isTyping]);
+    if (isFirstRenderComplete) {
+      // Utiliser une approche en plusieurs étapes pour assurer le scrolling
+      const doScroll = () => {
+        scrollToBottom();
+        
+        // Forcer un second scrolling après un délai plus long pour s'assurer
+        // que tout le contenu a été rendu
+        setTimeout(() => {
+          scrollToBottom();
+          
+          // Troisième tentative pour iOS, qui est particulièrement problématique
+          if (isIOSDevice) {
+            setTimeout(scrollToBottom, 300);
+          }
+        }, 100);
+      };
+      
+      doScroll();
+    }
+  }, [messages, isTyping, isFirstRenderComplete, isIOSDevice]);
+
+  // Forcer le scrolling lorsque le chatbot est ouvert
+  useEffect(() => {
+    if (isOpen && isFirstRenderComplete) {
+      setTimeout(scrollToBottom, 300);
+    }
+  }, [isOpen, isFirstRenderComplete]);
 
   // Enregistrer l'état du funnel
   useEffect(() => {
@@ -586,6 +659,51 @@ export default function TekkiChatbot() {
     if (business.roi) {
       response += ` ${business.roi}`;
     }
+    
+    return response;
+  };
+
+  // Fonction pour vérifier si le message demande une liste des business
+  const isAskingForBusinessList = (messageText: string): boolean => {
+    const lowerCaseMessage = messageText.toLowerCase();
+    
+    // Mots clés qui indiquent que l'utilisateur veut voir les business disponibles
+    const businessKeywords = [
+      'quels sont les business',
+      'liste des business',
+      'business disponible',
+      'business en vente',
+      'voir les business',
+      'montrer les business',
+      'business proposé',
+      'quel business',
+      'business que vous avez',
+      'business que vous proposez'
+    ];
+    
+    return businessKeywords.some(keyword => lowerCaseMessage.includes(keyword));
+  };
+
+  // Fonction pour générer une réponse avec la liste des business disponibles
+  const generateBusinessListResponse = (): string => {
+    if (!businesses || businesses.length === 0) {
+      return "Je suis désolée, je n'ai pas pu récupérer la liste des business actuellement disponibles. Veuillez réessayer ultérieurement ou contacter directement nos conseillers pour plus d'informations.";
+    }
+    
+    let response = "Voici les business actuellement disponibles à la vente chez TEKKI Studio :\n\n";
+    
+    businesses.forEach((business, index) => {
+      response += `${index + 1}. **${business.name}** - ${business.price.toLocaleString()} FCFA\n`;
+      if (business.monthly_potential) {
+        response += `   Potentiel mensuel: ${business.monthly_potential.toLocaleString()} FCFA\n`;
+      }
+      if (business.roi_estimation_months) {
+        response += `   ROI estimé: ${business.roi_estimation_months} mois\n`;
+      }
+      response += "\n";
+    });
+    
+    response += "Pour plus de détails sur un business spécifique, n'hésitez pas à me demander. Lequel vous intéresse le plus ?";
     
     return response;
   };
@@ -709,6 +827,20 @@ export default function TekkiChatbot() {
 
   // Vérifier si le message concerne un business spécifique et utiliser le fallback
   const handleBusinessSpecificMessage = (messageText: string): { handled: boolean, content?: string, suggestions?: string[] } => {
+    // Vérifier d'abord si l'utilisateur demande une liste des business
+    if (isAskingForBusinessList(messageText)) {
+      return {
+        handled: true,
+        content: generateBusinessListResponse(),
+        suggestions: [
+          "Détails sur un business spécifique",
+          "Quel business me recommandez-vous?",
+          "Quels sont les coûts mensuels?"
+        ]
+      };
+    }
+    
+    // Vérifier ensuite pour un business spécifique
     const businessName = detectBusinessType(messageText);
     
     if (businessName && businessFallbacks[businessName]) {
@@ -755,32 +887,55 @@ export default function TekkiChatbot() {
 
   // Améliorer la fonction scrollToBottom pour être plus fiable - version améliorée avec support iOS intégré
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      try {
-        // Utiliser auto au lieu de smooth sur mobile pour éviter les problèmes
-        messagesEndRef.current.scrollIntoView({ 
-          behavior: isMobileDevice ? "auto" : "smooth", 
-          block: "end" 
-        });
+    if (!messagesEndRef.current) return;
+    
+    try {
+      // Essayer de forcer le défilement de plusieurs façons pour maximiser les chances de succès
+      
+      // 1. Utiliser scrollIntoView
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: "auto", // On utilise toujours "auto" pour plus de fiabilité
+        block: "end" 
+      });
+      
+      // 2. Utiliser scrollTop sur le container des messages (méthode la plus fiable)
+      if (messagesContainerRef.current) {
+        const scrollHeight = messagesContainerRef.current.scrollHeight;
+        messagesContainerRef.current.scrollTop = scrollHeight + 1000; // Ajout de marge pour être sûr
         
-        // Technique de défilement supplémentaire pour iOS
-        if (isIOSDevice && messagesContainerRef.current) {
-          const scrollHeight = messagesContainerRef.current.scrollHeight;
-          messagesContainerRef.current.scrollTop = scrollHeight;
-          
-          // Parfois le premier scroll ne fonctionne pas sur iOS, donc on réessaie
+        // Pour mobile, spécialement iOS, parfois un délai est nécessaire
+        if (isMobileDevice) {
           setTimeout(() => {
             if (messagesContainerRef.current) {
-              messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+              messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight + 1000;
             }
           }, 50);
         }
-      } catch (e) {
-        console.warn('Erreur de scroll:', e);
+      }
+      
+      // 3. Pour iOS, utiliser une approche plus agressive si les autres méthodes échouent
+      if (isIOSDevice && messagesContainerRef.current) {
+        // Force scroll avec position sticky et translation
+        messagesEndRef.current.style.position = 'sticky';
+        messagesEndRef.current.style.bottom = '0';
+        messagesEndRef.current.style.transform = 'translateY(0)';
         
-        // Méthode alternative si scrollIntoView échoue
-        if (messagesContainerRef.current) {
-          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        // ScrollTo spécifique à iOS
+        const scrollY = messagesContainerRef.current.scrollHeight + 2000;
+        window.scrollTo(0, scrollY);
+        messagesContainerRef.current.scrollTo(0, scrollY);
+      }
+    } catch (e) {
+      console.warn('Erreur de scroll, tentative avec méthode alternative:', e);
+      
+      // Méthode alternative si toutes les autres échouent
+      if (messagesContainerRef.current) {
+        try {
+          // Accéder directement au style pour forcer le défilement
+          messagesContainerRef.current.style.scrollBehavior = 'auto';
+          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight * 2;
+        } catch (finalError) {
+          console.error('Échec de toutes les méthodes de défilement:', finalError);
         }
       }
     }
@@ -840,7 +995,20 @@ export default function TekkiChatbot() {
     suggestions: string[];
     needs_human: boolean;
   }> => {
-    // Vérifier d'abord si le message concerne un business spécifique
+    // Vérifier d'abord si l'utilisateur demande une liste des business
+    if (isAskingForBusinessList(userQuery)) {
+      return {
+        content: generateBusinessListResponse(),
+        suggestions: [
+          "Détails sur un business spécifique",
+          "Quel business me recommandez-vous?",
+          "Contacter un conseiller"
+        ],
+        needs_human: false
+      };
+    }
+    
+    // Vérifier si le message concerne un business spécifique
     const businessResponse = handleBusinessSpecificMessage(userQuery);
     if (businessResponse.handled) {
       return {
@@ -898,6 +1066,20 @@ export default function TekkiChatbot() {
       };
     } catch (error) {
       console.error('Erreur:', error);
+      
+      // Si nous avons des business chargés localement, utilisez-les pour répondre
+      if (isAskingForBusinessList(userQuery) && businesses.length > 0) {
+        return {
+          content: generateBusinessListResponse(),
+          suggestions: [
+            "Détails sur un business spécifique",
+            "Quel business me recommandez-vous?",
+            "Contacter un conseiller"
+          ],
+          needs_human: false
+        };
+      }
+      
       // Réponse de secours en cas d'erreur
       return {
         content: "Je suis momentanément indisponible. Puis-je vous proposer d'échanger directement avec un membre de l'équipe qui pourra répondre à toutes vos questions ?",
@@ -1184,7 +1366,7 @@ export default function TekkiChatbot() {
                   style={{ 
                     height: keyboardOpen ? 'calc(100vh - 160px)' : 'auto',
                     width: '100%',             // Force la largeur à 100%
-                    overflow: 'auto hidden',   // Permet le défilement vertical mais pas horizontal
+                    overflow: 'auto',          // Permet le défilement
                     paddingBottom: keyboardOpen ? '8px' : '80px',
                     maxWidth: '100vw',         // Ne jamais dépasser la largeur de la fenêtre
                   }}
@@ -1239,11 +1421,11 @@ export default function TekkiChatbot() {
                               <button
                                 key={index}
                                 onClick={() => handleSuggestionClick(suggestion)}
-                                className="px-2 py-2 text-sm bg-[#F2F2F2] dark:bg-gray-600 
+                                className="px-3 py-2.5 text-sm bg-[#F2F2F2] dark:bg-gray-600 
                                          rounded-full border border-gray-200 dark:border-gray-500
                                          hover:bg-gray-50 dark:hover:bg-gray-500
                                          transition-colors text-gray-700 dark:text-gray-200
-                                         min-h-[20px] min-w-[80px] font-medium"
+                                         min-h-[40px] min-w-[100px] font-medium"
                               >
                                 {suggestion}
                               </button>
@@ -1263,7 +1445,7 @@ export default function TekkiChatbot() {
                       <span className="text-sm">Sara écrit...</span>
                     </div>
                   )}
-                  <div ref={messagesEndRef} className="h-0" />
+                  <div ref={messagesEndRef} className="h-1 min-h-[1px] w-full" />
                 </div>
 
                 {/* Input - fixed at bottom with width constraints */}
@@ -1296,7 +1478,7 @@ export default function TekkiChatbot() {
                     <button
                       onClick={handleSendMessage}
                       disabled={!message.trim() || isTyping}
-                      className={`rounded-full p-2 flex-shrink-0 ${  
+                      className={`rounded-full p-2 flex-shrink-0 ${  // Empêche le bouton de rétrécir
                         message.trim() && !isTyping
                           ? "bg-[#0f4c81] text-white hover:bg-[#0f4c81]/90"
                           : "bg-gray-100 dark:bg-gray-600 text-gray-400 dark:text-gray-500"
@@ -1453,7 +1635,7 @@ export default function TekkiChatbot() {
                       <span className="text-sm">Sara écrit...</span>
                     </div>
                   )}
-                  <div ref={messagesEndRef} className="h-0" />
+                  <div ref={messagesEndRef} className="h-1 min-h-[1px] w-full" />
                 </div>
 
                 {/* Input */}
