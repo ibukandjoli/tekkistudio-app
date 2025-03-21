@@ -65,15 +65,20 @@ interface BusinessFallbacks {
 
 // Interface pour les business depuis la BDD
 interface Business {
-  id: string;
-  name: string;
-  price: number;
-  monthly_potential?: number;
-  slug: string;
-  category?: string;
-  description?: string;
-  roi_estimation_months?: number;
-}
+    id: string;
+    name: string;
+    price: number;
+    monthly_potential?: number;
+    slug: string;
+    category?: string;
+    description?: string;
+    roi_estimation_months?: number;
+    time_required_weekly?: string; 
+    type?: string; 
+    status?: string; 
+    target_audience?: string; 
+    skill_level_required?: string;
+  }
 
 // Suggestions critiques à toujours afficher
 const criticalSuggestions = [
@@ -761,7 +766,7 @@ export default function TekkiChatbot() {
     );
     
     if (hasGeneralInterest) {
-        // Lister tous les business disponibles (limités à 5)
+        // Lister tous les business disponibles (limités à 6)
         const businessSuggestions = businesses.slice(0, 6).map(b => `En savoir plus sur ${b.name}`);
         return businesses.slice(0, 6);
       }
@@ -831,14 +836,14 @@ export default function TekkiChatbot() {
     
     responseText += "Pour plus de détails sur un business spécifique, n'hésitez pas à me demander. Lequel vous intéresse le plus ?";
     
-    // Générer des suggestions basées sur les business disponibles (limité à 4)
+    // Générer des suggestions basées sur les business disponibles (limité à 6)
     const businessSuggestions = businesses
-      .slice(0, 4)
+      .slice(0, 6)
       .map(b => `En savoir plus sur ${b.name}`);
       
     // Ajouter une option pour contacter un conseiller
     const allSuggestions = [...businessSuggestions];
-    if (allSuggestions.length < 5) {
+    if (allSuggestions.length < 6) {
       allSuggestions.push("Contacter un conseiller");
     }
     
@@ -846,6 +851,167 @@ export default function TekkiChatbot() {
       content: responseText,
       suggestions: allSuggestions
     };
+  };
+
+  // Ajouter cette fonction pour générer une réponse spécifique à un business
+const generateBusinessSpecificResponse = (businessName: string): { content: string; suggestions: string[] } => {
+    // Trouver le business correspondant dans la liste des business
+    const business = businesses.find(b => 
+      b.name.toLowerCase() === businessName.toLowerCase() ||
+      b.name.toLowerCase().includes(businessName.toLowerCase()) ||
+      businessName.toLowerCase().includes(b.name.toLowerCase())
+    );
+    
+    if (!business) {
+      return {
+        content: `Je ne trouve pas d'informations sur "${businessName}". Voulez-vous voir la liste de tous nos business disponibles ?`,
+        suggestions: ["Voir tous les business", "Contacter un conseiller"]
+      };
+    }
+    
+    // Créer une réponse plus conversationnelle et orientée vente
+    let content = `C'est un excellent choix ! Qu'aimeriez-vous savoir plus précisément sur cette opportunité ?`;
+    
+    // Générer des suggestions pertinentes et spécifiques à ce business
+    const suggestions = [
+      `Rentabilité de ${business.name}`,
+      `Temps nécessaire pour gérer ${business.name}`,
+      `Compétences requises pour développer ${business.name}`,
+      `Avantages de ${business.name}`,
+      `Coûts mensuels pour développer ${business.name}`
+    ];
+    
+    // Limiter à 4 suggestions + "Contacter un conseiller"
+    return {
+      content: content,
+      suggestions: [...suggestions.slice(0, 4), "Contacter un conseiller"]
+    };
+  };
+  
+  // Fonction pour traiter les questions spécifiques sur un aspect d'un business
+  const handleBusinessSpecificQuery = (businessName: string, aspect: string): { content: string; suggestions: string[] } => {
+    const business = businesses.find(b => 
+      b.name.toLowerCase() === businessName.toLowerCase() ||
+      b.name.toLowerCase().includes(businessName.toLowerCase()) ||
+      businessName.toLowerCase().includes(b.name.toLowerCase())
+    );
+    
+    if (!business) {
+      return {
+        content: `Je ne trouve pas d'informations sur "${businessName}". Voulez-vous voir la liste de tous nos business disponibles ?`,
+        suggestions: ["Voir tous les business", "Contacter un conseiller"]
+      };
+    }
+    
+    let content = "";
+    let suggestions = [];
+    
+    // Répondre en fonction de l'aspect demandé
+    if (aspect.toLowerCase().includes('rentabilité')) {
+      content = `Ce business offre une rentabilité exceptionnelle avec des marges brutes pouvant atteindre ${business.monthly_potential?.toLocaleString() || "plusieurs millions de"} FCFA par mois. 
+      
+  Avec un ROI estimé à ${business.roi_estimation_months || "quelques"} mois, c'est une véritable opportunité pour démarrer dans l'e-commerce de manière sûre.
+  
+  Notre accompagnement de 2 mois inclus vous aide à atteindre ce potentiel rapidement.`;
+      
+      suggestions = [`Comment démarrer ${business.name}`, `Combien coûte ${business.name}`];
+    } 
+    else if (aspect.toLowerCase().includes('temps')) {
+      content = `Pour gérer efficacement ce business, nous recommandons d'y consacrer environ ${business.time_required_weekly || "10-15"} heures par semaine. 
+      
+  Notre accompagnement de 2 mois vous permettra d'optimiser votre temps et de mettre en place des processus efficaces pour maximiser votre rentabilité même avec un temps limité.`;
+      
+      suggestions = [`Est-ce possible à temps partiel`, `Compétences pour développer ${business.name}`];
+    }
+    else if (aspect.toLowerCase().includes('compétence')) {
+      content = `Ce business a été conçu pour être accessible aux débutants. 
+      
+  Vous n'avez pas besoin de compétences techniques spécifiques pour réussir. Le savoir-faire s'acquiert par la pratique et avec du temps. Notre accompagnement de 2 mois vous guidera à chaque étape et vous inculquera toutes les compétences nécessaires pour réussir.
+  
+  Nous vous fournirons un support continu pour garantir votre succès.`;
+      
+      suggestions = [`Combien de temps pour être rentable`, `Avantages de ${business.name}`];
+    }
+    else if (aspect.toLowerCase().includes('avantage')) {
+      content = `Ce business présente de nombreux avantages :
+  
+  - Faible investissement initial par rapport au potentiel de gains
+  - Accompagnement personnalisé de 2 mois inclus
+  - Modèle déjà validé sur le marché
+  - Très faible risque d'échec
+  - Possibilité de gestion à distance
+  - Support technique continu
+  - Business unique (vendu à une seule personne)`;
+      
+      suggestions = [`Comment fonctionne l'accompagnement`, `Rentabilité de ${business.name}`];
+    }
+    else if (aspect.toLowerCase().includes('coût') || aspect.toLowerCase().includes('mensuel')) {
+      content = `Pour ce business, les coûts mensuels à prévoir sont d'environ ${
+        business.type === 'physical' 
+          ? '80 000 à 500 000 FCFA (achat de stock, marketing, frais du site)'
+          : '50 000 à 300 000 FCFA (marketing et frais du site)'
+      }.
+      
+  Ces coûts sont très rapidement amortis grâce au potentiel mensuel estimé à ${business.monthly_potential?.toLocaleString() || "plusieurs millions"} FCFA.`;
+      
+      suggestions = [`ROI de ${business.name}`, `Comment maximiser la rentabilité`];
+    }
+    else {
+      // Réponse par défaut si l'aspect n'est pas reconnu
+      content = `Ce business est une excellente opportunité avec un investissement initial de ${business.price?.toLocaleString() || "N/A"} FCFA.
+      
+  Son potentiel mensuel est estimé à ${business.monthly_potential?.toLocaleString() || "N/A"} FCFA, avec un retour sur investissement d'environ ${business.roi_estimation_months || "quelques"} mois.
+  
+  Quel aspect vous intéresse le plus ?`;
+      
+      suggestions = [`Rentabilité de ${business.name}`, `Temps nécessaire pour gérer ${business.name}`];
+    }
+    
+    // Ajouter des suggestions pour continuer la conversation
+    if (!suggestions.some(s => s.toLowerCase().includes('accompagnement'))) {
+      suggestions.push(`Comment fonctionne l'accompagnement`);
+    }
+    suggestions.push("Contacter un conseiller");
+    
+    return {
+      content: content,
+      suggestions: suggestions.slice(0, 5)  // Limiter à 5 suggestions
+    };
+  };
+  
+  // Fonction pour détecter si un message concerne un aspect spécifique d'un business
+  const detectBusinessAspectQuery = (message: string): { businessName: string; aspect: string } | null => {
+    // Détecter les patterns comme "Rentabilité de [Business]" ou "Temps nécessaire pour [Business]"
+    const aspectPatterns = [
+      { regex: /rentabilité(?:\s+de\s+|\s+du\s+|\s+pour\s+|\s+)(.+)/i, aspect: 'rentabilité' },
+      { regex: /temps(?:\s+nécessaire)?(?:\s+pour\s+|\s+du\s+|\s+de\s+)(.+)/i, aspect: 'temps' },
+      { regex: /compétences?(?:\s+requises?)?(?:\s+pour\s+|\s+du\s+|\s+de\s+)(.+)/i, aspect: 'compétence' },
+      { regex: /avantages?(?:\s+de\s+|\s+du\s+|\s+pour\s+)(.+)/i, aspect: 'avantage' },
+      { regex: /coûts?(?:\s+mensuels?)?(?:\s+pour\s+|\s+du\s+|\s+de\s+)(.+)/i, aspect: 'coût' }
+    ];
+    
+    for (const pattern of aspectPatterns) {
+      const match = message.match(pattern.regex);
+      if (match && match[1]) {
+        return {
+          businessName: match[1].trim(),
+          aspect: pattern.aspect
+        };
+      }
+    }
+    
+    return null;
+  };
+  
+  // Fonction pour détecter si un message demande plus d'infos sur un business spécifique
+  const detectBusinessInterestMessage = (message: string): string | null => {
+    // Détecter les patterns comme "En savoir plus sur [Business]"
+    const match = message.match(/en\s+savoir\s+plus\s+sur\s+(.+)/i);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+    
+    return null;
   };
 
   // Fonction pour mettre à jour le funnel de conversion
@@ -1301,9 +1467,9 @@ export default function TekkiChatbot() {
       // Réinitialiser l'état de défilement utilisateur pour permettre un défilement automatique
       setUserScrolling(false);
   
-      // Si c'est une demande de contact direct
-      if (messageContent.toLowerCase().includes('contacter le service client') || 
-          messageContent.toLowerCase().includes('contacter un conseiller') ||
+      // Cas 1: Demande de contact direct
+      if (messageContent.toLowerCase().includes('contacter un conseiller') || 
+          messageContent.toLowerCase().includes('contacter le service client') ||
           messageContent.toLowerCase().includes('parler à un conseiller')) {
         setTimeout(() => {
           const contactMessage: Message = {
@@ -1319,8 +1485,50 @@ export default function TekkiChatbot() {
         }, 1000);
         return;
       }
+      
+      // Cas 2: Demande d'en savoir plus sur un business spécifique
+      const businessInterest = detectBusinessInterestMessage(messageContent);
+      if (businessInterest) {
+        setTimeout(() => {
+          const response = generateBusinessSpecificResponse(businessInterest);
+          const businessMessage: Message = {
+            id: Date.now() + 1,
+            content: response.content,
+            type: 'assistant',
+            timestamp: new Date(),
+            suggestions: response.suggestions
+          };
+          
+          setMessages(prev => [...prev, businessMessage]);
+          setIsTyping(false);
+        }, 1000);
+        return;
+      }
+      
+      // Cas 3: Question sur un aspect spécifique d'un business
+      const aspectQuery = detectBusinessAspectQuery(messageContent);
+      if (aspectQuery) {
+        setTimeout(() => {
+          const response = handleBusinessSpecificQuery(
+            aspectQuery.businessName, 
+            aspectQuery.aspect
+          );
+          
+          const aspectMessage: Message = {
+            id: Date.now() + 1,
+            content: response.content,
+            type: 'assistant',
+            timestamp: new Date(),
+            suggestions: response.suggestions
+          };
+          
+          setMessages(prev => [...prev, aspectMessage]);
+          setIsTyping(false);
+        }, 1000);
+        return;
+      }
   
-      // Traiter la réponse de l'IA
+      // Pour les autres cas, utiliser l'API comme avant
       const aiResponse = await processAIResponse(messageContent, context);
   
       // Créer le message de l'assistant
@@ -1339,7 +1547,7 @@ export default function TekkiChatbot() {
       updateConversionFunnel(assistantMessage.content, false);
   
       // Si la réponse indique qu'un humain est nécessaire
-      if (aiResponse.needs_human && !aiResponse.suggestions.includes("Contacter le service client") && !aiResponse.suggestions.includes("Contacter un conseiller")) {
+      if (aiResponse.needs_human && !aiResponse.suggestions.includes("Contacter un conseiller") && !aiResponse.suggestions.includes("Contacter le service client")) {
         setTimeout(() => {
           const humanSuggestionMessage: Message = {
             id: Date.now() + 2,
@@ -1388,6 +1596,17 @@ export default function TekkiChatbot() {
       setTimeout(() => scrollToBottom(true), 100);
     }
   };
+
+  // Nouvelle fonction pour détecter un intérêt spécifique pour un business
+function detectSpecificBusinessInterest(message: string): string | null {
+    // Si le message commence par "En savoir plus sur" suivi d'un nom de business
+    const interestMatch = message.match(/^En savoir plus sur (.+)$/i);
+    if (interestMatch && interestMatch[1]) {
+      return interestMatch[1].trim();
+    }
+    
+    return null;
+  }
 
   // Fonction pour gérer les clics sur les suggestions
   const handleSuggestionClick = (suggestion: string) => {

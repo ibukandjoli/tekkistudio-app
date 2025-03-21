@@ -254,27 +254,35 @@ function isComplexQuery(query: string) {
 
 // Fonction pour vérifier si le message concerne une question fréquente
 async function matchCommonQuestion(query: string): Promise<any | null> {
-  try {
-    // Récupérer toutes les questions fréquentes actives
-    const { data: questions, error } = await supabase
-      .from('chatbot_common_questions')
-      .select('*')
-      .eq('is_active', true);
-
-    if (error || !questions || questions.length === 0) {
-      return null;
-    }
-
-    // Normaliser la requête de l'utilisateur pour la recherche
-    const normalizedQuery = query.toLowerCase().trim().replace(/[.,?!;:]/g, '');
-    
-    // Vérifier si la requête correspond à une question fréquente
-    // 1. D'abord rechercher une correspondance exacte
-    const exactMatch = questions.find(q => 
-      q.question.toLowerCase().trim().replace(/[.,?!;:]/g, '') === normalizedQuery
-    );
-    
-    if (exactMatch) return exactMatch;
+    try {
+      // Récupérer toutes les questions fréquentes actives
+      const { data: questions, error } = await supabase
+        .from('chatbot_common_questions')
+        .select('*')
+        .eq('is_active', true);
+  
+      if (error || !questions || questions.length === 0) {
+        return null;
+      }
+  
+      // Normaliser la requête de l'utilisateur pour la recherche
+      const normalizedQuery = query.toLowerCase().trim().replace(/[.,?!;:]/g, '');
+      
+      // Vérifier si la requête correspond à une question fréquente
+      // 1. D'abord rechercher une correspondance exacte
+      const exactMatch = questions.find(q => 
+        q.question.toLowerCase().trim().replace(/[.,?!;:]/g, '') === normalizedQuery
+      );
+      
+      if (exactMatch) {
+        // Vérifier si c'est une question liée à l'intérêt pour les business
+        if (exactMatch.question.toLowerCase().includes('intéressé par un business') || 
+            normalizedQuery.includes('intéressé par un business')) {
+          // Enrichir avec des suggestions de business
+          return await enrichWithBusinessSuggestions(exactMatch);
+        }
+        return exactMatch;
+      }
     
     // 2. Ensuite, rechercher une correspondance partielle
     // On considère une correspondance si 80% des mots de la question fréquente se trouvent dans la requête
@@ -305,6 +313,46 @@ async function matchCommonQuestion(query: string): Promise<any | null> {
     return null;
   }
 }
+
+// Nouvelle fonction pour enrichir les réponses avec des suggestions de business
+async function enrichWithBusinessSuggestions(question: any): Promise<any> {
+    try {
+      // Récupérer les business disponibles
+      const { data: businessData, error } = await supabase
+        .from('businesses')
+        .select('id, name, slug, price')
+        .eq('status', 'available')
+        .order('name')
+        .limit(6);
+      
+      if (error || !businessData || businessData.length === 0) {
+        return {
+          ...question,
+          customSuggestions: ["Je ne sais pas quel business choisir", "Contacter un conseiller"]
+        };
+      }
+      
+      // Créer des suggestions basées sur les business disponibles
+      const businessSuggestions = businessData.map(b => `En savoir plus sur ${b.name}`);
+      
+      // Ajouter quelques suggestions génériques utiles
+      const additionalSuggestions = ["Je ne sais pas quel business choisir"];
+      
+      // Combiner et limiter à 6 suggestions au total
+      const combinedSuggestions = [...businessSuggestions, ...additionalSuggestions].slice(0, 6);
+      
+      // Toujours inclure l'option de contacter un conseiller
+      combinedSuggestions.push("Contacter un conseiller");
+      
+      return {
+        ...question,
+        customSuggestions: combinedSuggestions
+      };
+    } catch (error) {
+      console.error('Erreur lors de l\'enrichissement avec des suggestions de business:', error);
+      return question; // Retourne la question originale en cas d'erreur
+    }
+  }
 
 // Fonction auxiliaire pour récupérer les données avec gestion d'erreur améliorée
 async function fetchDataSafely<T>(
@@ -612,25 +660,26 @@ export async function POST(request: Request) {
     // Vérifier si le message correspond à une question fréquente
     const matchedQuestion = await matchCommonQuestion(message);
     if (matchedQuestion) {
-      console.log("Question fréquente identifiée:", matchedQuestion.question);
-      
-      // Créer des suggestions adaptées à la catégorie de la question
-      const categorySuggestions = await createCategorySuggestions(matchedQuestion.category);
-      
-      const response = {
-        content: matchedQuestion.answer,
-        suggestions: categorySuggestions,
-        needs_human: false
-      };
-      
-      // Sauvegarder dans le cache
-      await saveToCache(message, contextKey, response);
-      
-      // Enregistrer la conversation
-      await saveConversation(message, response.content, context, response.needs_human, sessionId);
-      
-      return NextResponse.json(response);
-    }
+        console.log("Question fréquente identifiée:", matchedQuestion.question);
+        
+        // Créer des suggestions adaptées à la catégorie de la question
+        const categorySuggestions = await createCategorySuggestions(matchedQuestion.category);
+        
+        const response = {
+          content: matchedQuestion.answer,
+          // Utiliser les suggestions personnalisées si disponibles, sinon utiliser les suggestions par catégorie
+          suggestions: matchedQuestion.customSuggestions || categorySuggestions,
+          needs_human: false
+        };
+        
+        // Sauvegarder dans le cache
+        await saveToCache(message, contextKey, response);
+        
+        // Enregistrer la conversation
+        await saveConversation(message, response.content, context, response.needs_human, sessionId);
+        
+        return NextResponse.json(response);
+      }
 
     // Récupérer la configuration du chatbot
     const config = await getChatbotConfig();

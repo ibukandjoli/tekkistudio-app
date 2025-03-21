@@ -13,7 +13,7 @@ import {
 } from '@/app/components/ui/table';
 import { Button } from '@/app/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
-import { Calendar, Filter, Search, BarChart, MessageSquare, UserCheck, AlertTriangle, Download, RefreshCw, ChevronLeft, ChevronRight, Eye, X, Database } from 'lucide-react';
+import { Calendar, Filter, Search, BarChart, MessageSquare, UserCheck, AlertTriangle, Download, RefreshCw, ChevronLeft, ChevronRight, Eye, X, Database, LayoutDashboard, Trash2, ArrowDownUp } from 'lucide-react';
 import { supabase } from '@/app/lib/supabase';
 import { formatDistanceToNow, format, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -30,7 +30,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/app/components/ui/dialog";
 import {
   DropdownMenu,
@@ -46,6 +45,8 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from "@/app/components/ui/pagination";
+import { Label } from "@/app/components/ui/label";
+import { Skeleton } from "@/app/components/ui/skeleton";
 
 interface Conversation {
   id: number;
@@ -78,7 +79,7 @@ function ChatbotConversationsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('all');
-  const [timeRange, setTimeRange] = useState('7days');
+  const [timeRange, setTimeRange] = useState('all');
   const [stats, setStats] = useState<Stat[]>([]);
   const [topQuestions, setTopQuestions] = useState<TopQuestion[]>([]);
   const [pageDistribution, setPageDistribution] = useState<{page: string, count: number, percentage: number}[]>([]);
@@ -91,7 +92,11 @@ function ChatbotConversationsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalConversations, setTotalConversations] = useState(0);
-  const conversationsPerPage = 15;
+  const [conversationsPerPage, setConversationsPerPage] = useState(20);
+  
+  // Tris
+  const [sortField, setSortField] = useState<'created_at' | 'page' | 'needs_human'>('created_at');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   // Dates pour le filtre
   const now = new Date();
@@ -117,159 +122,118 @@ function ChatbotConversationsPage() {
   useEffect(() => {
     console.log("Initialisation du composant ChatbotConversations");
     testSupabaseConnection();
-    fetchConversations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Effet pour les changements de filtres
+  // Effet pour les changements de filtres et connection
   useEffect(() => {
-    console.log("Changement des paramètres:", { filter, timeRange, currentPage });
-    if (connectionStatus !== 'unknown') {
+    console.log("État de connexion ou paramètres modifiés:", { connectionStatus, filter, timeRange, currentPage, conversationsPerPage });
+    if (connectionStatus === 'connected') {
       fetchConversations();
     }
-  }, [filter, timeRange, currentPage, connectionStatus]);
+  }, [filter, timeRange, currentPage, connectionStatus, conversationsPerPage, sortField, sortDirection]);
+
+  // Vérifier l'authentification
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (!data.session) {
+        console.warn("Session d'authentification non trouvée");
+        toast.warning("Vous n'êtes pas authentifié, redirection vers la page de connexion...");
+      } else {
+        console.log("Authentifié en tant que:", data.session.user.email);
+      }
+    };
+    
+    checkAuth();
+  }, []);
 
   // Fonction pour tester la connexion à Supabase
   const testSupabaseConnection = async () => {
     try {
       console.log("Test de connexion à Supabase...");
-      const { data, error } = await supabase
-        .from('chat_conversations')
-        .select('id')
-        .limit(1);
       
-      console.log("Résultat du test:", { data, error });
+      // Vérifier l'état d'authentification
+      const { data: authData, error: authError } = await supabase.auth.getSession();
       
-      if (error) {
-        console.error("Erreur lors du test de connexion:", error);
-        toast.error("Erreur de connexion à Supabase");
+      console.log("État d'authentification:", 
+        authData?.session ? `Authentifié en tant que ${authData.session.user.email}` : "Non authentifié");
+      
+      if (!authData?.session) {
+        console.error("Utilisateur non authentifié!");
+        toast.error("Vous n'êtes pas authentifié. Reconnectez-vous.");
         setConnectionStatus('error');
-      } else {
-        console.log("Connexion réussie");
-        setConnectionStatus('connected');
-        
-        if (data && data.length > 0) {
-          console.log("Données trouvées dans chat_conversations");
-          toast.success("Connexion à Supabase établie avec succès");
-        } else {
-          console.log("Aucune donnée dans chat_conversations");
-          toast.info("Connexion réussie, mais aucune conversation trouvée");
-        }
+        return;
       }
+      
+      // Tester la connexion à l'API
+      const response = await fetch('/api/admin/conversations?limit=1');
+      if (!response.ok) {
+        console.error("Erreur API:", response.status, response.statusText);
+        toast.error(`Erreur de connexion à l'API: ${response.status} ${response.statusText}`);
+        setConnectionStatus('error');
+        return;
+      }
+      
+      const data = await response.json();
+      console.log("Connexion API réussie:", data);
+      
+      toast.success("Connexion établie avec succès");
+      setConnectionStatus('connected');
     } catch (error) {
-      console.error("Exception lors du test de connexion:", error);
-      toast.error("Exception lors de la connexion à Supabase");
+      console.error("Exception:", error);
+      toast.error("Erreur de connexion");
       setConnectionStatus('error');
     }
   };
 
-  // Fonction pour récupérer les conversations avec pagination
+  // Fonction pour récupérer les conversations avec pagination via l'API
   const fetchConversations = async () => {
     try {
       setLoading(true);
+      console.log("Récupération des conversations via API...");
       
-      console.log("Tentative de récupération des conversations...");
-      
-      // Obtenir la date de début en fonction du filtre de temps
-      const startDate = dateRanges[timeRange as keyof typeof dateRanges];
-      console.log("Date de début pour le filtre:", startDate.toISOString());
-      
-      // Compter le nombre total de conversations pour la pagination
-      let countQuery = supabase
-        .from('chat_conversations')
-        .select('id', { count: 'exact' });
-      
-      // Appliquer les filtres
-      if (filter === 'needs_human') {
-        countQuery = countQuery.eq('needs_human', true);
-      }
-      
-      countQuery = countQuery.gte('created_at', startDate.toISOString());
-      
-      if (searchQuery) {
-        countQuery = countQuery.or(`user_message.ilike.%${searchQuery}%,assistant_response.ilike.%${searchQuery}%`);
-      }
-      
-      console.log("Exécution de la requête de comptage...");
-      const { count, error: countError } = await countQuery;
-      
-      console.log("Résultat du comptage:", { count, error: countError });
-      
-      if (countError) {
-        console.error("Erreur lors du comptage:", countError);
-        throw countError;
-      }
-      
-      setTotalConversations(count || 0);
-      setTotalPages(Math.ceil((count || 0) / conversationsPerPage));
-      
-      // Récupérer les conversations avec pagination
-      let query = supabase
-        .from('chat_conversations')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      // Appliquer les filtres
-      if (filter === 'needs_human') {
-        query = query.eq('needs_human', true);
-      }
-      
-      query = query.gte('created_at', startDate.toISOString());
-      
-      if (searchQuery) {
-        query = query.or(`user_message.ilike.%${searchQuery}%,assistant_response.ilike.%${searchQuery}%`);
-      }
-      
-      // Appliquer la pagination
-      const from = (currentPage - 1) * conversationsPerPage;
-      const to = from + conversationsPerPage - 1;
-      query = query.range(from, to);
-      
-      console.log("Exécution de la requête principale...");
-      const { data, error } = await query;
-      
-      console.log("Résultat de la requête principale:", { 
-        dataLength: data?.length, 
-        error,
-        firstItem: data && data.length > 0 ? {
-          id: data[0].id,
-          user_message: data[0].user_message ? data[0].user_message.substring(0, 50) + '...' : null,
-          created_at: data[0].created_at
-        } : null 
+      // Construire les paramètres
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: conversationsPerPage.toString(),
+        filter: filter,
+        timeRange: timeRange
       });
       
-      if (error) {
-        console.error("Erreur lors de la récupération des conversations:", error);
-        throw error;
+      if (searchQuery) {
+        params.append('search', searchQuery);
       }
       
-      // Si aucune donnée n'est trouvée, vérifier si la table existe
-      if (!data || data.length === 0) {
-        console.log("Aucune conversation trouvée, vérification de la structure de la table...");
-        
-        // Vérifier la structure de la table
-        const { data: tableInfo, error: tableError } = await supabase
-          .from('chat_conversations')
-          .select('id')
-          .limit(1);
-        
-        if (tableError) {
-          console.error("Erreur lors de la vérification de la table:", tableError);
-          if (tableError.message.includes("does not exist")) {
-            toast.error("La table 'chat_conversations' n'existe pas");
-          }
-        } else {
-          console.log("La table existe mais ne contient pas de données correspondant aux filtres");
-        }
+      // Appeler l'API
+      const response = await fetch(`/api/admin/conversations?${params}`);
+      
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
       }
       
-      setConversations(data || []);
+      const result = await response.json();
       
-      // Lancer les analyses une fois les données chargées
-      if (data && data.length > 0) {
-        analyzeConversations(data);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      
+      console.log("Données reçues via API:", {
+        count: result.count, 
+        dataLength: result.data?.length || 0,
+        totalPages: result.totalPages
+      });
+      
+      // Mise à jour des états
+      setConversations(result.data || []);
+      setTotalConversations(result.count || 0);
+      setTotalPages(result.totalPages || 1);
+      
+      if (result.data && result.data.length > 0) {
+        analyzeConversations(result.data);
+        toast.success(`${result.data.length} conversations récupérées`);
       } else {
-        // Réinitialiser les statistiques si aucune donnée
+        toast.info("Aucune conversation trouvée - Essayez de modifier les filtres");
+        // Réinitialiser les statistiques à zéro
         setStats([
           {
             label: 'Total conversations',
@@ -293,77 +257,27 @@ function ChatbotConversationsPage() {
         setTopQuestions([]);
         setPageDistribution([]);
       }
-      
     } catch (error) {
-      console.error('Erreur détaillée lors du chargement des conversations:', error);
-      toast.error('Erreur lors du chargement des données. Vérifiez la console pour plus de détails.');
+      console.error('Erreur lors de la récupération:', error);
+      toast.error(`Erreur: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setLoading(false);
     }
   };
-
-  // Fonction pour analyser les conversations et calculer les statistiques
+  
+  // Fonction pour l'analyse des données de conversations
   const analyzeConversations = async (conversationsData: Conversation[]) => {
     try {
-      console.log("Début de l'analyse des conversations...");
-      console.log("Nombre de conversations à analyser:", conversationsData.length);
-      
-      // Récupérer toutes les conversations pour les statistiques (sans pagination)
-      const startDate = dateRanges[timeRange as keyof typeof dateRanges];
-      
-      let statsQuery = supabase
-        .from('chat_conversations')
-        .select('*')
-        .gte('created_at', startDate.toISOString());
-      
-      if (filter === 'needs_human') {
-        statsQuery = statsQuery.eq('needs_human', true);
-      }
-      
-      console.log("Récupération des données pour les statistiques...");
-      const { data: allConversations, error } = await statsQuery;
-      
-      if (error) {
-        console.error("Erreur lors de la récupération des données pour les statistiques:", error);
-        throw error;
-      }
-      
-      console.log("Nombre total de conversations pour les statistiques:", allConversations?.length || 0);
-      
-      if (!allConversations || allConversations.length === 0) {
-        console.log("Aucune conversation à analyser, initialisation des stats à zéro");
-        setStats([
-          {
-            label: 'Total conversations',
-            value: 0,
-            icon: <MessageSquare className="h-5 w-5" />,
-            color: '#0f4c81'
-          },
-          {
-            label: "Besoin d'assistance",
-            value: 0,
-            icon: <AlertTriangle className="h-5 w-5" />,
-            color: '#ff7f50'
-          },
-          {
-            label: 'Pages visitées',
-            value: 0,
-            icon: <BarChart className="h-5 w-5" />,
-            color: '#10b981'
-          },
-        ]);
-        setTopQuestions([]);
-        setPageDistribution([]);
-        return;
-      }
+      console.log("Analyse de", conversationsData.length, "conversations");
       
       // Calculer les statistiques générales
-      const convCount = allConversations.length;
-      const humanNeedCount = allConversations.filter(conv => conv.needs_human).length;
-      const uniquePagesCount = new Set(allConversations.map(conv => conv.page)).size;
+      const convCount = totalConversations;
+      const humanNeedCount = conversationsData.filter(conv => conv.needs_human).length;
+      const uniquePages = new Set(conversationsData.map(conv => conv.page));
+      const uniquePagesCount = uniquePages.size;
       
-      // Calculer les changements par rapport à la période précédente (simulation)
-      const changePercentage = 5; // À remplacer par un calcul réel comparant avec la période précédente
+      // Estimation du changement (simulé pour l'instant)
+      const changePercentage = 5; 
       
       // Mettre à jour les statistiques
       setStats([
@@ -391,7 +305,7 @@ function ChatbotConversationsPage() {
       
       // Calculer les questions les plus fréquentes
       const questions: Record<string, number> = {};
-      allConversations.forEach(conv => {
+      conversationsData.forEach(conv => {
         if (!conv.user_message) return;
         
         // Simplification de la question pour regroupement
@@ -405,7 +319,7 @@ function ChatbotConversationsPage() {
         }
       });
       
-      // Trier et prendre les 5 plus fréquentes
+      // Trier et prendre les plus fréquentes
       const sortedQuestions = Object.entries(questions)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 8)
@@ -415,7 +329,7 @@ function ChatbotConversationsPage() {
       
       // Calculer la distribution par page
       const pageCount: Record<string, number> = {};
-      allConversations.forEach(conv => {
+      conversationsData.forEach(conv => {
         const page = conv.page || 'Inconnue';
         pageCount[page] = (pageCount[page] || 0) + 1;
       });
@@ -424,17 +338,111 @@ function ChatbotConversationsPage() {
         .map(([page, count]) => ({
           page,
           count,
-          percentage: (count / allConversations.length) * 100
+          percentage: (count / conversationsData.length) * 100
         }))
         .sort((a, b) => b.count - a.count);
       
       setPageDistribution(pageDistribution);
       
-      console.log("Analyse des conversations terminée avec succès");
+      console.log("Analyse terminée:", {
+        totalConv: convCount,
+        humanNeedCount,
+        uniquePages: uniquePagesCount,
+        topQuestions: sortedQuestions.length,
+        pageDistribution: pageDistribution.length
+      });
       
     } catch (error) {
       console.error('Erreur lors de l\'analyse des conversations:', error);
-      toast.error("Erreur lors de l'analyse des conversations");
+      toast.error("Erreur d'analyse des données");
+    }
+  };
+
+  // Créer une conversation de test via API
+  const createTestConversation = async () => {
+    try {
+      toast.info("Création d'une conversation de test...");
+      
+      const testData = {
+        user_message: "Test de la fonctionnalité de conversations",
+        assistant_response: "Ceci est une réponse de test pour vérifier l'affichage des conversations",
+        page: "Page de test",
+        url: "/test",
+        needs_human: false,
+        created_at: new Date().toISOString()
+      };
+      
+      const response = await fetch('/api/admin/conversations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ data: testData })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erreur API');
+      }
+      
+      const result = await response.json();
+      console.log("Conversation créée:", result);
+      
+      toast.success("Conversation de test créée avec succès");
+      fetchConversations();
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error(`Erreur: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
+  // Diagnostic avancé pour débogage
+  const diagnoseDatabaseAccess = async () => {
+    try {
+      toast.info("Diagnostic en cours...");
+      
+      // 1. Test de connexion général
+      const { data: authData } = await supabase.auth.getSession();
+      console.log("État d'authentification:", authData?.session ? "Connecté" : "Non connecté");
+      
+      // 2. Vérifier si on peut accéder à une autre table publique
+      const { data: businessData, error: businessError } = await supabase
+        .from('businesses')
+        .select('id')
+        .limit(1);
+      
+      console.log("Test accès businesses:", {
+        success: !businessError,
+        data: businessData,
+        error: businessError
+      });
+      
+      // 3. Vérifier l'accès brut à chat_conversations
+      const { data: rawData, error: rawError } = await supabase
+        .from('chat_conversations')
+        .select('*')
+        .limit(5);
+      
+      console.log("Test accès brut chat_conversations:", {
+        success: !rawError,
+        count: rawData?.length || 0,
+        error: rawError
+      });
+      
+      // 4. Obtenir la liste des tables
+      const { data: tables, error: tablesError } = await supabase
+        .rpc('get_tables');
+      
+      console.log("Tables disponibles:", {
+        success: !tablesError,
+        data: tables,
+        error: tablesError
+      });
+      
+      toast.success("Diagnostic terminé - Vérifiez la console");
+    } catch (error) {
+      console.error("Erreur diagnostic:", error);
+      toast.error("Erreur pendant le diagnostic");
     }
   };
 
@@ -485,36 +493,35 @@ function ChatbotConversationsPage() {
   const exportToCSV = async () => {
     try {
       setExportLoading(true);
-      console.log("Export CSV en cours...");
+      toast.info("Préparation de l'export CSV...");
       
-      // Récupérer toutes les conversations pour l'export
-      const startDate = dateRanges[timeRange as keyof typeof dateRanges];
-      
-      let exportQuery = supabase
-        .from('chat_conversations')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (filter === 'needs_human') {
-        exportQuery = exportQuery.eq('needs_human', true);
-      }
-      
-      exportQuery = exportQuery.gte('created_at', startDate.toISOString());
+      // Construire les paramètres
+      const params = new URLSearchParams({
+        limit: '1000', // Limite plus élevée pour l'export
+        filter: filter,
+        timeRange: timeRange
+      });
       
       if (searchQuery) {
-        exportQuery = exportQuery.or(`user_message.ilike.%${searchQuery}%,assistant_response.ilike.%${searchQuery}%`);
+        params.append('search', searchQuery);
       }
       
-      console.log("Exécution de la requête d'export...");
-      const { data, error } = await exportQuery;
+      // Appeler l'API pour obtenir les données à exporter
+      const response = await fetch(`/api/admin/conversations?${params}`);
       
-      if (error) {
-        console.error("Erreur lors de l'export:", error);
-        throw error;
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
       }
       
-      if (!data || data.length === 0) {
-        console.log("Aucune donnée à exporter");
+      const result = await response.json();
+      
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      
+      const data = result.data || [];
+      
+      if (data.length === 0) {
         toast.warning('Aucune donnée à exporter');
         return;
       }
@@ -526,7 +533,7 @@ function ChatbotConversationsPage() {
       
       const csvRows = [
         headers.join(','),
-        ...data.map(conv => {
+        ...data.map((conv: Conversation) => {
           const date = new Date(conv.created_at).toLocaleDateString();
           // Échapper les virgules et les guillemets dans les champs de texte
           const escapeCsvField = (field: string | null | undefined) => {
@@ -558,7 +565,6 @@ function ChatbotConversationsPage() {
       link.click();
       document.body.removeChild(link);
       
-      console.log("Export CSV terminé avec succès");
       toast.success('Export CSV réussi');
       
     } catch (error) {
@@ -568,43 +574,16 @@ function ChatbotConversationsPage() {
       setExportLoading(false);
     }
   };
-
-  // Créer une conversation de test
-  const createTestConversation = async () => {
-    try {
-      console.log("Création d'une conversation de test...");
-      
-      const testConversation = {
-        user_message: "Test de la fonctionnalité de conversations",
-        assistant_response: "Ceci est une réponse de test pour vérifier l'affichage des conversations",
-        page: "Page de test",
-        url: "/test",
-        needs_human: false,
-        session_id: "test-session",
-        funnel_stage: "awareness",
-        created_at: new Date().toISOString()
-      };
-      
-      const { data, error } = await supabase
-        .from('chat_conversations')
-        .insert([testConversation])
-        .select();
-      
-      if (error) {
-        console.error("Erreur lors de la création de la conversation de test:", error);
-        toast.error("Erreur lors de la création de la conversation de test");
-        return;
-      }
-      
-      console.log("Conversation de test créée avec succès:", data);
-      toast.success("Conversation de test créée avec succès");
-      
-      // Rafraîchir les données
-      fetchConversations();
-      
-    } catch (error) {
-      console.error("Exception lors de la création de la conversation de test:", error);
-      toast.error("Exception lors de la création de la conversation de test");
+  
+  // Gérer le tri des données
+  const handleSort = (field: 'created_at' | 'page' | 'needs_human') => {
+    if (field === sortField) {
+      // Inverser la direction du tri
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Nouveau champ de tri
+      setSortField(field);
+      setSortDirection('desc'); // Par défaut, tri descendant
     }
   };
 
@@ -710,6 +689,20 @@ function ChatbotConversationsPage() {
     return `hsl(${hue}, 70%, 50%)`;
   };
 
+  // Rendu des squelettes de chargement
+  const renderSkeletons = () => {
+    return Array(5).fill(0).map((_, i) => (
+      <TableRow key={`skeleton-${i}`}>
+        <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+        <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+        <TableCell><Skeleton className="h-5 w-full" /></TableCell>
+        <TableCell><Skeleton className="h-5 w-full" /></TableCell>
+        <TableCell><Skeleton className="h-6 w-28" /></TableCell>
+        <TableCell><Skeleton className="h-8 w-8 rounded-full" /></TableCell>
+      </TableRow>
+    ));
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -734,15 +727,6 @@ function ChatbotConversationsPage() {
               : connectionStatus === 'connected' 
                 ? 'Connexion OK' 
                 : 'Problème de connexion'}
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            onClick={createTestConversation} 
-            className="flex items-center gap-2"
-          >
-            <MessageSquare className="h-4 w-4" />
-            Créer test
           </Button>
           
           <Button 
@@ -870,40 +854,88 @@ function ChatbotConversationsPage() {
         
         <TabsContent value="conversations">
           <Card>
-            <CardHeader className="bg-gray-50 pb-4">
-              <CardTitle>Historique des conversations</CardTitle>
-              <CardDescription>
-                Liste des interactions entre le chatbot et les visiteurs
-              </CardDescription>
+            <CardHeader className="bg-gray-50 pb-4 flex flex-row items-start justify-between">
+              <div>
+                <CardTitle>Historique des conversations</CardTitle>
+                <CardDescription>
+                  Liste des interactions entre le chatbot et les visiteurs
+                </CardDescription>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="perPage" className="text-sm">Afficher:</Label>
+                <Select 
+                  value={conversationsPerPage.toString()} 
+                  onValueChange={(value) => {
+                    setConversationsPerPage(parseInt(value));
+                    setCurrentPage(1);
+                  }}
+                >
+                  <SelectTrigger id="perPage" className="w-[80px] h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </CardHeader>
             <CardContent className="p-0">
               <Table>
                 <TableHeader className="bg-gray-50">
                   <TableRow>
-                    <TableHead className="w-[160px]">Date</TableHead>
-                    <TableHead className="w-[180px]">Page</TableHead>
+                    <TableHead 
+                      className="w-[160px] cursor-pointer" 
+                      onClick={() => handleSort('created_at')}
+                    >
+                      <div className="flex items-center">
+                        Date
+                        {sortField === 'created_at' && (
+                          <ArrowDownUp className={`ml-1 h-3 w-3 ${sortDirection === 'asc' ? 'transform rotate-180' : ''}`} />
+                        )}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="w-[180px] cursor-pointer"
+                      onClick={() => handleSort('page')}
+                    >
+                      <div className="flex items-center">
+                        Page
+                        {sortField === 'page' && (
+                          <ArrowDownUp className={`ml-1 h-3 w-3 ${sortDirection === 'asc' ? 'transform rotate-180' : ''}`} />
+                        )}
+                      </div>
+                    </TableHead>
                     <TableHead>Message utilisateur</TableHead>
                     <TableHead>Réponse</TableHead>
-                    <TableHead className="w-[150px]">Statut</TableHead>
+                    <TableHead 
+                      className="w-[150px] cursor-pointer"
+                      onClick={() => handleSort('needs_human')}
+                    >
+                      <div className="flex items-center">
+                        Statut
+                        {sortField === 'needs_human' && (
+                          <ArrowDownUp className={`ml-1 h-3 w-3 ${sortDirection === 'asc' ? 'transform rotate-180' : ''}`} />
+                        )}
+                      </div>
+                    </TableHead>
                     <TableHead className="w-[80px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-12">
-                        <div className="flex flex-col items-center justify-center space-y-3">
-                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0f4c81]"></div>
-                          <p className="text-sm text-gray-500">Chargement des conversations...</p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                    renderSkeletons()
                   ) : conversations.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-12 text-gray-500">
                         <div className="flex flex-col items-center justify-center space-y-2">
                           <MessageSquare className="h-10 w-10 text-gray-300" />
                           <p>Aucune conversation trouvée pour les critères sélectionnés</p>
+                          <div className="text-xs text-gray-400 mt-2">
+                            Essayez d'élargir vos filtres ou de sélectionner "Tout l'historique"
+                          </div>
                           {searchQuery && (
                             <Button 
                               variant="outline" 
@@ -1035,7 +1067,13 @@ function ChatbotConversationsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
-                {topQuestions.length === 0 ? (
+                {loading ? (
+                  <div className="space-y-3">
+                    {Array(5).fill(0).map((_, i) => (
+                      <Skeleton key={i} className="h-8 w-full" />
+                    ))}
+                  </div>
+                ) : topQuestions.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     Pas assez de données pour cette analyse
                   </div>
@@ -1070,8 +1108,13 @@ function ChatbotConversationsPage() {
               </CardHeader>
               <CardContent className="pt-6">
                 {loading ? (
-                  <div className="flex justify-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0f4c81]"></div>
+                  <div className="space-y-4">
+                    {Array(4).fill(0).map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <Skeleton className="h-6 w-1/2" />
+                        <Skeleton className="h-3 w-full" />
+                      </div>
+                    ))}
                   </div>
                 ) : pageDistribution.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
@@ -1121,75 +1164,88 @@ function ChatbotConversationsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
-                <div className="flex flex-col md:flex-row items-center gap-8">
-                  {/* Donut chart */}
-                  <div className="w-48 h-48 relative">
-                    <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center">
-                      <div 
-                        className="absolute inset-0 rounded-full overflow-hidden"
-                        style={{
-                          background: `conic-gradient(#ff7f50 0% ${needsHumanPercentage}%, #10b981 ${needsHumanPercentage}% 100%)`
-                        }}
-                      ></div>
-                      <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
-                        <div className="text-center">
-                          <div className="text-xl font-bold">{needsHumanPercentage.toFixed(1)}%</div>
-                          <div className="text-xs text-gray-500">humain</div>
-                        </div>
+                {loading ? (
+                  <div className="flex flex-col md:flex-row items-center gap-8">
+                    <Skeleton className="w-48 h-48 rounded-full" />
+                    <div className="flex-1 space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <Skeleton className="h-36 w-full" />
+                        <Skeleton className="h-36 w-full" />
                       </div>
+                      <Skeleton className="h-24 w-full" />
                     </div>
                   </div>
-                  
-                  {/* Legend and stats */}
-                  <div className="flex-1 space-y-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2 p-4 rounded-lg bg-green-50">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-[#10b981]"></div>
-                          <span className="font-medium">Réponses automatiques</span>
-                        </div>
-                        <div className="text-2xl font-bold">
-                          {conversations.length - needsHumanCount}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {(100 - needsHumanPercentage).toFixed(1)}% des conversations
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2 p-4 rounded-lg bg-amber-50">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-[#ff7f50]"></div>
-                          <span className="font-medium">Assistance humaine</span>
-                        </div>
-                        <div className="text-2xl font-bold">
-                          {needsHumanCount}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {needsHumanPercentage.toFixed(1)}% des conversations
+                ) : (
+                  <div className="flex flex-col md:flex-row items-center gap-8">
+                    {/* Donut chart */}
+                    <div className="w-48 h-48 relative">
+                      <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center">
+                        <div 
+                          className="absolute inset-0 rounded-full overflow-hidden"
+                          style={{
+                            background: `conic-gradient(#ff7f50 0% ${needsHumanPercentage}%, #10b981 ${needsHumanPercentage}% 100%)`
+                          }}
+                        ></div>
+                        <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="text-xl font-bold">{needsHumanPercentage.toFixed(1)}%</div>
+                            <div className="text-xs text-gray-500">humain</div>
+                          </div>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                      <h4 className="font-medium text-blue-800 mb-1">Analyse de performance</h4>
-                      <p className="text-sm text-blue-700">
-                        {needsHumanPercentage < 20 ? (
-                          <>
-                            Excellente performance ! Seulement {needsHumanPercentage.toFixed(1)}% des conversations nécessitent une assistance humaine, ce qui indique que le chatbot répond efficacement à la plupart des demandes.
-                          </>
-                        ) : needsHumanPercentage < 40 ? (
-                          <>
-                            Bonne performance. {needsHumanPercentage.toFixed(1)}% des conversations nécessitent une assistance humaine. Vous pourriez améliorer ce taux en ajoutant plus de questions fréquentes.
-                          </>
-                        ) : (
-                          <>
-                            Performance à améliorer. {needsHumanPercentage.toFixed(1)}% des conversations nécessitent une assistance humaine. Examinez les messages des utilisateurs pour identifier les thèmes récurrents et ajoutez des questions fréquentes correspondantes.
-                          </>
-                        )}
-                      </p>
+                    {/* Legend and stats */}
+                    <div className="flex-1 space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2 p-4 rounded-lg bg-green-50">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-[#10b981]"></div>
+                            <span className="font-medium">Réponses automatiques</span>
+                          </div>
+                          <div className="text-2xl font-bold">
+                            {conversations.length - needsHumanCount}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {(100 - needsHumanPercentage).toFixed(1)}% des conversations
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2 p-4 rounded-lg bg-amber-50">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-[#ff7f50]"></div>
+                            <span className="font-medium">Assistance humaine</span>
+                          </div>
+                          <div className="text-2xl font-bold">
+                            {needsHumanCount}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {needsHumanPercentage.toFixed(1)}% des conversations
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                        <h4 className="font-medium text-blue-800 mb-1">Analyse de performance</h4>
+                        <p className="text-sm text-blue-700">
+                          {needsHumanPercentage < 20 ? (
+                            <>
+                              Excellente performance ! Seulement {needsHumanPercentage.toFixed(1)}% des conversations nécessitent une assistance humaine, ce qui indique que le chatbot répond efficacement à la plupart des demandes.
+                            </>
+                          ) : needsHumanPercentage < 40 ? (
+                            <>
+                              Bonne performance. {needsHumanPercentage.toFixed(1)}% des conversations nécessitent une assistance humaine. Vous pourriez améliorer ce taux en ajoutant plus de questions fréquentes.
+                            </>
+                          ) : (
+                            <>
+                              Performance à améliorer. {needsHumanPercentage.toFixed(1)}% des conversations nécessitent une assistance humaine. Examinez les messages des utilisateurs pour identifier les thèmes récurrents et ajoutez des questions fréquentes correspondantes.
+                            </>
+                          )}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -1291,7 +1347,6 @@ function ChatbotConversationsPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      
     </div>
   );
 }

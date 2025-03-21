@@ -159,7 +159,7 @@ export default function BusinessPage() {
               className="bg-[#ff7f50] text-white px-6 py-3 rounded-lg hover:bg-[#ff6b3d] transition-colors"
               onClick={() => setIsModalOpen(true)}
             >
-              Je veux ce business
+              Je le prends
             </button>
           </div>
         </div>
@@ -222,7 +222,8 @@ export default function BusinessPage() {
         </div>
       </section>
 
-      {/* Projection de revenus */}
+    {/*
+      {/* Projection de revenus /}
       <section className="py-12 bg-white border-t">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl font-bold text-[#0f4c81] mb-6 text-center">Projection de revenus</h2>
@@ -237,6 +238,8 @@ export default function BusinessPage() {
           </div>
         </div>
       </section>
+    
+      */}
 
       {/* Notre accompagnement */}
       <section className="py-12 bg-blue-50">
