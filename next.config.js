@@ -7,11 +7,12 @@ const nextConfig = {
       allowedOrigins: ['*'],
     },
   },
-  // Ajouter cette configuration pour exclure les fichiers test de pdf-parse
-  webpack: (config) => {
-    // Ajoutez une règle pour ignorer les fichiers de test de pdf-parse
-    config.module = config.module || {};
-    config.module.exprContextCritical = false;
+  // Ajouter cette configuration webpack
+  webpack: (config, { isServer }) => {
+    // Ignorer complètement pdf-parse en le remplaçant par un module vide
+    if (isServer) {
+      config.resolve.alias['pdf-parse'] = false;
+    }
     
     return config;
   },

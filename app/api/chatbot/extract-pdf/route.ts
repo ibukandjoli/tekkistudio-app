@@ -1,8 +1,8 @@
 // app/api/chatbot/extract-pdf/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-// Utiliser notre fonction d'extraction personnalisée au lieu d'importer directement pdf-parse
-import { extractTextFromPdf } from '@/app/lib/pdf-wrapper';
+// Remplacer pdf-parse par notre implémentation
+import { extractTextFromPdf } from '@/app/lib/pdf-extractor';
 
 // Initialiser le client Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -14,8 +14,6 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
   try {
-    // Vérifier l'authentification de l'administrateur (à implémenter selon votre système d'auth)
-    
     // Obtenir le formulaire multipart
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -46,8 +44,8 @@ export async function POST(request: NextRequest) {
     // Convertir le fichier en buffer pour l'analyse
     const buffer = await file.arrayBuffer();
     
-    // Utiliser notre fonction d'extraction personnalisée au lieu de PdfParse directement
-    const pdfText = await extractTextFromPdf(Buffer.from(buffer));
+    // Utiliser notre implémentation personnalisée au lieu de pdf-parse
+    const pdfText = await extractTextFromPdf(buffer);
     
     // Nettoyer le texte extrait
     const cleanedText = pdfText
