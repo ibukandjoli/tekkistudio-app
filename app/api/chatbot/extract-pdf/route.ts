@@ -1,7 +1,8 @@
 // app/api/chatbot/extract-pdf/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import PdfParse from 'pdf-parse';
+// Utiliser notre fonction d'extraction personnalisée au lieu d'importer directement pdf-parse
+import { extractTextFromPdf } from '@/app/lib/pdf-wrapper';
 
 // Initialiser le client Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -45,11 +46,11 @@ export async function POST(request: NextRequest) {
     // Convertir le fichier en buffer pour l'analyse
     const buffer = await file.arrayBuffer();
     
-    // Analyser le PDF
-    const pdfData = await PdfParse(Buffer.from(buffer));
+    // Utiliser notre fonction d'extraction personnalisée au lieu de PdfParse directement
+    const pdfText = await extractTextFromPdf(Buffer.from(buffer));
     
     // Nettoyer le texte extrait
-    const cleanedText = pdfData.text
+    const cleanedText = pdfText
       .replace(/\s+/g, ' ')  // Remplacer les espaces multiples par un seul
       .replace(/\n{3,}/g, '\n\n')  // Limiter à 2 sauts de ligne consécutifs
       .trim();

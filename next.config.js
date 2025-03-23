@@ -2,11 +2,19 @@
 const nextConfig = {
   // Configuration expérimentale compatible avec Next.js 15
   experimental: {
-    // Vous pouvez ajouter d'autres options expérimentales valides ici si nécessaire
-    // Par exemple:
-    serverActions: true,
-    // L'option missingSuspenseWithCSRBailout n'est plus supportée dans Next.js 15
-  }
+    // serverActions doit être un objet dans Next.js 15
+    serverActions: {
+      allowedOrigins: ['*'],
+    },
+  },
+  // Ajouter cette configuration pour exclure les fichiers test de pdf-parse
+  webpack: (config) => {
+    // Ajoutez une règle pour ignorer les fichiers de test de pdf-parse
+    config.module = config.module || {};
+    config.module.exprContextCritical = false;
+    
+    return config;
+  },
 };
 
 module.exports = nextConfig;
