@@ -45,7 +45,7 @@ const AvailableBusinesses = () => {
             Business E-commerce Disponibles
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Des opportunités business clé en main, prêtes à être lancées et à générer des revenus.
+            Découvrez nos business clé en main, prêts à être lancés et à générer des revenus.
             Chaque business inclut tout ce dont vous avez besoin pour réussir.
           </p>
         </div>

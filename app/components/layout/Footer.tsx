@@ -130,7 +130,7 @@ const Footer = () => {
                 />
             </div>
             <p className="text-gray-300 mb-4">
-                Première fabrique de marques d'Afrique de l'Ouest. Nous créons et vendons des business e-commerce rentables et éprouvés.
+                Fabrique de marques et de business e-commerce. Nous vous aidons à vous lancer et réussir dans l'e-commerce sans partir de zéro.
             </p>
             <div className="flex space-x-4">
                 <a href="https://facebook.com/tekkistudio" className="hover:text-[#ff7f50]">

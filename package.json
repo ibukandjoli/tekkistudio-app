@@ -35,6 +35,8 @@
     "lucide-react": "^0.263.1",
     "next": "^15.2.3",
     "openai": "^4.89.0",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^3.9.179",
     "react": "^18.2.0",
     "react-day-picker": "^9.6.2",
     "react-dom": "^18.2.0",
@@ -46,6 +48,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.8.0",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/pdfjs-dist": "^2.10.378",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@types/uuid": "^10.0.0",

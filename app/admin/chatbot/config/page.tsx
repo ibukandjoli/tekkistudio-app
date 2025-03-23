@@ -47,6 +47,9 @@ import {
   AlertDialogTrigger,
 } from "@/app/components/ui/alert-dialog";
 
+// Import du composant PDFUploader
+import PDFUploader from './PDFUploader';
+
 interface ChatbotConfig {
   id: string;
   initial_suggestions: string[];
@@ -55,6 +58,8 @@ interface ChatbotConfig {
   prompt_boost: string;
   ai_model: string;
   behavior_profile: string;
+  knowledge_base_url?: string;
+  knowledge_base_content?: string;
   created_at: string;
   updated_at: string;
 }
@@ -106,6 +111,8 @@ function ChatbotConfigPage() {
     prompt_boost: '',
     ai_model: 'gpt-4-turbo',
     behavior_profile: 'sales_expert',
+    knowledge_base_url: '',
+    knowledge_base_content: '',
     created_at: '',
     updated_at: ''
   });
@@ -173,6 +180,8 @@ function ChatbotConfigPage() {
           prompt_boost: '',
           ai_model: 'gpt-4-turbo',
           behavior_profile: 'sales_expert',
+          knowledge_base_url: '',
+          knowledge_base_content: '',
           created_at: '',
           updated_at: ''
         });
@@ -236,6 +245,8 @@ function ChatbotConfigPage() {
             prompt_boost: configToSave.prompt_boost,
             ai_model: configToSave.ai_model,
             behavior_profile: configToSave.behavior_profile,
+            knowledge_base_url: configToSave.knowledge_base_url,
+            knowledge_base_content: configToSave.knowledge_base_content,
             updated_at: configToSave.updated_at
           })
           .eq('id', config.id);
@@ -249,7 +260,9 @@ function ChatbotConfigPage() {
             human_trigger_phrases: configToSave.human_trigger_phrases,
             prompt_boost: configToSave.prompt_boost,
             ai_model: configToSave.ai_model,
-            behavior_profile: configToSave.behavior_profile
+            behavior_profile: configToSave.behavior_profile,
+            knowledge_base_url: configToSave.knowledge_base_url,
+            knowledge_base_content: configToSave.knowledge_base_content
           }]);
       }
       
@@ -573,6 +586,15 @@ function ChatbotConfigPage() {
     }
   };
 
+  // Gérer l'extraction du contenu du PDF
+  const handleContentExtracted = (content: string) => {
+    setConfig(prev => ({
+      ...prev,
+      knowledge_base_content: content
+    }));
+    setHasChanges(true);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-96">
@@ -635,6 +657,7 @@ function ChatbotConfigPage() {
               {commonQuestions.length}
             </Badge>
           </TabsTrigger>
+          <TabsTrigger value="knowledgebase">Base de connaissances</TabsTrigger>
           <TabsTrigger value="advanced">Paramètres avancés</TabsTrigger>
         </TabsList>
         
@@ -1036,6 +1059,89 @@ function ChatbotConfigPage() {
           </Card>
         </TabsContent>
         
+        {/* Nouvel onglet pour la base de connaissances */}
+        <TabsContent value="knowledgebase">
+          <div className="space-y-6">
+            <PDFUploader 
+              onContentExtracted={handleContentExtracted}
+              currentKnowledgeBaseUrl={config.knowledge_base_url}
+              currentKnowledgeBaseContent={config.knowledge_base_content}
+            />
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Conseils d'utilisation</CardTitle>
+                <CardDescription>
+                  Comment optimiser votre base de connaissances pour le chatbot
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600">
+                    La base de connaissances permet à votre chatbot d'accéder à des informations spécifiques à votre entreprise 
+                    pour fournir des réponses plus précises aux visiteurs.
+                  </p>
+                  
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <h4 className="font-medium text-blue-700 mb-2">Comment préparer votre PDF :</h4>
+                    <ul className="text-sm text-blue-600 space-y-1 list-disc pl-4">
+                      <li>Gardez le contenu concis et bien structuré</li>
+                      <li>Utilisez des titres clairs pour les différentes sections</li>
+                      <li>Incluez des informations factuelles sur votre entreprise, vos produits et services</li>
+                      <li>Évitez les images complexes contenant du texte important</li>
+                      <li>Limitez la taille du PDF à 10 MB maximum</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-4 mt-4">
+                    <div className="p-3 bg-green-50 rounded-lg border border-green-100">
+                      <h5 className="font-medium text-green-700 mb-1">Idéal à inclure</h5>
+                      <ul className="text-xs text-green-600 list-disc pl-4 space-y-1">
+                        <li>Détails des offres</li>
+                        <li>Processus de vente</li>
+                        <li>FAQ courantes</li>
+                        <li>Termes et conditions</li>
+                      </ul>
+                    </div>
+                    <div className="p-3 bg-amber-50 rounded-lg border border-amber-100">
+                      <h5 className="font-medium text-amber-700 mb-1">À utiliser avec modération</h5>
+                      <ul className="text-xs text-amber-600 list-disc pl-4 space-y-1">
+                        <li>Exemples de cas</li>
+                        <li>Témoignages clients</li>
+                        <li>Historique de l'entreprise</li>
+                        <li>Articles de blog</li>
+                      </ul>
+                    </div>
+                    <div className="p-3 bg-red-50 rounded-lg border border-red-100">
+                      <h5 className="font-medium text-red-700 mb-1">À éviter</h5>
+                      <ul className="text-xs text-red-600 list-disc pl-4 space-y-1">
+                        <li>Informations confidentielles</li>
+                        <li>Documents très techniques</li>
+                        <li>Données périmées</li>
+                        <li>Contenu non formaté</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="border-t pt-4 flex justify-end">
+                <Button 
+                  onClick={saveConfig} 
+                  disabled={saving || !hasChanges} 
+                  className={`${!hasChanges ? 'bg-gray-400' : 'bg-[#ff7f50]'}`}
+                >
+                  {saving ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  Enregistrer les modifications
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </TabsContent>
+        
         <TabsContent value="advanced">
           <Card>
             <CardHeader>
@@ -1075,7 +1181,7 @@ function ChatbotConfigPage() {
                     placeholder="Instructions supplémentaires pour l'IA..."
                     rows={5}
                   />
-                  <div className="p-3 bg-amber-50 rounded border border-amber-100 mt-2">
+                  <div className="p-3 bg-amber-50 rounded-lg border border-amber-100 mt-2">
                     <div className="flex gap-2">
                       <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
                       <div>

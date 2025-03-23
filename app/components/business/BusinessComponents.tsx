@@ -380,7 +380,7 @@ const PriceBanner: React.FC<{
       </button>
       
       <div className="text-center text-sm text-gray-500 mb-6">
-        Paiement en plusieurs fois possible
+        Aucun paiement n'est requis sur le site
       </div>
     </div>
   );

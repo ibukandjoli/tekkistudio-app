@@ -8,7 +8,7 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import MetaPixel from './components/analytics/MetaPixel';
 import { Toaster } from 'sonner';
-import TekkiChatbot from './components/global/TekkiChatbot';
+import TekkiChatbot from '@/app/components/global/TekkiChatbot/index';
 import CurrencySelectorWrapper from './components/common/CurrencySelectorWrapper';
 
 const inter = Inter({ subsets: ['latin'] });

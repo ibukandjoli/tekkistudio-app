@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { supabase } from '../../lib/supabase';
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
+import { ChatbotConfig, CommonQuestion, ChatMessage } from '../../components/global/TekkiChatbot/types';
 
 // Initialiser OpenAI avec la clé API
 const openai = new OpenAI({
@@ -17,12 +18,6 @@ if (process.env.ANTHROPIC_API_KEY) {
   });
 }
 
-// Types pour la requête et les messages
-interface ChatMessage {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-}
-
 interface RequestBody {
   message: string;
   context: {
@@ -34,19 +29,13 @@ interface RequestBody {
   conversionState?: any;
 }
 
-interface ChatbotConfig {
-  id: string;
-  initial_suggestions: string[];
-  welcome_message: string;
-  human_trigger_phrases: string[];
-  prompt_boost: string;
-  ai_model?: string;
-  behavior_profile?: string;
-  created_at: string;
-  updated_at: string;
+interface CategorizedQuestions {
+  [category: string]: CommonQuestion[];
 }
 
-// Fonction pour créer un prompt système modulaire
+/**
+ * Fonction pour créer un prompt système modulaire
+ */
 const createSystemPrompt = (
   config: ChatbotConfig | null, 
   pageContext: string, 
@@ -67,9 +56,9 @@ Tu es Sara, Assistante Commerciale virtuelle experte. Ta mission est de reprodui
 5. Sois proactive - N'attends pas toujours que le client pose des questions, propose ton aide au bon moment.
 
 ====== TON PROFIL D'ASSISTANTE COMMERCIALE ======
-• Style: Assertif, confiant et dynamique
-• Ton: Chaleureux, accessible et professionnel
-• Approche conversationnelle: Utilise des phrases naturelles et fluides, évite les listes à puces dans tes réponses
+- Style: Assertif, confiant et dynamique
+- Ton: Chaleureux, accessible et professionnel
+- Approche conversationnelle: Utilise des phrases naturelles et fluides, évite les listes à puces dans tes réponses
 
 ====== SÉQUENCE DE CONVERSATION ======
 1. ACCUEIL: Salutation chaleureuse adaptée à l'heure locale
@@ -81,19 +70,29 @@ Tu es Sara, Assistante Commerciale virtuelle experte. Ta mission est de reprodui
 7. ACCOMPAGNEMENT: Guide le client dans le processus d'achat, étape par étape
 
 ====== FORMULATIONS EFFICACES ======
-• "Je vois que vous vous intéressez à [produit/catégorie]. Cherchez-vous quelque chose en particulier?"
-• "Que recherchez-vous exactement dans un business e-commerce?"
-• "Si je comprends bien, vous cherchez..." (reformulation)
-• "Vu votre profil, le Business X à Y FCFA serait parfaitement adapté car..."
-• "Investissez-y seulement Z heures/semaine pour un potentiel de X FCFA/mois"
-• "Nos clients dans votre situation atteignent généralement la rentabilité en X mois"
-• "Êtes-vous prêt à passer à l'étape suivante et acquérir ce business aujourd'hui?"
+- "Je vois que vous vous intéressez à [produit/catégorie]. Cherchez-vous quelque chose en particulier?"
+- "Que recherchez-vous exactement dans un business e-commerce?"
+- "Si je comprends bien, vous cherchez..." (reformulation)
+- "Vu votre profil, le Business X à Y FCFA serait parfaitement adapté car..."
+- "Investissez-y seulement Z heures/semaine pour un potentiel de X FCFA/mois"
+- "Nos clients dans votre situation atteignent généralement la rentabilité en X mois"
+- "Êtes-vous prêt à passer à l'étape suivante et acquérir ce business aujourd'hui?"
 
 ====== TRAITEMENT DES OBJECTIONS ======
-• Prix: "Ce prix inclut [avantages spécifiques]. C'est un investissement qui vous permettra de gagner X FCFA/mois."
-• Compétences: "Nos business sont conçus pour les débutants. L'accompagnement de 2 mois inclus vous aidera à maîtriser tous les aspects."
-• Temps: "Ce business nécessite seulement X heures/semaine et peut être géré depuis votre smartphone."
-• Rentabilité: "Nos clients atteignent généralement le point d'équilibre après X mois, avec un potentiel de Y FCFA/mois."
+- Prix: "Ce prix inclut [avantages spécifiques]. C'est un investissement qui vous permettra de gagner X FCFA/mois."
+- Compétences: "Nos business sont conçus pour les débutants. L'accompagnement de 2 mois inclus vous aidera à maîtriser tous les aspects."
+- Temps: "Ce business nécessite seulement X heures/semaine et peut être géré depuis votre smartphone."
+- Rentabilité: "Nos clients atteignent généralement le point d'équilibre après X mois, avec un potentiel de Y FCFA/mois."
+`;
+
+  // Ajout d'une section pour clarifier la hiérarchie des instructions
+  const priorityPrompt = `
+====== HIÉRARCHIE DES INSTRUCTIONS ======
+1. Répondre précisément à la question posée par l'utilisateur
+2. Si plusieurs interprétations sont possibles, choisir celle qui correspond le mieux au contexte de la conversation
+3. Appliquer les personnalisations spécifiques du prompt boost uniquement si elles ne contredisent pas les points 1 et 2
+4. Adapter le ton et le style selon le profil de comportement configuré
+5. Utiliser les données contextuelles (business, formations, etc.) uniquement pour enrichir la réponse, pas pour la remplacer
 `;
 
   // Partie CONFIGURATION: intégration des paramètres personnalisés
@@ -107,11 +106,11 @@ ${config.prompt_boost}
 ====== ADAPTATION AUX ÉTAPES DU FUNNEL DE VENTE ======
 ${conversionState && conversionState.readyToBuy 
   ? "⚠️ PRIORITÉ: Pousser à finaliser l'acquisition ou à contacter immédiatement un conseiller" 
-  : conversionState && conversionState.hasConsideredSpecificBusiness 
+  : conversionState && conversionState.stage === 'consideration'
     ? "⚠️ PRIORITÉ: Détailler les avantages spécifiques du business et inciter à l'acquisition" 
-    : conversionState && conversionState.hasAskedAboutPrice 
+    : conversionState && conversionState.stage === 'interest'
       ? "⚠️ PRIORITÉ: Expliquer la valeur, le ROI, et tout le travail abattu par l'équipe experte pour offrir l'opportunité, pas seulement le prix" 
-      : conversionState && conversionState.hasShownInterest 
+      : conversionState && conversionState.businessesViewed && conversionState.businessesViewed.length > 0
         ? "⚠️ PRIORITÉ: Demander si intéressé par un business spécifique, ou recommander un business spécifique adapté à son profil" 
         : "⚠️ PRIORITÉ: Captiver l'intérêt et qualifier les besoins"
 }
@@ -131,15 +130,16 @@ MARQUES DE TEKKI STUDIO:
 ${brandsContext}
 
 INFORMATIONS CLÉS À RETENIR:
-• DISTINCTION FONDAMENTALE:
+- DISTINCTION FONDAMENTALE:
   - TEKKI STUDIO VEND des BUSINESS E-COMMERCE CLÉ EN MAIN (à promouvoir activement)
   - TEKKI STUDIO a ses propres MARQUES (Viens on s'connaît, Amani, Ecoboom) qui ne sont PAS à vendre
+- LE PAIEMENT POUR L'ACQUISITION DES BUSINESS NE SE FAIT PAS SUR LE SITE. Le prospect peut manifester son intérêt en cliquant sur le bouton 'Je veux ce business' et en remplissant le formulaire, mais le paiement ne se fera qu'après signature du contrat.
 
-• FRAIS MENSUELS À MENTIONNER:
+- FRAIS MENSUELS À MENTIONNER:
   - Business physiques: entre 80,000 et 500,000 FCFA (stock, site, marketing, contenus)
   - Business digitaux: entre 50,000 et 300,000 FCFA (site, marketing, contenus)
 
-• ARGUMENTS COMMERCIAUX CLÉS:
+- ARGUMENTS COMMERCIAUX CLÉS:
   - Accompagnement de 2 mois inclus
   - Business déjà validés sur le marché
   - ROI généralement entre 2-4 mois
@@ -147,7 +147,7 @@ INFORMATIONS CLÉS À RETENIR:
   - Assistance technique incluse
   - Business unique : une seule acquisition possible
 
-• SERVICE CRÉATION SITE E-COMMERCE:
+- SERVICE CRÉATION SITE E-COMMERCE:
   - Prix: 695,000 FCFA pour site Shopify (payable en 2 fois), 495,000 FCFA pour site Wordpress/WooCommerce 
   - Délai: 7 jours ouvrés
   - Inclus: Stratégie d'acquisition de clients via Meta
@@ -156,11 +156,35 @@ INFORMATIONS CLÉS À RETENIR:
 ${pageContext}
 `;
 
+  // Inclure le contenu du PDF s'il est disponible
+  const knowledgeBasePrompt = config && config.knowledge_base_content 
+  ? `
+====== INFORMATIONS SUPPLÉMENTAIRES SUR L'ENTREPRISE ======
+Les informations ci-dessous sont extraites de notre documentation interne et contiennent des détails supplémentaires sur notre entreprise, nos produits et nos services. Utilise ces informations pour enrichir tes réponses lorsque c'est pertinent.
+
+${config.knowledge_base_content}
+  `
+  : '';
+
   // Assemblage du prompt complet
-  return `${basePrompt}\n${configPrompt}\n${adaptationPrompt}\n${contextPrompt}`;
+  return `${basePrompt}\n${priorityPrompt}\n${configPrompt}\n${adaptationPrompt}\n${contextPrompt}\n${knowledgeBasePrompt}`;
 };
 
-// Fonctions de cache pour réduire les appels à l'API 
+/**
+ * Fonction de hachage pour les requêtes
+ */
+function hashString(str: string) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash.toString();
+}
+
+/**
+ * Récupérer la réponse depuis le cache
+ */
 async function getFromCache(query: string, context: string) {
   const queryHash = hashString(query + context);
   
@@ -180,6 +204,9 @@ async function getFromCache(query: string, context: string) {
   }
 }
 
+/**
+ * Sauvegarder la réponse dans le cache
+ */
 async function saveToCache(query: string, context: string, response: any) {
   const queryHash = hashString(query + context);
   
@@ -202,108 +229,132 @@ async function saveToCache(query: string, context: string, response: any) {
   }
 }
 
-// Fonction simple de hachage pour les requêtes
-function hashString(str: string) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    hash |= 0;
+/**
+ * Normaliser le texte pour la comparaison
+ */
+function normalizeText(text: string): string {
+  return text.toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")  // Supprimer les accents
+    .replace(/[.,?!;:]/g, ' ')        // Remplacer la ponctuation par des espaces
+    .replace(/\s+/g, ' ');            // Normaliser les espaces multiples
+}
+
+/**
+ * Vérifier la pertinence des réponses
+ */
+function isResponseRelevant(question: string, response: string): boolean {
+  const questionLC = question.toLowerCase();
+  const responseLC = response.toLowerCase();
+  
+  // Questions sur les prix/coûts
+  if (questionLC.includes("prix") || 
+      questionLC.includes("coût") || 
+      questionLC.includes("tarif") || 
+      questionLC.includes("combien") || 
+      questionLC.includes("budget")) {
+      
+    // La réponse doit contenir des montants ou des références aux prix
+    if (!responseLC.includes("fcfa") && 
+        !responseLC.includes("franc") && 
+        !responseLC.match(/[0-9]+(\s|\.)/) && 
+        !responseLC.includes("gratuit") && 
+        !responseLC.includes("investissement")) {
+      return false;
+    }
   }
-  return hash.toString();
-}
-
-// Fonction pour déterminer si une question est commerciale
-function isCommercialQuery(query: string) {
-  const commercialPatterns = [
-    // Mots liés à l'achat
-    /acheter|achat|acquérir|acquisition|prix|tarif|coût|cout|payer|investir/i,
-    // Questions sur la rentabilité
-    /rentab|profit|revenu|bénéfice|benefice|retour|roi|investissement/i,
-    // Questions sur le fonctionnement
-    /comment ça (marche|fonctionne)|comment[- ]faire|fonctionnement/i,
-    // Questions sur le support
-    /support|aide|assist|accompagnement|formation/i,
-    // Questions de comparaison
-    /différence|meilleur|comparer|versus|vs|ou bien/i,
-    // Expressions d'intérêt
-    /je veux|je souhaite|je cherche|intéressé|interesse/i,
-    // Qualifications
-    /débutant|experience|temps|compétence|competence/i,
-    // Objections
-    /difficile|complexe|risque|problème|probleme|inqui[eè]t/i
-  ];
   
-  return commercialPatterns.some(pattern => pattern.test(query));
-}
-
-// Fonction pour déterminer si une question est complexe 
-function isComplexQuery(query: string) {
-  const complexPatterns = [
-    /compare|comparer|différence/i,
-    /expliqu|détaill|développ/i,
-    /retour sur investissement|roi|break even/i,
-    /personnalis/i,
-    /spécifi|précis/i,
-    /marché|concurrence/i,
-    /pourquoi|comment|quand/i,
-    /recommend|conseil|suggère/i
-  ];
-  
-  return complexPatterns.some(pattern => pattern.test(query));
-}
-
-// Fonction pour vérifier si le message concerne une question fréquente
-async function matchCommonQuestion(query: string): Promise<any | null> {
-    try {
-      // Récupérer toutes les questions fréquentes actives
-      const { data: questions, error } = await supabase
-        .from('chatbot_common_questions')
-        .select('*')
-        .eq('is_active', true);
-  
-      if (error || !questions || questions.length === 0) {
-        return null;
-      }
-  
-      // Normaliser la requête de l'utilisateur pour la recherche
-      const normalizedQuery = query.toLowerCase().trim().replace(/[.,?!;:]/g, '');
+  // Questions sur les délais/temps
+  if (questionLC.includes("quand") || 
+      questionLC.includes("combien de temps") || 
+      questionLC.includes("durée") || 
+      questionLC.includes("délai") || 
+      questionLC.includes("rapidement")) {
       
-      // Vérifier si la requête correspond à une question fréquente
-      // 1. D'abord rechercher une correspondance exacte
-      const exactMatch = questions.find(q => 
-        q.question.toLowerCase().trim().replace(/[.,?!;:]/g, '') === normalizedQuery
-      );
+    // La réponse doit contenir des références temporelles
+    if (!responseLC.includes("jour") && 
+        !responseLC.includes("semaine") && 
+        !responseLC.includes("mois") && 
+        !responseLC.includes("heure") && 
+        !responseLC.match(/[0-9]+(\s|\.)/) && 
+        !responseLC.includes("immédiat")) {
+      return false;
+    }
+  }
+  
+  // Questions sur le processus/fonctionnement
+  if (questionLC.includes("comment") || 
+      questionLC.includes("processus") || 
+      questionLC.includes("étape") || 
+      questionLC.includes("fonctionn") || 
+      questionLC.includes("marche")) {
       
-      if (exactMatch) {
-        // Vérifier si c'est une question liée à l'intérêt pour les business
-        if (exactMatch.question.toLowerCase().includes('intéressé par un business') || 
-            normalizedQuery.includes('intéressé par un business')) {
-          // Enrichir avec des suggestions de business
-          return await enrichWithBusinessSuggestions(exactMatch);
-        }
-        return exactMatch;
-      }
+    // La réponse doit contenir des explications de processus
+    if (!responseLC.includes("étape") && 
+        !responseLC.match(/[0-9][\.\)]/) && // Points numérotés
+        !responseLC.includes("d'abord") && 
+        !responseLC.includes("ensuite") && 
+        !responseLC.includes("enfin") && 
+        !responseLC.includes("consiste")) {
+      return false;
+    }
+  }
+  
+  return true;
+}
+
+/**
+ * Trouver une question fréquente correspondant à une requête
+ */
+async function matchCommonQuestion(query: string): Promise<CommonQuestion | null> {
+  try {
+    // Récupérer toutes les questions fréquentes actives
+    const { data: questions, error } = await supabase
+      .from('chatbot_common_questions')
+      .select('*')
+      .eq('is_active', true);
+
+    if (error || !questions || questions.length === 0) {
+      return null;
+    }
+
+    // Normaliser la requête pour la comparaison
+    const normalizedQuery = normalizeText(query);
     
-    // 2. Ensuite, rechercher une correspondance partielle
-    // On considère une correspondance si 80% des mots de la question fréquente se trouvent dans la requête
-    const queryWords = normalizedQuery.split(/\s+/);
-    
+    // 1. Recherche de correspondance exacte ou forte
     for (const question of questions) {
-      const questionWords = question.question.toLowerCase().trim().replace(/[.,?!;:]/g, '').split(/\s+/);
+      const normalizedQuestion = normalizeText(question.question);
       
-      // Si la question est trop courte (moins de 3 mots), on exige une correspondance exacte
-      if (questionWords.length < 3) continue;
+      // Correspondance exacte
+      if (normalizedQuestion === normalizedQuery) {
+        return addResponseVariation(question);
+      }
       
-      // Calculer combien de mots de la question fréquente apparaissent dans la requête
-      const matchingWords = questionWords.filter((word: string) => 
-        queryWords.includes(word) && word.length > 3 // On ignore les mots courts comme "le", "la", "de"
-      );
+      // Correspondance si l'un contient l'autre
+      if (normalizedQuestion.includes(normalizedQuery) || 
+          normalizedQuery.includes(normalizedQuestion)) {
+        return addResponseVariation(question);
+      }
+    }
+    
+    // 2. Recherche par mots-clés significatifs (si la requête est assez longue)
+    if (normalizedQuery.length > 10) {
+      const queryWords = normalizedQuery.split(' ')
+        .filter(word => word.length > 3)
+        .filter(word => !['comment', 'pourquoi', 'quand', 'estce', 'avez', 'vous', 'votre', 'pour', 'quels', 'quelles'].includes(word));
       
-      const matchRatio = matchingWords.length / questionWords.length;
-      
-      // Si plus de 70% des mots significatifs correspondent, on considère que c'est une correspondance
-      if (matchRatio >= 0.7) {
-        return question;
+      if (queryWords.length >= 2) {
+        for (const question of questions) {
+          const normalizedQuestion = normalizeText(question.question);
+          
+          const matchCount = queryWords.filter(word => normalizedQuestion.includes(word)).length;
+          const matchRatio = matchCount / queryWords.length;
+          
+          if (matchRatio >= 0.7) {
+            return addResponseVariation(question);
+          }
+        }
       }
     }
     
@@ -314,53 +365,111 @@ async function matchCommonQuestion(query: string): Promise<any | null> {
   }
 }
 
-// Nouvelle fonction pour enrichir les réponses avec des suggestions de business
-async function enrichWithBusinessSuggestions(question: any): Promise<any> {
-    try {
-      // Récupérer les business disponibles
-      const { data: businessData, error } = await supabase
-        .from('businesses')
-        .select('id, name, slug, price')
-        .eq('status', 'available')
-        .order('name')
-        .limit(6);
-      
-      if (error || !businessData || businessData.length === 0) {
-        return {
-          ...question,
-          customSuggestions: ["Je ne sais pas quel business choisir", "Contacter un conseiller"]
-        };
-      }
-      
-      // Créer des suggestions basées sur les business disponibles
-      const businessSuggestions = businessData.map(b => `En savoir plus sur ${b.name}`);
-      
-      // Ajouter quelques suggestions génériques utiles
-      const additionalSuggestions = ["Je ne sais pas quel business choisir"];
-      
-      // Combiner et limiter à 6 suggestions au total
-      const combinedSuggestions = [...businessSuggestions, ...additionalSuggestions].slice(0, 6);
-      
-      // Toujours inclure l'option de contacter un conseiller
-      combinedSuggestions.push("Contacter un conseiller");
-      
+/**
+ * Ajouter de la variation aux réponses
+ */
+function addResponseVariation(question: CommonQuestion): CommonQuestion {
+  // Définir des patterns réutilisables pour les variations
+  const introVariations = [
+    "",
+    "Tout à fait ! ",
+    "Bien sûr ! ",
+    "Avec plaisir. ",
+    "Je suis heureuse de répondre à cette question. ",
+    "Excellente question ! ",
+    "C'est une question pertinente. ",
+    "Je comprends votre intérêt. "
+  ];
+  
+  const outroVariations = [
+    "",
+    " N'hésitez pas si vous avez d'autres questions.",
+    " Y a-t-il autre chose que vous aimeriez savoir ?",
+    " Puis-je vous aider avec autre chose ?",
+    " Ai-je répondu à votre question ?",
+    " Est-ce que cela répond à votre question ?",
+    " Avez-vous besoin de clarifications supplémentaires ?",
+    " N'hésitez pas à me demander plus de détails si nécessaire."
+  ];
+  
+  // Ne pas modifier les réponses qui contiennent des éléments de formatage spécifiques
+  if (question.answer.includes("\n-") || 
+      question.answer.includes("[") ||
+      question.answer.includes("**") ||
+      question.answer.includes(":") ||
+      question.answer.includes("étape")) {
+    return question;
+  }
+  
+  // Générer un nombre pseudo-aléatoire basé sur la date et la question
+  const date = new Date();
+  const seed = date.getDate() + date.getHours() + question.question.length;
+  const introIndex = seed % introVariations.length;
+  const outroIndex = (seed + 3) % outroVariations.length;
+  
+  // Appliquer les variations pour les réponses suffisamment longues
+  if (question.answer.length > 40) {
+    const modifiedAnswer = introVariations[introIndex] + question.answer + outroVariations[outroIndex];
+    return {
+      ...question,
+      answer: modifiedAnswer
+    };
+  }
+  
+  return question;
+}
+
+/**
+ * Enrichir les réponses avec des suggestions de business
+ */
+async function enrichWithBusinessSuggestions(question: CommonQuestion): Promise<CommonQuestion> {
+  try {
+    // Récupérer les business disponibles
+    const { data: businessData, error } = await supabase
+      .from('businesses')
+      .select('id, name, slug, price')
+      .eq('status', 'available')
+      .order('name')
+      .limit(6);
+    
+    if (error || !businessData || businessData.length === 0) {
       return {
         ...question,
-        customSuggestions: combinedSuggestions
+        customSuggestions: ["Je ne sais pas quel business choisir", "Contacter un conseiller"]
       };
-    } catch (error) {
-      console.error('Erreur lors de l\'enrichissement avec des suggestions de business:', error);
-      return question; // Retourne la question originale en cas d'erreur
     }
+    
+    // Créer des suggestions avec UNIQUEMENT les noms des business
+    const businessSuggestions = businessData.map(b => b.name);
+    
+    // Ajouter quelques suggestions génériques utiles
+    const additionalSuggestions = ["Je ne sais pas quel business choisir"];
+    
+    // Combiner et limiter à 6 suggestions au total
+    const combinedSuggestions = [...businessSuggestions, ...additionalSuggestions].slice(0, 6);
+    
+    // Toujours inclure l'option de contacter un conseiller
+    combinedSuggestions.push("Contacter un conseiller");
+    
+    return {
+      ...question,
+      customSuggestions: combinedSuggestions
+    };
+  } catch (error) {
+    console.error('Erreur lors de l\'enrichissement avec des suggestions de business:', error);
+    return question; // Retourne la question originale en cas d'erreur
   }
+}
 
-// Fonction auxiliaire pour récupérer les données avec gestion d'erreur améliorée
+/**
+ * Récupérer les données avec gestion d'erreur améliorée
+ */
 async function fetchDataSafely<T>(
   tableName: string, 
   select: string = '*', 
   orderBy?: { column: string, ascending: boolean },
   limit?: number, 
-  filters?: any
+  filters?: Record<string, any>
 ): Promise<T[]> {
   try {
     let query = supabase.from(tableName).select(select);
@@ -393,7 +502,9 @@ async function fetchDataSafely<T>(
   }
 }
 
-// Récupérer la configuration du chatbot
+/**
+ * Récupérer la configuration du chatbot
+ */
 async function getChatbotConfig(): Promise<ChatbotConfig | null> {
   try {
     const { data, error } = await supabase
@@ -413,7 +524,9 @@ async function getChatbotConfig(): Promise<ChatbotConfig | null> {
   }
 }
 
-// Fonction pour formater les business pour le contexte
+/**
+ * Formater les business pour le contexte
+ */
 function createBusinessContext(businesses: any[]) {
   if (!businesses || businesses.length === 0) {
     return "Aucun business disponible actuellement.";
@@ -440,7 +553,9 @@ URL: https://tekkistudio.com/business/${b.slug || ''}
     .join('\n\n---\n\n');
 }
 
-// Fonction pour formater les marques pour le contexte
+/**
+ * Formater les marques pour le contexte
+ */
 function createBrandsContext(brands: any[]) {
   if (!brands || brands.length === 0) {
     return "Aucune marque disponible actuellement.";
@@ -456,7 +571,9 @@ URL: https://tekkistudio.com/marques/${b.slug || ''}
     .join('\n\n---\n\n');
 }
 
-// Fonction pour formater les formations pour le contexte
+/**
+ * Formater les formations pour le contexte
+ */
 function createFormationsContext(formations: any[]) {
   if (!formations || formations.length === 0) {
     return "Aucune formation disponible actuellement.";
@@ -473,44 +590,82 @@ URL: https://tekkistudio.com/formations/${f.slug || ''}
     .join('\n\n---\n\n');
 }
 
-// Amélioration de la fonction pour générer des suggestions contextuelles
+/**
+ * Générer des suggestions contextuelles
+ */
 function generateContextualSuggestions(message: string, response: string, context: any, config: ChatbotConfig | null): string[] {
-  // Détecter l'étape du funnel de vente
-  const isAwarenessStage = message.toLowerCase().includes("quoi") || message.toLowerCase().includes("c'est quoi") || message.length < 20;
-  const isInterestStage = message.toLowerCase().includes("comment") || message.toLowerCase().includes("plus d'infos");
-  const isConsiderationStage = message.toLowerCase().includes("prix") || message.toLowerCase().includes("combien") || message.toLowerCase().includes("frais");
-  const isDecisionStage = message.toLowerCase().includes("acheter") || message.toLowerCase().includes("acquérir") || message.toLowerCase().includes("intéressé");
+  // Détecter la présence d'un business spécifique dans la réponse
+  const businessMentioned = response.match(/business "([^"]+)"/i) || 
+                           response.match(/business ([A-Z][a-zA-ZÀ-ÿ0-9&\s-]+)/);
+  
+  if (businessMentioned && businessMentioned[1]) {
+    const businessName = businessMentioned[1].trim();
+    return [
+      `Prix et rentabilité de ${businessName}`,
+      `Temps et compétences nécessaires`,
+      `Comment fonctionne l'accompagnement ?`,
+      `Processus d'acquisition`
+    ];
+  }
+  
+  // Détection de l'étape du funnel de vente basée sur le message et la réponse
+  const messageLC = message.toLowerCase();
+  const responseLC = response.toLowerCase();
+  
+  const isAwarenessStage = message.length < 20 || 
+                          messageLC.includes("quoi") || 
+                          messageLC.includes("c'est quoi");
+  
+  const isInterestStage = messageLC.includes("comment") || 
+                         messageLC.includes("plus d'infos") ||
+                         responseLC.includes("intéressé par");
+  
+  const isConsiderationStage = messageLC.includes("prix") || 
+                              messageLC.includes("combien") || 
+                              messageLC.includes("rentabilité") ||
+                              responseLC.includes("fcfa") ||
+                              responseLC.includes("euros");
+  
+  const isDecisionStage = messageLC.includes("acheter") || 
+                         messageLC.includes("acquérir") || 
+                         messageLC.includes("paiement") ||
+                         responseLC.includes("processus d'acquisition") ||
+                         responseLC.includes("prêt à commencer");
   
   // Suggestions basées sur l'étape du funnel
   if (isDecisionStage) {
     return [
-      "Comment procéder pour l'acquisition?",
-      "Quels sont les délais de mise en place?",
-      "Contacter un conseiller"
+      "Comment procéder pour l'acquisition ?",
+      "Quels sont les délais de mise en place ?",
+      "Comment payer en plusieurs fois ?",
+      "Contacter un conseiller pour finaliser"
     ];
   }
   
   if (isConsiderationStage) {
     return [
-      "Quel business me recommandez-vous?",
-      "Comment se passe l'accompagnement?",
-      "Je souhaite acquérir ce business"
+      "Quel business me recommandez-vous pour débuter ?",
+      "Comment se passe l'accompagnement de 2 mois ?",
+      "Je souhaite acquérir ce business",
+      "Quels sont les frais mensuels à prévoir ?"
     ];
   }
   
   if (isInterestStage) {
     return [
-      "Quels sont les business les plus rentables?",
-      "Quel est le budget nécessaire?",
-      "Combien de temps faut-il y consacrer?"
+      "Quels sont les business les plus rentables ?",
+      "Quel budget faut-il prévoir ?",
+      "Combien de temps faut-il y consacrer ?",
+      "Est-ce adapté aux débutants ?"
     ];
   }
   
   if (isAwarenessStage) {
     return [
-      "Quels sont les avantages d'un business clé en main?",
-      "Montrez-moi des exemples de business",
-      "Comment fonctionnent vos business?"
+      "Montrez-moi vos business disponibles",
+      "Comment fonctionnent vos business clé en main ?",
+      "Quelle est la différence avec vos formations ?",
+      "Parlez-moi de votre expertise"
     ];
   }
   
@@ -518,25 +673,51 @@ function generateContextualSuggestions(message: string, response: string, contex
   if (context.url && context.url.startsWith('/business/') && !context.url.endsWith('/business')) {
     return [
       "Je souhaite acquérir ce business",
-      "Quels sont les frais mensuels?",
+      "Quels sont les frais mensuels à prévoir ?",
+      "Comment fonctionne l'accompagnement ?",
       "Contacter un conseiller"
     ];
   }
   
-  // Utiliser les suggestions initiales de la configuration si disponibles
+  // Contexte des formations
+  if (messageLC.includes("formation") || responseLC.includes("formation")) {
+    return [
+      "Quelles formations proposez-vous ?",
+      "Quel est le prix de vos formations ?",
+      "Comment se déroulent les formations ?",
+      "Y a-t-il un certificat à la fin ?"
+    ];
+  }
+  
+  // Contexte des services
+  if (messageLC.includes("site") || 
+      messageLC.includes("e-commerce") || 
+      responseLC.includes("création de site")) {
+    return [
+      "Quel est le prix de création d'un site ?",
+      "Quels sont les délais de livraison ?",
+      "Que comprend exactement ce service ?",
+      "Comment se passe la maintenance du site ?"
+    ];
+  }
+  
+  // Si aucun contexte spécifique n'est détecté, utiliser les suggestions de la config
   if (config && config.initial_suggestions && config.initial_suggestions.length > 0) {
     return config.initial_suggestions;
   }
   
-  // Suggestions par défaut
+  // Suggestions par défaut (toujours pertinentes et actionnables)
   return [
-    "Quel business me recommandez-vous?",
-    "Je veux en savoir plus sur vos formations",
+    "Quels business me recommandez-vous ?",
+    "Comment se déroulent vos formations ?",
+    "Parlez-moi de votre service de création de site",
     "Contacter un conseiller"
   ];
 }
 
-// Fonction qui détermine quel modèle d'IA utiliser
+/**
+ * Déterminer quel modèle d'IA utiliser
+ */
 async function getAICompletion(
   config: ChatbotConfig | null,
   messages: any[],
@@ -597,11 +778,13 @@ async function getAICompletion(
   });
 }
 
-// Fonction pour enregistrer une conversation dans Supabase
+/**
+ * Enregistrer une conversation dans Supabase
+ */
 async function saveConversation(
   userMessage: string, 
   assistantResponse: string, 
-  context: {page: string, url: string}, 
+  context: { page: string, url: string }, 
   needsHuman: boolean,
   sessionId?: string
 ): Promise<void> {
@@ -660,29 +843,69 @@ export async function POST(request: Request) {
     // Vérifier si le message correspond à une question fréquente
     const matchedQuestion = await matchCommonQuestion(message);
     if (matchedQuestion) {
-        console.log("Question fréquente identifiée:", matchedQuestion.question);
+      console.log("Question fréquente identifiée:", matchedQuestion.question);
+      
+      // Créer des suggestions adaptées à la catégorie de la question
+      const { data: relatedQuestions } = await supabase
+        .from('chatbot_common_questions')
+        .select('question')
+        .eq('category', matchedQuestion.category)
+        .eq('is_active', true)
+        .limit(3);
         
-        // Créer des suggestions adaptées à la catégorie de la question
-        const categorySuggestions = await createCategorySuggestions(matchedQuestion.category);
-        
-        const response = {
-          content: matchedQuestion.answer,
-          // Utiliser les suggestions personnalisées si disponibles, sinon utiliser les suggestions par catégorie
-          suggestions: matchedQuestion.customSuggestions || categorySuggestions,
-          needs_human: false
+      const categorySuggestions = relatedQuestions?.map(q => q.question) || [];
+      
+      // Enrichir avec des suggestions de business si la question concerne les business
+      let enhancedQuestion = matchedQuestion;
+      if (matchedQuestion.category === 'business' || 
+          matchedQuestion.question.toLowerCase().includes('business')) {
+        enhancedQuestion = await enrichWithBusinessSuggestions(matchedQuestion);
+      } else if (!matchedQuestion.customSuggestions) {
+        // Ajouter des suggestions par défaut pour les autres catégories
+        enhancedQuestion = {
+          ...matchedQuestion,
+          customSuggestions: [...categorySuggestions, "Contacter un conseiller"]
         };
-        
-        // Sauvegarder dans le cache
-        await saveToCache(message, contextKey, response);
-        
-        // Enregistrer la conversation
-        await saveConversation(message, response.content, context, response.needs_human, sessionId);
-        
-        return NextResponse.json(response);
       }
+      
+      const response = {
+        content: enhancedQuestion.answer,
+        suggestions: enhancedQuestion.customSuggestions || categorySuggestions,
+        needs_human: false
+      };
+      
+      // Sauvegarder dans le cache
+      await saveToCache(message, contextKey, response);
+      
+      // Enregistrer la conversation
+      await saveConversation(message, response.content, context, response.needs_human, sessionId);
+      
+      return NextResponse.json(response);
+    }
 
     // Récupérer la configuration du chatbot
     const config = await getChatbotConfig();
+
+    // AMÉLIORATION: Détection des questions spécifiques sur le temps/délai
+    if (message.toLowerCase().includes('combien de temps') || 
+        message.toLowerCase().includes('délai') || 
+        message.toLowerCase().includes('démarrer')) {
+      
+      // Réponse spécifique pour les questions de temps
+      const timeResponse = {
+        content: `Le délai pour démarrer ce business est généralement de 7 à 15 jours après l'acquisition, le temps que nous apportions les modifications souhaitées et que votre premier stock de produits soit disponible. Vous recevrez l'accès à toutes les ressources nécessaires dans les 48h suivant votre acquisition, et notre accompagnement vous guidera dans la mise en place pendant les 2 premiers mois. Les premiers résultats apparaissent généralement après 2-3 semaines d'activité.`,
+        suggestions: ["Comment se passe l'accompagnement?", "Quelles sont les étapes d'acquisition?", "Contacter un conseiller"],
+        needs_human: false
+      };
+      
+      // Sauvegarder dans le cache
+      await saveToCache(message, contextKey, timeResponse);
+      
+      // Enregistrer la conversation
+      await saveConversation(message, timeResponse.content, context, timeResponse.needs_human, sessionId);
+      
+      return NextResponse.json(timeResponse);
+    }
 
     // Récupérer les données pertinentes en fonction du contexte
     let businessesData: any[] = [];
@@ -720,36 +943,10 @@ export async function POST(request: Request) {
       // Continuer même si la récupération des données échoue
     }
 
-    // Utiliser nos fonctions pour formater les contextes
+    // Formater les contextes
     const businessesContextString = createBusinessContext(businessesData);
     const brandsContextString = createBrandsContext(brandsData);
     const formationsContextString = createFormationsContext(formationsData);
-
-    // Service de création de site e-commerce
-    const ecommerceServiceContext = {
-      title: "Site E-commerce Professionnel",
-      subtitle: "Site E-commerce Professionnel + Stratégie Meta",
-      price: 695000,
-      deliveryTime: "7 jours ouvrés",
-      features: [
-        "Site e-commerce adapté à tous les écrans",
-        "Design moderne, intuitif et professionnel",
-        "Intégration de formulaire de commande",
-        "Gestion de stock et de commandes",
-        "Tableau de bord simplifié pour tout gérer",
-        "Référencement naturel sur Google",
-        "Formation à l'utilisation du site"
-      ],
-      marketingStrategy: [
-        "Analyse de votre audience cible",
-        "Création de 2 publicités Facebook/Instagram",
-        "Configuration du Pixel Meta sur votre site",
-        "Stratégie de ciblage détaillée",
-        "Recommandations de budget publicitaire",
-        "Suivi des performances pendant 15 jours"
-      ],
-      url: "https://tekkistudio.com/services/sites-ecommerce"
-    };
 
     // Définir le contexte actuel basé sur l'URL
     let pageSpecificContext = '';
@@ -779,7 +976,9 @@ TRÈS IMPORTANT: Ces marques appartiennent à TEKKI Studio et ne sont PAS à ven
       pageSpecificContext = `
 L'utilisateur est sur la page des services.
 Voici le service de création de site e-commerce:
-${JSON.stringify(ecommerceServiceContext, null, 2)}
+Prix: 695,000 FCFA pour site Shopify (payable en 2 fois), 495,000 FCFA pour site Wordpress/WooCommerce
+Délai: 7 jours ouvrés
+Inclus: Stratégie d'acquisition de clients via Meta
       `;
     } else {
       // Sur la page d'accueil ou autre page, incluons quand même les informations sur les business
@@ -852,7 +1051,7 @@ L'utilisateur est sur ${context.page || "la page d'accueil"}.
                 items: {
                   type: "string"
                 },
-                description: "List of 2-3 follow-up question suggestions"
+                description: "List of 2-4 follow-up question suggestions"
               },
               needs_human: {
                 type: "boolean",
@@ -867,7 +1066,7 @@ L'utilisateur est sur ${context.page || "la page d'accueil"}.
     };
     
     try {
-      // Appel à l'API IA avec notre nouvelle fonction
+      // Appel à l'API IA
       const completion = await getAICompletion(config, conversationHistory, functionsConfig);
 
       // Extraire et formater la réponse
@@ -888,6 +1087,14 @@ L'utilisateur est sur ${context.page || "la page d'accueil"}.
         if (functionCall && functionCall.arguments) {
           try {
             aiResponse = JSON.parse(functionCall.arguments as string);
+            
+            // Vérifier si la réponse est pertinente par rapport à la question
+            if (!isResponseRelevant(message, aiResponse.content)) {
+              console.log("Réponse non pertinente détectée, génération d'une réponse spécifique");
+              
+              // TODO: Implémenter une logique pour améliorer la pertinence des réponses
+              // Si nécessaire, nous pourrions traiter différents types de questions ici
+            }
           } catch (jsonError) {
             console.error('Erreur lors du parsing de la réponse formatée:', jsonError);
             aiResponse.content = "Je n'ai pas pu traiter correctement votre demande. Pourriez-vous reformuler votre question?";
@@ -917,12 +1124,13 @@ L'utilisateur est sur ${context.page || "la page d'accueil"}.
       // Pour la question concernant un site e-commerce, s'assurer que la réponse parle du service
       if ((message.toLowerCase().includes("site e-commerce") || 
           message.toLowerCase().includes("site web") || 
-          message.toLowerCase().includes("créer un site") || 
+          message.toLowerCase().includes("créer un site") ||
+          message.toLowerCase().includes("boutique en ligne") || 
           message.toLowerCase().includes("conception de site")) && 
           !context.url.startsWith('/business/')) {
         const serviceURL = "https://tekkistudio.com/services/sites-ecommerce";
         if (!aiResponse.content.includes(serviceURL)) {
-          // La réponse ne contient pas le bon lien, on ajoute une suggestion spécifique
+          // Ajouter une suggestion spécifique
           aiResponse.suggestions = [
             "Quels sont les délais de livraison?",
             "Que comprend exactement ce service?",
@@ -931,7 +1139,7 @@ L'utilisateur est sur ${context.page || "la page d'accueil"}.
           
           // Assurons-nous que la réponse parle bien du service et non des business
           if (!aiResponse.content.includes("695 000 FCFA")) {
-            aiResponse.content = `Notre service de création de site e-commerce professionnel est disponible à 695 000 FCFA. Il comprend un site entièrement fonctionnel et optimisé pour la conversion, une stratégie Meta et une formation vidéo pour la prise en main. Vous pouvez découvrir tous les détails en cliquant ici : [Créez votre site e-commerce professionnel](${serviceURL}). Le délai de livraison de votre site est de 7 jours ouvrés.`;
+            aiResponse.content = `Notre service de création de site e-commerce professionnel est disponible à 695 000 FCFA. Il comprend un site entièrement fonctionnel et optimisé pour la conversion, une stratégie Meta et une formation vidéo pour la prise en main. Vous pouvez découvrir tous les détails en cliquant ici : [Découvrir le service](${serviceURL}). Le délai de livraison de votre site est de 7 jours ouvrés.`;
           }
         }
       }
@@ -967,40 +1175,5 @@ L'utilisateur est sur ${context.page || "la page d'accueil"}.
       },
       { status: 200 } // Toujours renvoyer 200
     );
-  }
-}
-
-// Fonction auxiliaire pour créer des suggestions basées sur la catégorie
-async function createCategorySuggestions(category: string): Promise<string[]> {
-  try {
-    // Récupérer d'autres questions de la même catégorie
-    const { data: relatedQuestions, error } = await supabase
-      .from('chatbot_common_questions')
-      .select('question')
-      .eq('category', category)
-      .eq('is_active', true)
-      .limit(3);
-    
-    if (error || !relatedQuestions || relatedQuestions.length === 0) {
-      // Utiliser des suggestions par défaut si aucune question liée n'est trouvée
-      return [
-        "Quel business me recommandez-vous?",
-        "Je veux en savoir plus sur vos formations",
-        "Contacter un conseiller"
-      ];
-    }
-    
-    // Extraire les questions comme suggestions
-    let suggestions = relatedQuestions.map(q => q.question);
-    
-    // Toujours ajouter l'option de contacter le service client
-    if (!suggestions.includes("Contacter un conseiller")) {
-      suggestions.push("Contacter un conseiller");
-    }
-    
-    return suggestions;
-  } catch (error) {
-    console.error('Erreur lors de la création des suggestions par catégorie:', error);
-    return ["Contacter un conseiller"];
   }
 }
