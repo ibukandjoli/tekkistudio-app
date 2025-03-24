@@ -49,14 +49,56 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ content, type }) => {
     return <>{segments}</>;
   };
 
+  // Fonction pour traiter le formatage du texte (gras, italique)
+  const parseTextFormatting = (text: string): React.ReactNode => {
+    // Si pas de formatage, retourner tel quel
+    if (!text.includes('**') && !text.includes('*')) {
+      return text;
+    }
+
+    // Traiter le gras (entouré de **)
+    const boldSegments = text.split(/(\*\*[^*]+\*\*)/g);
+    
+    return (
+      <>
+        {boldSegments.map((segment, index) => {
+          // Si c'est un segment en gras
+          if (segment.startsWith('**') && segment.endsWith('**')) {
+            const boldText = segment.slice(2, -2);
+            return <strong key={index}>{boldText}</strong>;
+          }
+          
+          // Traiter l'italique (entouré de * simple) dans les segments non-gras
+          if (segment.includes('*')) {
+            const italicSegments = segment.split(/(\*[^*]+\*)/g);
+            return (
+              <React.Fragment key={index}>
+                {italicSegments.map((italicSegment, italicIndex) => {
+                  if (italicSegment.startsWith('*') && italicSegment.endsWith('*')) {
+                    const italicText = italicSegment.slice(1, -1);
+                    return <em key={italicIndex}>{italicText}</em>;
+                  }
+                  return italicSegment;
+                })}
+              </React.Fragment>
+            );
+          }
+          
+          // Segment normal
+          return segment;
+        })}
+      </>
+    );
+  };
+
   // Fonction améliorée pour rendre les liens cliquables
   const parseMessageWithLinks = (text: string) => {
     // Regex pour identifier les liens Markdown de la forme [texte](url)
     const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
     
-    // Si aucun lien potentiel détecté, retourner le texte intact
+    // Si aucun lien potentiel détecté, appliquer juste le formatage
     if (!text.includes('http') && !text.includes('[')) {
-      return text;
+      return parseTextFormatting(text);
     }
 
     // Traiter les liens Markdown
@@ -72,9 +114,9 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ content, type }) => {
       while ((match = markdownLinkRegex.exec(text)) !== null) {
         // Ajouter le texte avant le lien
         if (match.index > lastIndex) {
-          // Traiter ce segment pour les URLs ordinaires
+          // Traiter ce segment pour les URLs ordinaires et le formatage
           const beforeText = text.substring(lastIndex, match.index);
-          segments.push(parseUrlsInText(beforeText));
+          segments.push(parseTextFormatting(beforeText));
         }
         
         // Ajouter le lien Markdown en tant qu'élément cliquable
@@ -95,18 +137,28 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ content, type }) => {
       
       // Ajouter le reste du texte après le dernier lien
       if (lastIndex < text.length) {
-        segments.push(parseUrlsInText(text.substring(lastIndex)));
+        segments.push(parseTextFormatting(text.substring(lastIndex)));
       }
       
       return <>{segments}</>;
     }
     
-    // Si pas de liens Markdown, traiter les URLs ordinaires
-    return parseUrlsInText(text);
+    // Si pas de liens Markdown, traiter les URLs ordinaires et le formatage
+    const urlSegments = typeof parseUrlsInText(text) === 'string' 
+      ? parseTextFormatting(text)
+      : parseUrlsInText(text);
+    
+    return urlSegments;
   };
 
   // Fonction pour formater le texte avec des paragraphes et de la mise en forme basique
   const formatMessageText = (text: string) => {
+    // Prétraiter les balises HTML qui pourraient être dans le texte
+    // Convertir <strong>texte</strong> en **texte**
+    text = text.replace(/<strong>(.*?)<\/strong>/g, '**$1**');
+    // Convertir <em>texte</em> en *texte*
+    text = text.replace(/<em>(.*?)<\/em>/g, '*$1*');
+    
     // Diviser le texte en paragraphes (séparés par des lignes vides ou simples)
     const paragraphs = text.split(/\n{1,}/g);
     
@@ -115,7 +167,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ content, type }) => {
       <>
         {paragraphs.map((paragraph, index) => {
           // Détecter si le paragraphe est une liste à puces
-          if (paragraph.trim().startsWith('-') || paragraph.trim().startsWith('*')) {
+          if (paragraph.trim().startsWith('-') || paragraph.trim().startsWith('*') && !paragraph.trim().startsWith('**')) {
             const listItems = paragraph.split(/\n/).filter(item => item.trim());
             return (
               <ul key={index} className={index > 0 ? "mt-3 list-disc pl-5" : "list-disc pl-5"}>
@@ -159,34 +211,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ content, type }) => {
               );
             }
             
-            // Traiter le texte en gras et en italique
-            const withEmphasis = paragraph.replace(
-              /\*\*(.*?)\*\*/g, 
-              '<strong>$1</strong>'
-            ).replace(
-              /\*(.*?)\*/g, 
-              '<em>$1</em>'
-            );
-            
-            // Si des balises HTML ont été injectées, utiliser dangerouslySetInnerHTML
-            if (withEmphasis !== paragraph) {
-              return (
-                <p 
-                  key={index} 
-                  className={index > 0 ? "mt-3" : ""}
-                  dangerouslySetInnerHTML={{ 
-                    __html: withEmphasis
-                      .replace(/&/g, '&amp;')
-                      .replace(/</g, '&lt;')
-                      .replace(/>/g, '&gt;')
-                      .replace(/<strong>(.*?)<\/strong>/g, '<strong>$1</strong>')
-                      .replace(/<em>(.*?)<\/em>/g, '<em>$1</em>')
-                  }}
-                />
-              );
-            }
-            
-            // Sinon, paragraphe normal avec liens
+            // Paragraphe normal avec formatage
             return (
               <p key={index} className={index > 0 ? "mt-3" : ""}>
                 {parseMessageWithLinks(paragraph)}

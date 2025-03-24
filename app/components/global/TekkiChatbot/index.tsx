@@ -814,29 +814,41 @@ export default function TekkiChatbot() {
       let formationsData;
       
       try {
+        console.log("Tentative de récupération des formations...");
+        
+        // MODIFICATION : Retirer le filtre is_active qui n'existe pas
         const { data, error } = await supabase
           .from('formations')
-          .select('*')
-          .eq('is_active', true);
+          .select('*');
         
-        if (error) throw error;
+        if (error) {
+          console.error("Erreur Supabase:", error);
+          throw error;
+        }
+        
+        console.log("Formations récupérées:", data?.length || 0);
         formationsData = data;
       } catch (err) {
         console.error("Erreur lors de la récupération des formations:", err);
         // Données de secours en cas d'erreur
         formationsData = [
-          { title: "Les Fondamentaux de l'E-commerce", price: 80000, level: "Débutant", duration: "1 semaines" },
-          { title: "Marketing Digital pour E-commerce", price: 180000, level: "Intermédiaire", duration: "3 semaines" },
-          { title: "Gestion du service client en e-commerce", price: 120000, level: "Tous niveaux", duration: "1 semaines" },
-          { title: "Gestion de site e-commerce", price: 120000, level: "Avancé", duration: "2 semaines" }
+          { title: "Les Fondamentaux de l'E-commerce", price_amount: 80000, level: "Débutant", duration: "1 semaines" },
+          { title: "Marketing Digital pour E-commerce", price_amount: 180000, level: "Intermédiaire", duration: "3 semaines" },
+          { title: "Gestion du service client en e-commerce", price_amount: 120000, level: "Tous niveaux", duration: "1 semaines" },
+          { title: "Gestion de site e-commerce", price_amount: 120000, level: "Avancé", duration: "2 semaines" }
         ];
       }
       
       // Formater la réponse avec les prix
+      // MODIFICATION : Utiliser ** pour le gras au lieu de <strong>
       let content = "Voici nos formations avec leurs tarifs :\n\n";
       
       formationsData.forEach((formation: any) => {
-        const formattedPrice = formatPrice(formation.price);
+        // MODIFICATION : Utiliser price_amount au lieu de price
+        const priceValue = formation.price_amount || parseInt(formation.price) || 0;
+        const formattedPrice = formatPrice(priceValue);
+        
+        // MODIFICATION : Utiliser ** pour le gras (notation Markdown)
         content += `• **${formation.title}** - ${formattedPrice}\n`;
         content += `   Niveau: ${formation.level || 'Tous niveaux'}, Durée: ${formation.duration || 'N/A'}\n\n`;
       });
@@ -894,11 +906,10 @@ Cette offre comprend :
 • Un site e-commerce entièrement fonctionnel et optimisé pour la conversion
 • Une stratégie d'acquisition de clients via Meta (Facebook & Instagram)
 • Une formation vidéo sur la prise en main du site
-• 2 mois d'accompagnement post-lancement
         
 Le délai de livraison du site est de 7 jours ouvrés.
         
-Voulez-vous en savoir plus sur cette offre ou avez-vous des questions particulières ?`;
+Pour en savoir plus sur cette offre, cliquez ici : [découvrir l'offre](https://tekkistudio.com/services/sites-ecommerce)`;
         
         const ecommerceMessage: Message = {
           id: Date.now() + 1,
@@ -907,8 +918,8 @@ Voulez-vous en savoir plus sur cette offre ou avez-vous des questions particuli�
           timestamp: new Date(),
           context: getCurrentPageContext(),
           suggestions: [
-            "Quel est le prix du service ?", 
-            "Comment se déroule le processus ?", 
+            "Je suis intéressé par un business", 
+            "Je veux me former en e-commerce", 
             "Contacter un conseiller"
           ]
         };
