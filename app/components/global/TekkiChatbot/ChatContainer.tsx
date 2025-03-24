@@ -119,17 +119,17 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       {isMobileDevice ? (
         // Version Mobile (plein écran)
         <motion.div
-          ref={chatContainerRef}
-          initial={{ opacity: 0, y: '100%' }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: '100%' }}
-          className="fixed inset-0 z-[9999] flex flex-col bg-[#F2F2F2] dark:bg-gray-800 tekki-chatbot-mobile"
-          style={{
+        ref={chatContainerRef}
+        initial={{ opacity: 0, y: '100%' }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: '100%' }}
+        className="fixed inset-0 z-[9998] flex flex-col bg-[#F2F2F2] dark:bg-gray-800 tekki-chatbot-mobile"
+        style={{
             width: '100vw',
             maxWidth: '100%',
             overflow: 'hidden',
             paddingBottom: 'env(safe-area-inset-bottom, 80px)',
-          }}
+        }}
         >
           {/* Header - reste fixe */}
           <div className="p-4 bg-[#0f4c81] text-white sticky top-0 z-10">

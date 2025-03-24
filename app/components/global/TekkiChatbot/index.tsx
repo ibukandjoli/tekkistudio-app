@@ -74,6 +74,33 @@ function isString(value: unknown): value is string {
 }
 
 /**
+ * Filtre les suggestions pour éviter les répétitions et incohérences
+ */
+const getFilteredSuggestions = (suggestions: string[], context: string, lastUserMessage?: string): string[] => {
+    // Notez le "?" qui indique que lastUserMessage est optionnel (string | undefined)
+    if (!suggestions || !Array.isArray(suggestions)) return [];
+    
+    // Filtrer les suggestions en fonction du contexte
+    let filtered = [...suggestions];
+    
+    // Utilisation de l'opérateur de chaînage optionnel "?." pour une vérification plus propre
+    if (lastUserMessage?.includes("site e-commerce") || context === 'Services') {
+      filtered = filtered.filter(s => !s.includes("site e-commerce") && s !== "Quel est le délai de livraison?");
+    }
+    
+    if (lastUserMessage?.includes("me former") || lastUserMessage?.includes("formation")) {
+      filtered = filtered.filter(s => !s.includes("me former") && !s.includes("formation e-commerce"));
+    }
+    
+    // Éviter de proposer une suggestion qui est exactement le dernier message
+    if (lastUserMessage) {
+      filtered = filtered.filter(s => s !== lastUserMessage);
+    }
+    
+    return filtered;
+  };
+
+/**
  * Composant principal du chatbot TEKKI Studio
  * Gère l'état global et coordonne les sous-composants
  */
@@ -366,7 +393,17 @@ export default function TekkiChatbot() {
         
         // Ajouter l'option "Je ne sais pas encore"
         const allSuggestions = [...businessSuggestions, "Je ne sais pas encore lequel choisir"];
-        console.log("Suggestions finales:", allSuggestions);
+        
+        // Filtrer les suggestions pour plus de cohérence avec le contexte actuel
+        const lastUserMessage = messages.length > 0 
+        ? (messages[messages.length - 1].type === 'user' 
+            ? messages[messages.length - 1].content 
+            : undefined) 
+        : undefined;
+            
+        const filteredSuggestions = getFilteredSuggestions(allSuggestions, "Business", lastUserMessage);
+        
+        console.log("Suggestions finales:", filteredSuggestions);
         
         // Créer et ajouter le message
         const businessInterestMessage: Message = {
@@ -374,7 +411,7 @@ export default function TekkiChatbot() {
           content: "Je suis très heureuse de l'apprendre ! Puis-je savoir lequel de nos business vous intéresse ?",
           type: 'assistant',
           timestamp: new Date(),
-          suggestions: allSuggestions
+          suggestions: filteredSuggestions
         };
         
         addMessage(businessInterestMessage);
@@ -545,7 +582,7 @@ export default function TekkiChatbot() {
       
       const acquisitionMessage: Message = {
         id: Date.now() + 1,
-        content: `Pour acquérir ${business.name}, c'est très simple :\n\n1. Cliquez sur "Je veux ce business" sur la page du business\n2. Remplissez le formulaire avec vos informations et envoyez-le\n3. Notre équipe vous contactera dans les 24h suivantes pour discuter des détails de l'acquisition\n4. Après validation, vous recevrez le contrat d'acquisition que vous devrez signer avant d'effectuer le paiement\n5. Une fois le paiement effectué, nous planifierons votre session d'onboarding et vous remettrons tous les accès au site\n\nL'accompagnement de 2 mois commence dès que votre business est officiellement lancé, c'est-à-dire après le lancement de votre première campagne de publicité.`,
+        content: `Pour acquérir ${business.name}, c'est très simple :\n\n1. Rendez-vous sur la page du business et cliquez sur "Je veux ce business"\n2. Remplissez le formulaire de manifestation d'intérêt et envoyez-le\n3. Notre équipe vous contactera dans les 24h suivantes pour discuter des détails de l'acquisition\n4. Après validation, vous recevrez le contrat d'acquisition que vous devrez signer avant d'effectuer le paiement\n5. Une fois le paiement effectué, nous planifierons votre session d'onboarding et vous remettrons tous les accès au site ainsi que tous les éléments du business\n\nL'accompagnement de 2 mois commence dès que votre business est officiellement lancé, c'est-à-dire après le lancement de votre première campagne de publicité.`,
         type: 'assistant',
         timestamp: new Date(),
         context: getCurrentPageContext(),
@@ -767,6 +804,125 @@ export default function TekkiChatbot() {
   };
 
   /**
+   * Gestionnaire pour la suggestion "Prix des formations"
+   */
+  const handleFormationPrices = async () => {
+    try {
+      setIsTyping(true);
+      
+      // Récupérer les formations depuis Supabase
+      let formationsData;
+      
+      try {
+        const { data, error } = await supabase
+          .from('formations')
+          .select('*')
+          .eq('is_active', true);
+        
+        if (error) throw error;
+        formationsData = data;
+      } catch (err) {
+        console.error("Erreur lors de la récupération des formations:", err);
+        // Données de secours en cas d'erreur
+        formationsData = [
+          { title: "Les Fondamentaux de l'E-commerce", price: 80000, level: "Débutant", duration: "1 semaines" },
+          { title: "Marketing Digital pour E-commerce", price: 180000, level: "Intermédiaire", duration: "3 semaines" },
+          { title: "Gestion du service client en e-commerce", price: 120000, level: "Tous niveaux", duration: "1 semaines" },
+          { title: "Gestion de site e-commerce", price: 120000, level: "Avancé", duration: "2 semaines" }
+        ];
+      }
+      
+      // Formater la réponse avec les prix
+      let content = "Voici nos formations avec leurs tarifs :\n\n";
+      
+      formationsData.forEach((formation: any) => {
+        const formattedPrice = formatPrice(formation.price);
+        content += `• **${formation.title}** - ${formattedPrice}\n`;
+        content += `   Niveau: ${formation.level || 'Tous niveaux'}, Durée: ${formation.duration || 'N/A'}\n\n`;
+      });
+      
+      content += "Nous proposons également une réduction de 10% pour l'inscription à plusieurs formations simultanément.";
+      
+      // Ajouter le message au chat
+      const formationPricesMessage: Message = {
+        id: Date.now() + 1,
+        content,
+        type: 'assistant',
+        timestamp: new Date(),
+        context: getCurrentPageContext(),
+        suggestions: [
+          "M'inscrire à une formation", 
+          "Voir le programme détaillé", 
+          "Contacter un conseiller"
+        ]
+      };
+      
+      addMessage(formationPricesMessage);
+      
+      // Sauvegarder dans Supabase
+      chatService.saveConversation("Prix des formations", content, getCurrentPageContext());
+    } catch (error) {
+      console.error("Erreur lors de la récupération des prix des formations:", error);
+      
+      // Message d'erreur
+      const errorMessage: Message = {
+        id: Date.now() + 1,
+        content: "Je suis désolée, je n'arrive pas à récupérer les informations sur les prix des formations en ce moment. Vous pouvez consulter notre page Formations ou contacter notre équipe pour obtenir ces informations.",
+        type: 'assistant',
+        timestamp: new Date(),
+        suggestions: ["Voir les formations", "Contacter un conseiller"]
+      };
+      
+      addMessage(errorMessage);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  /**
+   * Gestionnaire spécifique pour "Je veux un site e-commerce"
+   */
+  const handleEcommerceWebsiteRequest = () => {
+    // Message expliquant le service de création de site e-commerce
+    try {
+      setIsTyping(true);
+      
+      setTimeout(() => {
+        const content = `Excellente décision ! Chez TEKKI Studio, nous proposons une offre de création de sites e-commerce professionnels qui convertissent réellement les visiteurs en clients.
+        
+Cette offre comprend :
+• Un site e-commerce entièrement fonctionnel et optimisé pour la conversion
+• Une stratégie d'acquisition de clients via Meta (Facebook & Instagram)
+• Une formation vidéo sur la prise en main du site
+• 2 mois d'accompagnement post-lancement
+        
+Le délai de livraison du site est de 7 jours ouvrés.
+        
+Voulez-vous en savoir plus sur cette offre ou avez-vous des questions particulières ?`;
+        
+        const ecommerceMessage: Message = {
+          id: Date.now() + 1,
+          content,
+          type: 'assistant',
+          timestamp: new Date(),
+          context: getCurrentPageContext(),
+          suggestions: [
+            "Quel est le prix du service ?", 
+            "Comment se déroule le processus ?", 
+            "Contacter un conseiller"
+          ]
+        };
+        
+        addMessage(ecommerceMessage);
+        setIsTyping(false);
+      }, 1000);
+    } catch (error) {
+      console.error("Erreur dans handleEcommerceWebsiteRequest:", error);
+      setIsTyping(false);
+    }
+  };
+  
+  /**
    * Gestion de la fermeture du modal avec confirmation
    */
   const handleModalClose = (formSubmitted: boolean = false) => {
@@ -863,12 +1019,50 @@ export default function TekkiChatbot() {
 
     // Remplir le formulaire ici
     if (suggestion === "Remplir le formulaire ici") {
+      const userMessage: Message = {
+        id: Date.now(),
+        content: suggestion,
+        type: 'user',
+        timestamp: new Date(),
+        context: getCurrentPageContext()
+      };
+      
+      addMessage(userMessage);
+      setIsTyping(true);
+      
       if (currentActiveBusiness) {
-        // Ouvrir le modal d'acquisition
-        setModalBusinessData({
-          isOpen: true,
-          business: currentActiveBusiness
-        });
+        if (isMobileDevice) {
+          // Sur mobile: rediriger vers la page du business avec un paramètre pour ouvrir le modal
+          setTimeout(() => {
+            const businessSlug = currentActiveBusiness.slug || 
+              currentActiveBusiness.name.toLowerCase().replace(/\s+/g, '-');
+            
+            // Message informant l'utilisateur de la redirection
+            const redirectMessage: Message = {
+              id: Date.now() + 1,
+              content: `Pour finaliser votre demande sur mobile, je vous redirige vers la page du business ${currentActiveBusiness.name} où vous pourrez remplir le formulaire d'acquisition.`,
+              type: 'assistant',
+              timestamp: new Date()
+            };
+            
+            addMessage(redirectMessage);
+            setIsTyping(false);
+            
+            // Redirection après un court délai pour permettre la lecture du message
+            setTimeout(() => {
+              window.location.href = `/business/${businessSlug}?showInterest=true`;
+            }, 3000);
+          }, 1000);
+        } else {
+          // Sur desktop: ouvrir le modal directement
+          setTimeout(() => {
+            setModalBusinessData({
+              isOpen: true,
+              business: currentActiveBusiness
+            });
+            setIsTyping(false);
+          }, 500);
+        }
       }
       return;
     }
@@ -913,6 +1107,42 @@ export default function TekkiChatbot() {
       
       // Gérer l'intérêt général
       handleGeneralBusinessInterest();
+      return;
+    }
+    
+    // Prix des formations
+    if (suggestion === "Prix des formations") {
+      const userMessage: Message = {
+        id: Date.now(),
+        content: suggestion,
+        type: 'user',
+        timestamp: new Date(),
+        context: getCurrentPageContext()
+      };
+      
+      addMessage(userMessage);
+      setIsTyping(true);
+      
+      // Utiliser le gestionnaire spécifique
+      handleFormationPrices();
+      return;
+    }
+    
+    // Je veux un site e-commerce
+    if (suggestion === "Je veux un site e-commerce") {
+      const userMessage: Message = {
+        id: Date.now(),
+        content: suggestion,
+        type: 'user',
+        timestamp: new Date(),
+        context: getCurrentPageContext()
+      };
+      
+      addMessage(userMessage);
+      setIsTyping(true);
+      
+      // Utiliser le gestionnaire spécifique
+      handleEcommerceWebsiteRequest();
       return;
     }
     
@@ -1528,6 +1758,22 @@ Avez-vous déjà parcouru la page de ce business pour découvrir tous les détai
     try {
       const aiResponse = await chatService.getAIResponse(messageContent, context, conversionFunnel) as AIResponse;
   
+      // Filtrer les suggestions pour éviter les redondances
+      const lastUserMessage = messages.length > 0 
+        ? (messages[messages.length - 1].type === 'user' 
+            ? messages[messages.length - 1].content 
+            : undefined) 
+        : undefined;
+      
+      // Filtrer les suggestions dans la réponse
+      if (Array.isArray(aiResponse.suggestions)) {
+        aiResponse.suggestions = getFilteredSuggestions(
+          aiResponse.suggestions, 
+          context.page,
+          lastUserMessage
+        );
+      }
+  
       // Créer le message de l'assistant
       const assistantMessage: Message = {
         id: Date.now() + 1,
@@ -1593,14 +1839,19 @@ Avez-vous déjà parcouru la page de ce business pour découvrir tous les détai
       />
       
       {/* Modal d'acquisition intégré au chatbot */}
-      {modalBusinessData.isOpen && modalBusinessData.business && (
-        <InterestModal
+        {modalBusinessData.isOpen && modalBusinessData.business && 
+        console.log("Tentative d'affichage du modal pour:", modalBusinessData.business.name)}
+
+        {modalBusinessData.isOpen && modalBusinessData.business && (
+        <div className="z-[10050]"> {/* Wrapper avec z-index supérieur */}
+            <InterestModal
             isOpen={modalBusinessData.isOpen}
             onClose={(formSubmitted?: boolean) => handleModalClose(formSubmitted || false)}
             businessName={modalBusinessData.business.name}
             businessPrice={formatPrice(modalBusinessData.business.price)}
             businessId={modalBusinessData.business.id}
-        />
+            />
+        </div>
         )}
     </>
   );

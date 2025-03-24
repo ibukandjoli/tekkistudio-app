@@ -112,6 +112,45 @@ export default function BusinessPage() {
     fetchBusiness();
   }, [currentSlug]);
 
+  useEffect(() => {
+    async function fetchBusiness() {
+      try {
+        console.log("Récupération du business avec slug:", currentSlug);
+        
+        const { data, error } = await supabase
+          .from('businesses')
+          .select('*')
+          .eq('slug', currentSlug)
+          .single();
+  
+        if (error) {
+          console.error("Erreur lors de la récupération du business:", error);
+          setError("Ce business n'a pas été trouvé");
+          return;
+        }
+        
+        console.log("Business récupéré:", data);
+        setBusiness(data as Business);
+        
+        // Vérifier si un paramètre showInterest est présent dans l'URL (pour les redirections depuis le chat)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('showInterest') === 'true') {
+          // Ouvrir le modal d'acquisition automatiquement après un court délai
+          setTimeout(() => {
+            setIsModalOpen(true);
+          }, 500);
+        }
+      } catch (err) {
+        console.error('Erreur lors du chargement du business:', err);
+        setError("Une erreur est survenue lors du chargement des données");
+      } finally {
+        setLoading(false);
+      }
+    }
+  
+    fetchBusiness();
+  }, [currentSlug]);  
+
   // Afficher un état de chargement
   if (loading) {
     return (
