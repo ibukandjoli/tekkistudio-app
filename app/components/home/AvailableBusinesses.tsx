@@ -29,6 +29,11 @@ const AvailableBusinesses = () => {
     fetchBusinesses();
   }, []);
 
+  // Fonction pour calculer le prix d'entrée (40% du prix total)
+  const calculateEntryPrice = (price: number) => {
+    return Math.round(price * 0.4);
+  };
+
   if (loading) {
     return <div className="flex justify-center items-center h-96">Chargement...</div>;
   }
@@ -80,20 +85,20 @@ const AvailableBusinesses = () => {
 
                 <div className="space-y-4 mb-6">
                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="text-gray-600">Prix du business</span>
+                    <span className="text-gray-600">Prix de vente</span>
                     <div className="text-right">
-                    <span className="line-through text-gray-400 text-sm">
-                    {formatPrice(business.original_price)}
-                    </span>
-                    <span className="font-bold text-[#0f4c81] block">
-                    {formatPrice(business.price)}
-                    </span>
+                      <span className="line-through text-gray-400 text-sm">
+                        {formatPrice(business.original_price)}
+                      </span>
+                      <span className="font-bold text-[#0f4c81] block">
+                        À partir de {formatPrice(calculateEntryPrice(business.price))}
+                      </span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <span className="text-gray-600">Potentiel mensuel</span>
                     <span className="font-bold text-[#ff7f50]">
-                    {formatPrice(business.monthly_potential)}
+                      {formatPrice(business.monthly_potential)}
                     </span>
                   </div>
                 </div>

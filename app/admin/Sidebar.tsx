@@ -22,7 +22,10 @@ import {
   Share2,
   Gift,
   MessageCircle,
-  Bot
+  Bot,
+  BarChart2,
+  Activity,
+  Globe
 } from 'lucide-react';
 import { useAuth } from '@/app/contexts/AuthContext';
 import Image from 'next/image';
@@ -65,6 +68,11 @@ export default function Sidebar() {
           name: 'Tableau de bord', 
           href: '/admin/dashboard', 
           icon: <LayoutDashboard className="mr-3 h-5 w-5" /> 
+        },
+        { 
+          name: 'Analytics', 
+          href: '/admin/analytics', 
+          icon: <BarChart2 className="mr-3 h-5 w-5" /> 
         }
       ]
     },
@@ -140,6 +148,11 @@ export default function Sidebar() {
           name: 'Réseaux sociaux', 
           href: '/admin/social', 
           icon: <Share2 className="mr-3 h-5 w-5" /> 
+        },
+        { 
+          name: 'Trafic Web', 
+          href: '/admin/traffic', 
+          icon: <Globe className="mr-3 h-5 w-5" /> 
         }
       ]
     },

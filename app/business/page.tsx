@@ -72,6 +72,11 @@ export default function BusinessesPage() {
     }
   };
 
+  // Fonction pour calculer le prix d'entrée (40% du prix total)
+  const calculateEntryPrice = (price: number) => {
+    return Math.round(price * 0.4);
+  };
+
   const filteredBusinesses = businesses.filter(business => {
     const matchStatus = filters.status === 'all' || business.status === filters.status;
     const matchType = filters.type === 'all' || business.type === filters.type;
@@ -188,7 +193,7 @@ export default function BusinessesPage() {
                   </h2>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
                     {availableBusinesses.map((business) => (
-                      <BusinessCard key={business.id} business={business} />
+                      <BusinessCard key={business.id} business={business} calculateEntryPrice={calculateEntryPrice} />
                     ))}
                   </div>
                 </>
@@ -202,7 +207,7 @@ export default function BusinessesPage() {
                   </h2>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 opacity-80">
                     {soldBusinesses.map((business) => (
-                      <BusinessCard key={business.id} business={business} />
+                      <BusinessCard key={business.id} business={business} calculateEntryPrice={calculateEntryPrice} />
                     ))}
                   </div>
                 </>
@@ -222,7 +227,7 @@ export default function BusinessesPage() {
 }
 
 // Composant de carte business extrait pour éviter la duplication de code
-function BusinessCard({ business }: { business: Business }) {
+function BusinessCard({ business, calculateEntryPrice }: { business: Business, calculateEntryPrice: (price: number) => number }) {
   return (
     <div 
       className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 transition-transform hover:translate-y-[-4px]"
@@ -262,24 +267,27 @@ function BusinessCard({ business }: { business: Business }) {
         </p>
 
         <div className="space-y-4 mb-6">
-        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-          <span className="text-gray-600">Prix du Business</span>
-          <div className="text-right">
-            <span className="line-through text-gray-400 text-sm">
-              <PriceFormatter amount={business.original_price} showStrike={true} />
-            </span>
-            <span className="font-bold text-[#0f4c81] block">
-              <PriceFormatter amount={business.price} />
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <span className="text-gray-600">Prix de vente</span>
+            <div className="text-right">
+              <span className="line-through text-gray-400 text-sm">
+                <PriceFormatter amount={business.original_price} showStrike={true} />
+              </span>
+              <span className="font-bold text-[#0f4c81] block">
+                {business.status === 'available' 
+                  ? `À partir de ${formatPrice(calculateEntryPrice(business.price))}` 
+                  : <PriceFormatter amount={business.price} />
+                }
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <span className="text-gray-600">Potentiel mensuel</span>
+            <span className="font-bold text-[#ff7f50]">
+              <PriceFormatter amount={business.monthly_potential} />
             </span>
           </div>
         </div>
-        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-          <span className="text-gray-600">Potentiel mensuel</span>
-          <span className="font-bold text-[#ff7f50]">
-            <PriceFormatter amount={business.monthly_potential} />
-          </span>
-        </div>
-      </div>
 
         {business.status === 'available' ? (
           <Link 

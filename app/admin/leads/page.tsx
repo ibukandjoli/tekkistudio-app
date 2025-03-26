@@ -6,6 +6,7 @@ import { supabase } from '@/app/lib/supabase';
 import { withAdminAuth } from '@/app/lib/withAdminAuth';
 import { formatRelativeDate } from '@/app/lib/utils/date-utils';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Table,
   TableBody,
@@ -26,7 +27,9 @@ import {
   Loader2,
   ArrowUpDown,
   AlertCircle,
-  Plus
+  Plus,
+  CheckCircle,
+  X
 } from 'lucide-react';
 import { Input } from '@/app/components/ui/input';
 import { Button } from '@/app/components/ui/button';
@@ -86,42 +89,50 @@ type SortField = 'created_at' | 'full_name' | 'country' | 'status' | 'updated_at
 type SortDirection = 'asc' | 'desc';
 
 const StatusBadge = ({ status }: { status: string }) => {
-  const statusConfig: Record<StatusType, { label: string, className: string }> = {
+  const statusConfig: Record<StatusType, { label: string, className: string, icon: React.ReactNode }> = {
     new: { 
       label: 'Nouveau', 
-      className: 'bg-blue-100 text-blue-800 hover:bg-blue-200' 
+      className: 'bg-blue-100 text-blue-800 hover:bg-blue-200',
+      icon: <Plus className="h-3 w-3 mr-1" />
     },
     contacted: { 
       label: 'Contacté', 
-      className: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' 
+      className: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200',
+      icon: <Mail className="h-3 w-3 mr-1" />
     },
     negotiating: { 
       label: 'En négociation', 
-      className: 'bg-purple-100 text-purple-800 hover:bg-purple-200' 
+      className: 'bg-purple-100 text-purple-800 hover:bg-purple-200',
+      icon: <Phone className="h-3 w-3 mr-1" />
     },
     sold: { 
       label: 'Vendu', 
-      className: 'bg-green-100 text-green-800 hover:bg-green-200' 
+      className: 'bg-green-100 text-green-800 hover:bg-green-200',
+      icon: <CheckCircle className="h-3 w-3 mr-1" />
     },
     cancelled: { 
       label: 'Annulé', 
-      className: 'bg-red-100 text-red-800 hover:bg-red-200' 
+      className: 'bg-red-100 text-red-800 hover:bg-red-200',
+      icon: <X className="h-3 w-3 mr-1" />
     }
   };
 
   const config = statusConfig[status as StatusType] || {
     label: status,
-    className: 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+    className: 'bg-gray-100 text-gray-800 hover:bg-gray-200',
+    icon: null
   };
 
   return (
     <Badge variant="outline" className={config.className}>
+      {config.icon}
       {config.label}
     </Badge>
   );
 };
 
 function LeadsPage() {
+  const router = useRouter();
   // États
   const [leads, setLeads] = useState<BusinessInterest[]>([]);
   const [businesses, setBusinesses] = useState<Record<string, string>>({});
@@ -457,54 +468,64 @@ function LeadsPage() {
       </div>
 
       {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Total des prospects</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-gray-500">
+            <div className="text-3xl font-bold">{stats.total}</div>
+            <p className="text-xs opacity-80">
               {stats.weekNew} nouveaux cette semaine
             </p>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-white">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Prospects actifs</CardTitle>
+            <CardTitle className="text-sm font-medium">Nouveaux</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.new + stats.contacted + stats.negotiating}</div>
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>{stats.new} nouveaux</span>
-              <span>{stats.contacted} contactés</span>
-              <span>{stats.negotiating} en négo</span>
+            <div className="text-2xl font-bold text-blue-600">{stats.new}</div>
+            <div className="w-full bg-gray-200 h-1.5 mt-2 rounded-full">
+              <div className="h-1.5 bg-blue-600 rounded-full" style={{ width: `${(stats.new / stats.total) * 100}%` }}></div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-white">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Prospects gagnés</CardTitle>
+            <CardTitle className="text-sm font-medium">Contactés</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.sold}</div>
-            <p className="text-xs text-gray-500">
-              Taux de conversion: {stats.total > 0 ? ((stats.sold / stats.total) * 100).toFixed(1) : 0}%
-            </p>
+            <div className="text-2xl font-bold text-yellow-600">{stats.contacted}</div>
+            <div className="w-full bg-gray-200 h-1.5 mt-2 rounded-full">
+              <div className="h-1.5 bg-yellow-500 rounded-full" style={{ width: `${(stats.contacted / stats.total) * 100}%` }}></div>
+            </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-white">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Prospects aujourd'hui</CardTitle>
+            <CardTitle className="text-sm font-medium">En négociation</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.todayNew}</div>
-            <p className="text-xs text-gray-500">
-              {stats.todayNew > 0 ? '+' : ''}{stats.todayNew} depuis minuit
-            </p>
+            <div className="text-2xl font-bold text-purple-600">{stats.negotiating}</div>
+            <div className="w-full bg-gray-200 h-1.5 mt-2 rounded-full">
+              <div className="h-1.5 bg-purple-500 rounded-full" style={{ width: `${(stats.negotiating / stats.total) * 100}%` }}></div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-white">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Conclus</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{stats.sold}</div>
+            <div className="w-full bg-gray-200 h-1.5 mt-2 rounded-full">
+              <div className="h-1.5 bg-green-500 rounded-full" style={{ width: `${(stats.sold / stats.total) * 100}%` }}></div>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -625,7 +646,7 @@ function LeadsPage() {
                     )}
                   </div>
                 </TableHead>
-                <TableHead className="text-right">Détails</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -651,7 +672,7 @@ function LeadsPage() {
                   <TableRow 
                     key={lead.id} 
                     className="cursor-pointer hover:bg-gray-50"
-                    onClick={() => window.location.href = `/admin/leads/${lead.id}`}
+                    onClick={() => router.push(`/admin/leads/${lead.id}`)}
                   >
                     <TableCell className="whitespace-nowrap">
                       <div className="flex items-center">
@@ -699,17 +720,75 @@ function LeadsPage() {
                     <TableCell>
                       <StatusBadge status={lead.status} />
                     </TableCell>
-                    <TableCell className="text-right">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.location.href = `/admin/leads/${lead.id}`;
-                        }}
-                      >
-                        Voir détails
-                      </Button>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.location.href = `mailto:${lead.email}`;
+                                }}
+                              >
+                                <Mail className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Envoyer un email</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.location.href = `tel:${lead.phone}`;
+                                }}
+                              >
+                                <Phone className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Appeler</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        {lead.is_whatsapp && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.open(`https://wa.me/${lead.phone.replace(/\s+/g, '')}`, '_blank');
+                                  }}
+                                >
+                                  <svg viewBox="0 0 24 24" className="h-4 w-4 text-green-600">
+                                    <path fill="currentColor" d="M17.498 14.382c-.301-.15-1.767-.867-2.04-.966-.273-.101-.473-.15-.673.15-.2.3-.767.966-.94 1.164-.173.199-.347.223-.647.075-.3-.15-1.269-.468-2.416-1.483-.893-.795-1.484-1.77-1.66-2.07-.174-.3-.018-.465.13-.614.136-.135.301-.345.451-.52.151-.174.2-.3.3-.498.099-.2.05-.374-.025-.524-.075-.15-.672-1.62-.922-2.22-.24-.584-.485-.49-.672-.49-.172-.008-.371-.01-.571-.01-.2 0-.523.074-.797.359-.273.297-1.045 1.019-1.045 2.487 0 1.469 1.069 2.889 1.22 3.089.149.197 2.105 3.215 5.1 4.499.714.306 1.27.489 1.704.625.714.227 1.365.195 1.88.118.574-.077 1.768-.719 2.016-1.413.247-.694.247-1.289.173-1.413-.074-.124-.272-.198-.571-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.999-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                  </svg>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Contacter sur WhatsApp</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

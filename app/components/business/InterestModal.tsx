@@ -53,6 +53,11 @@ const InterestModal = ({ isOpen, onClose, businessName, businessPrice, businessI
       id: 'three',
       label: 'Paiement en 3 fois',
       description: '40% à la commande, 30% à la livraison, 30% après 30 jours'
+    },
+    {
+      id: 'progressive',
+      label: 'Acquisition progressive',
+      description: '40% à la commande + versements mensuels de 10% pendant 6 mois'
     }
   ];
 
@@ -403,7 +408,9 @@ const InterestModal = ({ isOpen, onClose, businessName, businessPrice, businessI
                   {paymentOptions.map(option => (
                     <label 
                       key={option.id}
-                      className="flex items-start p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+                      className={`flex items-start p-3 border rounded-lg cursor-pointer hover:bg-gray-50 ${
+                        option.id === 'progressive' ? 'border-[#ff7f50] bg-orange-50' : ''
+                      }`}
                     >
                       <input
                         type="radio"
@@ -414,7 +421,12 @@ const InterestModal = ({ isOpen, onClose, businessName, businessPrice, businessI
                         className="mt-1"
                       />
                       <div className="ml-3">
-                        <div className="font-medium">{option.label}</div>
+                        <div className="font-medium flex items-center">
+                          {option.label}
+                          {option.id === 'progressive' && (
+                            <span className="ml-2 text-xs bg-[#ff7f50] text-white px-2 py-0.5 rounded-full">NOUVEAU</span>
+                          )}
+                        </div>
                         <div className="text-sm text-gray-500">{option.description}</div>
                       </div>
                     </label>

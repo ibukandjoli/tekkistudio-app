@@ -23,7 +23,16 @@ import { supabase } from '../../../../lib/supabase';
 import type { Business, FAQ, SuccessStory, ProjectionGraphData, MonthlyCostsBreakdown } from '../../../../types/database';
 import { toast } from 'sonner';
 
-type BusinessFormData = Omit<Business, 'id' | 'created_at' | 'updated_at'>;
+type BusinessFormData = Omit<Business, 'id' | 'created_at' | 'updated_at'> & {
+  // Champs additionnels pour le nouveau modèle économique
+  progressive_option_enabled?: boolean;
+  entry_price_percentage?: number;
+  monthly_payment_percentage?: number;
+  monthly_payment_fixed_amount?: number;
+  monthly_payment_duration?: number;
+  standard_support_months?: number;
+  progressive_support_months?: number;
+};
 
 // Fonction utilitaire pour générer un slug à partir d'un nom
 function generateSlug(text: string): string {
@@ -104,7 +113,15 @@ function BusinessForm() {
       revenue: [0, 0, 0, 0, 0, 0],
       expenses: [0, 0, 0, 0, 0, 0],
       profit: [0, 0, 0, 0, 0, 0]
-    }
+    },
+    // Valeurs par défaut pour le nouveau modèle économique
+    progressive_option_enabled: true,
+    entry_price_percentage: 40,
+    monthly_payment_percentage: 10,
+    monthly_payment_fixed_amount: 1000,
+    monthly_payment_duration: 6,
+    standard_support_months: 2,
+    progressive_support_months: 3
   });
 
   useEffect(() => {
@@ -146,7 +163,15 @@ function BusinessForm() {
             revenue: [0, 0, 0, 0, 0, 0],
             expenses: [0, 0, 0, 0, 0, 0],
             profit: [0, 0, 0, 0, 0, 0]
-          }
+          },
+          // Initialiser les nouveaux champs s'ils sont manquants
+          progressive_option_enabled: data.progressive_option_enabled !== undefined ? data.progressive_option_enabled : true,
+          entry_price_percentage: data.entry_price_percentage || 40,
+          monthly_payment_percentage: data.monthly_payment_percentage || 10,
+          monthly_payment_fixed_amount: data.monthly_payment_fixed_amount || 1000,
+          monthly_payment_duration: data.monthly_payment_duration || 6,
+          standard_support_months: data.standard_support_months || 2,
+          progressive_support_months: data.progressive_support_months || 3
         };
         
         // Normalisation des channels
@@ -207,7 +232,15 @@ function BusinessForm() {
           channels: Array.isArray(formData.marketing_strategy.channels)
             ? formData.marketing_strategy.channels
             : formData.marketing_strategy.channels.split(',').map(channel => channel.trim())
-        }
+        },
+        // S'assurer que les nouveaux champs sont inclus
+        progressive_option_enabled: formData.progressive_option_enabled,
+        entry_price_percentage: formData.entry_price_percentage,
+        monthly_payment_percentage: formData.monthly_payment_percentage,
+        monthly_payment_fixed_amount: formData.monthly_payment_fixed_amount,
+        monthly_payment_duration: formData.monthly_payment_duration,
+        standard_support_months: formData.standard_support_months,
+        progressive_support_months: formData.progressive_support_months
       };
 
       if (isEditing) {
@@ -278,7 +311,7 @@ function BusinessForm() {
     } else {
       setFormData(prev => ({
         ...prev,
-        [name]: ['price', 'original_price', 'monthly_potential', 'time_required_weekly', 'roi_estimation_months', 'garantee_days', 'active_viewers_count'].includes(name)
+        [name]: ['price', 'original_price', 'monthly_potential', 'time_required_weekly', 'roi_estimation_months', 'garantee_days', 'active_viewers_count', 'entry_price_percentage', 'monthly_payment_percentage', 'monthly_payment_fixed_amount', 'monthly_payment_duration', 'standard_support_months', 'progressive_support_months'].includes(name)
           ? parseFloat(value) || 0
           : value
       }));
@@ -1183,6 +1216,142 @@ function BusinessForm() {
               </CardContent>
             </Card>
 
+            {/* Nouvelle section pour les options d'acquisition */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Options d'acquisition</CardTitle>
+                <CardDescription>Configuration du modèle d'acquisition progressive</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="progressive-enabled"
+                    checked={formData.progressive_option_enabled}
+                    onCheckedChange={(checked) => 
+                      setFormData(prev => ({ ...prev, progressive_option_enabled: checked }))
+                    }
+                  />
+                  <Label htmlFor="progressive-enabled">Activer l'option d'acquisition progressive</Label>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="entry_price_percentage">
+                      Pourcentage du prix pour l'apport initial (%)
+                    </Label>
+                    <Input
+                      id="entry_price_percentage"
+                      name="entry_price_percentage"
+                      type="number"
+                      min="1"
+                      max="99"
+                      value={formData.entry_price_percentage || 40}
+                      onChange={handleChange}
+                    />
+                    <p className="text-xs text-gray-500">
+                      Pourcentage du prix total à payer pour commencer (par défaut 40%)
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="monthly_payment_percentage">
+                      Pourcentage du prix pour les mensualités (%)
+                    </Label>
+                    <Input
+                      id="monthly_payment_percentage"
+                      name="monthly_payment_percentage"
+                      type="number"
+                      min="1"
+                      max="50"
+                      value={formData.monthly_payment_percentage || 10}
+                      onChange={handleChange}
+                    />
+                    <p className="text-xs text-gray-500">
+                      Pourcentage du prix total pour chaque mensualité (par défaut 10%)
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="monthly_payment_fixed_amount">
+                      Montant fixe ajouté aux mensualités (FCFA)
+                    </Label>
+                    <Input
+                      id="monthly_payment_fixed_amount"
+                      name="monthly_payment_fixed_amount"
+                      type="number"
+                      min="0"
+                      value={formData.monthly_payment_fixed_amount || 1000}
+                      onChange={handleChange}
+                    />
+                    <p className="text-xs text-gray-500">
+                      Montant fixe ajouté à chaque mensualité (par défaut 1000 FCFA)
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="monthly_payment_duration">
+                      Durée des mensualités (mois)
+                    </Label>
+                    <Input
+                      id="monthly_payment_duration"
+                      name="monthly_payment_duration"
+                      type="number"
+                      min="1"
+                      max="24"
+                      value={formData.monthly_payment_duration || 6}
+                      onChange={handleChange}
+                    />
+                    <p className="text-xs text-gray-500">
+                      Nombre de mois pour l'étalement des paiements (par défaut 6 mois)
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 mt-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="standard_support_months">
+                      Durée d'accompagnement pour l'option standard (mois)
+                    </Label>
+                    <Input
+                      id="standard_support_months"
+                      name="standard_support_months"
+                      type="number"
+                      min="1"
+                      max="12"
+                      value={formData.standard_support_months || 2}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="progressive_support_months">
+                      Durée d'accompagnement pour l'option progressive (mois)
+                    </Label>
+                    <Input
+                      id="progressive_support_months"
+                      name="progressive_support_months"
+                      type="number"
+                      min="1"
+                      max="12"
+                      value={formData.progressive_support_months || 3}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+                
+                {/* Exemple de calcul pour un aperçu */}
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                  <h3 className="font-medium text-sm mb-2">Aperçu pour un business à {formData.price.toLocaleString()} FCFA</h3>
+                  <div className="space-y-1 text-sm">
+                    <p><span className="font-medium">Apport initial:</span> {Math.round(formData.price * (formData.entry_price_percentage || 40) / 100).toLocaleString()} FCFA ({formData.entry_price_percentage || 40}%)</p>
+                    <p><span className="font-medium">Mensualité:</span> {(Math.round(formData.price * (formData.monthly_payment_percentage || 10) / 100) + (formData.monthly_payment_fixed_amount || 1000)).toLocaleString()} FCFA pendant {formData.monthly_payment_duration || 6} mois</p>
+                    <p><span className="font-medium">Total payé:</span> {(Math.round(formData.price * (formData.entry_price_percentage || 40) / 100) + (Math.round(formData.price * (formData.monthly_payment_percentage || 10) / 100) + (formData.monthly_payment_fixed_amount || 1000)) * (formData.monthly_payment_duration || 6)).toLocaleString()} FCFA</p>
+                    <p><span className="font-medium">Surcoût:</span> {((Math.round(formData.price * (formData.entry_price_percentage || 40) / 100) + (Math.round(formData.price * (formData.monthly_payment_percentage || 10) / 100) + (formData.monthly_payment_fixed_amount || 1000)) * (formData.monthly_payment_duration || 6)) - formData.price).toLocaleString()} FCFA</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Répartition des coûts mensuels</CardTitle>
@@ -1610,7 +1779,7 @@ function BusinessForm() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Accordion type="single" collapsible className="w-full">
+              <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="raw-json">
                     <AccordionTrigger>
                       Afficher/masquer JSON

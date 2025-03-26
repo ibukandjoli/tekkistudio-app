@@ -344,7 +344,9 @@ const PriceBanner: React.FC<{
   originalPrice: number;
   monthlyPotential: number;
   onButtonClick: () => void;
-}> = ({ price, originalPrice, monthlyPotential, onButtonClick }) => {
+  entryPrice?: number; // Ajout de cette propriété
+  showEntryPrice?: boolean; // Ajout de cette propriété
+}> = ({ price, originalPrice, monthlyPotential, onButtonClick, entryPrice, showEntryPrice = false }) => {
   const discount = originalPrice - price;
   
   return (
@@ -363,8 +365,12 @@ const PriceBanner: React.FC<{
             <PriceFormatter amount={originalPrice} />
           </div>
         )}
-        <div className="text-3xl font-bold text-[#0f4c81] mb-2">
-          <PriceFormatter amount={price} />
+        <div className="text-2xl font-bold text-[#0f4c81] mb-2">
+          {showEntryPrice ? (
+            <>À partir de <PriceFormatter amount={entryPrice || 0} /></>
+          ) : (
+            <PriceFormatter amount={price} />
+          )}
         </div>
         <div className="text-gray-600 bg-blue-50 p-2 rounded-lg inline-block">
           Potentiel mensuel: <span className="font-bold"><PriceFormatter amount={monthlyPotential} /></span>

@@ -5,7 +5,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   ArrowLeft,
   CheckCircle2,
-  ArrowRight
+  ArrowRight,
+  Plus,
+  Minus
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -41,11 +43,23 @@ export default function BusinessPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSticky, setIsSticky] = useState<boolean>(false);
   const [selectedTab, setSelectedTab] = useState<string>('analyse');
+  const [selectedAcquisitionOption, setSelectedAcquisitionOption] = useState<'standard' | 'progressive'>('standard');
   const ctaRef = useRef<HTMLDivElement>(null);
   
   // Valeurs dynamiques ou valeurs par défaut
   const [activeVisitors, setActiveVisitors] = useState<number>(0);
   const [interestedCount, setInterestedCount] = useState<number>(0);
+  const [showFAQDetails, setShowFAQDetails] = useState<{ [key: string]: boolean }>({});
+
+  // Calculer le prix d'entrée (40% du prix total)
+  const calculateEntryPrice = (price: number) => {
+    return Math.round(price * 0.4);
+  };
+
+  // Calculer la mensualité (10% du prix total + 1000 FCFA)
+  const calculateMonthlyPayment = (price: number) => {
+    return Math.round(price * 0.1) + 1000;
+  };
 
   // Simuler un intérêt croissant avec un timer
   useEffect(() => {
@@ -149,7 +163,15 @@ export default function BusinessPage() {
     }
   
     fetchBusiness();
-  }, [currentSlug]);  
+  }, [currentSlug]);
+
+  // Gérer l'affichage des détails de la FAQ
+  const toggleFAQDetail = (id: string) => {
+    setShowFAQDetails(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
 
   // Afficher un état de chargement
   if (loading) {
@@ -174,6 +196,25 @@ export default function BusinessPage() {
     );
   }
 
+  // Les questions spécifiques au nouveau modèle d'acquisition
+  const progressiveAcquisitionFAQs = [
+    {
+      id: 'progressive-how',
+      question: "Comment fonctionne l'acquisition progressive ?",
+      answer: "L'acquisition progressive vous permet de démarrer avec seulement 40% du prix total. Vous versez ensuite 10% + 1000 FCFA du prix total chaque mois pendant 6 mois. Vous pouvez gérer et développer le business dès l'apport initial, mais le transfert complet de propriété n'est effectué qu'après le dernier versement."
+    },
+    {
+      id: 'progressive-use',
+      question: "Puis-je utiliser le business pendant la période de paiement ?",
+      answer: "Oui, dès votre apport initial de 40%, vous avez accès au business et pouvez commencer à le développer et à générer des revenus. Vous bénéficiez de notre accompagnement renforcé de 3 mois pour maximiser vos chances de succès."
+    },
+    {
+      id: 'progressive-default',
+      question: "Que se passe-t-il en cas de défaut de paiement ?",
+      answer: "En cas de retard de paiement, vos accès au business sont temporairement suspendus. Si le retard n'est pas régularisé sous 30 jours, le business pourra être remis en vente. Les versements déjà effectués ne sont pas remboursables, conformément aux conditions générales d'acquisition."
+    }
+  ];
+
   return (
     <main className="pt-20">
       {/* Navigation */}
@@ -192,7 +233,12 @@ export default function BusinessPage() {
           <div className="container mx-auto px-4 flex justify-between items-center">
             <div>
               <h3 className="font-bold text-[#0f4c81]">{business.name}</h3>
-              <div className="text-[#ff7f50] font-bold">{formatPrice(business.price)}</div>
+              <div className="text-[#ff7f50] font-bold">
+                {selectedAcquisitionOption === 'progressive' 
+                  ? `À partir de ${formatPrice(calculateEntryPrice(business.price))}` 
+                  : formatPrice(business.price)
+                }
+              </div>
             </div>
             <button 
               className="bg-[#ff7f50] text-white px-6 py-3 rounded-lg hover:bg-[#ff6b3d] transition-colors"
@@ -246,6 +292,8 @@ export default function BusinessPage() {
                   originalPrice={business.original_price}
                   monthlyPotential={business.monthly_potential}
                   onButtonClick={() => setIsModalOpen(true)}
+                  entryPrice={calculateEntryPrice(business.price)}
+                  showEntryPrice={true}
                 />
                 
                 <ExclusiveOpportunityBanner interestedCount={interestedCount} />
@@ -261,24 +309,127 @@ export default function BusinessPage() {
         </div>
       </section>
 
-    {/*
-      {/* Projection de revenus /}
-      <section className="py-12 bg-white border-t">
+      {/* Options d'acquisition */}
+      <section className="py-12 bg-blue-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold text-[#0f4c81] mb-6 text-center">Projection de revenus</h2>
-          <div className="mx-auto max-w-3xl">
-            <ROICalculator 
-              monthlyPotential={business.monthly_potential} 
-              price={business.price}
-              roiMonths={business.roi_estimation_months || 6}
-            />
+          <h2 className="text-2xl font-bold text-[#0f4c81] mb-6 text-center">Options d'acquisition</h2>
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Option standard */}
+            <div className={`bg-white rounded-xl shadow p-6 border-2 transition-all ${
+              selectedAcquisitionOption === 'standard' ? 'border-[#0f4c81] transform scale-105' : 'border-transparent'
+            }`}>
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-xl font-bold text-[#0f4c81]">Acquisition Complète</h3>
+                <button 
+                  onClick={() => setSelectedAcquisitionOption('standard')}
+                  className={`rounded-full p-2 ${
+                    selectedAcquisitionOption === 'standard' 
+                    ? 'bg-[#0f4c81] text-white' 
+                    : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  {selectedAcquisitionOption === 'standard' ? <CheckCircle2 className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                </button>
+              </div>
+              
+              <div className="mb-4">
+                <div className="text-3xl font-bold text-[#0f4c81]">{formatPrice(business.price)}</div>
+                <div className="text-gray-500 line-through">{formatPrice(business.original_price)}</div>
+              </div>
+              
+              <div className="space-y-4 mb-6">
+                <div className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                  <span>Transfert immédiat de propriété</span>
+                </div>
+                <div className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                  <span>Paiement en 1 à 3 fois</span>
+                </div>
+                <div className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                  <span>2 mois d'accompagnement inclus</span>
+                </div>
+                <div className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                  <span>Tous les éléments du business livrés immédiatement</span>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => {
+                  setSelectedAcquisitionOption('standard');
+                  setIsModalOpen(true);
+                }}
+                className="w-full bg-[#0f4c81] text-white py-3 rounded-lg hover:bg-[#0a3c67] transition-colors"
+              >
+                Acquérir avec cette option
+              </button>
+            </div>
             
-            <ProjectionDisclaimer />
+            {/* Option progressive */}
+            <div className={`bg-white rounded-xl shadow p-6 border-2 transition-all relative overflow-hidden ${
+              selectedAcquisitionOption === 'progressive' ? 'border-[#ff7f50] transform scale-105' : 'border-transparent'
+            }`}>
+              <div className="absolute -right-10 top-5 bg-[#ff7f50] text-white px-10 py-1 transform rotate-45">
+                NOUVEAU
+              </div>
+              
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-xl font-bold text-[#ff7f50]">Acquisition Progressive</h3>
+                <button 
+                  onClick={() => setSelectedAcquisitionOption('progressive')}
+                  className={`rounded-full p-2 ${
+                    selectedAcquisitionOption === 'progressive' 
+                    ? 'bg-[#ff7f50] text-white' 
+                    : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  {selectedAcquisitionOption === 'progressive' ? <CheckCircle2 className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                </button>
+              </div>
+              
+              <div className="mb-4">
+                <div className="text-3xl font-bold text-[#ff7f50]">
+                  À partir de {formatPrice(calculateEntryPrice(business.price))}
+                </div>
+                <div className="text-gray-700">
+                  + {formatPrice(calculateMonthlyPayment(business.price))} / mois pendant 6 mois
+                </div>
+              </div>
+              
+              <div className="space-y-4 mb-6">
+                <div className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                  <span>Démarrez avec seulement 40% du prix</span>
+                </div>
+                <div className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                  <span>Versements mensuels de 10% + 1000F pendant 6 mois</span>
+                </div>
+                <div className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                  <span><strong>3 mois</strong> d'accompagnement inclus</span>
+                </div>
+                <div className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                  <span>Transférez votre business en douceur</span>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => {
+                  setSelectedAcquisitionOption('progressive');
+                  setIsModalOpen(true);
+                }}
+                className="w-full bg-[#ff7f50] text-white py-3 rounded-lg hover:bg-[#ff6b3d] transition-colors"
+              >
+                Acquérir avec cette option
+              </button>
+            </div>
           </div>
         </div>
       </section>
-    
-      */}
 
       {/* Notre accompagnement */}
       <section className="py-12 bg-blue-50">
@@ -620,7 +771,44 @@ export default function BusinessPage() {
         <div className="container mx-auto px-4">
           <h2 className="text-2xl font-bold text-[#0f4c81] mb-6 text-center">Questions fréquentes</h2>
           <div className="max-w-3xl mx-auto">
-            <FAQSection questions={business.common_questions} />
+            {/* FAQ d'origine */}
+            <div className="space-y-4 mb-8">
+              <FAQSection questions={business.common_questions} />
+            </div>
+            
+            {/* FAQ spécifique à l'acquisition progressive */}
+            <div className="mt-8 border-t pt-8">
+              <h3 className="text-lg font-bold text-[#ff7f50] mb-4">
+                Questions sur l'acquisition progressive
+              </h3>
+              <div className="space-y-4">
+                {progressiveAcquisitionFAQs.map((faq) => (
+                  <div 
+                    key={faq.id} 
+                    className="border rounded-lg overflow-hidden"
+                  >
+                    <button
+                      className="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none"
+                      onClick={() => toggleFAQDetail(faq.id)}
+                    >
+                      <span className="font-medium">{faq.question}</span>
+                      <span>
+                        {showFAQDetails[faq.id] ? (
+                          <Minus className="h-5 w-5 text-gray-500" />
+                        ) : (
+                          <Plus className="h-5 w-5 text-gray-500" />
+                        )}
+                      </span>
+                    </button>
+                    {showFAQDetails[faq.id] && (
+                      <div className="px-6 pb-4">
+                        <p className="text-gray-600">{faq.answer}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -630,12 +818,27 @@ export default function BusinessPage() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Prêt(e) à lancer ce business ?</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">Ne laissez pas passer cette opportunité unique de démarrer avec un business en ligne clé en main et un accompagnement expert.</p>
-          <button 
-            className="bg-[#ff7f50] text-white px-10 py-4 rounded-lg text-lg font-bold hover:bg-[#ff6b3d] transition-colors"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Je saisis l'opportunité <ArrowRight className="inline ml-2 w-5 h-5" />
-          </button>
+          <div className="flex flex-col md:flex-row gap-4 justify-center max-w-lg mx-auto">
+            <button 
+              className="bg-[#ff7f50] text-white px-6 py-4 rounded-lg text-lg font-bold hover:bg-[#ff6b3d] transition-colors flex-1"
+              onClick={() => {
+                setSelectedAcquisitionOption('standard');
+                setIsModalOpen(true);
+              }}
+            >
+              Acquisition complète
+            </button>
+            <button 
+              className="bg-white text-[#0f3c81] px-6 py-4 rounded-lg text-lg font-bold hover:bg-gray-100 transition-colors flex-1 flex items-center justify-center gap-2"
+              onClick={() => {
+                setSelectedAcquisitionOption('progressive');
+                setIsModalOpen(true);
+              }}
+            >
+              Acquisition progressive
+              <span className="bg-[#ff7f50] text-white text-xs px-2 py-0.5 rounded-full">NOUVEAU</span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -643,7 +846,9 @@ export default function BusinessPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         businessName={business.name}
-        businessPrice={formatPrice(business.price)}
+        businessPrice={selectedAcquisitionOption === 'progressive' 
+          ? `À partir de ${formatPrice(calculateEntryPrice(business.price))}` 
+          : formatPrice(business.price)}
         businessId={business.id}
       />
     </main>
