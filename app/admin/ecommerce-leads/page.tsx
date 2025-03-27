@@ -1,4 +1,4 @@
-// app/admin/ramadan-leads/page.tsx
+// app/admin/ecommerce-leads/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -16,7 +16,8 @@ import {
   Card, 
   CardContent, 
   CardHeader, 
-  CardTitle 
+  CardTitle,
+  CardDescription 
 } from "@/app/components/ui/card";
 import { 
   CheckCircle, 
@@ -24,18 +25,23 @@ import {
   AlertCircle, 
   Filter, 
   Search, 
-  RefreshCcw,
+  RefreshCw,
   Download,
   PhoneCall,
   Mail,
-  Calendar
+  Calendar,
+  ShoppingBag,
+  Smartphone
 } from 'lucide-react';
 import { supabase } from '@/app/lib/supabase';
 import { Button } from '@/app/components/ui/button';
+import { Badge } from "@/app/components/ui/badge";
+import { Input } from "@/app/components/ui/input";
 import { toast } from 'sonner';
+import { withAdminAuth } from '@/app/lib/withAdminAuth';
 
 // Types
-interface RamadanLead {
+interface EcommerceLead {
   id: string;
   created_at: string;
   full_name: string;
@@ -52,60 +58,18 @@ interface RamadanLead {
   total_amount: number;
   transaction_id: string;
   status: 'new' | 'contacted' | 'in_progress' | 'completed' | 'cancelled';
+  platform: 'shopify' | 'wordpress';
   notes: string;
 }
 
-interface FallbackLead {
-  id: string;
-  created_at: string;
-  formation_id: string;
-  full_name: string;
-  email: string;
-  phone: string;
-  country: string;
-  city: string;
-  payment_status: string;
-  amount_paid: number;
-  metadata: {
-    businessName: string;
-    businessDescription: string;
-    existingWebsite: string;
-    howDidYouHear: string;
-    promoType: string;
-    transactionId: string;
-  };
-}
-
-// Convertir un lead du fallback en format standard
-const convertFallbackLead = (fallbackLead: FallbackLead): RamadanLead => {
-  return {
-    id: fallbackLead.id,
-    created_at: fallbackLead.created_at,
-    full_name: fallbackLead.full_name,
-    email: fallbackLead.email,
-    phone: fallbackLead.phone,
-    country: fallbackLead.country,
-    city: fallbackLead.city,
-    business_name: fallbackLead.metadata?.businessName || '',
-    business_description: fallbackLead.metadata?.businessDescription || '',
-    existing_website: fallbackLead.metadata?.existingWebsite || '',
-    lead_source: fallbackLead.metadata?.howDidYouHear || '',
-    payment_status: fallbackLead.payment_status,
-    amount_paid: fallbackLead.amount_paid,
-    total_amount: fallbackLead.amount_paid * 2, // Estimation basée sur 50%
-    transaction_id: fallbackLead.metadata?.transactionId || '',
-    status: 'new',
-    notes: ''
-  };
-};
-
-export default function RamadanLeadsPage() {
+function EcommerceLeadsPage() {
   const router = useRouter();
-  const [leads, setLeads] = useState<RamadanLead[]>([]);
+  const [leads, setLeads] = useState<EcommerceLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [platformFilter, setPlatformFilter] = useState<string>('all');
 
   // Charger les leads
   useEffect(() => {
@@ -117,31 +81,32 @@ export default function RamadanLeadsPage() {
     setError(null);
     
     try {
-      // D'abord essayer de lire depuis la table ramadan_promo_leads
-      let { data: ramadanLeads, error: ramadanError } = await supabase
-        .from('ramadan_promo_leads')
+      // Récupérer les données de la table ecommerce_leads
+      let { data: ecommerceLeads, error } = await supabase
+        .from('ecommerce_leads')
         .select('*')
         .order('created_at', { ascending: false });
       
-      // Si la table n'existe pas encore, utiliser formation_enrollments comme fallback
-      if (ramadanError && ramadanError.code === '42P01') { // Code pour "relation does not exist"
+      if (error) {
+        // Fallback pour la rétrocompatibilité: vérifier l'ancienne table ramadan_promo_leads
         const { data: fallbackData, error: fallbackError } = await supabase
-          .from('formation_enrollments')
+          .from('ramadan_promo_leads')
           .select('*')
-          .eq('formation_id', 'promo-ramadan-2024')
           .order('created_at', { ascending: false });
           
         if (fallbackError) {
           throw fallbackError;
         }
         
-        // Convertir les données du fallback au format attendu
-        const convertedLeads = (fallbackData || []).map(convertFallbackLead);
-        setLeads(convertedLeads);
-      } else if (ramadanError) {
-        throw ramadanError;
+        // Convertir et adapter les données de l'ancienne table
+        const adaptedLeads = (fallbackData || []).map(lead => ({
+          ...lead,
+          platform: lead.platform || 'shopify' // Valeur par défaut si la plateforme n'est pas spécifiée
+        }));
+        
+        setLeads(adaptedLeads);
       } else {
-        setLeads(ramadanLeads || []);
+        setLeads(ecommerceLeads || []);
       }
     } catch (error: any) {
       console.error('Error fetching leads:', error);
@@ -152,30 +117,22 @@ export default function RamadanLeadsPage() {
   };
 
   // Fonction pour mettre à jour le statut d'un lead
-  const updateLeadStatus = async (leadId: string, newStatus: RamadanLead['status']) => {
+  const updateLeadStatus = async (leadId: string, newStatus: EcommerceLead['status']) => {
     try {
-      // D'abord essayer de mettre à jour dans la table principale
-      const { error: updateError } = await supabase
-        .from('ramadan_promo_leads')
+      // Mise à jour dans la base de données
+      const { error } = await supabase
+        .from('ecommerce_leads')
         .update({ status: newStatus })
         .eq('id', leadId);
       
-      if (updateError) {
-        if (updateError.code === '42P01') { // Si la table n'existe pas
-          // Mettre à jour les métadonnées dans la table fallback
-          const { error: fallbackError } = await supabase
-            .from('formation_enrollments')
-            .update({
-                metadata: {
-                    status: newStatus
-                  }
-            })
-            .eq('id', leadId);
+      if (error) {
+        // Essayer de mettre à jour l'ancienne table en cas d'erreur
+        const { error: fallbackError } = await supabase
+          .from('ramadan_promo_leads')
+          .update({ status: newStatus })
+          .eq('id', leadId);
           
-          if (fallbackError) throw fallbackError;
-        } else {
-          throw updateError;
-        }
+        if (fallbackError) throw fallbackError;
       }
       
       // Mettre à jour l'interface utilisateur
@@ -183,7 +140,7 @@ export default function RamadanLeadsPage() {
         lead.id === leadId ? { ...lead, status: newStatus } : lead
       ));
       
-      toast.success(`Statut mis à jour avec succès: ${newStatus}`);
+      toast.success(`Statut mis à jour avec succès: ${translateStatus(newStatus)}`);
     } catch (error: any) {
       console.error('Erreur lors de la mise à jour du statut:', error);
       toast.error(`Erreur: ${error.message || 'Impossible de mettre à jour le statut'}`);
@@ -192,7 +149,7 @@ export default function RamadanLeadsPage() {
 
   // Fonction pour naviguer vers la page de détail d'un lead
   const navigateToLeadDetail = (leadId: string) => {
-    router.push(`/admin/ramadan-leads/${leadId}`);
+    router.push(`/admin/ecommerce-leads/${leadId}`);
   };
 
   // Formater une date
@@ -213,7 +170,8 @@ export default function RamadanLeadsPage() {
     const headers = [
       'ID', 'Date', 'Nom', 'Email', 'Téléphone', 'Pays', 'Ville', 
       'Nom Business', 'Description', 'Site Web', 'Source', 
-      'Statut Paiement', 'Montant Payé', 'Montant Total', 'Transaction ID', 'Statut', 'Notes'
+      'Statut Paiement', 'Montant Payé', 'Montant Total', 
+      'Plateforme', 'Transaction ID', 'Statut', 'Notes'
     ];
     
     // Convertir les leads en lignes CSV
@@ -226,14 +184,15 @@ export default function RamadanLeadsPage() {
       lead.country,
       lead.city,
       lead.business_name,
-      `"${lead.business_description.replace(/"/g, '""')}"`, // Échapper les guillemets
-      lead.existing_website,
-      lead.lead_source,
-      lead.payment_status,
-      lead.amount_paid,
-      lead.total_amount,
-      lead.transaction_id,
-      lead.status,
+      `"${lead.business_description?.replace(/"/g, '""') || ''}"`, // Échapper les guillemets
+      lead.existing_website || '',
+      lead.lead_source || '',
+      lead.payment_status || '',
+      lead.amount_paid || 0,
+      lead.total_amount || 0,
+      lead.platform || 'shopify',
+      lead.transaction_id || '',
+      lead.status || 'new',
       `"${(lead.notes || '').replace(/"/g, '""')}"`
     ]);
     
@@ -248,24 +207,25 @@ export default function RamadanLeadsPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `ramadan-leads-${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `ecommerce-leads-${new Date().toISOString().slice(0, 10)}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // Filtrer les leads en fonction de la recherche et du filtre de statut
+  // Filtrer les leads en fonction de la recherche et des filtres
   const filteredLeads = leads.filter(lead => {
     const matchesSearch = 
-      lead.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lead.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lead.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lead.business_name.toLowerCase().includes(searchQuery.toLowerCase());
+      lead.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lead.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lead.phone?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lead.business_name?.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
+    const matchesPlatform = platformFilter === 'all' || lead.platform === platformFilter;
     
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesStatus && matchesPlatform;
   });
 
   // Déterminer la couleur du badge en fonction du statut
@@ -280,6 +240,13 @@ export default function RamadanLeadsPage() {
     }
   };
 
+  // Déterminer la couleur du badge en fonction de la plateforme
+  const getPlatformBadgeClass = (platform: string) => {
+    return platform === 'shopify' ? 
+      'bg-green-100 text-green-800 border-green-200' : 
+      'bg-blue-100 text-blue-800 border-blue-200';
+  };
+
   // Traduction des statuts en français
   const translateStatus = (status: string) => {
     switch (status) {
@@ -292,11 +259,31 @@ export default function RamadanLeadsPage() {
     }
   };
 
+  // Calculer les statistiques des leads
+  const getStats = () => {
+    const totalShopify = leads.filter(lead => lead.platform === 'shopify').length;
+    const totalWordPress = leads.filter(lead => lead.platform === 'wordpress').length;
+    const totalNew = leads.filter(lead => lead.status === 'new').length;
+    const totalInProgress = leads.filter(lead => lead.status === 'in_progress').length;
+    const totalCompleted = leads.filter(lead => lead.status === 'completed').length;
+    
+    return {
+      totalShopify,
+      totalWordPress,
+      totalNew,
+      totalInProgress,
+      totalCompleted,
+      totalRevenue: leads.reduce((sum, lead) => sum + (lead.amount_paid || 0), 0)
+    };
+  };
+
+  const stats = getStats();
+
   return (
     <div className="space-y-8">
       <div>
         <h2 className="text-3xl font-bold text-[#0f4c81]">Prospects Sites E-commerce</h2>
-        <p className="text-gray-500">Gestion des prospects pour Sites E-commerce clé en main</p>
+        <p className="text-gray-500">Gestion des prospects pour sites e-commerce professionnels</p>
       </div>
 
       {/* Statistiques */}
@@ -307,6 +294,14 @@ export default function RamadanLeadsPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">{leads.length}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <Badge className="bg-green-100 text-green-800 border-green-200">
+                Shopify: {stats.totalShopify}
+              </Badge>
+              <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                WordPress: {stats.totalWordPress}
+              </Badge>
+            </div>
           </CardContent>
         </Card>
         
@@ -316,7 +311,7 @@ export default function RamadanLeadsPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-blue-600">
-              {leads.filter(lead => lead.status === 'new').length}
+              {stats.totalNew}
             </p>
           </CardContent>
         </Card>
@@ -327,18 +322,18 @@ export default function RamadanLeadsPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-purple-600">
-              {leads.filter(lead => lead.status === 'in_progress').length}
+              {stats.totalInProgress}
             </p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Terminés</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">Revenus générés</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-green-600">
-              {leads.filter(lead => lead.status === 'completed').length}
+              {stats.totalRevenue.toLocaleString()} FCFA
             </p>
           </CardContent>
         </Card>
@@ -346,32 +341,46 @@ export default function RamadanLeadsPage() {
 
       {/* Contrôles (recherche, filtres, export) */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between pb-4">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative w-full sm:w-64">
+        <div className="flex flex-col sm:flex-row gap-4 flex-grow">
+          <div className="relative w-full sm:w-80">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <input
-              type="text"
+            <Input
               placeholder="Rechercher..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 w-full border rounded-lg"
+              className="pl-9 pr-4 py-2 w-full"
             />
           </div>
           
-          <div className="flex items-center">
-            <Filter className="h-4 w-4 mr-2 text-gray-500" />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="border rounded-lg px-3 py-2"
-            >
-              <option value="all">Tous les statuts</option>
-              <option value="new">Nouveaux</option>
-              <option value="contacted">Contactés</option>
-              <option value="in_progress">En cours</option>
-              <option value="completed">Terminés</option>
-              <option value="cancelled">Annulés</option>
-            </select>
+          <div className="flex gap-3">
+            <div className="flex items-center">
+              <Filter className="h-4 w-4 mr-2 text-gray-500" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="border rounded-lg px-3 py-2"
+              >
+                <option value="all">Tous les statuts</option>
+                <option value="new">Nouveaux</option>
+                <option value="contacted">Contactés</option>
+                <option value="in_progress">En cours</option>
+                <option value="completed">Terminés</option>
+                <option value="cancelled">Annulés</option>
+              </select>
+            </div>
+            
+            <div className="flex items-center">
+              <Smartphone className="h-4 w-4 mr-2 text-gray-500" />
+              <select
+                value={platformFilter}
+                onChange={(e) => setPlatformFilter(e.target.value)}
+                className="border rounded-lg px-3 py-2"
+              >
+                <option value="all">Toutes les plateformes</option>
+                <option value="shopify">Shopify</option>
+                <option value="wordpress">WordPress</option>
+              </select>
+            </div>
           </div>
         </div>
         
@@ -381,7 +390,7 @@ export default function RamadanLeadsPage() {
             onClick={fetchLeads} 
             className="flex items-center"
           >
-            <RefreshCcw className="h-4 w-4 mr-2" />
+            <RefreshCw className="h-4 w-4 mr-2" />
             Actualiser
           </Button>
           
@@ -422,6 +431,7 @@ export default function RamadanLeadsPage() {
                     <TableHead>Date</TableHead>
                     <TableHead>Nom</TableHead>
                     <TableHead>Business</TableHead>
+                    <TableHead>Plateforme</TableHead>
                     <TableHead>Contact</TableHead>
                     <TableHead>Paiement</TableHead>
                     <TableHead>Statut</TableHead>
@@ -443,6 +453,11 @@ export default function RamadanLeadsPage() {
                       </TableCell>
                       <TableCell className="font-medium">{lead.full_name}</TableCell>
                       <TableCell>{lead.business_name}</TableCell>
+                      <TableCell>
+                        <Badge className={getPlatformBadgeClass(lead.platform)}>
+                          {lead.platform === 'shopify' ? 'Shopify' : 'WordPress'}
+                        </Badge>
+                      </TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
                         <div className="flex flex-col space-y-1">
                           <a href={`mailto:${lead.email}`} className="flex items-center text-blue-600 hover:underline">
@@ -457,11 +472,15 @@ export default function RamadanLeadsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center">
-                          <span className={lead.payment_status.includes('partial') ? 'text-yellow-600' : 'text-green-600'}>
-                            {lead.amount_paid.toLocaleString()} FCFA
+                          <span className={lead.payment_status?.includes('partial') ? 'text-yellow-600' : 'text-green-600'}>
+                            {(lead.amount_paid || 0).toLocaleString()} FCFA
                           </span>
-                          <span className="text-gray-400 mx-1">/</span>
-                          <span className="text-gray-600">{lead.total_amount.toLocaleString()} FCFA</span>
+                          {lead.total_amount > 0 && (
+                            <>
+                              <span className="text-gray-400 mx-1">/</span>
+                              <span className="text-gray-600">{(lead.total_amount || 0).toLocaleString()} FCFA</span>
+                            </>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -533,3 +552,5 @@ export default function RamadanLeadsPage() {
     </div>
   );
 }
+
+export default withAdminAuth(EcommerceLeadsPage);

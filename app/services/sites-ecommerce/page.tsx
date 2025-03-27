@@ -5,7 +5,7 @@ import React, { useState, useRef } from 'react';
 import { Calendar, Check, Package, PieChart, Award, ShoppingCart, Star, ArrowRight, Shield, Zap, BarChart, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import PromoEnrollmentModal from '@/app/components/promotions/PromoEnrollmentModal';
+import PromoEnrollmentModal from '@/app/components/ecommerce/EnrollmentModal';
 import PriceFormatter from '../../components/common/PriceFormatter';
 
 // Données de service
@@ -658,15 +658,17 @@ export default function EcommerceServicePage() {
       <PromoEnrollmentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        promoData={{
-          ...serviceData,
+        serviceData={{
+          title: serviceData.title,
+          subtitle: serviceData.subtitle,
           price: {
-            original: serviceData.price,
-            discounted: serviceData.price
+            shopify: 695000,
+            wordpress: 495000
           },
-          endDate: "",
-          maxClients: 20,
-          remainingSpots: 20
+          deliveryTime: serviceData.deliveryTime,
+          portfolioItems: serviceData.portfolioItems,
+          features: serviceData.features,
+          marketingStrategy: serviceData.marketingStrategy
         }}
       />
     </main>

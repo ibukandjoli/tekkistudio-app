@@ -1,4 +1,4 @@
-// app/components/promotions/PromoEnrollmentModal.tsx
+// app/components/ecommerce/EnrollmentModal.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -13,35 +13,32 @@ import { toast } from 'sonner';
 import { supabase } from '@/app/lib/supabase';
 import { Check, AlertCircle, Loader2, Info } from 'lucide-react';
 
-interface PromoData {
+interface ServiceData {
   title: string;
   subtitle: string;
   price: {
-    original: number;
-    discounted: number;
+    shopify: number;
+    wordpress: number;
   };
-  endDate: string;
-  maxClients: number;
-  remainingSpots: number;
   deliveryTime: string;
   portfolioItems: any[];
   features: string[];
   marketingStrategy: string[];
-  faqs: any[];
 }
 
-interface PromoEnrollmentModalProps {
+interface EnrollmentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  promoData: PromoData;
+  serviceData: ServiceData;
 }
 
-// Définir correctement le type avec les trois états possibles
+// Définir correctement le type avec les états possibles
 type PaymentStatus = 'not_started' | 'initiated' | 'verified';
 type PaymentOption = 'full' | 'partial';
 type ContactMethod = 'pay_now' | 'contact_later';
+type PlatformOption = 'shopify' | 'wordpress';
 
-const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentModalProps) => {
+const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [paymentWindowOpened, setPaymentWindowOpened] = useState(false);
@@ -60,8 +57,9 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
     businessDescription: '',
     existingWebsite: '',
     howDidYouHear: '',
+    platformOption: 'shopify' as PlatformOption, // Option de plateforme par défaut (Shopify)
     paymentOption: 'partial' as PaymentOption, // Option de paiement par défaut (en 2 fois)
-    contactMethod: 'pay_now' as ContactMethod, // Nouvelle propriété
+    contactMethod: 'pay_now' as ContactMethod, // Méthode de contact par défaut
   });
 
   // Réinitialiser l'état d'erreur lors de l'ouverture du modal
@@ -81,25 +79,36 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
   const handleNextStep = () => setStep(step + 1);
   const handlePrevStep = () => setStep(step - 1);
 
+  // Obtenir le prix en fonction de la plateforme sélectionnée
+  const getPlatformPrice = (): number => {
+    return formData.platformOption === 'shopify' ? 
+      serviceData.price.shopify : 
+      serviceData.price.wordpress;
+  };
+
   // Calculer le montant du paiement en fonction de l'option choisie
   const getPaymentAmount = (): number => {
+    const basePrice = getPlatformPrice();
+    
     if (formData.paymentOption === 'full') {
       // Paiement intégral avec réduction de 10%
-      return Math.ceil(promoData.price.discounted * 0.9);
+      return Math.ceil(basePrice * 0.9);
     } else {
       // Paiement en 2 fois (50% maintenant)
-      return Math.ceil(promoData.price.discounted / 2);
+      return Math.ceil(basePrice / 2);
     }
   };
 
   // Fonction pour obtenir le montant total à payer
   const getTotalAmount = (): number => {
+    const basePrice = getPlatformPrice();
+    
     if (formData.paymentOption === 'full') {
       // Paiement intégral avec réduction de 10%
-      return Math.ceil(promoData.price.discounted * 0.9);
+      return Math.ceil(basePrice * 0.9);
     } else {
       // Prix normal sans réduction pour le paiement en 2 fois
-      return promoData.price.discounted;
+      return basePrice;
     }
   };
 
@@ -111,9 +120,6 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
       // Générer un ID de transaction unique
       const newTransactionId = crypto.randomUUID();
       setTransactionId(newTransactionId);
-      
-      // Préparation des données client et sauvegarde en base (code existant)
-      // ...
       
       // Supprimer l'indicateur de chargement
       toast.dismiss();
@@ -226,7 +232,7 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
     }
   };
   
-  // Fonction handleSubmit mise à jour pour utiliser l'API
+  // Fonction handleSubmit pour utiliser l'API
   const handleSubmit = async () => {
     // Vérification différente selon la méthode choisie
     if (formData.contactMethod === 'pay_now') {
@@ -256,7 +262,7 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
       toast.loading("Finalisation de votre inscription...");
       
       // Préparer les données pour l'API
-    const leadData = {
+      const leadData = {
         full_name: formData.fullName,
         email: formData.email,
         phone: formData.phone,
@@ -271,15 +277,16 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
         amount_paid: amountToPay,
         transaction_id: formData.contactMethod === 'pay_now' ? transactionId : null,
         total_amount: totalAmount,
-        status: 'new', 
+        status: 'new',
+        platform: formData.platformOption,
         notes: formData.contactMethod === 'contact_later' 
-        ? 'Client souhaite être contacté avant paiement' 
-        : (formData.contactMethod === 'pay_now' ? 'Client a déjà effectué le paiement' : ''),
+          ? 'Client souhaite être contacté avant paiement' 
+          : (formData.contactMethod === 'pay_now' ? 'Client a déjà effectué le paiement' : ''),
         contact_method: formData.contactMethod
-    };
+      };
       
-      // Appeler l'API pour insérer dans ramadan_promo_leads uniquement
-      const response = await fetch('/api/ramadan-promo/create', {
+      // Appeler l'API pour insérer dans ecommerce_leads
+      const response = await fetch('/api/ecommerce/create-lead', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -330,6 +337,7 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
       businessDescription: '',
       existingWebsite: '',
       howDidYouHear: '',
+      platformOption: 'shopify',
       paymentOption: 'partial',
       contactMethod: 'pay_now',
     });
@@ -354,10 +362,10 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-[#0f4c81]">
-            Offre Spéciale Ramadan
+            Site E-commerce Professionnel
           </DialogTitle>
           <DialogDescription>
-            {promoData.subtitle}
+            {serviceData.subtitle}
           </DialogDescription>
         </DialogHeader>
 
@@ -533,7 +541,7 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
               
               <div>
                 <label className="block text-sm font-medium mb-1" htmlFor="howDidYouHear">
-                  Comment avez-vous entendu parler de cette offre ?
+                  Comment avez-vous entendu parler de nos services ?
                 </label>
                 <select
                   id="howDidYouHear"
@@ -586,7 +594,49 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
                     <div>
                       <div className="font-medium">Être contacté(e) pour plus d'informations</div>
                       <div className="text-sm text-gray-500">
-                        Un conseiller vous contactera dans les 24h (places limitées)
+                        Un conseiller vous contactera dans les 24h
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Choix de la plateforme */}
+              <div className="space-y-2 mb-6">
+                <label className="block text-sm font-medium mb-1">
+                  Quelle plateforme préférez-vous ?*
+                </label>
+                <div className="space-y-2 mt-2">
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="platformOption"
+                      value="shopify"
+                      checked={formData.platformOption === 'shopify'}
+                      onChange={handleChange}
+                      className="mr-2"
+                    />
+                    <div>
+                      <div className="font-medium">Shopify (Recommandé)</div>
+                      <div className="text-sm text-gray-500">
+                        {formatPrice(serviceData.price.shopify)} FCFA - Solution tout-en-un plus stable et facile à gérer
+                      </div>
+                    </div>
+                  </label>
+                  
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="platformOption"
+                      value="wordpress"
+                      checked={formData.platformOption === 'wordpress'}
+                      onChange={handleChange}
+                      className="mr-2"
+                    />
+                    <div>
+                      <div className="font-medium">WordPress / WooCommerce</div>
+                      <div className="text-sm text-gray-500">
+                        {formatPrice(serviceData.price.wordpress)} FCFA - Solution plus économique et personnalisable
                       </div>
                     </div>
                   </label>
@@ -610,7 +660,7 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
                     <div>
                       <div className="font-medium">Paiement en 2 fois</div>
                       <div className="text-sm text-gray-500">
-                        {formatPrice(Math.ceil(promoData.price.discounted / 2))} FCFA maintenant + {formatPrice(Math.ceil(promoData.price.discounted / 2))} FCFA dans 30 jours
+                        {formatPrice(Math.ceil(getPlatformPrice() / 2))} FCFA maintenant + {formatPrice(Math.ceil(getPlatformPrice() / 2))} FCFA dans 30 jours
                       </div>
                     </div>
                   </label>
@@ -627,7 +677,7 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
                     <div>
                       <div className="font-medium">Paiement intégral (-10%)</div>
                       <div className="text-sm text-gray-500">
-                        {formatPrice(Math.ceil(promoData.price.discounted * 0.9))} FCFA (au lieu de {formatPrice(promoData.price.discounted)} FCFA)
+                        {formatPrice(Math.ceil(getPlatformPrice() * 0.9))} FCFA (au lieu de {formatPrice(getPlatformPrice())} FCFA)
                       </div>
                     </div>
                   </label>
@@ -648,17 +698,13 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
                   <div className="bg-gray-50 p-4 rounded-lg mb-6">
                     <div className="font-medium text-[#0f4c81] mb-2">Récapitulatif de votre commande</div>
                     <div className="flex justify-between mb-1">
-                      <span>Site e-commerce professionnel + Stratégie Meta</span>
-                      <span>{formatPrice(promoData.price.discounted)} FCFA</span>
-                    </div>
-                    <div className="flex justify-between mb-1 text-sm text-gray-500">
-                      <span>Prix normal</span>
-                      <span className="line-through">{formatPrice(promoData.price.original)} FCFA</span>
+                      <span>Site e-commerce professionnel sur {formData.platformOption === 'shopify' ? 'Shopify' : 'WordPress'}</span>
+                      <span>{formatPrice(getPlatformPrice())} FCFA</span>
                     </div>
                     {formData.paymentOption === 'full' && (
                       <div className="flex justify-between mb-1 text-sm text-green-600">
                         <span>Réduction paiement intégral (10%)</span>
-                        <span>-{formatPrice(Math.ceil(promoData.price.discounted * 0.1))} FCFA</span>
+                        <span>-{formatPrice(Math.ceil(getPlatformPrice() * 0.1))} FCFA</span>
                       </div>
                     )}
                     <div className="border-t border-gray-200 my-2"></div>
@@ -672,7 +718,7 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
                     </div>
                     {formData.paymentOption === 'partial' && (
                       <div className="text-sm text-gray-500 mt-1">
-                        Le solde de {formatPrice(Math.ceil(promoData.price.discounted / 2))} FCFA sera à payer 30 jours après la livraison
+                        Le solde de {formatPrice(Math.ceil(getPlatformPrice() / 2))} FCFA sera à payer 30 jours après la livraison
                       </div>
                     )}
                   </div>
@@ -789,8 +835,12 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
                         <span>{formData.businessName}</span>
                       </div>
                       <div className="flex justify-between">
+                        <span className="font-medium">Plateforme:</span>
+                        <span>{formData.platformOption === 'shopify' ? 'Shopify' : 'WordPress'}</span>
+                      </div>
+                      <div className="flex justify-between">
                         <span className="font-medium">Prix de l'offre:</span>
-                        <span>{formatPrice(promoData.price.discounted)} FCFA</span>
+                        <span>{formatPrice(getPlatformPrice())} FCFA</span>
                       </div>
                     </div>
                   </div>
@@ -805,7 +855,6 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
                           <li>Nous répondrons à toutes vos questions sur l'offre</li>
                           <li>Si vous décidez de procéder, nous vous aiderons pour le paiement</li>
                         </ol>
-                        <p className="mt-2 text-[#ff7f50] font-medium">N'oubliez pas : les places sont limitées à {promoData.maxClients} participants !</p>
                       </div>
                     </div>
                   </div>
@@ -881,4 +930,4 @@ const PromoEnrollmentModal = ({ isOpen, onClose, promoData }: PromoEnrollmentMod
   );
 };
 
-export default PromoEnrollmentModal;
+export default EnrollmentModal;

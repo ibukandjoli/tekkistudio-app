@@ -1,4 +1,4 @@
-// app/admin/ramadan-leads/[id]/page.tsx
+// app/admin/ecommerce-leads/[id]/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -26,7 +26,10 @@ import {
   User,
   Activity,
   Info,
-  FileText
+  FileText,
+  ChevronRight,
+  Smartphone,
+  Laptop
 } from 'lucide-react';
 import { 
   Card, 
@@ -78,7 +81,7 @@ import {
 } from "@/app/components/ui/tabs";
 
 // Types
-interface RamadanLead {
+interface EcommerceLead {
   id: string;
   created_at: string;
   full_name: string;
@@ -95,65 +98,28 @@ interface RamadanLead {
   total_amount: number;
   transaction_id: string;
   status: 'new' | 'contacted' | 'in_progress' | 'completed' | 'cancelled';
+  platform: 'shopify' | 'wordpress';
   notes: string;
 }
 
-interface FallbackLead {
-  id: string;
-  created_at: string;
-  formation_id: string;
-  full_name: string;
-  email: string;
-  phone: string;
-  country: string;
-  city: string;
-  payment_status: string;
-  amount_paid: number;
-  metadata: {
-    businessName: string;
-    businessDescription: string;
-    existingWebsite: string;
-    howDidYouHear: string;
-    promoType: string;
-    transactionId: string;
-    status?: string;
-    notes?: string;
-  };
-}
-
-// Convertir un lead du fallback en format standard
-const convertFallbackLead = (fallbackLead: FallbackLead): RamadanLead => {
+// Convertir d'anciens leads (rétrocompatibilité)
+const adaptLegacyLead = (legacyLead: any): EcommerceLead => {
   return {
-    id: fallbackLead.id,
-    created_at: fallbackLead.created_at,
-    full_name: fallbackLead.full_name,
-    email: fallbackLead.email,
-    phone: fallbackLead.phone,
-    country: fallbackLead.country,
-    city: fallbackLead.city,
-    business_name: fallbackLead.metadata?.businessName || '',
-    business_description: fallbackLead.metadata?.businessDescription || '',
-    existing_website: fallbackLead.metadata?.existingWebsite || '',
-    lead_source: fallbackLead.metadata?.howDidYouHear || '',
-    payment_status: fallbackLead.payment_status,
-    amount_paid: fallbackLead.amount_paid,
-    total_amount: fallbackLead.amount_paid * 2, // Estimation basée sur 50%
-    transaction_id: fallbackLead.metadata?.transactionId || '',
-    status: (fallbackLead.metadata?.status as any) || 'new',
-    notes: fallbackLead.metadata?.notes || ''
+    ...legacyLead,
+    platform: legacyLead.platform || 'shopify' // Valeur par défaut si la plateforme n'est pas spécifiée
   };
 };
 
-function RamadanLeadDetailPage() {
+function EcommerceLeadDetailPage() {
   const params = useParams();
   const router = useRouter();
   const leadId = params.id as string;
   
-  const [lead, setLead] = useState<RamadanLead | null>(null);
+  const [lead, setLead] = useState<EcommerceLead | null>(null);
   const [loading, setLoading] = useState(true);
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
   const [isNotesDialogOpen, setIsNotesDialogOpen] = useState(false);
-  const [newStatus, setNewStatus] = useState<RamadanLead['status']>('new');
+  const [newStatus, setNewStatus] = useState<EcommerceLead['status']>('new');
   const [notes, setNotes] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -168,29 +134,27 @@ function RamadanLeadDetailPage() {
       setLoading(true);
       setError(null);
 
-      // D'abord essayer de lire depuis la table ramadan_promo_leads
+      // Essayer d'abord la nouvelle table
       let { data: leadData, error: leadError } = await supabase
-        .from('ramadan_promo_leads')
+        .from('ecommerce_leads')
         .select('*')
         .eq('id', leadId)
         .single();
       
-      // Si la table n'existe pas encore, utiliser formation_enrollments comme fallback
-      if (leadError && leadError.code === '42P01') { // Code pour "relation does not exist"
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('formation_enrollments')
+      // Si pas trouvé, essayer l'ancienne table
+      if (leadError) {
+        const { data: legacyData, error: legacyError } = await supabase
+          .from('ramadan_promo_leads')
           .select('*')
           .eq('id', leadId)
           .single();
           
-        if (fallbackError) {
-          throw fallbackError;
+        if (legacyError) {
+          throw legacyError;
         }
         
-        // Convertir les données du fallback au format attendu
-        leadData = convertFallbackLead(fallbackData);
-      } else if (leadError) {
-        throw leadError;
+        // Adapter les données de l'ancienne table
+        leadData = adaptLegacyLead(legacyData);
       }
 
       if (leadData) {
@@ -206,35 +170,26 @@ function RamadanLeadDetailPage() {
     }
   };
 
-  const updateLeadStatus = async (newStatusValue: RamadanLead['status']) => {
+  const updateLeadStatus = async (newStatusValue: EcommerceLead['status']) => {
     if (!lead) return;
     
     setIsUpdating(true);
     
     try {
-      // D'abord essayer de mettre à jour dans la table principale
+      // Essayer d'abord de mettre à jour dans la nouvelle table
       const { error: updateError } = await supabase
-        .from('ramadan_promo_leads')
+        .from('ecommerce_leads')
         .update({ status: newStatusValue })
         .eq('id', leadId);
       
       if (updateError) {
-        if (updateError.code === '42P01') { // Si la table n'existe pas
-          // Mettre à jour les métadonnées dans la table fallback
-          const { error: fallbackError } = await supabase
-            .from('formation_enrollments')
-            .update({
-              metadata: {
-                ...lead, // Conserver toutes les métadonnées existantes
-                status: newStatusValue
-              }
-            })
-            .eq('id', leadId);
-          
-          if (fallbackError) throw fallbackError;
-        } else {
-          throw updateError;
-        }
+        // Si erreur, essayer l'ancienne table
+        const { error: legacyError } = await supabase
+          .from('ramadan_promo_leads')
+          .update({ status: newStatusValue })
+          .eq('id', leadId);
+        
+        if (legacyError) throw legacyError;
       }
       
       // Enregistrer l'activité
@@ -243,7 +198,7 @@ function RamadanLeadDetailPage() {
         .insert([
           {
             type: 'lead_status_update',
-            description: `Statut du lead Ramadan mis à jour pour ${lead.full_name}: ${lead.status} -> ${newStatusValue}`,
+            description: `Statut du lead mis à jour pour ${lead.full_name}: ${lead.status} -> ${newStatusValue}`,
             metadata: { 
               leadId: lead.id,
               previousStatus: lead.status,
@@ -276,29 +231,20 @@ function RamadanLeadDetailPage() {
     setIsUpdating(true);
     
     try {
-      // D'abord essayer de mettre à jour dans la table principale
+      // Essayer d'abord la nouvelle table
       const { error: updateError } = await supabase
-        .from('ramadan_promo_leads')
+        .from('ecommerce_leads')
         .update({ notes: notes })
         .eq('id', leadId);
       
       if (updateError) {
-        if (updateError.code === '42P01') { // Si la table n'existe pas
-          // Mettre à jour les métadonnées dans la table fallback
-          const { error: fallbackError } = await supabase
-            .from('formation_enrollments')
-            .update({
-              metadata: {
-                ...lead, // Conserver toutes les métadonnées existantes
-                notes: notes
-              }
-            })
-            .eq('id', leadId);
-          
-          if (fallbackError) throw fallbackError;
-        } else {
-          throw updateError;
-        }
+        // Si erreur, essayer l'ancienne table
+        const { error: legacyError } = await supabase
+          .from('ramadan_promo_leads')
+          .update({ notes: notes })
+          .eq('id', leadId);
+        
+        if (legacyError) throw legacyError;
       }
       
       // Mettre à jour l'état local
@@ -343,6 +289,18 @@ function RamadanLeadDetailPage() {
     }
   };
 
+  // Obtenir la couleur correspondant à la plateforme 
+  const getPlatformColor = (platform: string) => {
+    return platform === 'shopify' ? 'text-green-600' : 'text-blue-600';
+  };
+
+  // Obtenir l'icône pour la plateforme
+  const getPlatformIcon = (platform: string) => {
+    return platform === 'shopify' ? 
+      <Smartphone className="h-4 w-4" /> : 
+      <Laptop className="h-4 w-4" />;
+  };
+
   // Traduction des statuts en français
   const translateStatus = (status: string) => {
     switch (status) {
@@ -368,7 +326,7 @@ function RamadanLeadDetailPage() {
   };
 
   // Obtenir le statut suivant logique
-  const getNextStatus = (currentStatus: string): RamadanLead['status'] => {
+  const getNextStatus = (currentStatus: string): EcommerceLead['status'] => {
     switch (currentStatus) {
       case 'new': return 'contacted';
       case 'contacted': return 'in_progress';
@@ -431,7 +389,7 @@ function RamadanLeadDetailPage() {
           </div>
         </div>
         <Link 
-          href="/admin/ramadan-leads" 
+          href="/admin/ecommerce-leads" 
           className="inline-flex items-center text-[#0f4c81] hover:text-[#ff7f50]"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -452,7 +410,7 @@ function RamadanLeadDetailPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/admin/ramadan-leads">Prospects Ramadan</BreadcrumbLink>
+              <BreadcrumbLink href="/admin/ecommerce-leads">Prospects E-commerce</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -471,6 +429,10 @@ function RamadanLeadDetailPage() {
               <Badge className={`${getStatusBadgeClass(lead.status)} flex items-center gap-1`}>
                 {getStatusIcon(lead.status)}
                 {translateStatus(lead.status)}
+              </Badge>
+              <Badge className={`${lead.platform === 'shopify' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'} flex items-center gap-1`}>
+                {getPlatformIcon(lead.platform)}
+                {lead.platform === 'shopify' ? 'Shopify' : 'WordPress'}
               </Badge>
             </div>
             <p className="text-gray-500 mt-1 flex items-center gap-2">
@@ -539,14 +501,21 @@ function RamadanLeadDetailPage() {
                       <p className="text-lg font-medium">{lead.business_name}</p>
                     </div>
                     <div>
+                      <h3 className="text-sm font-medium text-gray-500 mb-1">Plateforme choisie</h3>
+                      <div className={`text-lg font-medium flex items-center gap-1 ${getPlatformColor(lead.platform)}`}>
+                        {getPlatformIcon(lead.platform)}
+                        {lead.platform === 'shopify' ? 'Shopify' : 'WordPress/WooCommerce'}
+                      </div>
+                    </div>
+                    <div>
                       <h3 className="text-sm font-medium text-gray-500 mb-1">Paiement</h3>
                       <div className="flex items-center gap-1">
-                        <span className={lead.payment_status.includes('partial') ? 'text-yellow-600 font-medium' : 'text-green-600 font-medium'}>
-                          {lead.amount_paid.toLocaleString()} FCFA
+                        <span className={lead.payment_status?.includes('partial') ? 'text-yellow-600 font-medium' : 'text-green-600 font-medium'}>
+                          {(lead.amount_paid || 0).toLocaleString()} FCFA
                         </span>
                         <span className="text-gray-400">/</span>
                         <span className="text-gray-600">
-                          {lead.total_amount.toLocaleString()} FCFA
+                          {(lead.total_amount || 0).toLocaleString()} FCFA
                         </span>
                       </div>
                     </div>
@@ -568,6 +537,12 @@ function RamadanLeadDetailPage() {
                         {lead.city}, {lead.country}
                       </p>
                     </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500 mb-1">Source</h3>
+                      <p className="flex items-center gap-1">
+                        {lead.lead_source || "Non spécifiée"}
+                      </p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -583,6 +558,21 @@ function RamadanLeadDetailPage() {
                   <div className="bg-gray-50 p-4 rounded-md">
                     {lead.business_description || "Aucune description fournie."}
                   </div>
+                  
+                  {lead.existing_website && (
+                    <div className="mt-4">
+                      <h3 className="text-sm font-medium text-gray-500 mb-2">Site web existant</h3>
+                      <a 
+                        href={lead.existing_website.startsWith('http') ? lead.existing_website : `https://${lead.existing_website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#0f4c81] hover:underline flex items-center gap-1"
+                      >
+                        <Globe className="h-4 w-4" />
+                        {lead.existing_website}
+                      </a>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -657,12 +647,20 @@ function RamadanLeadDetailPage() {
                   <div className="mb-4">
                     <div className="flex justify-between text-sm mb-1">
                       <span>Progression</span>
-                      <span className="font-medium">{Math.round((lead.amount_paid / lead.total_amount) * 100)}%</span>
+                      <span className="font-medium">
+                        {lead.total_amount > 0 
+                          ? Math.round(((lead.amount_paid || 0) / (lead.total_amount || 1)) * 100)
+                          : 0}%
+                      </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
                       <div 
                         className="bg-[#0f4c81] h-2.5 rounded-full" 
-                        style={{ width: `${Math.min(100, Math.round((lead.amount_paid / lead.total_amount) * 100))}%` }}
+                        style={{ 
+                          width: lead.total_amount 
+                            ? `${Math.min(100, Math.round(((lead.amount_paid || 0) / lead.total_amount) * 100))}%` 
+                            : '0%'
+                        }}
                       ></div>
                     </div>
                   </div>
@@ -670,19 +668,75 @@ function RamadanLeadDetailPage() {
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-500">Montant payé</span>
-                      <span className="font-medium">{lead.amount_paid.toLocaleString()} FCFA</span>
+                      <span className="font-medium">{(lead.amount_paid || 0).toLocaleString()} FCFA</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-500">Montant total</span>
-                      <span className="font-medium">{lead.total_amount.toLocaleString()} FCFA</span>
+                      <span className="font-medium">{(lead.total_amount || 0).toLocaleString()} FCFA</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Reste à payer</span>
-                      <span className="font-medium">{(lead.total_amount - lead.amount_paid).toLocaleString()} FCFA</span>
+                    {lead.total_amount > lead.amount_paid && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">Reste à payer</span>
+                        <span className="font-medium">
+                          {((lead.total_amount || 0) - (lead.amount_paid || 0)).toLocaleString()} FCFA
+                        </span>
+                      </div>
+                    )}
+                    {lead.transaction_id && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">ID Transaction</span>
+                        <span className="font-mono text-xs">{lead.transaction_id}</span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Détails de la plateforme */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg text-[#0f4c81]">
+                    Détails de la plateforme
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className={`p-4 rounded-lg ${
+                    lead.platform === 'shopify' 
+                      ? 'bg-green-50 border border-green-100' 
+                      : 'bg-blue-50 border border-blue-100'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      {getPlatformIcon(lead.platform)}
+                      <h3 className={`font-medium ${getPlatformColor(lead.platform)}`}>
+                        {lead.platform === 'shopify' ? 'Shopify' : 'WordPress/WooCommerce'}
+                      </h3>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">ID Transaction</span>
-                      <span className="font-mono text-xs">{lead.transaction_id}</span>
+                    
+                    <p className="text-sm text-gray-600 mb-3">
+                      {lead.platform === 'shopify' 
+                        ? 'Solution tout-en-un avec interface facile à utiliser. Idéal pour les débutants avec un excellent support.'
+                        : 'Solution plus personnalisable et économique, mais nécessitant plus de maintenance technique.'}
+                    </p>
+                    
+                    <div className="text-sm">
+                      <div className="flex items-center gap-1 mb-1">
+                        <CheckCircle className="h-3 w-3 text-green-600" />
+                        <span>{lead.platform === 'shopify' 
+                          ? 'Gestion facile depuis smartphone'
+                          : 'Personnalisation illimitée'}</span>
+                      </div>
+                      <div className="flex items-center gap-1 mb-1">
+                        <CheckCircle className="h-3 w-3 text-green-600" />
+                        <span>{lead.platform === 'shopify' 
+                          ? 'Support technique 24/7'
+                          : 'Pas d\'abonnement mensuel'}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckCircle className="h-3 w-3 text-green-600" />
+                        <span>{lead.platform === 'shopify' 
+                          ? 'Stabilité et sécurité'
+                          : 'Contrôle total sur le site'}</span>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -997,7 +1051,7 @@ function RamadanLeadDetailPage() {
               <Label htmlFor="status">Statut</Label>
               <Select 
                 value={newStatus} 
-                onValueChange={(value) => setNewStatus(value as RamadanLead['status'])}
+                onValueChange={(value) => setNewStatus(value as EcommerceLead['status'])}
               >
                 <SelectTrigger id="status">
                   <SelectValue placeholder="Sélectionner un statut" />
@@ -1089,4 +1143,4 @@ function RamadanLeadDetailPage() {
   );
 }
 
-export default withAdminAuth(RamadanLeadDetailPage);
+export default withAdminAuth(EcommerceLeadDetailPage);

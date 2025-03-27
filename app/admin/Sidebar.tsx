@@ -91,7 +91,7 @@ export default function Sidebar() {
         },
         { 
           name: 'Prospects Sites Ecom', 
-          href: '/admin/ramadan-leads', 
+          href: '/admin/ecommerce-leads', 
           icon: <Gift className="mr-3 h-5 w-5" /> 
         }
       ]
