@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
 
-// Créer un client Supabase avec les permissions admin (comme dans vos autres fichiers)
+// Créer un client Supabase avec les permissions admin
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',
   process.env.SUPABASE_SERVICE_ROLE_KEY || '',
@@ -44,96 +44,147 @@ export async function POST(request: NextRequest) {
 
     let leadId;
     
-    // 1. Essayer d'abord d'insérer dans business_interests
-    console.log("API create-lead: Tentative d'insertion dans business_interests");
+    // 1. Essayer d'abord d'insérer dans la table ecommerce_leads (celle que l'admin cherche)
+    console.log("API create-lead: Tentative d'insertion dans ecommerce_leads");
     try {
-      const interestData = {
+      const ecommerceData = {
         id: uuidv4(),
-        business_id: null,
         full_name: leadData.full_name,
         email: leadData.email,
         phone: leadData.phone,
         country: leadData.country || '',
         city: leadData.city || '',
-        payment_option: leadData.payment_option,
-        investment_readiness: null,
-        experience: null,
-        timeline: null,
-        questions: leadData.business_description || null,
+        business_name: leadData.business_name || '',
+        business_description: leadData.business_description || '',
+        existing_website: leadData.existing_website || null,
+        lead_source: leadData.lead_source || null,
+        payment_status: leadData.payment_status || 'pending',
+        amount_paid: leadData.amount_paid || 0,
+        total_amount: leadData.total_amount || 0,
+        transaction_id: leadData.transaction_id || null,
         status: leadData.status || 'new',
+        platform: leadData.platform || 'shopify',
+        notes: leadData.notes || '',
+        contact_method: leadData.contact_method || 'contact_later',
+        payment_option: leadData.payment_option || 'partial',
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        subscribe_to_updates: false
+        updated_at: new Date().toISOString()
       };
       
       const { data, error } = await supabaseAdmin
-        .from('business_interests')
-        .insert([interestData])
+        .from('ecommerce_leads')
+        .insert([ecommerceData])
         .select();
 
       if (error) {
-        console.warn("API create-lead: Erreur d'insertion business_interests", error);
-        // Nous continuons pour essayer le fallback
+        console.warn("API create-lead: Erreur d'insertion ecommerce_leads", error);
+        // Si erreur de table inexistante, on continue vers le fallback
+        if (error.code !== '42P01') throw error;
       } else if (data && data.length > 0) {
         leadId = data[0].id;
-        console.log("API create-lead: Insertion business_interests réussie, ID:", leadId);
+        console.log("API create-lead: Insertion ecommerce_leads réussie, ID:", leadId);
       }
     } catch (insertError) {
-      console.warn("API create-lead: Exception lors de l'insertion business_interests", insertError);
+      console.warn("API create-lead: Exception lors de l'insertion ecommerce_leads", insertError);
       // Nous continuons pour essayer le fallback
     }
 
-    // 2. Fallback: utiliser formation_enrollments (comme dans ramadan-promo)
+    // 2. Fallback: utiliser ramadan_promo_leads (l'autre table que l'admin cherche)
     if (!leadId) {
-      console.log("API create-lead: Utilisation du fallback formation_enrollments");
+      console.log("API create-lead: Utilisation du fallback ramadan_promo_leads");
       try {
-        const fallbackData = {
-          formation_id: 'ecommerce-service',
+        const ramadanLeadData = {
+          id: uuidv4(),
           full_name: leadData.full_name,
           email: leadData.email,
-          phone: leadData.phone || '',
+          phone: leadData.phone,
           country: leadData.country || '',
           city: leadData.city || '',
-          payment_option: leadData.payment_option || 'partial',
+          business_name: leadData.business_name || '',
+          business_description: leadData.business_description || '',
+          existing_website: leadData.existing_website || null,
+          lead_source: leadData.lead_source || null,
           payment_status: leadData.payment_status || 'pending',
           amount_paid: leadData.amount_paid || 0,
-          metadata: {
-            businessName: leadData.business_name || '',
-            businessDescription: leadData.business_description || '',
-            existingWebsite: leadData.existing_website || null,
-            howDidYouHear: leadData.lead_source || null,
-            serviceType: 'ecommerce',
-            transactionId: leadData.transaction_id || null,
-            status: leadData.status || 'new',
-            notes: leadData.notes || '',
-            contactMethod: leadData.contact_method || 'contact_later',
-            totalAmount: leadData.total_amount || 0,
-            platform: leadData.platform || 'shopify'
-          }
+          total_amount: leadData.total_amount || 0,
+          transaction_id: leadData.transaction_id || null,
+          status: leadData.status || 'new',
+          notes: leadData.notes || '',
+          contact_method: leadData.contact_method || 'contact_later',
+          payment_option: leadData.payment_option || 'partial',
+          // Ajouter un champ platform qui n'existe pas dans la table d'origine
+          // mais qui est attendu par l'interface admin
+          platform: leadData.platform || 'shopify',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         };
         
         const { data, error } = await supabaseAdmin
-          .from('formation_enrollments')
-          .insert([fallbackData])
+          .from('ramadan_promo_leads')
+          .insert([ramadanLeadData])
           .select();
           
         if (error) {
-          console.error("API create-lead: Erreur insertion fallback", error);
-          throw new Error(`Erreur fallback: ${error.message}`);
+          console.error("API create-lead: Erreur insertion fallback ramadan_promo_leads", error);
+          throw error;
         } else if (data && data.length > 0) {
           leadId = data[0].id;
-          console.log("API create-lead: Insertion fallback réussie, ID:", leadId);
+          console.log("API create-lead: Insertion ramadan_promo_leads réussie, ID:", leadId);
         } else {
           console.error("API create-lead: Aucune donnée retournée par le fallback");
           throw new Error("Échec de l'insertion fallback");
         }
       } catch (fallbackError: any) {
-        console.error("API create-lead: Exception globale fallback", fallbackError);
-        throw fallbackError;
+        console.error("API create-lead: Exception ramadan_promo_leads", fallbackError);
+        
+        // 3. Dernier recours: utiliser formation_enrollments comme fallback final
+        console.log("API create-lead: Utilisation du fallback formation_enrollments");
+        try {
+          const fallbackData = {
+            formation_id: 'ecommerce-service',
+            full_name: leadData.full_name,
+            email: leadData.email,
+            phone: leadData.phone || '',
+            country: leadData.country || '',
+            city: leadData.city || '',
+            payment_option: leadData.payment_option || 'partial',
+            payment_status: leadData.payment_status || 'pending',
+            amount_paid: leadData.amount_paid || 0,
+            metadata: {
+              businessName: leadData.business_name || '',
+              businessDescription: leadData.business_description || '',
+              existingWebsite: leadData.existing_website || null,
+              howDidYouHear: leadData.lead_source || null,
+              serviceType: 'ecommerce',
+              transactionId: leadData.transaction_id || null,
+              status: leadData.status || 'new',
+              notes: leadData.notes || '',
+              contactMethod: leadData.contact_method || 'contact_later',
+              totalAmount: leadData.total_amount || 0,
+              platform: leadData.platform || 'shopify'
+            },
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+          
+          const { data, error } = await supabaseAdmin
+            .from('formation_enrollments')
+            .insert([fallbackData])
+            .select();
+            
+          if (error) throw error;
+          if (data && data.length > 0) {
+            leadId = data[0].id;
+            console.log("API create-lead: Insertion formation_enrollments réussie, ID:", leadId);
+          }
+        } catch (formationError: any) {
+          console.error("API create-lead: Erreur formation_enrollments", formationError);
+          throw formationError;
+        }
       }
     }
 
-    // 3. Si transaction_id existe, mettre à jour la transaction
+    // 4. Si transaction_id existe, mettre à jour la transaction
     if (leadId && leadData.transaction_id) {
       console.log("API create-lead: Mise à jour de la transaction", leadData.transaction_id);
       try {
@@ -150,7 +201,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 4. Journalisation
+    // 5. Journalisation
     try {
       const activityDescription = `Nouvelle demande e-commerce de ${leadData.full_name} (${leadData.email})`;
       
