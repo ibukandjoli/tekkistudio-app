@@ -5,7 +5,7 @@ import React, { useState, useRef } from 'react';
 import { Calendar, Check, Package, PieChart, Award, ShoppingCart, Star, ArrowRight, Shield, Zap, BarChart, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import PromoEnrollmentModal from '@/app/components/ecommerce/EnrollmentModal';
+import EnrollmentModal from '@/app/components/ecommerce/EnrollmentModal';
 import PriceFormatter from '../../components/common/PriceFormatter';
 
 // Données de service
@@ -655,14 +655,14 @@ export default function EcommerceServicePage() {
       </section>
 
       {/* Modal d'inscription */}
-      <PromoEnrollmentModal
+      <EnrollmentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         serviceData={{
           title: serviceData.title,
           subtitle: serviceData.subtitle,
           price: {
-            shopify: 695000,
+            shopify: serviceData.price,
             wordpress: 495000
           },
           deliveryTime: serviceData.deliveryTime,
