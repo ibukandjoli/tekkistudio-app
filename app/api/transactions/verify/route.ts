@@ -1,24 +1,31 @@
 // app/api/transactions/verify/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/app/lib/supabase"; 
+import { createClient } from '@supabase/supabase-js';
+import { v4 as uuidv4 } from 'uuid';
+
+// Créer un client Supabase avec les permissions admin (comme dans vos autres fichiers)
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+);
 
 export async function POST(request: NextRequest) {
+  console.log("API verify: Début de la requête");
+  
   try {
-    // Extraction des données de la requête de manière sécurisée
-    let body;
-    try {
-      body = await request.json();
-    } catch (parseError) {
-      console.error("Erreur de parsing JSON:", parseError);
-      return NextResponse.json({ 
-        success: false, 
-        error: "Format de requête invalide" 
-      }, { status: 400 });
-    }
+    const body = await request.json();
+    console.log("API verify: Corps de la requête", JSON.stringify(body));
     
     const { transactionId, providerTransactionId } = body;
 
     if (!transactionId) {
+      console.log("API verify: ID de transaction manquant");
       return NextResponse.json({ 
         success: false, 
         error: "ID de transaction requis" 
@@ -29,64 +36,73 @@ export async function POST(request: NextRequest) {
     const effectiveProviderTransactionId = providerTransactionId || transactionId;
 
     // Vérifier si la transaction existe
-    let { data: transaction, error: fetchError } = await supabase
+    console.log("API verify: Recherche de la transaction", transactionId);
+    let { data: transaction, error: fetchError } = await supabaseAdmin
       .from('payment_transactions')
       .select('*')
       .eq('id', transactionId)
-      .maybeSingle(); // Utilisation de maybeSingle au lieu de single pour éviter l'erreur
+      .maybeSingle();
 
-    // Si la transaction n'existe pas, la créer au lieu de renvoyer une erreur
-    if (fetchError || !transaction) {
-      console.log("Transaction non trouvée, création d'une nouvelle transaction:", transactionId);
+    // Vérifier également par provider_transaction_id si pas trouvé par id
+    if (!transaction && !fetchError) {
+      console.log("API verify: Recherche par provider_transaction_id", effectiveProviderTransactionId);
+      const { data: altTransaction, error: altFetchError } = await supabaseAdmin
+        .from('payment_transactions')
+        .select('*')
+        .eq('provider_transaction_id', effectiveProviderTransactionId)
+        .maybeSingle();
+        
+      if (altTransaction) {
+        transaction = altTransaction;
+      } else if (altFetchError) {
+        fetchError = altFetchError;
+      }
+    }
+
+    // Si la transaction n'existe pas, la créer
+    if (!transaction) {
+      console.log("API verify: Transaction non trouvée, création");
       
-      // Préparation des données de transaction avec valeurs par défaut pour tous les champs potentiellement requis
-      const newTransactionData = {
-        id: transactionId,
+      // Générer un nouvel UUID pour la transaction
+      const dbUuid = transactionId.includes("-") ? transactionId : uuidv4();
+      
+      const transactionData = {
+        id: dbUuid,
         provider_transaction_id: effectiveProviderTransactionId,
         status: 'completed',
         provider: 'wave',
-        amount: 1000, // Valeur par défaut non nulle
-        currency: 'XOF', // Valeur par défaut pour le FCFA
-        payment_method: 'wave',
-        customer_id: null, // Valeurs par défaut pour d'autres champs potentiellement requis
-        customer_email: null,
-        customer_name: null,
+        amount: 0, // Montant par défaut
+        transaction_type: 'ecommerce',
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        customer_data: { source: 'ecommerce_verification' }
       };
       
-      // Tenter de créer la transaction
-      const { error: createError } = await supabase
+      console.log("API verify: Données de création", JSON.stringify(transactionData));
+      
+      const { data: newTransaction, error: createError } = await supabaseAdmin
         .from('payment_transactions')
-        .insert(newTransactionData);
+        .insert([transactionData])
+        .select()
+        .maybeSingle();
 
       if (createError) {
-        console.error("Erreur détaillée lors de la création de la transaction:", createError);
+        console.error("API verify: Erreur de création", createError);
         return NextResponse.json({ 
           success: false, 
           error: "Erreur lors de la création de la transaction",
-          details: createError.message
+          details: createError.message 
         }, { status: 500 });
       }
-
-      // Récupérer la transaction créée pour confirmation
-      const { data: createdTransaction, error: getError } = await supabase
-        .from('payment_transactions')
-        .select('*')
-        .eq('id', transactionId)
-        .maybeSingle();
-        
-      if (getError || !createdTransaction) {
-        console.warn("Transaction créée mais impossible de la récupérer:", getError);
-      } else {
-        transaction = createdTransaction;
-      }
+      
+      transaction = newTransaction;
+      console.log("API verify: Transaction créée avec succès");
 
       // Journaliser l'activité
       try {
-        await supabase
+        await supabaseAdmin
           .from('activity_logs')
-          .insert({
+          .insert([{
             type: 'payment_created_and_verified',
             description: `Nouvelle transaction créée et vérifiée: ${transactionId}`,
             metadata: {
@@ -95,61 +111,46 @@ export async function POST(request: NextRequest) {
               provider: 'wave'
             },
             created_at: new Date().toISOString()
-          });
+          }]);
+          
+        console.log("API verify: Activité journalisée");
       } catch (logError) {
-        console.warn("Erreur lors de la journalisation:", logError);
+        console.warn("API verify: Erreur de journalisation (non bloquante)", logError);
       }
+    } else {
+      // Mettre à jour le statut
+      console.log("API verify: Mise à jour de la transaction existante");
+      const { error: updateError } = await supabaseAdmin
+        .from('payment_transactions')
+        .update({
+          status: 'completed',
+          provider_transaction_id: effectiveProviderTransactionId,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', transaction.id);
 
-      return NextResponse.json({
-        success: true,
-        message: "Nouvelle transaction créée et vérifiée avec succès"
-      });
-    }
-
-    // Si la transaction existe, mettre à jour son statut
-    const { error: updateError } = await supabase
-      .from('payment_transactions')
-      .update({
-        status: 'completed',
-        provider_transaction_id: effectiveProviderTransactionId,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', transactionId);
-
-    if (updateError) {
-      console.error("Erreur lors de la mise à jour de la transaction:", updateError);
-      return NextResponse.json({ 
-        success: false, 
-        error: "Erreur lors de la mise à jour de la transaction",
-        details: updateError.message
-      }, { status: 500 });
-    }
-
-    // Journaliser l'activité
-    try {
-      await supabase
-        .from('activity_logs')
-        .insert({
-          type: 'payment_verified',
-          description: `Paiement vérifié pour la transaction ${transactionId}`,
-          metadata: {
-            transactionId,
-            providerTransactionId: effectiveProviderTransactionId,
-            amount: transaction.amount,
-            provider: transaction.provider || 'wave'
-          },
-          created_at: new Date().toISOString()
-        });
-    } catch (logError) {
-      console.warn("Erreur lors de la journalisation:", logError);
+      if (updateError) {
+        console.error("API verify: Erreur de mise à jour", updateError);
+        return NextResponse.json({ 
+          success: false, 
+          error: "Erreur lors de la mise à jour de la transaction",
+          details: updateError.message
+        }, { status: 500 });
+      }
+      
+      console.log("API verify: Transaction mise à jour avec succès");
     }
 
     return NextResponse.json({
       success: true,
-      message: "Transaction vérifiée avec succès"
+      message: "Transaction vérifiée avec succès",
+      data: {
+        id: transaction.id,
+        status: 'completed'
+      }
     });
   } catch (error: any) {
-    console.error("Erreur serveur détaillée:", error);
+    console.error("API verify: Erreur non gérée", error);
     return NextResponse.json({ 
       success: false, 
       error: "Erreur interne du serveur",
