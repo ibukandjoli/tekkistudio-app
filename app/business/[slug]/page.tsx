@@ -58,7 +58,7 @@ export default function BusinessPage() {
 
   // Calculer la mensualité (10% du prix total + 1000 FCFA)
   const calculateMonthlyPayment = (price: number) => {
-    return Math.round(price * 0.1) + 1000;
+    return Math.round(price * 0.1) + 5000;
   };
 
   // Simuler un intérêt croissant avec un timer
@@ -405,7 +405,7 @@ export default function BusinessPage() {
                 </div>
                 <div className="flex items-start">
                   <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                  <span>Versements mensuels de 10% + 1000F pendant 6 mois</span>
+                  <span>Versements mensuels de 10% + 5000F (7€) pendant 6 mois</span>
                 </div>
                 <div className="flex items-start">
                   <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
