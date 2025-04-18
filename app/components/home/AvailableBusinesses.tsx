@@ -35,7 +35,7 @@ const AvailableBusinesses = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-96">Chargement...</div>;
+    return <div className="flex justify-center items-center h-96">Un instant...</div>;
   }
 
   if (error) {
@@ -50,7 +50,7 @@ const AvailableBusinesses = () => {
             Business E-commerce Disponibles
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Découvrez nos business clé en main, prêts à être lancés et à générer des revenus.
+            Achetez votre futur business en ligne et commencez à générer des revenus.
             Chaque business inclut tout ce dont vous avez besoin pour réussir.
           </p>
         </div>
@@ -130,11 +130,11 @@ const AvailableBusinesses = () => {
           <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
             <div className="p-4 bg-gray-50 rounded-lg">
               <TrendingUp className="w-6 h-6 text-[#ff7f50] mx-auto mb-2" />
-              <p className="font-medium">Formation incluse</p>
+              <p className="font-medium">2 mois d'accompagnement</p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <Users className="w-6 h-6 text-[#ff7f50] mx-auto mb-2" />
-              <p className="font-medium">Support pendant 2 mois</p>
+              <p className="font-medium">Service client disponible</p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <DollarSign className="w-6 h-6 text-[#ff7f50] mx-auto mb-2" />

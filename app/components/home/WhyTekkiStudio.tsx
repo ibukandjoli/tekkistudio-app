@@ -9,33 +9,33 @@ const WhyTekkiStudio = () => {
   const benefits = [
     {
       icon: <Clock className="w-8 h-8 text-[#ff7f50]" />,
-      title: "Gagnez du temps",
-      description: "Évitez des mois de recherche et de développement. Nos business sont prêts à être lancés immédiatement."
+      title: "Gagnez des mois de travail",
+      description: "Évitez des mois de recherche de produits et de développement. Nos business sont complets et prêts à être lancés."
     },
     {
       icon: <Trophy className="w-8 h-8 text-[#ff7f50]" />,
-      title: "Business validés",
-      description: "Chaque business a été minutieusement étudié et validé par notre équipe d'experts en e-commerce."
+      title: "Niches et clientèle validées",
+      description: "Chaque business est stratégiquement conçu et testé par notre équipe d'experts avant d'être publié sur le site."
     },
     {
       icon: <ShoppingBag className="w-8 h-8 text-[#ff7f50]" />,
-      title: "Produits sourcés",
-      description: "Fournisseurs fiables déjà identifiés et relations établies pour des produits de qualité."
+      title: "Produits & Fournisseurs fiables",
+      description: "Nous identifions des fournisseurs fiables qui proposent des produits de qualité et négocions les meilleurs prix pour vous."
     },
     {
       icon: <Rocket className="w-8 h-8 text-[#ff7f50]" />,
-      title: "Stratégie marketing",
-      description: "Plans marketing détaillés et canaux d'acquisition testés pour chacun des business proposés."
+      title: "Stratégie marketing incluse",
+      description: "Pour chaque business, nous élaborons une stratégie marketing efficace pour vous permettre d'attirer vos futurs clients."
     },
     {
       icon: <Users className="w-8 h-8 text-[#ff7f50]" />,
-      title: "Formation incluse",
-      description: "Formation complète sur la gestion du business et accompagnement personnalisé, selon le besoin."
+      title: "Accompagnement de 2 mois",
+      description: "Après le lancement, nous restons à vos côtés pour assurer vos premiers résultats et vous rendre autonome."
     },
     {
       icon: <HeartHandshake className="w-8 h-8 text-[#ff7f50]" />,
-      title: "Support continu",
-      description: "Assistance technique et conseils business offerts pendant les premiers mois cruciaux de votre activité."
+      title: "Formation & Support continu",
+      description: "Nous vous apportons notre assistance technique et des conseils business pendant les premiers mois de votre activité."
     }
   ];
 
@@ -77,7 +77,7 @@ const WhyTekkiStudio = () => {
             href="/business"
             className="inline-block bg-[#ff7f50] text-white px-8 py-4 rounded-lg hover:bg-[#ff6b3d] transition-colors cursor-pointer"
           >
-            Découvrez nos business en vente
+            Découvrez tous les business en vente
           </Link>
         </div>
       </div>

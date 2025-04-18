@@ -22,25 +22,25 @@ const HeroSection = () => {
         <div className="flex flex-col lg:flex-row items-center gap-12">
           <div className="flex-1 text-white">
             <h1 className="text-4xl lg:text-6xl font-bold mb-6 leading-tight">
-              Lancez votre Business dans l'E-commerce
+              Lancez-vous dans la vente sur Internet
               <span className="block text-[#ff7f50]">Sans Partir de Zéro</span>
             </h1>
             <p className="text-xl mb-8 text-gray-200 leading-relaxed">
-              Gagnez un temps précieux en acquérant un business e-commerce tout fini, testé et prêt à générer des revenus. Plus besoin de passer des mois à tout créer de zéro.
+              Gagnez un temps précieux en achetant un business en ligne complet, testé et prêt à générer des revenus pour vous. Plus besoin de passer des mois à tout créer de zéro.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link 
                 href="/business" 
                 className="bg-[#ff7f50] text-white px-8 py-4 rounded-lg flex items-center gap-2 hover:bg-[#ff6b3d] transition-colors whitespace-nowrap"
               >
-                Voir nos business en vente
+                Voir les business en vente
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link 
                 href="/services/sites-ecommerce" 
                 className="border-2 border-white text-white px-8 py-4 rounded-lg hover:bg-white hover:text-[#0f4c81] transition-colors whitespace-nowrap"
               >
-                Créer votre site e-commerce
+                Créer mon site e-commerce
               </Link>
             </div>
           </div>
@@ -48,13 +48,13 @@ const HeroSection = () => {
           <div className="flex-1 relative w-full max-w-lg">
             <div className="relative z-10 bg-[#F2F2F2] p-8 rounded-xl shadow-2xl">
               <h3 className="text-[#0f4c81] text-2xl font-bold mb-6">
-                Chacun de nos business inclut :
+                Chaque business proposé inclut :
               </h3>
               <ul className="space-y-4">
                 {[
                   {
-                    text: "Un site e-commerce complet et prêt à l'emploi",
-                    subtext: "Commencez à vendre immédiatement"
+                    text: "Un site e-commerce complet prêt à être lancé",
+                    subtext: "Commencez à vendre immédiatement, après l'acquisition"
                   },
                   {
                     text: "Des Fournisseurs qualifiés & produits sourcés",
@@ -62,7 +62,7 @@ const HeroSection = () => {
                   },
                   {
                     text: "Une stratégie marketing complète et efficace",
-                    subtext: "Ne galérez plus pour attirer vos clients"
+                    subtext: "Ne galérez plus pour attirer vos clients et faire des ventes"
                   },
                   {
                     text: "Formation et accompagnement de 2 mois",

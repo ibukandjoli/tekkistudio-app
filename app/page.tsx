@@ -11,13 +11,11 @@ export default function Home() {
   return (
     <main>
       <HeroSection />
-      <AvailableBusinesses />
-      <HowItWorks />
       <WhyTekkiStudio />
-      <BrandShowcase />
-  {/*
+      <HowItWorks />
+      <AvailableBusinesses />
       <Testimonials />
-      */}
+      <BrandShowcase />
       <FAQ />
     </main>
   );

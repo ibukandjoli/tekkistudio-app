@@ -201,7 +201,7 @@ export default function BusinessPage() {
     {
       id: 'progressive-how',
       question: "Comment fonctionne l'acquisition progressive ?",
-      answer: "L'acquisition progressive vous permet de démarrer avec seulement 40% du prix total. Vous versez ensuite 10% + 1000 FCFA du prix total chaque mois pendant 6 mois. Vous pouvez gérer et développer le business dès l'apport initial, mais le transfert complet de propriété n'est effectué qu'après le dernier versement."
+      answer: "L'acquisition progressive vous permet de démarrer avec seulement 40% du prix total. Vous versez ensuite 10% + 5000 FCFA du prix total chaque mois pendant 6 mois. Vous pouvez gérer et développer le business dès l'apport initial, mais le transfert complet de propriété n'est effectué qu'après le dernier versement."
     },
     {
       id: 'progressive-use',

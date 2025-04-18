@@ -43,7 +43,7 @@ const FAQ = () => {
   const whatsappUrl = "https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27ai%20une%20question%20%C3%A0%20vous%20poser%20dont%20je%20ne%20trouve%20pas%20la%20r%C3%A9ponse%20sur%20votre%20site.";
 
   return (
-    <section className="py-20 bg-[#f8fafc]">
+    <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-[#0f4c81] mb-4">

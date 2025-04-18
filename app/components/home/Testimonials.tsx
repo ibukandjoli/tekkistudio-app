@@ -7,18 +7,10 @@ import { Star } from 'lucide-react';
 const Testimonials = () => {
   const testimonials = [
     {
-      name: "Abdoulaye S.",
-      role: "Propriétaire de Samelectro",
-      image: "/images/testimonials/sam.jpg", 
-      text: "J'ai acquis mon business e-commerce auprès de TEKKI Studio il y a 6 mois. L'accompagnement a été remarquable et aujourd'hui, mon business génère un revenu mensuel stable. Une excellente décision !",
-      businessType: "Appareils Eco-énergetiques",
-      rating: 5
-    },
-    {
       name: "Fatou D.",
       role: "Propriétaire d'Abarings",
       image: "/images/testimonials/fatou.jpg", 
-      text: "Ce qui m'a le plus impressionné, c'est la qualité de la formation et du support. Tout était prêt à l'emploi et j'ai pu me concentrer sur le développement de mon business.",
+      text: "Avant de travailler avec TEKKI Studio, j'avais essayé d'autres solutions qui étaient soit trop chères, soit de mauvaise qualité. Ils ont réussi à créer exactement ce dont j'avais besoin, à un prix abordable. J'adore mon site.",
       businessType: "Bijoux artisanaux",
       rating: 5
     },
@@ -26,21 +18,29 @@ const Testimonials = () => {
       name: "Maguette D.",
       role: "Propriétaire de Momo Le Bottier",
       image: "/images/testimonials/maguette.jpg", 
-      text: "Un investissement qui en vaut vraiment la peine. L'équipe de TEKKI Studio a tout mis en œuvre pour faciliter mon démarrage. Après 3 mois, j'ai déjà dépassé mes objectifs.",
+      text: "TEKKI Studio a transformé notre marque avec un site e-commerce professionnel qui dépasse toutes nos attentes. Nous pouvons désormais vendre en boutique et sur Internet, surtout aux clients qui ne sont pas à Dakar.",
       businessType: "Chaussures & sacs artisanaux",
+      rating: 5
+    },
+    {
+      name: "Fatou C.",
+      role: "Propriétaire de 6C No Filter",
+      image: "/images/testimonials/fatou.jpg", 
+      text: "L'équipe de TEKKI Studio est extrêmement professionnelle et disponible. J'avais besoin d'un site professionnel pour ma marque de cosmétiques naturels, et ils ont fait un travail magnifique en moins de 10 jours.",
+      businessType: "Produits cosmétiques naturels",
       rating: 5
     }
   ];
 
   return (
-    <section className="py-20 bg-[#f8fafc]">
+    <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-[#0f4c81] mb-4">
-            Ils nous font confiance
+            Des entrepreneurs qui nous font confiance
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Découvrez les témoignages des clients qui ont acquis et développé leur business e-commerce avec notre accompagnement
+          Voici ce que disent les marques pour lesquelles nous avons conçu des business e-commerce sur mesure.
           </p>
         </div>
 

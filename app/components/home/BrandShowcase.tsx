@@ -76,7 +76,7 @@ const BrandShowcase = () => {
   const totalCustomers = brands.reduce((sum, brand) => sum + parseInt(brand.metrics.customers.replace(/[^0-9]/g, '') || '0'), 0);
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-[#f8fafc]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-[#0f4c81] mb-4">
