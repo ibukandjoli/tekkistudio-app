@@ -5,7 +5,7 @@ import { cn } from '@/app/lib/utils';
 interface BadgeProps {
   children: ReactNode;
   className?: string;
-  variant?: 'default' | 'ecommerce' | 'digital' | 'available' | 'reserved' | 'outline' | 'success' | 'warning' | 'error';
+  variant?: 'default' | 'ecommerce' | 'digital' | 'available' | 'reserved' | 'outline' | 'success' | 'warning' | 'error' | "secondary";
   size?: 'sm' | 'md' | 'lg';
 }
 
