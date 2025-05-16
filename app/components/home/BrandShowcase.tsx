@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Star, TrendingUp, Users, Loader2 } from 'lucide-react';
+import { Star, TrendingUp, Users, Loader2, ArrowRight } from 'lucide-react';
 import { supabase } from '@/app/lib/supabase';
 import Link from 'next/link';
 import type { Brand } from '@/app/types/database';
@@ -76,10 +76,10 @@ const BrandShowcase = () => {
   const totalCustomers = brands.reduce((sum, brand) => sum + parseInt(brand.metrics.customers.replace(/[^0-9]/g, '') || '0'), 0);
 
   return (
-    <section className="py-20 bg-[#f8fafc]">
+    <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-[#0f4c81] mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#0f4c81] mb-4">
             Nos Marques de Produits
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -92,7 +92,7 @@ const BrandShowcase = () => {
             <Link 
               key={brand.id}
               href={`/marques/${brand.slug}`}
-              className="bg-white rounded-xl shadow-lg overflow-hidden transform transition hover:scale-105"
+              className="bg-white rounded-xl shadow-lg overflow-hidden transform transition hover:shadow-xl"
             >
               <div className="aspect-video relative bg-gray-100 w-full">
                 <img 
@@ -174,6 +174,16 @@ const BrandShowcase = () => {
               <Users className="w-6 h-6 text-[#ff7f50] mx-auto mb-2" />
               <p className="font-medium">Support continu</p>
             </div>
+          </div>
+          
+          <div className="mt-8">
+            <Link 
+              href="/marques" 
+              className="inline-flex items-center text-[#0f4c81] font-medium hover:text-[#ff7f50]"
+            >
+              Découvrir toutes nos marques
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Link>
           </div>
         </div>
       </div>

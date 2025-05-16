@@ -1,12 +1,27 @@
-// app/services/sites-ecommerce/page.tsx
+// app/services/sites-ecommerce/page.tsx (première partie)
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Calendar, Check, Package, PieChart, Award, ShoppingCart, Star, ArrowRight, Shield, Zap, BarChart, XCircle } from 'lucide-react';
+import { 
+  Calendar, 
+  Check, 
+  Package, 
+  PieChart, 
+  Award, 
+  ShoppingCart, 
+  Star, 
+  ArrowRight, 
+  Shield, 
+  Zap, 
+  BarChart, 
+  XCircle,
+  ExternalLink 
+} from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import EnrollmentModal from '@/app/components/ecommerce/EnrollmentModal';
 import PriceFormatter from '../../components/common/PriceFormatter';
+import Container from '@/app/components/ui/Container';
 
 // Données de service
 const serviceData = {
@@ -88,11 +103,6 @@ const serviceData = {
   ]
 };
 
-// Fonction formatPrice typée correctement
-const formatPrice = (price: number): string => {
-  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-};
-
 export default function EcommerceServicePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const detailsRef = useRef<HTMLElement>(null);
@@ -111,9 +121,9 @@ export default function EcommerceServicePage() {
   };
 
   return (
-    <main className="pb-20">
+    <main className="pb-0">
       {/* Hero Section avec background gradient */}
-      <section className="relative pt-28 pb-20 bg-gradient-to-r from-[#0f4c81] to-[#1a6baa] overflow-hidden">
+      <section className="relative pt-28 pb-20 bg-gradient-to-r from-tekki-blue to-tekki-coral overflow-hidden">
         {/* Motif géométrique en arrière-plan */}
         <div className="absolute inset-0 opacity-10">
           <div className="grid grid-cols-12 h-full">
@@ -124,22 +134,22 @@ export default function EcommerceServicePage() {
         </div>
         
         {/* Badge */}
-        <div className="absolute top-20 right-10 rotate-12 hidden md:block">
-          <div className="bg-[#ff7f50] text-white font-bold px-6 py-3 rounded-full transform shadow-lg">
+        <div className="absolute top-20 right-10 rotate-12 hidden lg:block">
+          <div className="bg-tekki-coral text-white font-bold px-6 py-3 rounded-full transform shadow-lg">
             Votre site E-commerce en 7 jours
           </div>
         </div>
 
-        <div className="container mx-auto px-4 relative z-10">
+        <Container className="relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-block mb-6 bg-white/10 backdrop-blur-sm px-6 py-2 rounded-full">
               <span className="text-white font-medium">
-                <span className="text-[#ff7f50]">TEKKI STUDIO</span> • Experts en E-commerce
+                <span className="text-tekki-coral">TEKKI STUDIO</span> • Experts en E-commerce
               </span>
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              Des sites e-commerce <span className="text-[#ff7f50]">qui convertissent</span> vraiment
+              Des sites e-commerce <span className="text-tekki-coral">qui convertissent</span> vraiment
             </h1>
             
             <p className="text-xl text-white/90 mb-8">
@@ -150,7 +160,7 @@ export default function EcommerceServicePage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 shadow-lg flex items-center"
+                className="bg-tekki-coral hover:bg-tekki-coral/90 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 shadow-lg flex items-center justify-center"
               >
                 Je veux un site e-commerce
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -159,9 +169,10 @@ export default function EcommerceServicePage() {
               <a
                 href="#details"
                 onClick={(e) => scrollToSection(e, detailsRef)}
-                className="text-white border-2 border-white/30 hover:border-white/60 px-8 py-4 rounded-lg font-semibold transition-all"
+                className="text-white border-2 border-white/30 hover:border-white/60 px-8 py-4 rounded-lg font-semibold transition-all flex items-center justify-center"
               >
                 En savoir plus
+                <ArrowRight className="ml-2 h-5 w-5" />
               </a>
             </div>
             
@@ -177,7 +188,7 @@ export default function EcommerceServicePage() {
                   </span>
                 </div>
                 
-                <div className="h-full w-px bg-white/20 hidden sm:block"></div>
+                <div className="h-12 w-px bg-white/20 hidden sm:block"></div>
                 
                 <div className="text-center">
                   <div className="text-white/80 mb-1">Paiement facilité</div>
@@ -187,59 +198,59 @@ export default function EcommerceServicePage() {
               </div>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Notre différence */}
-      <section className="py-10 bg-red-50">
-        <div className="container mx-auto px-4  mt-20">
-          <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-6 md:p-8 -mt-20">
-            <h3 className="text-2xl font-bold text-[#0f4c81] mb-6 text-center">
+      <section className="py-10 bg-gray-50">
+        <Container className="mt-20">
+          <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-6 md:p-8 -mt-28 border border-gray-100">
+            <h3 className="text-2xl font-bold text-tekki-blue mb-6 text-center">
               Ce qui nous différencie
             </h3>
             
             <div className="grid md:grid-cols-3 gap-6">
-              <div className="flex flex-col items-center text-center p-4">
-                <div className="w-16 h-16 bg-[#0f4c81]/10 rounded-full flex items-center justify-center mb-4">
-                  <ShoppingCart className="w-8 h-8 text-[#0f4c81]" />
+              <div className="flex flex-col items-center text-center p-4 group">
+                <div className="w-16 h-16 bg-tekki-blue/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-tekki-blue/20 transition-all">
+                  <ShoppingCart className="w-8 h-8 text-tekki-blue" />
                 </div>
                 <h4 className="font-bold text-gray-800 mb-2">E-commerçants nous-mêmes</h4>
                 <p className="text-gray-600 text-sm">Nous comprenons les défis de la vente en ligne car nous la pratiquons pour nos propres marques.</p>
               </div>
               
-              <div className="flex flex-col items-center text-center p-4">
-                <div className="w-16 h-16 bg-[#0f4c81]/10 rounded-full flex items-center justify-center mb-4">
-                  <BarChart className="w-8 h-8 text-[#0f4c81]" />
+              <div className="flex flex-col items-center text-center p-4 group">
+                <div className="w-16 h-16 bg-tekki-blue/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-tekki-blue/20 transition-all">
+                  <BarChart className="w-8 h-8 text-tekki-blue" />
                 </div>
                 <h4 className="font-bold text-gray-800 mb-2">Obsédés par la conversion</h4>
                 <p className="text-gray-600 text-sm">Nous optimisons chaque élément de votre site pour maximiser les taux de conversion et vos ventes.</p>
               </div>
               
-              <div className="flex flex-col items-center text-center p-4">
-                <div className="w-16 h-16 bg-[#0f4c81]/10 rounded-full flex items-center justify-center mb-4">
-                  <Zap className="w-8 h-8 text-[#0f4c81]" />
+              <div className="flex flex-col items-center text-center p-4 group">
+                <div className="w-16 h-16 bg-tekki-blue/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-tekki-blue/20 transition-all">
+                  <Zap className="w-8 h-8 text-tekki-blue" />
                 </div>
                 <h4 className="font-bold text-gray-800 mb-2">Thèmes professionnels</h4>
                 <p className="text-gray-600 text-sm">Nous n'utilisons pas de thèmes gratuits génériques, mais des solutions premium hautement personnalisables.</p>
               </div>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Ce qui est inclus - 2 colonnes */}
       <section ref={detailsRef} id="details" className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-[#0f4c81] text-center mb-12">
+        <Container>
+          <h2 className="text-3xl font-bold text-tekki-blue text-center mb-12">
             Une solution complète pour vendre efficacement sur Internet
           </h2>
           
           <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-            <div className="bg-gray-50 rounded-xl p-8 border border-gray-100 hover:shadow-lg transition-all">
-              <div className="w-16 h-16 bg-[#0f4c81]/10 rounded-full flex items-center justify-center mb-6">
-                <ShoppingCart className="w-8 h-8 text-[#0f4c81]" />
+            <div className="bg-gray-50 rounded-xl p-8 border border-gray-100 hover:shadow-lg transition-all group">
+              <div className="w-16 h-16 bg-tekki-blue/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-tekki-blue/20 transition-all">
+                <ShoppingCart className="w-8 h-8 text-tekki-blue" />
               </div>
-              <h3 className="text-2xl font-bold text-[#0f4c81] mb-4">
+              <h3 className="text-2xl font-bold text-tekki-blue mb-4">
                 Site E-commerce Professionnel
               </h3>
               <p className="text-gray-600 mb-6">
@@ -248,19 +259,19 @@ export default function EcommerceServicePage() {
               
               <ul className="space-y-3">
                 {serviceData.features.map((feature, index) => (
-                  <li key={index} className="flex items-start">
-                    <Check className="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" />
+                  <li key={index} className="flex items-start group">
+                    <Check className="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0 group-hover:scale-110 transition-transform" />
                     <span className="text-gray-700">{feature}</span>
                   </li>
                 ))}
               </ul>
             </div>
             
-            <div className="bg-gray-50 rounded-xl p-8 border border-gray-100 hover:shadow-lg transition-all">
-              <div className="w-16 h-16 bg-[#ff7f50]/10 rounded-full flex items-center justify-center mb-6">
-                <PieChart className="w-8 h-8 text-[#ff7f50]" />
+            <div className="bg-gray-50 rounded-xl p-8 border border-gray-100 hover:shadow-lg transition-all group">
+              <div className="w-16 h-16 bg-tekki-coral/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-tekki-coral/20 transition-all">
+                <PieChart className="w-8 h-8 text-tekki-coral" />
               </div>
-              <h3 className="text-2xl font-bold text-[#0f4c81] mb-4">
+              <h3 className="text-2xl font-bold text-tekki-blue mb-4">
                 Stratégie d'Acquisition Client Meta
               </h3>
               <p className="text-gray-600 mb-6">
@@ -269,8 +280,8 @@ export default function EcommerceServicePage() {
               
               <ul className="space-y-3">
                 {serviceData.marketingStrategy.map((feature, index) => (
-                  <li key={index} className="flex items-start">
-                    <Check className="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" />
+                  <li key={index} className="flex items-start group">
+                    <Check className="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0 group-hover:scale-110 transition-transform" />
                     <span className="text-gray-700">{feature}</span>
                   </li>
                 ))}
@@ -281,19 +292,19 @@ export default function EcommerceServicePage() {
           <div className="text-center mt-12">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 shadow-lg inline-flex items-center"
+              className="bg-tekki-coral hover:bg-tekki-coral/90 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 shadow-lg inline-flex items-center"
             >
               Lancer mon projet
               <ArrowRight className="ml-2 h-5 w-5" />
             </button>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Comparaison Shopify vs WooCommerce */}
       <section ref={comparisonRef} id="comparison" className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-[#0f4c81] text-center mb-4">
+        <Container>
+          <h2 className="text-3xl font-bold text-tekki-blue text-center mb-4">
             Shopify vs WordPress/WooCommerce
           </h2>
           <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
@@ -301,15 +312,15 @@ export default function EcommerceServicePage() {
           </p>
           
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            <div className="bg-white rounded-xl p-6 shadow border-t-4 border-[#96bf48]">
-              <div className="flex items-center mb-6">
-                <h3 className="text-2xl font-bold text-[#0f4c81]">Shopify</h3>
+            <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all border-t-4 border-[#96bf48]">
+              <div className="flex items-center gap-3 mb-6">
+                <h3 className="text-2xl font-bold text-tekki-blue">Shopify</h3>
                 <span className="ml-2 px-3 py-1 bg-[#96bf48]/10 text-[#96bf48] text-sm rounded-full font-medium">
                   Recommandé
                 </span>
               </div>
               
-              <div className="text-xl font-bold mb-6 text-[#0f4c81]">
+              <div className="text-xl font-bold mb-6 text-tekki-blue">
                 <PriceFormatter amount={695000} />
                 <span className="text-sm text-gray-500 font-normal ml-2">+ abonnement Shopify (<PriceFormatter amount={21000} /> /mois)</span>
               </div>
@@ -347,19 +358,20 @@ export default function EcommerceServicePage() {
               <div className="mt-8">
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="w-full bg-[#96bf48] hover:bg-[#85a93e] text-white py-3 rounded-lg font-medium transition-colors"
+                  className="w-full bg-[#96bf48] hover:bg-[#85a93e] text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center"
                 >
                   Choisir Shopify
+                  <ArrowRight className="ml-2 w-4 h-4" />
                 </button>
               </div>
             </div>
             
-            <div className="bg-white rounded-xl p-6 shadow border-t-4 border-[#21759b]">
+            <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all border-t-4 border-[#21759b]">
               <div className="flex items-center mb-6">
-                <h3 className="text-2xl font-bold text-[#0f4c81]">WordPress / WooCommerce</h3>
+                <h3 className="text-2xl font-bold text-tekki-blue">WordPress / WooCommerce</h3>
               </div>
               
-              <div className="text-xl font-bold mb-6 text-[#0f4c81]">
+              <div className="text-xl font-bold mb-6 text-tekki-blue">
               <PriceFormatter amount={495000} />
                 <span className="text-sm text-gray-500 font-normal ml-2">+ hébergement (environ <PriceFormatter amount={94000} />/an)</span>
               </div>
@@ -397,20 +409,21 @@ export default function EcommerceServicePage() {
               <div className="mt-8">
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="w-full bg-[#21759b] hover:bg-[#1d6789] text-white py-3 rounded-lg font-medium transition-colors"
+                  className="w-full bg-[#21759b] hover:bg-[#1d6789] text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center"
                 >
                   Choisir WordPress/WooCommerce
+                  <ArrowRight className="ml-2 w-4 h-4" />
                 </button>
               </div>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Pourquoi notre service est essentiel */}
       <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-[#0f4c81] text-center mb-4">
+        <Container>
+          <h2 className="text-3xl font-bold text-tekki-blue text-center mb-4">
             Pourquoi choisir un site e-commerce professionnel
           </h2>
           <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
@@ -418,11 +431,11 @@ export default function EcommerceServicePage() {
           </p>
           
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-all border-t-4 border-[#0f4c81]">
-              <div className="w-12 h-12 bg-[#0f4c81]/10 rounded-full flex items-center justify-center mb-4">
-                <Calendar className="w-6 h-6 text-[#0f4c81]" />
+            <div className="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-lg transition-all border-t-4 border-tekki-blue group">
+              <div className="w-12 h-12 bg-tekki-blue/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-tekki-blue/20 transition-all">
+                <Calendar className="w-6 h-6 text-tekki-blue" />
               </div>
-              <h3 className="text-xl font-bold text-[#0f4c81] mb-2">
+              <h3 className="text-xl font-bold text-tekki-blue mb-2">
                 Ventes automatisées 24/7
               </h3>
               <p className="text-gray-600">
@@ -430,11 +443,11 @@ export default function EcommerceServicePage() {
               </p>
             </div>
             
-            <div className="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-all border-t-4 border-[#0f4c81]">
-              <div className="w-12 h-12 bg-[#0f4c81]/10 rounded-full flex items-center justify-center mb-4">
-                <Shield className="w-6 h-6 text-[#0f4c81]" />
+            <div className="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-lg transition-all border-t-4 border-tekki-blue group">
+              <div className="w-12 h-12 bg-tekki-blue/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-tekki-blue/20 transition-all">
+                <Shield className="w-6 h-6 text-tekki-blue" />
               </div>
-              <h3 className="text-xl font-bold text-[#0f4c81] mb-2">
+              <h3 className="text-xl font-bold text-tekki-blue mb-2">
                 Indépendance numérique
               </h3>
               <p className="text-gray-600">
@@ -442,11 +455,11 @@ export default function EcommerceServicePage() {
               </p>
             </div>
             
-            <div className="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-all border-t-4 border-[#0f4c81]">
-              <div className="w-12 h-12 bg-[#0f4c81]/10 rounded-full flex items-center justify-center mb-4">
-                <Award className="w-6 h-6 text-[#0f4c81]" />
+            <div className="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-lg transition-all border-t-4 border-tekki-blue group">
+              <div className="w-12 h-12 bg-tekki-blue/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-tekki-blue/20 transition-all">
+                <Award className="w-6 h-6 text-tekki-blue" />
               </div>
-              <h3 className="text-xl font-bold text-[#0f4c81] mb-2">
+              <h3 className="text-xl font-bold text-tekki-blue mb-2">
                 Professionnalisme et crédibilité
               </h3>
               <p className="text-gray-600">
@@ -454,13 +467,13 @@ export default function EcommerceServicePage() {
               </p>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Nos réalisations - Portefeuille */}
       <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-[#0f4c81] text-center mb-4">
+        <Container>
+          <h2 className="text-3xl font-bold text-tekki-blue text-center mb-4">
             Des sites que nous avons déjà réalisés
           </h2>
           <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
@@ -469,8 +482,8 @@ export default function EcommerceServicePage() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {serviceData.portfolioItems.map((item, index) => (
-              <div key={index} className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all">
-                <div className="aspect-[16/9] relative bg-gray-100">
+              <div key={index} className="group relative overflow-hidden rounded-xl shadow-sm hover:shadow-lg transition-all h-60">
+                <div className="absolute inset-0 bg-gray-100">
                   {/* Fallback pour l'image en cas d'erreur */}
                   <div className="w-full h-full bg-gray-200 relative">
                     {item.image ? (
@@ -496,15 +509,16 @@ export default function EcommerceServicePage() {
                   </div>
                 </div>
                 
-                <div className="absolute inset-0 bg-[#0f4c81]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                <div className="absolute inset-0 bg-tekki-blue/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                   <h3 className="text-white font-bold text-xl mb-2">{item.name}</h3>
                   <a 
                     href={item.url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-white text-sm underline hover:text-[#ff7f50]"
+                    className="text-white text-sm flex items-center hover:text-tekki-coral transition-colors"
                   >
                     Visiter le site
+                    <ExternalLink className="ml-1 w-4 h-4" />
                   </a>
                 </div>
               </div>
@@ -514,24 +528,24 @@ export default function EcommerceServicePage() {
           <div className="text-center mt-12">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all hover:shadow-lg inline-flex items-center"
+              className="bg-tekki-coral hover:bg-tekki-coral/90 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all hover:shadow-lg inline-flex items-center"
             >
               Je veux mon site e-commerce
               <ArrowRight className="ml-2 h-5 w-5" />
             </button>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Témoignages */}
       <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-[#0f4c81] text-center mb-12">
+        <Container>
+          <h2 className="text-3xl font-bold text-tekki-blue text-center mb-12">
             Ce que nos clients disent de nous
           </h2>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            <div className="bg-gray-50 p-6 rounded-xl shadow-sm">
+            <div className="bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-lg transition-all">
               <div className="flex items-center gap-1 mb-4">
                 <Star className="w-5 h-5 text-yellow-500 fill-current" />
                 <Star className="w-5 h-5 text-yellow-500 fill-current" />
@@ -543,7 +557,7 @@ export default function EcommerceServicePage() {
                 "TEKKI Studio a transformé notre marque avec un site e-commerce professionnel qui dépasse toutes nos attentes. Nous pouvons désormais vendre en boutique et sur Internet, surtout aux clients qui ne sont pas à Dakar."
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-[#0f4c81] rounded-full flex items-center justify-center text-white font-bold">
+                <div className="w-12 h-12 bg-tekki-blue rounded-full flex items-center justify-center text-white font-bold">
                   MD
                 </div>
                 <div>
@@ -553,7 +567,7 @@ export default function EcommerceServicePage() {
               </div>
             </div>
             
-            <div className="bg-gray-50 p-6 rounded-xl shadow-sm">
+            <div className="bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-lg transition-all">
               <div className="flex items-center gap-1 mb-4">
                 <Star className="w-5 h-5 text-yellow-500 fill-current" />
                 <Star className="w-5 h-5 text-yellow-500 fill-current" />
@@ -565,7 +579,7 @@ export default function EcommerceServicePage() {
                 "L'équipe de TEKKI Studio est extrêmement professionnelle et disponible. Je les ai sollicités pour la refonte de mon site, et ils ont fait un travail magnifique qui a été livré dans les délais promis."
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-[#0f4c81] rounded-full flex items-center justify-center text-white font-bold">
+                <div className="w-12 h-12 bg-tekki-blue rounded-full flex items-center justify-center text-white font-bold">
                   FD
                 </div>
                 <div>
@@ -575,7 +589,7 @@ export default function EcommerceServicePage() {
               </div>
             </div>
             
-            <div className="bg-gray-50 p-6 rounded-xl shadow-sm">
+            <div className="bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-lg transition-all">
               <div className="flex items-center gap-1 mb-4">
                 <Star className="w-5 h-5 text-yellow-500 fill-current" />
                 <Star className="w-5 h-5 text-yellow-500 fill-current" />
@@ -587,7 +601,7 @@ export default function EcommerceServicePage() {
                 "Avant de travailler avec TEKKI Studio, j'avais essayé d'autres solutions qui étaient soit trop chères, soit de mauvaise qualité. Ils ont réussi à créer exactement ce dont j'avais besoin, à un prix abordable. J'adore mon site."
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-[#0f4c81] rounded-full flex items-center justify-center text-white font-bold">
+                <div className="w-12 h-12 bg-tekki-blue rounded-full flex items-center justify-center text-white font-bold">
                   FD
                 </div>
                 <div>
@@ -597,20 +611,20 @@ export default function EcommerceServicePage() {
               </div>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* FAQ */}
       <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-[#0f4c81] text-center mb-12">
+        <Container>
+          <h2 className="text-3xl font-bold text-tekki-blue text-center mb-12">
             Questions fréquentes
           </h2>
           
           <div className="max-w-3xl mx-auto space-y-6">
             {serviceData.faqs.map((faq, index) => (
-              <div key={index} className="bg-white rounded-xl p-6 shadow-sm">
-                <h3 className="text-xl font-bold text-[#0f4c81] mb-3">
+              <div key={index} className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-100 hover:border-tekki-coral/20">
+                <h3 className="text-xl font-bold text-tekki-blue mb-3">
                   {faq.question}
                 </h3>
                 <p className="text-gray-600">
@@ -619,12 +633,12 @@ export default function EcommerceServicePage() {
               </div>
             ))}
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* CTA Final */}
-      <section className="py-16 bg-[#0f4c81] text-white">
-        <div className="container mx-auto px-4 text-center">
+      <section className="py-16 bg-gradient-to-r from-tekki-blue to-tekki-coral text-white">
+        <Container className="text-center">
           <h2 className="text-3xl font-bold mb-6">
             Prêt à transformer votre business en ligne ?
           </h2>
@@ -633,7 +647,6 @@ export default function EcommerceServicePage() {
           </p>
           
           <div className="mb-8">
-            
             <div className="text-white/80 max-w-xl mx-auto">
                 Paiement facilité : 60% à la commande (<PriceFormatter amount={serviceData.price * 0.6} />), 
                 40% à la livraison (<PriceFormatter amount={serviceData.price * 0.4} />)
@@ -642,7 +655,7 @@ export default function EcommerceServicePage() {
           
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-10 py-5 rounded-lg font-bold text-xl transition-all transform hover:scale-105 shadow-lg inline-flex items-center"
+            className="bg-white text-tekki-blue hover:bg-white/90 px-10 py-5 rounded-lg font-bold text-xl transition-all transform hover:scale-105 shadow-lg inline-flex items-center"
           >
             Obtenir mon site e-commerce
             <ArrowRight className="ml-3 h-6 w-6" />
@@ -651,7 +664,7 @@ export default function EcommerceServicePage() {
           <div className="mt-6 text-white/70">
             Votre site + stratégie Meta est livré en {serviceData.deliveryTime}
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Modal d'inscription */}

@@ -1,88 +1,204 @@
-// app/components/home/Hero.tsx
+// app/components/home/Hero.tsx avec animations
 'use client';
 
-import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { ArrowRight, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import * as framerMotion from 'framer-motion';
+const { motion, useAnimation } = framerMotion;
+import { useInView } from 'react-intersection-observer';
 
 const HeroSection = () => {
+  const controls = useAnimation();
+  const statsControls = useAnimation();
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.2
+  });
+  
+  useEffect(() => {
+    if (inView) {
+      controls.start('visible');
+    }
+  }, [controls, inView]);
+
+  const container = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.7, ease: "easeOut" }
+    }
+  };
+
+  const statsContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 1.2
+      }
+    }
+  };
+
+  const statItem = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
   return (
-    <div className="relative bg-[#0f4c81] min-h-screen flex items-center overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="grid grid-cols-12 h-full">
-          {[...Array(48)].map((_, i) => (
-            <div key={i} className="border border-white/20" />
-          ))}
-        </div>
+    <section className="relative pt-32 pb-10 md:pt-40 md:pb-16 overflow-hidden">
+      {/* Arrière-plan avec gradient amélioré */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#042b65] via-[#1a5a8f] to-[#ff7f50] -z-10"></div>
+      
+      {/* Overlay radial gradient pour ajouter de la profondeur */}
+      <div className="absolute inset-0 bg-gradient-radial from-[#1e69a3]/30 to-transparent opacity-70 -z-10"></div>
+      
+      {/* Motif de fond subtil */}
+      <div className="absolute inset-0 bg-[url('/img/pattern.svg')] bg-repeat opacity-5 -z-10"></div>
+      
+      {/* Effets de lumière */}
+      <div className="absolute top-20 left-[10%] w-80 h-80 bg-[#3d85c6] rounded-full filter blur-[100px] opacity-20 -z-10"></div>
+      <div className="absolute bottom-20 right-[5%] w-96 h-96 bg-[#ff7f50] rounded-full filter blur-[120px] opacity-10 -z-10"></div>
+      
+      <div className="container mx-auto px-4">
+        <motion.div 
+          ref={ref}
+          className="max-w-4xl mx-auto text-center mb-12"
+          initial="hidden"
+          animate={controls}
+          variants={container}
+        >
+          {/* Titre principal - plus concis et impactant */}
+          <motion.h1 
+            variants={item}
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6"
+          >
+            Acquérez un business en ligne <span className="text-[#ff7f50]">prêt à générer des revenus</span>
+          </motion.h1>
+          
+          {/* Sous-titre simplifié */}
+          <motion.p 
+            variants={item}
+            className="text-xl text-white/90 mb-10 max-w-2xl mx-auto"
+          >
+            Lancez votre business e-commerce ou digital sans partir de zéro.
+          </motion.p>
+          
+          {/* Boutons d'action centrés et espacés */}
+          <motion.div 
+            variants={item}
+            className="flex flex-col sm:flex-row justify-center gap-4 mb-10"
+          >
+            <Link 
+              href="/business" 
+              className="bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-lg font-medium transition-colors flex items-center justify-center shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+            >
+              Découvrir les business en vente
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Link>
+            <Link 
+              href="/comparatif-acquisition" 
+              className="bg-white hover:bg-gray-100 text-[#0f4c81] px-8 py-4 rounded-lg font-medium transition-colors shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+            >
+              Comparer les types de business
+            </Link>
+          </motion.div>
+          
+          {/* Avantages simplifiés */}
+          <motion.div 
+            variants={item}
+            className="flex flex-wrap justify-center gap-6 mb-10"
+          >
+            <div className="flex items-center text-white">
+              <CheckCircle className="h-5 w-5 text-[#ff7f50] mr-2" />
+              <span>Formation incluse</span>
+            </div>
+            <div className="flex items-center text-white">
+              <CheckCircle className="h-5 w-5 text-[#ff7f50] mr-2" />
+              <span>2 mois d'accompagnement</span>
+            </div>
+            <div className="flex items-center text-white">
+              <CheckCircle className="h-5 w-5 text-[#ff7f50] mr-2" />
+              <span>Support réactif 7j/7</span>
+            </div>
+          </motion.div>
+        </motion.div>
       </div>
       
-      {/* Ajout d'un padding-top plus important sur mobile */}
-      <div className="container mx-auto px-4 py-16 pt-24 md:pt-16 relative z-10">
-        <div className="flex flex-col lg:flex-row items-center gap-12">
-          <div className="flex-1 text-white">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6 leading-tight">
-              Lancez-vous dans la vente sur Internet
-              <span className="block text-[#ff7f50]">Sans Partir de Zéro</span>
-            </h1>
-            <p className="text-xl mb-8 text-gray-200 leading-relaxed">
-              Gagnez un temps précieux en achetant un business en ligne complet, testé et prêt à générer des revenus pour vous. Plus besoin de passer des mois à tout créer de zéro.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Link 
-                href="/business" 
-                className="bg-[#ff7f50] text-white px-8 py-4 rounded-lg flex items-center gap-2 hover:bg-[#ff6b3d] transition-colors whitespace-nowrap"
+      {/* Statistiques simplifiées dans une bande au bas de la hero section - ESPACE RÉDUIT */}
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        variants={statsContainer}
+        className="mt-8 border-t border-white/20 pt-4 pb-4 backdrop-blur-sm bg-[#0f4c81]/30"
+      >
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+            <motion.div className="text-center" variants={statItem}>
+              <motion.p 
+                className="text-2xl md:text-3xl font-bold text-white"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 1.3 }}
               >
-                Voir les business en vente
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link 
-                href="/services/sites-ecommerce" 
-                className="border-2 border-white text-white px-8 py-4 rounded-lg hover:bg-white hover:text-[#0f4c81] transition-colors whitespace-nowrap"
+                +10
+              </motion.p>
+              <p className="text-sm text-white/70">Business créés</p>
+            </motion.div>
+            <motion.div className="text-center" variants={statItem}>
+              <motion.p 
+                className="text-2xl md:text-3xl font-bold text-white"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 1.4 }}
               >
-                Créer mon site e-commerce
-              </Link>
-            </div>
-          </div>
-          
-          <div className="flex-1 relative w-full max-w-lg">
-            <div className="relative z-10 bg-[#F2F2F2] p-8 rounded-xl shadow-2xl">
-              <h3 className="text-[#0f4c81] text-2xl font-bold mb-6">
-                Chaque business proposé inclut :
-              </h3>
-              <ul className="space-y-4">
-                {[
-                  {
-                    text: "Un site e-commerce complet prêt à être lancé",
-                    subtext: "Commencez à vendre immédiatement, après l'acquisition"
-                  },
-                  {
-                    text: "Des Fournisseurs qualifiés & produits sourcés",
-                    subtext: "Évitez des mois de recherche et de négociation"
-                  },
-                  {
-                    text: "Une stratégie marketing complète et efficace",
-                    subtext: "Ne galérez plus pour attirer vos clients et faire des ventes"
-                  },
-                  {
-                    text: "Formation et accompagnement de 2 mois",
-                    subtext: "Nous sommes avec vous jusqu'aux premières ventes"
-                  }
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <div className="w-2 h-2 rounded-full bg-[#ff7f50] mt-2" />
-                    <div>
-                      <span className="text-gray-700 font-medium text-lg">{item.text}</span>
-                      <p className="text-gray-500 text-sm mt-1">{item.subtext}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                +10K
+              </motion.p>
+              <p className="text-sm text-white/70">Clients satisfaits</p>
+            </motion.div>
+            <motion.div className="text-center" variants={statItem}>
+              <motion.p 
+                className="text-2xl md:text-3xl font-bold text-white"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 1.5 }}
+              >
+                4 mois
+              </motion.p>
+              <p className="text-sm text-white/70">ROI moyen</p>
+            </motion.div>
+            <motion.div className="text-center" variants={statItem}>
+              <motion.p 
+                className="text-2xl md:text-3xl font-bold text-white"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 1.6 }}
+              >
+                7j/7
+              </motion.p>
+              <p className="text-sm text-white/70">Support disponible</p>
+            </motion.div>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </section>
   );
 };
 

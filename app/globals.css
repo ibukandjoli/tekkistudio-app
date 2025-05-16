@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,6 +13,61 @@
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Base styles pour les éléments communs */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.container {
+  @apply mx-auto px-4 sm:px-6;
+  max-width: 1280px; /* Taille plus large comme Lovable */
+}
+
+/* Classes utilitaires pour les boutons */
+.btn-primary {
+  @apply bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center;
+}
+
+.btn-secondary {
+  @apply bg-white hover:bg-gray-100 text-[#0f4c81] px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center;
+}
+
+/* Style pour les cartes de business */
+.business-card {
+  @apply bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all;
+}
+
+/* Style pour les badges */
+.badge {
+  @apply px-3 py-1 rounded-full text-xs text-white font-medium;
+}
+
+.badge-ecommerce {
+  @apply bg-[#0f4c81];
+}
+
+.badge-digital {
+  @apply bg-[#ff7f50];
+}
+
+.badge-available {
+  @apply bg-green-500;
+}
+
+.badge-reserved {
+  @apply bg-amber-500;
+}
+
+/* Style pour les listes à puces */
+.feature-list li {
+  @apply flex items-center mb-2;
+}
+
+.feature-list li svg {
+  @apply h-5 w-5 text-green-500 mr-2 flex-shrink-0;
 }
 
 /* Empêcher le zoom et le redimensionnement sur iOS */

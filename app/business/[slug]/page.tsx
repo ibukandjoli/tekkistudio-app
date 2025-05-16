@@ -2,846 +2,657 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  ArrowLeft,
-  CheckCircle2,
-  ArrowRight,
-  Plus,
-  Minus
-} from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Users, Star, Clock, TrendingUp, Award, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { supabase } from '../../lib/supabase';
-import BusinessGallery from '../../components/business/BusinessGallery';
-import InterestModal from '../../components/business/InterestModal';
+import { supabase } from '@/app/lib/supabase';
+import BusinessGallery from '@/app/components/business/BusinessGallery';
+import InterestModal from '@/app/components/business/InterestModal';
 import { formatPrice } from '@/app/lib/utils/price-utils';
-import type { Business } from '@/app/types/database';
-import CurrencySelector from '@/app/components/common/CurrencySelector';
+import Container from '@/app/components/ui/Container';
+import ImageLightbox from '@/app/components/business/ImageLightbox';
+import BusinessAccordion from '@/app/components/business/BusinessAccordion';
+import FormattedText from '@/app/components/ui/FormattedText';
+import useCountryStore from '@/app/hooks/useCountryStore';
 
-// Import des composants avec leurs types corrigés
-import {
-  ROICalculator,
-  KeyBenefits,
-  FAQSection,
-  SocialProof,
-  ExclusiveOpportunityBanner,
-  KeyMetrics,
-  Guarantee,
-  AccompagnementTimeline,
-  PriceBanner,
-  IncludedFeatures,
-  ProjectionDisclaimer
-} from '../../components/business/BusinessComponents';
-
-// Composant principal amélioré
 export default function BusinessPage() {
   const params = useParams();
   const currentSlug = params.slug as string;
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [business, setBusiness] = useState<Business | null>(null);
+  const [business, setBusiness] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [isSticky, setIsSticky] = useState<boolean>(false);
-  const [selectedTab, setSelectedTab] = useState<string>('analyse');
-  const [selectedAcquisitionOption, setSelectedAcquisitionOption] = useState<'standard' | 'progressive'>('standard');
-  const ctaRef = useRef<HTMLDivElement>(null);
-  
-  // Valeurs dynamiques ou valeurs par défaut
   const [activeVisitors, setActiveVisitors] = useState<number>(0);
-  const [interestedCount, setInterestedCount] = useState<number>(0);
-  const [showFAQDetails, setShowFAQDetails] = useState<{ [key: string]: boolean }>({});
+  
+  // États pour la lightbox
+  const [showLightbox, setShowLightbox] = useState<boolean>(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number>(0);
+  
+  // Définir l'option d'acquisition par défaut
+  const [selectedAcquisitionOption, setSelectedAcquisitionOption] = useState<'standard' | 'progressive'>('standard');
 
-  // Calculer le prix d'entrée (40% du prix total)
+  // Fonction pour calculer le prix d'entrée à partir des données du business
   const calculateEntryPrice = (price: number) => {
-    return Math.round(price * 0.4);
+    if (!business) return Math.round(price * 0.4);
+    const entryPercentage = business.entry_price_percentage || 40;
+    return Math.round(price * entryPercentage / 100);
   };
 
-  // Calculer la mensualité (10% du prix total + 1000 FCFA)
+  // Fonction pour calculer le montant des mensualités
   const calculateMonthlyPayment = (price: number) => {
-    return Math.round(price * 0.1) + 5000;
+    if (!business) return Math.round(price * 0.1) + 5000;
+    const monthlyPercentage = business.monthly_payment_percentage || 10;
+    const fixedAmount = business.monthly_payment_fixed_amount || 5000;
+    return Math.round(price * monthlyPercentage / 100) + fixedAmount;
   };
 
-  // Simuler un intérêt croissant avec un timer
   useEffect(() => {
-    // Si les valeurs sont fournies par la base de données, les utiliser
-    // Sinon, utiliser des valeurs par défaut aléatoires
+    async function fetchBusiness() {
+      try {
+        const { data, error } = await supabase
+          .from('businesses')
+          .select('*')
+          .eq('slug', currentSlug)
+          .single();
+
+        if (error) {
+          console.error("Erreur lors de la récupération du business:", error);
+          setError("Ce business n'a pas été trouvé");
+          return;
+        }
+        
+        setBusiness(data);
+        
+        // Définir l'option d'acquisition par défaut
+        if (data) {
+          setSelectedAcquisitionOption(
+            data.progressive_option_enabled !== false ? 'progressive' : 'standard'
+          );
+        }
+      } catch (err) {
+        console.error('Erreur lors du chargement du business:', err);
+        setError("Une erreur est survenue lors du chargement des données");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchBusiness();
+  }, [currentSlug]);
+
+  // Simuler un intérêt croissant
+  useEffect(() => {
     if (business) {
       setActiveVisitors(business.active_viewers_count || Math.floor(Math.random() * 10) + 8);
-      setInterestedCount(5); // Valeur par défaut
     }
     
     const interval = setInterval(() => {
-      // 30% de chance de changer le nombre de visiteurs actifs
       if (Math.random() > 0.7) {
         setActiveVisitors(prev => {
-          const change = Math.floor(Math.random() * 3) - 1; // -1, 0, ou 1
-          return Math.max(5, Math.min(20, prev + change)); // Min 5, Max 20
+          const change = Math.floor(Math.random() * 3) - 1;
+          return Math.max(5, Math.min(20, prev + change));
         });
       }
-    }, 30000); // Toutes les 30 secondes
+    }, 30000);
     
     return () => clearInterval(interval);
   }, [business]);
 
-  // Gestion du CTA sticky
-  useEffect(() => {
-    const handleScroll = () => {
-      if (ctaRef.current) {
-        const rect = ctaRef.current.getBoundingClientRect();
-        setIsSticky(rect.top <= 0);
-      }
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    async function fetchBusiness() {
-      try {
-        console.log("Récupération du business avec slug:", currentSlug);
-        
-        const { data, error } = await supabase
-          .from('businesses')
-          .select('*')
-          .eq('slug', currentSlug)
-          .single();
-
-        if (error) {
-          console.error("Erreur lors de la récupération du business:", error);
-          setError("Ce business n'a pas été trouvé");
-          return;
-        }
-        
-        console.log("Business récupéré:", data);
-        setBusiness(data as Business);
-      } catch (err) {
-        console.error('Erreur lors du chargement du business:', err);
-        setError("Une erreur est survenue lors du chargement des données");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchBusiness();
-  }, [currentSlug]);
-
-  useEffect(() => {
-    async function fetchBusiness() {
-      try {
-        console.log("Récupération du business avec slug:", currentSlug);
-        
-        const { data, error } = await supabase
-          .from('businesses')
-          .select('*')
-          .eq('slug', currentSlug)
-          .single();
-  
-        if (error) {
-          console.error("Erreur lors de la récupération du business:", error);
-          setError("Ce business n'a pas été trouvé");
-          return;
-        }
-        
-        console.log("Business récupéré:", data);
-        setBusiness(data as Business);
-        
-        // Vérifier si un paramètre showInterest est présent dans l'URL (pour les redirections depuis le chat)
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('showInterest') === 'true') {
-          // Ouvrir le modal d'acquisition automatiquement après un court délai
-          setTimeout(() => {
-            setIsModalOpen(true);
-          }, 500);
-        }
-      } catch (err) {
-        console.error('Erreur lors du chargement du business:', err);
-        setError("Une erreur est survenue lors du chargement des données");
-      } finally {
-        setLoading(false);
-      }
-    }
-  
-    fetchBusiness();
-  }, [currentSlug]);
-
-  // Gérer l'affichage des détails de la FAQ
-  const toggleFAQDetail = (id: string) => {
-    setShowFAQDetails(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
-
   // Afficher un état de chargement
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-20 flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#ff7f50]"></div>
-      </div>
+      <Container maxWidth="full" className="py-20 flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-tekki-orange"></div>
+      </Container>
     );
   }
 
   // Si le business n'existe pas, afficher une page d'erreur
   if (error || !business) {
     return (
-      <div className="container mx-auto px-4 py-20 min-h-screen">
-        <h1 className="text-2xl font-bold text-[#0f4c81] mb-4">
+      <Container maxWidth="full" className="py-20 min-h-screen">
+        <h1 className="text-2xl font-bold text-tekki-blue mb-4">
           {error || "Business non trouvé"}
         </h1>
-        <Link href="/business" className="text-[#ff7f50] hover:underline">
+        <Link href="/business" className="text-tekki-orange hover:underline">
           Retour aux business en vente
         </Link>
-      </div>
+      </Container>
     );
   }
 
-  // Les questions spécifiques au nouveau modèle d'acquisition
-  const progressiveAcquisitionFAQs = [
-    {
-      id: 'progressive-how',
-      question: "Comment fonctionne l'acquisition progressive ?",
-      answer: "L'acquisition progressive vous permet de démarrer avec seulement 40% du prix total. Vous versez ensuite 10% + 5000 FCFA du prix total chaque mois pendant 6 mois. Vous pouvez gérer et développer le business dès l'apport initial, mais le transfert complet de propriété n'est effectué qu'après le dernier versement."
-    },
-    {
-      id: 'progressive-use',
-      question: "Puis-je utiliser le business pendant la période de paiement ?",
-      answer: "Oui, dès votre apport initial de 40%, vous avez accès au business et pouvez commencer à le développer et à générer des revenus. Vous bénéficiez de notre accompagnement renforcé de 3 mois pour maximiser vos chances de succès."
-    },
-    {
-      id: 'progressive-default',
-      question: "Que se passe-t-il en cas de défaut de paiement ?",
-      answer: "En cas de retard de paiement, vos accès au business sont temporairement suspendus. Si le retard n'est pas régularisé sous 30 jours, le business pourra être remis en vente. Les versements déjà effectués ne sont pas remboursables, conformément aux conditions générales d'acquisition."
-    }
-  ];
+  // Définir les types pour business.status et business.type
+  type BusinessStatus = 'available' | 'reserved' | 'sold';
+  type BusinessType = 'ecommerce' | 'digital' | 'physical';
 
+  // Assurez-vous que business.status est une valeur valide
+  const businessStatus: BusinessStatus = 
+    (business.status === 'available' || business.status === 'reserved' || business.status === 'sold') 
+      ? business.status 
+      : 'available';
+
+  // Assurez-vous que business.type est une valeur valide
+  const businessType: BusinessType = 
+    (business.type === 'ecommerce' || business.type === 'digital' || business.type === 'physical') 
+      ? business.type 
+      : 'digital';
+
+  const typeColor = {
+    ecommerce: 'bg-tekki-blue/10 text-tekki-blue',
+    digital: 'bg-tekki-orange/10 text-tekki-orange',
+    physical: 'bg-green-100 text-green-700'
+  };
+
+  const typeText = {
+    ecommerce: 'E-Commerce',
+    digital: 'Digital',
+    physical: 'Physique'
+  };
+
+  const statusColor = {
+    available: 'bg-green-100 text-green-800',
+    reserved: 'bg-amber-100 text-amber-800',
+    sold: 'bg-red-100 text-red-800'
+  };
+
+  const statusText = {
+    available: 'Disponible',
+    reserved: 'Réservé',
+    sold: 'Vendu'
+  };
+
+  const categoryMap = {
+    'fashion': 'Mode',
+    'beauty': 'Beauté',
+    'sport': 'Sport',
+    'home': 'Maison',
+    'tech': 'Technologie',
+    'food': 'Alimentation',
+    'saas': 'SaaS',
+    'marketplace': 'Marketplace',
+    'app': 'Application',
+    'content': 'Contenu'
+  };
+
+  // Vérifier si la catégorie existe dans categoryMap, sinon utiliser la catégorie directement
+  const getCategory = (category: string): string => {
+    if (!category) return "Autre";
+    return (category in categoryMap) 
+      ? categoryMap[category as keyof typeof categoryMap] 
+      : category;
+  };
+  
   return (
-    <main className="pt-20">
+    <main className="pt-20"> {/* Ajout d'espace entre le header et le contenu */}
       {/* Navigation */}
-      <div className="bg-gray-50 border-b">
-        <div className="container mx-auto px-4 py-4">
-          <Link href="/business" className="flex items-center text-[#0f4c81] hover:text-[#ff7f50]">
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Retour aux business en vente
-          </Link>
-        </div>
+      <div className="bg-gray-20 border-b mb-6">
+        <Container maxWidth="full">
+          <div className="py-3">
+            <Link href="/business" className="flex items-center text-tekki-blue hover:text-tekki-orange">
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Retour aux business en vente
+            </Link>
+          </div>
+        </Container>
       </div>
 
-      {/* CTA sticky (apparaît lors du défilement) */}
-      {isSticky && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t z-50 py-3 transform transition-transform">
-          <div className="container mx-auto px-4 flex justify-between items-center">
-            <div>
-              <h3 className="font-bold text-[#0f4c81]">{business.name}</h3>
-              <div className="text-[#ff7f50] font-bold">
-                {selectedAcquisitionOption === 'progressive' 
-                  ? `À partir de ${formatPrice(calculateEntryPrice(business.price))}` 
-                  : formatPrice(business.price)
-                }
-              </div>
-            </div>
-            <button 
-              className="bg-[#ff7f50] text-white px-6 py-3 rounded-lg hover:bg-[#ff6b3d] transition-colors"
-              onClick={() => setIsModalOpen(true)}
-            >
-              Je le prends
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Sélecteur de devise */}
-      <CurrencySelector />
-
       {/* En-tête du business */}
-      <section className="bg-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-12">
-            <div className="lg:w-2/3">
-              <div className="flex flex-wrap gap-2 mb-4">
-                <span className="bg-[#ff7f50] text-white px-3 py-1 rounded-full text-sm">
-                  {business.category}
-                </span>
-                <span className={`${
-                  business.type === 'digital' ? 'bg-blue-500' : 'bg-green-500'
-                } text-white px-3 py-1 rounded-full text-sm`}>
-                  {business.type === 'digital' ? 'Digital' : 'Physique'}
-                </span>
-              </div>
-              <h1 className="text-4xl font-bold text-[#0f4c81] mb-4">{business.name}</h1>
-              <p className="text-xl text-gray-600 mb-6">{business.pitch}</p>
-              
-              {/* Affichage du carousel d'images dès le début */}
-              <BusinessGallery images={business.images} className="mb-6" />
-              
-              <div className="text-gray-600 mb-8 mt-8">
-                {business.description.split('\n\n').map((paragraph, i) => (
-                  <p key={i} className="mb-4">{paragraph}</p>
-                ))}
-              </div>
-              
-              {/* Indicateurs clés */}
-              <KeyMetrics business={business} />
+      <Container maxWidth="full" className="py-8">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Galerie d'images (côté gauche) */}
+          <div className="lg:w-1/2">
+            <BusinessGallery 
+              images={business.images} 
+              onImageClick={(index) => {
+                setLightboxIndex(index);
+                setShowLightbox(true);
+              }}
+            />
+          </div>
+          
+          {/* Informations principales (côté droit) */}
+          <div className="lg:w-1/2">
+            {/* Indicateur de visiteurs actifs */}
+            <div className="mb-4 flex items-center">
+              <Users className="h-4 w-4 text-tekki-orange mr-2" />
+              <span className="text-sm text-gray-600">{activeVisitors} personnes consultent ce business</span>
             </div>
             
-            <div className="lg:w-1/3" ref={ctaRef}>
-              <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-                {/* Informations de prix avant l'opportunité unique */}
-                <PriceBanner 
-                  price={business.price}
-                  originalPrice={business.original_price}
-                  monthlyPotential={business.monthly_potential}
-                  onButtonClick={() => setIsModalOpen(true)}
-                  entryPrice={calculateEntryPrice(business.price)}
-                  showEntryPrice={true}
-                />
-                
-                <ExclusiveOpportunityBanner interestedCount={interestedCount} />
-                
-                <SocialProof activeVisitors={activeVisitors} interestedCount={interestedCount} />
-                
-                <IncludedFeatures features={business.includes?.slice(0, 4)} />
-                
-                <Guarantee />
+            {/* Badges de statut, type, catégorie */}
+            <div className="flex flex-wrap gap-2 mb-5">
+              <span className={`${statusColor[businessStatus]} px-3 py-1 rounded-full font-semibold text-sm`}>
+                {statusText[businessStatus]}
+              </span>
+              <span className={`${typeColor[businessType]} px-3 py-1 rounded-full font-semibold text-sm`}>
+                {typeText[businessType]}
+              </span>
+              <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-semibold text-sm">
+                {getCategory(business.category)}
+              </span>
+            </div>
+            
+            {/* Nom et pitch */}
+            <h1 className="text-4xl font-bold text-black mb-4">{business.name}</h1>
+            <p className="text-lg text-gray-500 mb-8">{business.pitch || business.shortDescription}</p>
+            
+            {/* Métriques clés */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+              <div>
+                <p className="text-sm text-gray-500">Prix d'acquisition</p>
+                <p className="text-2xl font-bold text-tekki-blue">
+                  {formatPrice(business.price)}
+                </p>
               </div>
+              <div>
+                <p className="text-sm text-gray-500">Potentiel mensuel</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {formatPrice(business.monthly_potential)}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Mise en place</p>
+                <p className="text-xl font-semibold">{business.setup_time || '3 semaines'}</p>
+              </div>
+            </div>
+            
+            {/* Séparateur avant la description */}
+            <div className="border-t border-gray-200 my-6"></div>
+            
+            {/* Description */}
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-3">A Propos de ce business</h2>
+              <FormattedText text={business.description || ""} className="text-gray-600" />
+            </div>
+            
+            {/* Séparateur avant les principaux avantages */}
+            <div className="border-t border-gray-200 my-6"></div>
+            
+            {/* Principaux avantages */}
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">Principaux avantages</h2>
+              <ul className="space-y-2">
+                {(business.benefits || []).length > 0 ? (
+                  business.benefits.map((benefit: string, index: number) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>{benefit}</span>
+                    </li>
+                  ))
+                ) : (
+                  // Fallback pour les avantages par défaut si aucun n'est défini
+                  <>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Business prêt à l'emploi, aucun développement technique requis</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Accompagnement personnalisé pour garantir votre réussite</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Marché en pleine croissance avec un fort potentiel de rentabilité</span>
+                    </li>
+                  </>
+                )}
+              </ul>
+            </div>
+            
+            {/* CTA - Bouton */}
+            <div className="mt-6">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="w-full bg-tekki-orange hover:bg-tekki-orange/90 text-white py-3 px-4 rounded-lg font-semibold text-center"
+              >
+                Je veux acheter ce business
+              </button>
+              <p className="text-center text-sm mt-2 text-gray-500">
+              Aucun paiement n'est requis sur le site
+              </p>
             </div>
           </div>
         </div>
-      </section>
+      </Container>
 
       {/* Options d'acquisition */}
-      <section className="py-12 bg-blue-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold text-[#0f4c81] mb-6 text-center">Options d'acquisition</h2>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <section className="py-12 bg-blue-50 mb-4">
+        <Container maxWidth="full">
+          <h2 className="text-2xl font-bold text-tekki-blue mb-6 text-center">Options d'acquisition</h2>
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Option standard */}
             <div className={`bg-white rounded-xl shadow p-6 border-2 transition-all ${
-              selectedAcquisitionOption === 'standard' ? 'border-[#0f4c81] transform scale-105' : 'border-transparent'
-            }`}>
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold text-[#0f4c81]">Acquisition Complète</h3>
-                <button 
-                  onClick={() => setSelectedAcquisitionOption('standard')}
-                  className={`rounded-full p-2 ${
-                    selectedAcquisitionOption === 'standard' 
-                    ? 'bg-[#0f4c81] text-white' 
-                    : 'bg-gray-200 text-gray-600'
-                  }`}
-                >
-                  {selectedAcquisitionOption === 'standard' ? <CheckCircle2 className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-                </button>
-              </div>
+              selectedAcquisitionOption === 'standard' ? 'border-tekki-blue transform scale-105' : 'border-transparent'
+            } relative`}>
+              {selectedAcquisitionOption === 'standard' && (
+                <div className="absolute -right-3 -top-3 w-10 h-10 bg-tekki-blue rounded-full flex items-center justify-center shadow">
+                  <CheckCircle2 className="w-6 h-6 text-white" />
+                </div>
+              )}
+              
+              <h3 className="text-2xl font-bold text-tekki-blue mb-4">Acquisition Complète</h3>
               
               <div className="mb-4">
-                <div className="text-3xl font-bold text-[#0f4c81]">{formatPrice(business.price)}</div>
-                <div className="text-gray-500 line-through">{formatPrice(business.original_price)}</div>
+                <div className="text-3xl font-bold text-tekki-blue mb-1">{formatPrice(business.price)}</div>
+                {business.original_price > business.price && (
+                  <div className="text-gray-500 line-through">{formatPrice(business.original_price)}</div>
+                )}
               </div>
               
-              <div className="space-y-4 mb-6">
-                <div className="flex items-start">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                   <span>Transfert immédiat de propriété</span>
-                </div>
-                <div className="flex items-start">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                  <span>Paiement en 1 à 3 fois</span>
-                </div>
-                <div className="flex items-start">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                  <span>2 mois d'accompagnement inclus</span>
-                </div>
-                <div className="flex items-start">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                  <span>Paiement en 1 à 3 fois après signature du contrat d'acquisition</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                  <span>{business.standard_support_months || 2} mois d'accompagnement inclus</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                   <span>Tous les éléments du business livrés immédiatement</span>
-                </div>
-              </div>
+                </li>
+              </ul>
               
               <button
                 onClick={() => {
                   setSelectedAcquisitionOption('standard');
                   setIsModalOpen(true);
                 }}
-                className="w-full bg-[#0f4c81] text-white py-3 rounded-lg hover:bg-[#0a3c67] transition-colors"
+                className="w-full bg-tekki-blue text-white py-3 rounded-lg hover:bg-tekki-blue/90 transition-colors"
               >
                 Acquérir avec cette option
               </button>
             </div>
             
-            {/* Option progressive */}
-            <div className={`bg-white rounded-xl shadow p-6 border-2 transition-all relative overflow-hidden ${
-              selectedAcquisitionOption === 'progressive' ? 'border-[#ff7f50] transform scale-105' : 'border-transparent'
-            }`}>
-              <div className="absolute -right-10 top-5 bg-[#ff7f50] text-white px-10 py-1 transform rotate-45">
-                NOUVEAU
-              </div>
-              
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold text-[#ff7f50]">Acquisition Progressive</h3>
-                <button 
-                  onClick={() => setSelectedAcquisitionOption('progressive')}
-                  className={`rounded-full p-2 ${
-                    selectedAcquisitionOption === 'progressive' 
-                    ? 'bg-[#ff7f50] text-white' 
-                    : 'bg-gray-200 text-gray-600'
-                  }`}
+            {/* Option progressive - Affichée uniquement si l'option progressive est activée */}
+            {business.progressive_option_enabled !== false && (
+              <div className={`bg-white rounded-xl shadow p-6 border-2 transition-all ${
+                selectedAcquisitionOption === 'progressive' ? 'border-tekki-orange transform scale-105' : 'border-transparent'
+              } relative overflow-hidden`}>
+                {/* Badge "NOUVEAU" */}
+                <div className="absolute -right-[60px] top-[30px] bg-tekki-orange text-white px-16 py-1 transform rotate-45 z-10">
+                  NOUVEAU
+                </div>
+                
+                {selectedAcquisitionOption === 'progressive' && (
+                  <div className="absolute -right-3 -top-3 w-10 h-10 bg-tekki-orange rounded-full flex items-center justify-center shadow">
+                    <CheckCircle2 className="w-6 h-6 text-white" />
+                  </div>
+                )}
+                
+                <h3 className="text-2xl font-bold text-tekki-orange mb-4">Acquisition Progressive</h3>
+                
+                <div className="mb-4">
+                  <div className="text-3xl font-bold text-black/80 mb-1">
+                    À partir de {formatPrice(calculateEntryPrice(business.price))}
+                  </div>
+                  <div className="text-gray-700">
+                    + {formatPrice(calculateMonthlyPayment(business.price))} / mois pendant {business.monthly_payment_duration || 6} mois
+                  </div>
+                </div>
+                
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-start">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <span>Démarrage avec seulement {business.entry_price_percentage || 40}% du prix</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <span>Versements mensuels de {business.monthly_payment_percentage || 10}% + {business.monthly_payment_fixed_amount || 5000}F pendant {business.monthly_payment_duration || 6} mois</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <span>{business.progressive_support_months || 3} mois d'accompagnement inclus</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <span>Transférez votre business en douceur</span>
+                  </li>
+                </ul>
+                
+                <button
+                  onClick={() => {
+                    setSelectedAcquisitionOption('progressive');
+                    setIsModalOpen(true);
+                  }}
+                  className="w-full bg-tekki-orange text-white py-3 rounded-lg hover:bg-tekki-orange/90 transition-colors"
                 >
-                  {selectedAcquisitionOption === 'progressive' ? <CheckCircle2 className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                  Acquérir avec cette option
                 </button>
               </div>
-              
-              <div className="mb-4">
-                <div className="text-3xl font-bold text-[#ff7f50]">
-                  À partir de {formatPrice(calculateEntryPrice(business.price))}
-                </div>
-                <div className="text-gray-700">
-                  + {formatPrice(calculateMonthlyPayment(business.price))} / mois pendant 6 mois
-                </div>
-              </div>
-              
-              <div className="space-y-4 mb-6">
-                <div className="flex items-start">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                  <span>Démarrez avec seulement 40% du prix</span>
-                </div>
-                <div className="flex items-start">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                  <span>Versements mensuels de 10% + 5000F (7€) pendant 6 mois</span>
-                </div>
-                <div className="flex items-start">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                  <span><strong>3 mois</strong> d'accompagnement inclus</span>
-                </div>
-                <div className="flex items-start">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                  <span>Transférez votre business en douceur</span>
-                </div>
-              </div>
-              
-              <button
-                onClick={() => {
-                  setSelectedAcquisitionOption('progressive');
-                  setIsModalOpen(true);
-                }}
-                className="w-full bg-[#ff7f50] text-white py-3 rounded-lg hover:bg-[#ff6b3d] transition-colors"
-              >
-                Acquérir avec cette option
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Notre accompagnement */}
-      <section className="py-12 bg-blue-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold text-[#0f4c81] mb-6 text-center">Notre accompagnement complet</h2>
-          <div className="max-w-4xl mx-auto">
-            <AccompagnementTimeline />
-          </div>
-        </div>
-      </section>
-
-      {/* Onglets de contenu détaillé */}
-      <section className="py-12 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="border-b border-gray-200 mb-6 overflow-x-auto">
-            <nav className="flex whitespace-nowrap -mb-px">
-              <button 
-                onClick={() => setSelectedTab('analyse')}
-                className={`py-4 px-6 font-medium text-sm border-b-2 mr-8 ${
-                  selectedTab === 'analyse' 
-                    ? 'border-[#0f4c81] text-[#0f4c81]' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Analyse du marché
-              </button>
-              <button 
-                onClick={() => setSelectedTab('produits')}
-                className={`py-4 px-6 font-medium text-sm border-b-2 mr-8 ${
-                  selectedTab === 'produits' 
-                    ? 'border-[#0f4c81] text-[#0f4c81]' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Détails produits
-              </button>
-              <button 
-                onClick={() => setSelectedTab('marketing')}
-                className={`py-4 px-6 font-medium text-sm border-b-2 mr-8 ${
-                  selectedTab === 'marketing' 
-                    ? 'border-[#0f4c81] text-[#0f4c81]' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Stratégie marketing
-              </button>
-              <button 
-                onClick={() => setSelectedTab('financiers')}
-                className={`py-4 px-6 font-medium text-sm border-b-2 ${
-                  selectedTab === 'financiers' 
-                    ? 'border-[#0f4c81] text-[#0f4c81]' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Aspects financiers
-              </button>
-            </nav>
-          </div>
-
-          {/* Contenu des onglets */}
-          <div className="bg-white rounded-xl p-8 shadow-sm">
-            {selectedTab === 'analyse' && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-[#0f4c81] mb-6">Analyse du marché</h2>
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    <h3 className="font-semibold mb-2">Taille du marché</h3>
-                    <p className="text-gray-600">{business.market_analysis?.size || "Informations non disponibles"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Croissance</h3>
-                    <p className="text-gray-600">{business.market_analysis?.growth || "Informations non disponibles"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Concurrence</h3>
-                    <p className="text-gray-600">{business.market_analysis?.competition || "Informations non disponibles"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Opportunité</h3>
-                    <p className="text-gray-600">{business.market_analysis?.opportunity || "Informations non disponibles"}</p>
-                  </div>
-                </div>
-                
-                {/* Audience cible */}
-                <div className="mt-8 bg-gray-50 p-6 rounded-lg">
-                  <h3 className="font-semibold text-lg text-[#0f4c81] mb-4">Audience cible</h3>
-                  <div className="flex flex-col md:flex-row gap-6">
-                    <div className="w-full md:w-1/3 flex justify-center">
-                      <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                      </div>
-                    </div>
-                    <div className="w-full md:w-2/3">
-                      <p className="text-gray-700 mb-4">{business.target_audience || "Informations non disponibles"}</p>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-white p-3 rounded border border-gray-200">
-                          <div className="text-sm font-medium text-gray-500">Âge moyen</div>
-                          <div className="font-semibold">25-45 ans</div>
-                        </div>
-                        <div className="bg-white p-3 rounded border border-gray-200">
-                          <div className="text-sm font-medium text-gray-500">Niveau socio-économique</div>
-                          <div className="font-semibold">Moyen à élevé</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {selectedTab === 'produits' && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-[#0f4c81] mb-6">Détails produits</h2>
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    <h3 className="font-semibold mb-2">Type de produits</h3>
-                    <p className="text-gray-600">{business.product_details?.type || "Informations non disponibles"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Marge brute</h3>
-                    <p className="text-gray-600">{business.product_details?.margin || "Informations non disponibles"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Fournisseurs</h3>
-                    <p className="text-gray-600">{business.product_details?.suppliers || "Informations non disponibles"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Logistique</h3>
-                    <p className="text-gray-600">{business.product_details?.logistics || "Informations non disponibles"}</p>
-                  </div>
-                </div>
-                
-                {/* Note concernant les produits */}
-                <div className="mt-8 bg-blue-50 p-6 rounded-lg">
-                  <h3 className="font-semibold text-lg text-[#0f4c81] mb-4">Catalogue produit</h3>
-                  <p className="text-gray-700 mb-4">
-                    Le catalogue complet des produits, comprenant les références exactes, les fournisseurs, et les marges détaillées, sera fourni après manifestation d'intérêt. Vous recevrez également un accès à notre dossier complet de sourcing, qui inclut :
-                  </p>
-                  <ul className="space-y-2 text-gray-700">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                      <span>Fiches produits détaillées avec spécifications techniques</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                      <span>Analyse de rentabilité par produit avec marges et coûts</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                      <span>Guide de négociation avec les fournisseurs</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                      <span>Tendances du marché et recommandations de stock initial</span>
-                    </li>
-                  </ul>
-                  <div className="mt-4 flex justify-center">
-                    <button 
-                      onClick={() => setIsModalOpen(true)}
-                      className="bg-[#0f4c81] text-white px-6 py-2 rounded-lg hover:bg-[#0a3c67] transition-colors font-medium"
-                    >
-                      Obtenir le catalogue complet
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {selectedTab === 'marketing' && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-[#0f4c81] mb-6">Stratégie marketing</h2>
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    <h3 className="font-semibold mb-2">Canaux de vente</h3>
-                    <p className="text-gray-600">
-                      {Array.isArray(business.marketing_strategy?.channels) 
-                        ? business.marketing_strategy?.channels.join(', ') 
-                        : business.marketing_strategy?.channels || "Informations non disponibles"}
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Cible</h3>
-                    <p className="text-gray-600">{business.marketing_strategy?.targetAudience || "Informations non disponibles"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Coût d'acquisition client</h3>
-                    <p className="text-gray-600">{business.marketing_strategy?.acquisitionCost || "Informations non disponibles"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Taux de conversion</h3>
-                    <p className="text-gray-600">{business.marketing_strategy?.conversionRate || "Informations non disponibles"}</p>
-                  </div>
-                </div>
-                
-                {/* Calendrier marketing */}
-                <div className="mt-8 bg-gray-50 p-6 rounded-lg">
-                  <h3 className="font-semibold text-lg text-[#0f4c81] mb-4">Calendrier marketing des 3 premiers mois</h3>
-                  <div className="space-y-4">
-                    <div className="bg-white p-4 rounded border border-gray-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">1</span>
-                        <h4 className="font-medium">Mois 1: Lancement</h4>
-                      </div>
-                      <p className="text-gray-600 text-sm pl-10">
-                        Lancement des campagnes Facebook et Instagram ciblées, création de contenu pour les réseaux sociaux, optimisation du site pour la conversion.
-                      </p>
-                    </div>
-                    
-                    <div className="bg-white p-4 rounded border border-gray-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold">2</span>
-                        <h4 className="font-medium">Mois 2: Optimisation</h4>
-                      </div>
-                      <p className="text-gray-600 text-sm pl-10">
-                        Analyse des performances, ajustement des audiences, tests A/B sur les annonces, optimisation du tunnel de conversion.
-                      </p>
-                    </div>
-                    
-                    <div className="bg-white p-4 rounded border border-gray-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold">3</span>
-                        <h4 className="font-medium">Mois 3: Scaling</h4>
-                      </div>
-                      <p className="text-gray-600 text-sm pl-10">
-                        Augmentation du budget publicitaire sur les campagnes performantes, développement de nouvelles campagnes, marketing d'influence.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {selectedTab === 'financiers' && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-[#0f4c81] mb-6">Aspects financiers</h2>
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    <h3 className="font-semibold mb-2">Investissement initial</h3>
-                    <p className="text-gray-600">{business.financials?.setupCost || "Informations non disponibles"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Charges mensuelles</h3>
-                    <p className="text-gray-600">{business.financials?.monthlyExpenses || "Informations non disponibles"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Point mort</h3>
-                    <p className="text-gray-600">{business.financials?.breakevenPoint || "Informations non disponibles"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Retour sur investissement</h3>
-                    <p className="text-gray-600">{business.financials?.roi || "Informations non disponibles"}</p>
-                  </div>
-                </div>
-                
-                {/* Ventilation des coûts */}
-                <div className="mt-8 bg-gray-50 p-6 rounded-lg">
-                  <h3 className="font-semibold text-lg text-[#0f4c81] mb-4">Ventilation des coûts mensuels estimés</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                        <span>Hébergement et outils web</span>
-                      </div>
-                      <span className="font-semibold">15%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: '15%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center mt-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                        <span>Marketing et publicité</span>
-                      </div>
-                      <span className="font-semibold">40%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-green-500 h-2 rounded-full" style={{ width: '40%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center mt-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                        <span>Stock de produits</span>
-                      </div>
-                      <span className="font-semibold">35%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '35%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center mt-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                        <span>Autres frais divers</span>
-                      </div>
-                      <span className="font-semibold">10%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-red-500 h-2 rounded-full" style={{ width: '10%' }}></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             )}
           </div>
-        </div>
+        </Container>
       </section>
 
-      {/* Avantages clés */}
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold text-[#0f4c81] mb-6 text-center">Principaux avantages</h2>
-          <KeyBenefits benefits={business.benefits} />
-        </div>
-      </section>
-
-      {/* Ce qui est inclus */}
-      <section className="py-12 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold text-[#0f4c81] mb-6 text-center">Ce qui est inclus</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {business.includes && business.includes.map((item, index) => (
-              <div key={index} className="bg-white p-5 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-[#ff7f50] shrink-0 mt-1" />
-                  <span className="text-gray-700">{item}</span>
-                </div>
-              </div>
-            ))}
+      {/* Section accordéon pour les détails du business */}
+      <section className="py-12">
+        <Container maxWidth="full">
+          <h2 className="text-2xl font-bold text-tekki-blue mb-6 text-center">Détails du business</h2>
+          <div className="max-w-5xl mx-auto">
+            <BusinessAccordion 
+              business={business} 
+              businessType={businessType}
+            />
           </div>
-        </div>
+        </Container>
       </section>
 
-      {/* FAQ */}
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold text-[#0f4c81] mb-6 text-center">Questions fréquentes</h2>
-          <div className="max-w-3xl mx-auto">
-            {/* FAQ d'origine */}
-            <div className="space-y-4 mb-8">
-              <FAQSection questions={business.common_questions} />
+      {/* Ce qui est inclus et cartes d'information - section complète */}
+      <div className="bg-gray-50 py-10">
+        <Container maxWidth="full">
+          <div className="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {/* Ce qui est inclus */}
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+              <h3 className="text-xl font-semibold mb-4">Ce qui est inclus</h3>
+              <ul className="space-y-3">
+                {(business.includes || []).length > 0 ? (
+                  business.includes.map((item: string, index: number) => (
+                    <li key={index} className="flex items-start">
+                      <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">{item}</span>
+                    </li>
+                  ))
+                ) : (
+                  // Valeurs par défaut si non définies
+                  <>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">Site web complet avec toutes les fonctionnalités</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">Logo et identité visuelle</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">Documentation et guides d'utilisation</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">Accès à tous les comptes administrateurs</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">{businessType === 'physical' ? 'Liste de fournisseurs validés' : 'Frameworks et outils techniques'}</span>
+                    </li>
+                    {businessType === 'physical' ? (
+                      <li className="flex items-start">
+                        <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700">Processus logistique éprouvé</span>
+                      </li>
+                    ) : (
+                      <li className="flex items-start">
+                        <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700">Hébergement inclus {business.standard_support_months || 2} mois</span>
+                      </li>
+                    )}
+                  </>
+                )}
+              </ul>
             </div>
             
-            {/* FAQ spécifique à l'acquisition progressive */}
-            <div className="mt-8 border-t pt-8">
-              <h3 className="text-lg font-bold text-[#ff7f50] mb-4">
-                Questions sur l'acquisition progressive
-              </h3>
-              <div className="space-y-4">
-                {progressiveAcquisitionFAQs.map((faq) => (
-                  <div 
-                    key={faq.id} 
-                    className="border rounded-lg overflow-hidden"
-                  >
-                    <button
-                      className="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none"
-                      onClick={() => toggleFAQDetail(faq.id)}
-                    >
-                      <span className="font-medium">{faq.question}</span>
-                      <span>
-                        {showFAQDetails[faq.id] ? (
-                          <Minus className="h-5 w-5 text-gray-500" />
-                        ) : (
-                          <Plus className="h-5 w-5 text-gray-500" />
-                        )}
-                      </span>
-                    </button>
-                    {showFAQDetails[faq.id] && (
-                      <div className="px-6 pb-4">
-                        <p className="text-gray-600">{faq.answer}</p>
+            {/* Aspects Financiers - remplace Support inclus */}
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+              <h3 className="text-xl font-semibold mb-4">Aspects Financiers</h3>
+              <ul className="space-y-3">
+                {business.financials ? (
+                  <>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium">Investissement initial:</span>
+                        <span className="text-gray-700"> {business.financials.setupCost || 'Inclus dans le prix d\'acquisition'}</span>
                       </div>
-                    )}
-                  </div>
-                ))}
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium">Charges mensuelles:</span>
+                        <span className="text-gray-700"> {business.financials.monthlyExpenses || 'Variables selon l\'activité'}</span>
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium">Point mort:</span> 
+                        <span className="text-gray-700"> {business.financials.breakevenPoint || 'Environ 4 mois'}</span>
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium">Retour sur investissement:</span>
+                        <span className="text-gray-700"> {business.financials.roi || `Entre ${business.roi_min || 12} et ${business.roi_max || 18} mois`}</span>
+                      </div>
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium">Investissement initial:</span>
+                        <span className="text-gray-700"> Inclus dans le prix d'acquisition</span>
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium">Charges mensuelles:</span>
+                        <span className="text-gray-700"> Environ {formatPrice(business.monthly_potential * 0.3)} à {formatPrice(business.monthly_potential * 0.4)}</span>
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium">Rentabilité estimée:</span>
+                        <span className="text-gray-700"> {businessType === 'digital' ? '30-45%' : '25-35%'} du chiffre d'affaires</span>
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium">Retour sur investissement:</span>
+                        <span className="text-gray-700"> Environ {business.roi_estimation_months || 6} à {business.roi_estimation_months + 6 || 12} mois</span>
+                      </div>
+                    </li>
+                  </>
+                )}
+              </ul>
+            </div>
+            
+            {/* Questions fréquentes - mise à jour avec plus d'informations */}
+            <div className="bg-gray-50 rounded-lg shadow-sm p-6 border border-gray-100">
+              <h3 className="text-xl font-semibold mb-4">Questions fréquentes</h3>
+              <div className="space-y-4">
+                {business.common_questions && business.common_questions.length > 0 ? (
+                  // Utiliser les questions personnalisées si disponibles
+                  business.common_questions.slice(0, 3).map((faq: any, index: number) => (
+                    <div key={index}>
+                      <h4 className="font-medium mb-1">{faq.question}</h4>
+                      <p className="text-sm text-gray-600">{faq.answer}</p>
+                    </div>
+                  ))
+                ) : (
+                  // Questions par défaut
+                  <>
+                    <div>
+                      <h4 className="font-medium mb-1">Combien de temps avant de pouvoir démarrer?</h4>
+                      <p className="text-sm text-gray-600">
+                        Une fois l'acquisition finalisée, vous pourrez démarrer en {business.setup_time || '3 semaines'} en moyenne.
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium mb-1">De combien de temps ai-je besoin pour gérer ce business?</h4>
+                      <p className="text-sm text-gray-600">
+                        {businessType === 'ecommerce' || businessType === 'physical' ? 
+                          'Ce business e-commerce nécessite en moyenne 15-20h par semaine pour une gestion optimale.' : 
+                          'Ce business digital nécessite en moyenne 10-15h par semaine pour une gestion optimale.'}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium mb-1">Quel niveau d'expertise est requis?</h4>
+                      <p className="text-sm text-gray-600">
+                        {business.skill_level_required 
+                          ? `Niveau ${business.skill_level_required}. ${business.skill_level_required === 'débutant' ? 'Aucune expertise technique particulière n\'est requise.' : 'Une formation complète est incluse avec l\'acquisition.'}`
+                          : 'Aucune expertise technique particulière n\'est requise. Notre accompagnement vous permet de prendre en main le business facilement.'}
+                      </p>
+                    </div>
+                  </>
+                )}
+                
+                {/* Lien vers toutes les FAQ */}
+                <div className="mt-6">
+                  <Link href="/#faq" className="text-tekki-blue hover:text-tekki-orange text-sm flex items-center">
+                    Voir toutes les FAQ
+                    <ArrowLeft className="h-4 w-4 ml-1 rotate-180" />
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </div>
 
       {/* CTA final */}
-      <section className="py-12 bg-[#0f3c81] text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Prêt(e) à lancer ce business ?</h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">Ne laissez pas passer cette opportunité unique de démarrer avec un business en ligne clé en main et un accompagnement expert.</p>
-          <div className="flex flex-col md:flex-row gap-4 justify-center max-w-lg mx-auto">
-            <button 
-              className="bg-[#ff7f50] text-white px-6 py-4 rounded-lg text-lg font-bold hover:bg-[#ff6b3d] transition-colors flex-1"
-              onClick={() => {
-                setSelectedAcquisitionOption('standard');
-                setIsModalOpen(true);
-              }}
-            >
-              Acquisition complète
-            </button>
-            <button 
-              className="bg-white text-[#0f3c81] px-6 py-4 rounded-lg text-lg font-bold hover:bg-gray-100 transition-colors flex-1 flex items-center justify-center gap-2"
-              onClick={() => {
-                setSelectedAcquisitionOption('progressive');
-                setIsModalOpen(true);
-              }}
-            >
-              Acquisition progressive
-              <span className="bg-[#ff7f50] text-white text-xs px-2 py-0.5 rounded-full">NOUVEAU</span>
-            </button>
+      <section className="py-12 bg-gray-100 text-gray-800">
+        <Container maxWidth="full">
+          <div className="text-center max-w-5xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4">Prêt(e) à lancer ce business ?</h2>
+            <p className="text-xl mb-8 max-w-3xl mx-auto">Ne laissez pas passer cette opportunité unique de démarrer avec un business en ligne clé en main et un accompagnement expert.</p>
+            <div className="flex flex-col md:flex-row gap-4 justify-center">
+              <button 
+                className="bg-tekki-blue text-white px-6 py-4 rounded-lg text-lg font-bold hover:bg-tekki-blue/90 transition-colors flex-1 max-w-xs mx-auto"
+                onClick={() => {
+                  setSelectedAcquisitionOption('standard');
+                  setIsModalOpen(true);
+                }}
+              >
+                Acquisition complète
+              </button>
+              {business.progressive_option_enabled !== false && (
+                <button 
+                  className="bg-tekki-orange text-white px-6 py-4 rounded-lg text-lg font-bold hover:bg-tekki-orange/90 transition-colors flex-1 max-w-xs mx-auto flex items-center justify-center gap-2"
+                  onClick={() => {
+                    setSelectedAcquisitionOption('progressive');
+                    setIsModalOpen(true);
+                  }}
+                >
+                  Acquisition progressive
+                  <span className="bg-white text-tekki-orange text-xs px-2 py-0.5 rounded-full">NOUVEAU</span>
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        </Container>
       </section>
 
+      {/* Modal d'intérêt */}
       <InterestModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -851,6 +662,14 @@ export default function BusinessPage() {
           : formatPrice(business.price)}
         businessId={business.id}
       />
+      {/* Lightbox pour les images */}
+      {showLightbox && business.images && (
+        <ImageLightbox
+          images={business.images}
+          initialIndex={lightboxIndex}
+          onClose={() => setShowLightbox(false)}
+        />
+      )}
     </main>
   );
 }

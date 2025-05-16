@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, MessageCircle } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import Link from 'next/link';
 
 const FAQ = () => {
@@ -10,32 +11,32 @@ const FAQ = () => {
 
   const faqs = [
     {
-      question: "Qu'est-ce qu'un business e-commerce clé en main ?",
-      answer: "Un business e-commerce clé en main est un business en ligne entièrement configuré et prêt à être exploité. Il comprend un site e-commerce optimisé et fini, des fournisseurs validés, des produits sourcés, une stratégie marketing complète établie, une formation pour la prise en main et un accompagnement de 2 mois pour assurer votre réussite."
+      question: "Qu'est-ce qu'un business clé en main ?",
+      answer: "Un business clé en main est un business entièrement configuré et prêt à être exploité. Il comprend tous les éléments nécessaires pour démarrer sans partir de zéro : site optimisé, fournisseurs validés, produits sourcés ou plateforme digitale complète, stratégie marketing établie, formation pour la prise en main et un accompagnement de 2 à 3 mois pour assurer votre réussite."
+    },
+    {
+      question: "Quelle est la différence entre un business e-commerce et un business digital ?",
+      answer: "Un business e-commerce implique la vente de produits physiques qui nécessitent une gestion de stock et une logistique de livraison. Un business digital, quant à lui, propose des solutions 100% en ligne (applications, logiciels, produits numériques, etc.) sans nécessiter de gestion de stock ou d'expédition, ce qui facilite son démarrage et son scaling international."
     },
     {
       question: "Comment se passe le transfert du business ?",
-      answer: "Une fois le contrat signé et le paiement effectué, nous nous chargeons des modifications que vous souhaitez apporter au site, si vous en avez, puis nous vous remettons tous les accès au site, ainsi que tous les éléments dont vous avez besoin pour lancer votre business et commencer à générer des revenus : contacts fournisseurs, stock de produits (si compris), stratégie marketing complète, formation pour la prise en main du business, etc."
+      answer: "Une fois le contrat signé et le paiement effectué, nous nous chargeons des modifications souhaitées au site, puis nous vous remettons tous les accès au site et tous les éléments nécessaires au lancement : contacts fournisseurs, stock de produits (si compris), stratégie marketing complète, formation pour la prise en main, etc. Nous vous accompagnons ensuite pendant les premiers mois pour vous aider à générer vos premières ventes."
     },
     {
       question: "Combien de temps faut-il pour démarrer ?",
-      answer: "Une fois l'acquisition finalisée, vous pouvez démarrer en 1 à 2 semaines, selon le business choisi et la disponibilité des produits. Ce délai comprend la formation, la préparation des stocks initiaux, si nécessaire, et la configuration finale de votre business."
+      answer: "Une fois l'acquisition finalisée, vous pouvez démarrer en 1 à 3 semaines, selon le business choisi et la disponibilité des produits ou ressources. Ce délai comprend la formation, la préparation des stocks initiaux (pour l'e-commerce), et la configuration finale de votre business. Les business digitaux peuvent généralement être lancés plus rapidement que les business e-commerce."
+    },
+    {
+      question: "Comment fonctionne l'acquisition progressive ?",
+      answer: "L'acquisition progressive vous permet de démarrer avec seulement 40% du prix total. Vous versez ensuite 10% + frais administratifs du prix total chaque mois pendant 6 mois. Vous pouvez gérer et développer le business dès l'apport initial, mais le transfert complet de propriété n'est effectué qu'après le dernier versement. Cette formule offre un mois d'accompagnement supplémentaire par rapport à l'acquisition complète."
     },
     {
       question: "Quel type d'accompagnement est inclus ?",
-      answer: "Vous bénéficiez d'un accompagnement complet pendant 2 mois incluant : assistance technique, conseils business, aide au marketing, et réponses à toutes vos questions. Notre objectif est de vous accompagner jusqu'à ce que vous commenciez à générer vos premières ventes et soyez parfaitement autonome."
+      answer: "Vous bénéficiez d'un accompagnement complet pendant 2 mois (3 mois pour l'acquisition progressive) incluant : assistance technique, conseils business, aide au marketing, et réponses à toutes vos questions. Notre objectif est de vous accompagner jusqu'à ce que vous commenciez à générer vos premières ventes et soyez parfaitement autonome dans la gestion de votre business."
     },
     {
       question: "Puis-je personnaliser le business ?",
-      answer: "Oui, vous pouvez personnaliser votre business selon vos préférences tout en conservant les éléments qui ont prouvé leur efficacité. Nous vous conseillons sur les modifications à apporter pour optimiser vos résultats, car certains éléments souvent négligés sont parfois cruciaux pour la réussite ou l'échec d'un business, surtout en ligne."
-    },
-    {
-      question: "Comment sont calculés les potentiels de revenus ?",
-      answer: "Les potentiels de revenus sont basés sur les performances réelles des business similaires que nous avons développés ou étudiés. Ils prennent en compte le taux de conversion moyen, le panier moyen, et les coûts d'acquisition client dans votre marché."
-    },
-    {
-      question: "Y a-t-il des frais récurrents à prévoir ?",
-      answer: "Oui, comme pour tout business e-commerce, vous devrez prévoir des frais mensuels pour l'hébergement du site, les outils de marketing, et éventuellement la publicité. Nous vous fournissons un budget prévisionnel détaillé pour que vous puissiez anticiper ces coûts qui sont généralement entre 50 000 et 150 000 FCFA par mois selon le business."
+      answer: "Oui, vous pouvez personnaliser votre business selon vos préférences tout en conservant les éléments qui ont prouvé leur efficacité. Nous vous conseillons sur les modifications à apporter pour optimiser vos résultats, car certains éléments sont parfois cruciaux pour la réussite d'un business, surtout en ligne. Toutes les personnalisations initiales sont incluses dans le prix d'acquisition."
     }
   ];
 
@@ -45,8 +46,8 @@ const FAQ = () => {
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-[#0f4c81] mb-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#0f4c81] mb-4">
             Questions Fréquentes
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -58,7 +59,7 @@ const FAQ = () => {
           {faqs.map((faq, index) => (
             <div 
               key={index}
-              className="mb-4 border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+              className="mb-4 border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               <button
                 className="w-full px-6 py-5 text-left bg-white hover:bg-gray-50 flex justify-between items-center transition-all"
@@ -66,17 +67,17 @@ const FAQ = () => {
                 aria-expanded={openIndex === index}
               >
                 <span className="font-medium text-[#0f4c81] text-lg">{faq.question}</span>
-                <div className="bg-gray-100 rounded-full p-1 ml-4 flex-shrink-0">
+                <div className={`p-1.5 rounded-full ml-4 transition-colors ${openIndex === index ? 'bg-[#ff7f50]/10' : 'bg-gray-100'}`}>
                   {openIndex === index ? (
-                    <ChevronUp className="w-5 h-5 text-[#ff7f50]" />
+                    <ChevronUp className={`w-5 h-5 ${openIndex === index ? 'text-[#ff7f50]' : 'text-gray-500'}`} />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-[#ff7f50]" />
+                    <ChevronDown className={`w-5 h-5 ${openIndex === index ? 'text-[#ff7f50]' : 'text-gray-500'}`} />
                   )}
                 </div>
               </button>
               <div 
                 className={`overflow-hidden transition-all duration-300 ${
-                  openIndex === index ? 'max-h-96' : 'max-h-0'
+                  openIndex === index ? 'max-h-[500px]' : 'max-h-0'
                 }`}
               >
                 <div className="px-6 py-5 bg-gray-50 text-gray-700 leading-relaxed">
@@ -88,19 +89,19 @@ const FAQ = () => {
         </div>
 
         <div className="mt-16 text-center">
-          <div className="inline-block bg-white rounded-lg p-6 shadow-md border border-gray-100">
-            <p className="text-gray-700 flex items-center justify-center gap-2">
-              <span>Vous avez d'autres questions?</span>
+          <div className="inline-block bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+              <p className="text-gray-700">Vous avez d'autres questions ?</p>
               <a 
                 href={whatsappUrl}
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-[#0f4c81] font-medium ml-1 hover:text-[#ff7f50] transition-colors flex items-center"
+                className="inline-flex items-center py-2 px-4 rounded-full bg-[#25D366] text-white font-medium hover:bg-[#20BD5C] transition-colors whitespace-nowrap"
               >
-                <MessageCircle className="w-5 h-5 mr-1" />
-                Écrivez-nous sur WhatsApp
+                <FaWhatsapp /> 
+                &nbsp;Contactez-nous sur WhatsApp
               </a>
-            </p>
+            </div>
           </div>
         </div>
       </div>

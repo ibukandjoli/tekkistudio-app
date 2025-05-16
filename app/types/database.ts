@@ -87,6 +87,7 @@ export interface Business {
   monthly_potential: number;
   pitch: string;
   description: string;
+  setup_time?: string;
   
   // Données structurées
   images: BusinessImage[];
