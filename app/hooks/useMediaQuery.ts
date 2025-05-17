@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
  * @param query - La media query à vérifier (ex: '(max-width: 640px)')
  * @returns boolean - True si la media query correspond, false sinon
  */
-export const useMediaQuery = (query: string): boolean => {
+const useMediaQuery = (query: string): boolean => {
   // État par défaut à false pour le rendu côté serveur
   const [matches, setMatches] = useState(false);
 

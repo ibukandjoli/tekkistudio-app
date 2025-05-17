@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { supabase } from '../../lib/supabase';
 import { X, CheckCircle, ChevronLeft, Phone, Mail, Map, CheckCircle2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { useMediaQuery } from '../../hooks/useMediaQuery';
+import  useMediaQuery  from '../../hooks/useMediaQuery';
 
 interface InterestModalProps {
   isOpen: boolean;
@@ -21,7 +21,7 @@ interface InterestModalProps {
   businessName: string;
   businessPrice: string;
   businessId: string | number;
-  businessType?: 'digital' | 'physical' | 'ecommerce'; // Nouveau prop pour adapter le modal selon le type
+  businessType?: 'digital' | 'physical' | 'ecommerce'; 
 }
 
 const InterestModal = ({ 
@@ -663,7 +663,7 @@ const InterestModal = ({
                       Retour
                     </button>
                   ) : (
-                    <div></div> 
+                    <div></div>
                   )}
                   
                   <button 
@@ -765,34 +765,6 @@ const InterestModal = ({
       </DialogContent>
     </Dialog>
   );
-};
-
-// Création d'un hook personnalisé pour détecter les écrans mobiles
-// Ce hook doit être créé dans un nouveau fichier: app/hooks/useMediaQuery.ts
-export const useMediaQuery = (query: string): boolean => {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia(query);
-    
-    // Définir initialement la valeur
-    setMatches(mediaQuery.matches);
-    
-    // Définir un listener pour les changements
-    const handler = (event: MediaQueryListEvent) => {
-      setMatches(event.matches);
-    };
-    
-    // Ajouter l'event listener
-    mediaQuery.addEventListener('change', handler);
-    
-    // Nettoyer
-    return () => {
-      mediaQuery.removeEventListener('change', handler);
-    };
-  }, [query]);
-
-  return matches;
 };
 
 export default InterestModal;
