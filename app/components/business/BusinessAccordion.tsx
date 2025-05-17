@@ -23,7 +23,7 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
 
   return (
     <div className="w-full">
-      {/* Navigation par onglets */}
+      {/* Navigation par onglets - Simplifiée */}
       <div className="border-b border-gray-200 mb-6 overflow-x-auto">
         <nav className="flex whitespace-nowrap -mb-px">
           <button 
@@ -34,7 +34,7 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            Analyse du marché
+            Le marché
           </button>
           <button 
             onClick={() => setSelectedTab('produits')}
@@ -44,7 +44,7 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            Produit / Service
+            Ce que vous vendez
           </button>
           <button 
             onClick={() => setSelectedTab('marketing')}
@@ -54,7 +54,7 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            Stratégie marketing
+            Comment attirer des clients
           </button>
           <button 
             onClick={() => setSelectedTab('financiers')}
@@ -64,17 +64,17 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            Financier
+            Comment gagner de l'argent
           </button>
         </nav>
       </div>
 
       {/* Contenu des onglets */}
       <div className="bg-white rounded-xl p-6 shadow-sm">
-        {/* Analyse du marché */}
+        {/* Analyse du marché - Simplifiée */}
         {selectedTab === 'analyse' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-tekki-blue mb-6">Analyse du marché</h2>
+            <h2 className="text-2xl font-bold text-tekki-blue mb-6">Le marché et ses clients</h2>
             
             {hasContent(business.market_analysis) ? (
               <div className="grid md:grid-cols-2 gap-8">
@@ -87,21 +87,21 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                 
                 {business.market_analysis.growth && (
                   <div>
-                    <h3 className="font-semibold mb-2">Croissance</h3>
+                    <h3 className="font-semibold mb-2">Potentiel de croissance</h3>
                     <p className="text-gray-600">{business.market_analysis.growth}</p>
                   </div>
                 )}
                 
                 {business.market_analysis.competition && (
                   <div>
-                    <h3 className="font-semibold mb-2">Concurrence</h3>
+                    <h3 className="font-semibold mb-2">Concurrence locale</h3>
                     <p className="text-gray-600">{business.market_analysis.competition}</p>
                   </div>
                 )}
                 
                 {business.market_analysis.opportunity && (
                   <div>
-                    <h3 className="font-semibold mb-2">Opportunité</h3>
+                    <h3 className="font-semibold mb-2">Pourquoi ça marche</h3>
                     <p className="text-gray-600">{business.market_analysis.opportunity}</p>
                   </div>
                 )}
@@ -112,17 +112,17 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                   <h3 className="font-semibold mb-2">Taille du marché</h3>
                   <p className="text-gray-600">
                     {businessType === 'digital' 
-                      ? "Le marché des solutions digitales connaît une croissance annuelle de 15%. Notre étude révèle que le segment ciblé par ce business représente un marché de plus de 50 millions de clients potentiels à l'échelle mondiale."
-                      : "Le marché du e-commerce connaît une croissance annuelle de 10%. Notre étude révèle que la niche ciblée par ce business représente un marché de plus de 200 000 clients potentiels en Afrique francophone."}
+                      ? "Ce type de business attire de plus en plus de clients chaque année (+15%). Des millions de personnes cherchent ce genre de produits dans le monde entier."
+                      : "Ce type de boutique en ligne attire de plus en plus d'acheteurs chaque année (+10%). Des centaines de milliers de personnes cherchent ces produits en Afrique francophone."}
                   </p>
                 </div>
                 
                 <div>
-                  <h3 className="font-semibold mb-2">Concurrence</h3>
+                  <h3 className="font-semibold mb-2">Face à la concurrence</h3>
                   <p className="text-gray-600">
                     {businessType === 'digital'
-                      ? "L'analyse concurrentielle montre un marché encore peu saturé, avec 3-5 concurrents principaux. Aucun ne propose exactement la même offre, ce qui laisse un espace significatif pour ce business."
-                      : "L'analyse concurrentielle montre une concurrence modérée, avec 5-10 acteurs principaux. Ce business se différencie par sa qualité supérieure et son positionnement unique."}
+                      ? "Il n'y a pas beaucoup d'entreprises qui font la même chose (seulement 3 à 5). Votre offre sera différente et meilleure."
+                      : "Il y a quelques boutiques similaires (5 à 10), mais votre boutique se distingue par sa qualité et son approche unique."}
                   </p>
                 </div>
               </div>
@@ -131,7 +131,7 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
             {/* Audience cible - si disponible */}
             {business.target_audience && (
               <div className="mt-8 bg-gray-50 p-6 rounded-lg">
-                <h3 className="font-semibold text-lg text-tekki-blue mb-4">Audience cible</h3>
+                <h3 className="font-semibold text-lg text-tekki-blue mb-4">Qui peut acheter ce business</h3>
                 <div className="flex flex-col md:flex-row gap-6">
                   <div className="w-full md:w-1/3 flex justify-center">
                     <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
@@ -149,37 +149,37 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
           </div>
         )}
 
-        {/* Produit / Service */}
+        {/* Produit / Service - Simplifiée */}
         {selectedTab === 'produits' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-tekki-blue mb-6">Produit / Service</h2>
+            <h2 className="text-2xl font-bold text-tekki-blue mb-6">Ce que vous vendez</h2>
             
             {hasContent(business.product_details) ? (
               <div className="grid md:grid-cols-2 gap-8">
                 {business.product_details.type && (
                   <div>
-                    <h3 className="font-semibold mb-2">Type de produits/services</h3>
+                    <h3 className="font-semibold mb-2">Type de produits</h3>
                     <p className="text-gray-600">{business.product_details.type}</p>
                   </div>
                 )}
                 
                 {business.product_details.margin && (
                   <div>
-                    <h3 className="font-semibold mb-2">Marge brute</h3>
+                    <h3 className="font-semibold mb-2">Bénéfice sur les ventes</h3>
                     <p className="text-gray-600">{business.product_details.margin}</p>
                   </div>
                 )}
                 
                 {business.product_details.suppliers && (
                   <div>
-                    <h3 className="font-semibold mb-2">Fournisseurs</h3>
+                    <h3 className="font-semibold mb-2">Vos fournisseurs</h3>
                     <p className="text-gray-600">{business.product_details.suppliers}</p>
                   </div>
                 )}
                 
                 {business.product_details.logistics && (
                   <div>
-                    <h3 className="font-semibold mb-2">Logistique</h3>
+                    <h3 className="font-semibold mb-2">Livraison aux clients</h3>
                     <p className="text-gray-600">{business.product_details.logistics}</p>
                   </div>
                 )}
@@ -190,17 +190,17 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                   <h3 className="font-semibold mb-2">Description détaillée</h3>
                   <p className="text-gray-600">
                     {businessType === 'digital'
-                      ? "Cette solution digitale offre une interface intuitive et des fonctionnalités avancées qui la distinguent de la concurrence. Elle répond parfaitement aux besoins des utilisateurs cibles."
-                      : "Ce business e-commerce propose des produits soigneusement sélectionnés pour leur qualité et leur attrait. Chaque produit est testé et validé avant d'être intégré au catalogue."}
+                      ? "Ce produit digital est facile à utiliser et offre des fonctions avancées que les clients adorent. Il répond parfaitement aux besoins des utilisateurs."
+                      : "Cette boutique propose des produits choisis avec soin pour leur qualité. Chaque produit est testé avant d'être mis en vente."}
                   </p>
                 </div>
                 
                 <div>
-                  <h3 className="font-semibold mb-2">Avantages concurrentiels</h3>
+                  <h3 className="font-semibold mb-2">Pourquoi vos clients l'achèteront</h3>
                   <p className="text-gray-600">
                     {businessType === 'digital'
-                      ? "Le principal avantage de ce business est sa solution clé en main qui ne nécessite aucune expertise technique. L'accompagnement inclus permet une prise en main rapide et efficace."
-                      : "Le principal avantage de ce business est son positionnement unique et sa marque déjà établie. Les processus marketing et logistiques sont déjà optimisés pour une rentabilité maximale."}
+                      ? "L'avantage principal est que tout est prêt à l'emploi sans connaissances techniques nécessaires. Notre formation vous aide à démarrer rapidement."
+                      : "L'avantage principal est que votre marque est déjà connue et reconnue. Tous les processus sont déjà optimisés pour être rentables."}
                   </p>
                 </div>
               </div>
@@ -209,36 +209,36 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
             {/* Note supplémentaire sur le produit */}
             <div className="mt-8 bg-blue-50 p-6 rounded-lg">
               <h3 className="font-semibold text-lg text-tekki-blue mb-4">
-                {businessType === 'physical' ? 'Catalogue produit' : 'Documentation technique'}
+                {businessType === 'physical' ? 'Liste des produits' : 'Guides et tutoriels'}
               </h3>
               <p className="text-gray-700 mb-4">
                 {businessType === 'physical' 
-                  ? "Le catalogue complet des produits, comprenant les références exactes, les fournisseurs, et les marges détaillées, sera fourni après acquisition."
-                  : "La documentation technique complète, comprenant les accès aux outils, les guides d'utilisation et les manuels techniques, sera fournie après acquisition."}
+                  ? "La liste complète des produits, avec les coordonnées des fournisseurs et toutes les informations sur les bénéfices, vous sera remise après l'achat."
+                  : "Tous les guides d'utilisation, tutoriels et accès aux outils vous seront remis après l'achat."}
               </p>
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
                   <span>
                     {businessType === 'physical'
-                      ? "Fiches produits détaillées avec spécifications techniques"
-                      : "Documentation détaillée du système et de l'architecture"}
+                      ? "Fiches détaillées pour chaque produit"
+                      : "Guide complet étape par étape"}
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
                   <span>
                     {businessType === 'physical'
-                      ? "Analyse de rentabilité par produit avec marges et coûts"
-                      : "Guide d'administration et de maintenance complet"}
+                      ? "Analyse du bénéfice pour chaque produit"
+                      : "Guide pour gérer et améliorer votre business"}
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
                   <span>
                     {businessType === 'physical'
-                      ? "Guide de négociation avec les fournisseurs"
-                      : "Guides d'optimisation et de mise à l'échelle"}
+                      ? "Comment négocier avec les fournisseurs"
+                      : "Comment faire grandir votre business"}
                   </span>
                 </li>
               </ul>
@@ -246,16 +246,16 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
           </div>
         )}
 
-        {/* Marketing */}
+        {/* Marketing - Simplifié */}
         {selectedTab === 'marketing' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-tekki-blue mb-6">Stratégie marketing</h2>
+            <h2 className="text-2xl font-bold text-tekki-blue mb-6">Comment attirer des clients</h2>
             
             {hasContent(business.marketing_strategy) ? (
               <div className="grid md:grid-cols-2 gap-8">
                 {business.marketing_strategy.channels && (
                   <div>
-                    <h3 className="font-semibold mb-2">Canaux de vente</h3>
+                    <h3 className="font-semibold mb-2">Où trouver vos clients</h3>
                     <p className="text-gray-600">
                       {Array.isArray(business.marketing_strategy.channels) 
                         ? business.marketing_strategy.channels.join(', ') 
@@ -266,14 +266,14 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                 
                 {business.marketing_strategy.targetAudience && (
                   <div>
-                    <h3 className="font-semibold mb-2">Cible</h3>
+                    <h3 className="font-semibold mb-2">Qui sont vos clients</h3>
                     <p className="text-gray-600">{business.marketing_strategy.targetAudience}</p>
                   </div>
                 )}
                 
                 {business.marketing_strategy.acquisitionCost && (
                   <div>
-                    <h3 className="font-semibold mb-2">Coût d'acquisition client</h3>
+                    <h3 className="font-semibold mb-2">Coût pour attirer un client</h3>
                     <p className="text-gray-600">
                       {typeof business.marketing_strategy.acquisitionCost === 'number'
                         ? formatPrice(business.marketing_strategy.acquisitionCost)
@@ -284,7 +284,7 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                 
                 {business.marketing_strategy.conversionRate && (
                   <div>
-                    <h3 className="font-semibold mb-2">Taux de conversion</h3>
+                    <h3 className="font-semibold mb-2">Taux de visiteurs convertis</h3>
                     <p className="text-gray-600">{business.marketing_strategy.conversionRate}</p>
                   </div>
                 )}
@@ -292,20 +292,20 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
             ) : (
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="font-semibold mb-2">Stratégie d'acquisition</h3>
+                  <h3 className="font-semibold mb-2">Comment attirer l'attention</h3>
                   <p className="text-gray-600">
                     {businessType === 'digital'
-                      ? "La stratégie d'acquisition repose principalement sur le marketing de contenu, le SEO et les partenariats stratégiques. Des campagnes publicitaires ciblées sur Google et les réseaux sociaux sont également prévues."
-                      : "La stratégie d'acquisition repose sur un mix de marketing d'influence, de publicités ciblées sur les réseaux sociaux et de SEO. Des partenariats avec des micro-influenceurs sont déjà en place."}
+                      ? "Pour attirer des clients, vous utiliserez des articles de blog, le référencement Google et des partenariats. Vous pourrez aussi faire des publicités ciblées sur Google et les réseaux sociaux."
+                      : "Pour attirer des clients, vous utiliserez des influenceurs, des publicités sur les réseaux sociaux et le référencement Google. Des partenariats avec des influenceurs sont déjà en place."}
                   </p>
                 </div>
                 
                 <div>
-                  <h3 className="font-semibold mb-2">Canaux de distribution</h3>
+                  <h3 className="font-semibold mb-2">Où vous vendrez</h3>
                   <p className="text-gray-600">
                     {businessType === 'digital'
-                      ? "Le produit est distribué principalement via le site web et des places de marché spécialisées. Un système d'affiliation est également en place pour stimuler les ventes."
-                      : "Les produits sont vendus exclusivement via le site e-commerce propriétaire, optimisé pour la conversion et l'expérience utilisateur."}
+                      ? "Vous vendrez principalement via votre site web et des plateformes spécialisées. Un système pour encourager les recommandations est aussi en place."
+                      : "Vous vendrez exclusivement via votre site de vente en ligne, qui est déjà optimisé pour convertir les visiteurs en clients."}
                   </p>
                 </div>
               </div>
@@ -313,37 +313,37 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
             
             {/* Calendrier marketing */}
             <div className="mt-8 bg-gray-50 p-6 rounded-lg">
-              <h3 className="font-semibold text-lg text-tekki-blue mb-4">Calendrier marketing des 3 premiers mois</h3>
+              <h3 className="font-semibold text-lg text-tekki-blue mb-4">Votre plan pour les 3 premiers mois</h3>
               <div className="space-y-4">
                 <div className="bg-white p-4 rounded border border-gray-200">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">1</span>
-                    <h4 className="font-medium">Mois 1: Lancement</h4>
+                    <h4 className="font-medium">1er mois: Mise en route</h4>
                   </div>
                   <p className="text-gray-600 text-sm pl-10">
                     {businessType === 'digital'
-                      ? "Configuration des outils d'analyse, mise en place des premières campagnes marketing, création de contenu pour le blog et les réseaux sociaux."
-                      : "Lancement des campagnes Facebook et Instagram ciblées, création de contenu pour les réseaux sociaux, optimisation du site pour la conversion."}
+                      ? "Installation des outils pour suivre les résultats, lancement des premières publicités, création de contenu pour attirer les clients."
+                      : "Lancement des publicités sur Facebook et Instagram, création de contenu pour les réseaux sociaux, optimisation du site pour vendre plus."}
                   </p>
                 </div>
                 
                 <div className="bg-white p-4 rounded border border-gray-200">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold">2</span>
-                    <h4 className="font-medium">Mois 2: Optimisation</h4>
+                    <h4 className="font-medium">2ème mois: Amélioration</h4>
                   </div>
                   <p className="text-gray-600 text-sm pl-10">
-                    Analyse des performances, ajustement des audiences, tests A/B sur les annonces, optimisation du tunnel de conversion.
+                    Analyse des premiers résultats, amélioration des publicités, tests pour voir ce qui fonctionne le mieux, optimisation du parcours d'achat.
                   </p>
                 </div>
                 
                 <div className="bg-white p-4 rounded border border-gray-200">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold">3</span>
-                    <h4 className="font-medium">Mois 3: Scaling</h4>
+                    <h4 className="font-medium">3ème mois: Expansion</h4>
                   </div>
                   <p className="text-gray-600 text-sm pl-10">
-                    Augmentation du budget publicitaire sur les campagnes performantes, développement de nouvelles campagnes, marketing d'influence.
+                    Augmentation du budget pour les publicités qui marchent bien, création de nouvelles campagnes, collaboration avec des influenceurs.
                   </p>
                 </div>
               </div>
@@ -351,16 +351,16 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
           </div>
         )}
 
-        {/* Financier */}
+        {/* Financier - Simplifié */}
         {selectedTab === 'financiers' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-tekki-blue mb-6">Aspects financiers</h2>
+            <h2 className="text-2xl font-bold text-tekki-blue mb-6">Comment gagner de l'argent</h2>
             
             {hasContent(business.financials) ? (
               <div className="grid md:grid-cols-2 gap-8">
                 {business.financials.setupCost && (
                   <div>
-                    <h3 className="font-semibold mb-2">Investissement initial</h3>
+                    <h3 className="font-semibold mb-2">Coût pour démarrer ce business</h3>
                     <p className="text-gray-600">
                       {typeof business.financials.setupCost === 'number'
                         ? formatPrice(business.financials.setupCost)
@@ -371,7 +371,7 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                 
                 {business.financials.monthlyExpenses && (
                   <div>
-                    <h3 className="font-semibold mb-2">Charges mensuelles</h3>
+                    <h3 className="font-semibold mb-2">Dépenses mensuelles</h3>
                     <p className="text-gray-600">
                       {typeof business.financials.monthlyExpenses === 'number'
                         ? formatPrice(business.financials.monthlyExpenses)
@@ -382,14 +382,14 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                 
                 {business.financials.breakevenPoint && (
                   <div>
-                    <h3 className="font-semibold mb-2">Point mort</h3>
+                    <h3 className="font-semibold mb-2">Temps estimé avant de récupérer votre investissement</h3>
                     <p className="text-gray-600">{business.financials.breakevenPoint}</p>
                   </div>
                 )}
                 
                 {business.financials.roi && (
                   <div>
-                    <h3 className="font-semibold mb-2">Retour sur investissement</h3>
+                    <h3 className="font-semibold mb-2">Temps estimé avant vos premiers bénéfices</h3>
                     <p className="text-gray-600">{business.financials.roi}</p>
                   </div>
                 )}
@@ -397,40 +397,40 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
             ) : (
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="font-semibold mb-2">Modèle de revenus</h3>
+                  <h3 className="font-semibold mb-2">Comment vous gagnez de l'argent</h3>
                   <p className="text-gray-600">
                     {businessType === 'digital'
-                      ? "Ce business génère des revenus récurrents grâce à un modèle d'abonnement mensuel ou annuel. Cette structure assure une prévisibilité des revenus et une croissance stable."
-                      : "Ce business génère des revenus via la vente directe de produits avec une marge moyenne de 50-60%. Le panier moyen actuel est d'environ " + formatPrice(45000) + "."}
+                      ? "Ce business génère de l'argent chaque mois grâce aux abonnements. Cette méthode vous assure des revenus stables et prévisibles."
+                      : "Ce business génère de l'argent en vendant des produits avec un bénéfice de 50-60% par vente. En moyenne, chaque client dépense environ " + formatPrice(45000) + "."}
                   </p>
                 </div>
                 
                 <div>
-                  <h3 className="font-semibold mb-2">Projections financières</h3>
+                  <h3 className="font-semibold mb-2">Ce que vous pouvez gagner</h3>
                   <p className="text-gray-600">
-                    Selon nos projections, ce business peut générer un chiffre d'affaires mensuel de {formatPrice(business.monthly_potential || 750000)} 
-                    après {business.roi_estimation_months ? `${business.roi_estimation_months} mois` : '6 mois'} d'exploitation, avec une marge nette de {business.net_margin || '30-40'}%.
+                    D'après nos estimations, ce business peut vous rapporter {formatPrice(business.monthly_potential || 750000)} 
+                    par mois après {business.roi_estimation_months ? `${business.roi_estimation_months} mois` : '6 mois'}, avec un bénéfice net de {business.net_margin || '30-40'}%.
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">Retour sur investissement</h3>
+                  <h3 className="font-semibold mb-2">Quand vous récupérez votre investissement</h3>
                   <p className="text-gray-600">
-                    Avec une exploitation optimale, le retour sur investissement est estimé entre {business.roi_min || 12} et {business.roi_max || 18} mois. 
-                    Notre accompagnement est conçu pour vous aider à atteindre ces objectifs.
+                    Si vous suivez bien nos conseils, vous devriez récupérer votre investissement en {business.roi_min || 4} à {business.roi_max || 6} mois. 
+                    Notre accompagnement est là pour vous aider à atteindre cet objectif.
                   </p>
                 </div>
               </div>
             )}
             
-            {/* Ventilation des coûts */}
+            {/* Ventilation des coûts - Simplifiée */}
             {business.monthly_costs_breakdown && (
               <div className="mt-8 bg-gray-50 p-6 rounded-lg">
-                <h3 className="font-semibold text-lg text-tekki-blue mb-4">Ventilation des coûts mensuels estimés</h3>
+                <h3 className="font-semibold text-lg text-tekki-blue mb-4">Répartition de vos dépenses mensuelles</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                      <span>Hébergement et outils web</span>
+                      <span>Site web et outils</span>
                     </div>
                     <span className="font-semibold">{business.monthly_costs_breakdown.hosting || 15}%</span>
                   </div>
@@ -441,7 +441,7 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                   <div className="flex justify-between items-center mt-2">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                      <span>Marketing et publicité</span>
+                      <span>Publicité</span>
                     </div>
                     <span className="font-semibold">{business.monthly_costs_breakdown.marketing || 40}%</span>
                   </div>
@@ -452,7 +452,7 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                   <div className="flex justify-between items-center mt-2">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                      <span>Stock de produits</span>
+                      <span>Achat de produits</span>
                     </div>
                     <span className="font-semibold">{business.monthly_costs_breakdown.stock || 35}%</span>
                   </div>
@@ -463,7 +463,7 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                   <div className="flex justify-between items-center mt-2">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                      <span>Autres frais divers</span>
+                      <span>Autres dépenses</span>
                     </div>
                     <span className="font-semibold">{business.monthly_costs_breakdown.other || 10}%</span>
                   </div>

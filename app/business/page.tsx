@@ -182,8 +182,9 @@ export default function BusinessesPage() {
       {/* Hero Section avec fond dégradé */}
       <section className="bg-gradient-to-r from-tekki-blue to-tekki-orange relative min-h-[300px] flex items-center">
         <div className="absolute inset-0 bg-grid-white/10 bg-grid opacity-10"></div>
-        <Container className="px-2 md:px-4 lg:px-8"> {/* Marges réduites sur mobile uniquement */}
-          <div className="py-16 md:py-24 relative z-10">
+        <Container className="px-4 md:px-6 lg:px-8"> 
+          {/* Ajout de classes pour augmenter le padding supérieur sur mobile */}
+          <div className="pt-24 pb-16 md:py-24 relative z-10">
             <div className="max-w-3xl mx-auto text-center text-white">
               <h1 className="text-3xl md:text-5xl font-bold mb-6">
                 Business Clé en Main
@@ -195,7 +196,7 @@ export default function BusinessesPage() {
               {/* Badges de succès */}
               <div className="flex flex-wrap justify-center gap-2 mt-8">
                 <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm">
-                  +15 business déjà vendus
+                  +{displayedBusinesses.length} business créés
                 </span>
                 <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm">
                   Accompagnement inclus

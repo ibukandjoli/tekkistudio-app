@@ -123,11 +123,15 @@ export default function RootLayout({
           <Footer />
         </div>
 
-        {/* Sélecteur de devise */}
-        <CurrencySelectorWrapper />
+        {/* Sélecteur de devise - maintenant masqué sur mobile */}
+        <div className="hidden md:block">
+          <CurrencySelectorWrapper />
+        </div>
         
-        {/* Intégration du chatbot */}
-        <TekkiChatbot />
+        {/* Intégration du chatbot - maintenant masqué sur mobile */}
+        <div className="hidden md:block">
+          <TekkiChatbot />
+        </div>
         
         {/* Système de notifications amélioré */}
         <Toaster 

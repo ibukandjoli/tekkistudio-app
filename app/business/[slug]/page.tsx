@@ -46,6 +46,22 @@ export default function BusinessPage() {
     return Math.round(price * monthlyPercentage / 100) + fixedAmount;
   };
 
+  // Fonction pour obtenir la marge brute du business
+  const getGrossMargin = () => {
+    // Vérifier si la marge brute est définie dans les détails du produit
+    if (business?.product_details?.margin) {
+      return business.product_details.margin;
+    }
+    
+    // Si le business existe mais pas de marge définie, utiliser une valeur par défaut selon le type
+    if (business) {
+      return business.type === 'digital' ? '65%' : '40%';
+    }
+    
+    // Valeur par défaut si aucune information n'est disponible
+    return '50%';
+  };
+
   useEffect(() => {
     async function fetchBusiness() {
       try {
@@ -186,18 +202,18 @@ export default function BusinessPage() {
     <main className="pt-20"> {/* Ajout d'espace entre le header et le contenu */}
       {/* Navigation */}
       <div className="bg-gray-20 border-b mb-6">
-        <Container maxWidth="full">
+        <div className="mx-auto px-2 md:px-8 w-full"> {/* Container personnalisé avec marges réduites sur mobile */}
           <div className="py-3">
             <Link href="/business" className="flex items-center text-tekki-blue hover:text-tekki-orange">
               <ArrowLeft className="w-5 h-5 mr-2" />
               Retour aux business en vente
             </Link>
           </div>
-        </Container>
+        </div>
       </div>
 
       {/* En-tête du business */}
-      <Container maxWidth="full" className="py-8">
+      <div className="mx-auto px-3 md:px-8 w-full py-8"> {/* Container personnalisé avec marges réduites sur mobile */}
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Galerie d'images (côté gauche) */}
           <div className="lg:w-1/2">
@@ -235,23 +251,23 @@ export default function BusinessPage() {
             <h1 className="text-4xl font-bold text-black mb-4">{business.name}</h1>
             <p className="text-lg text-gray-500 mb-8">{business.pitch || business.shortDescription}</p>
             
-            {/* Métriques clés */}
+            {/* Métriques clés - Simplifiées */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
               <div>
-                <p className="text-sm text-gray-500">Prix d'acquisition</p>
+                <p className="text-sm text-gray-500">Prix du business</p>
                 <p className="text-2xl font-bold text-tekki-blue">
                   {formatPrice(business.price)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Potentiel mensuel</p>
+                <p className="text-sm text-gray-500">Revenu mensuel possible</p>
                 <p className="text-2xl font-bold text-green-600">
                   {formatPrice(business.monthly_potential)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Mise en place</p>
-                <p className="text-xl font-semibold">{business.setup_time || '3 semaines'}</p>
+                <p className="text-sm text-gray-500">Bénéfice sur les ventes</p>
+                <p className="text-xl font-semibold text-tekki-orange">{getGrossMargin()}</p>
               </div>
             </div>
             
@@ -260,7 +276,7 @@ export default function BusinessPage() {
             
             {/* Description */}
             <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-3">A Propos de ce business</h2>
+              <h2 className="text-xl font-semibold mb-3">À propos de ce business</h2>
               <FormattedText text={business.description || ""} className="text-gray-600" />
             </div>
             
@@ -269,7 +285,7 @@ export default function BusinessPage() {
             
             {/* Principaux avantages */}
             <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-4">Principaux avantages</h2>
+              <h2 className="text-xl font-semibold mb-4">Pourquoi choisir ce business?</h2>
               <ul className="space-y-2">
                 {(business.benefits || []).length > 0 ? (
                   business.benefits.map((benefit: string, index: number) => (
@@ -291,7 +307,7 @@ export default function BusinessPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span>Marché en pleine croissance avec un fort potentiel de rentabilité</span>
+                      <span>Marché en pleine croissance avec un fort potentiel de revenus</span>
                     </li>
                   </>
                 )}
@@ -312,12 +328,12 @@ export default function BusinessPage() {
             </div>
           </div>
         </div>
-      </Container>
+      </div>
 
-      {/* Options d'acquisition */}
+      {/* Options d'acquisition - Section simplifiée */}
       <section className="py-12 bg-blue-50 mb-4">
-        <Container maxWidth="full">
-          <h2 className="text-2xl font-bold text-tekki-blue mb-6 text-center">Options d'acquisition</h2>
+        <div className="mx-auto px-3 md:px-8 w-full"> {/* Container personnalisé avec marges réduites sur mobile */}
+          <h2 className="text-2xl font-bold text-tekki-blue mb-6 text-center">Comment acheter ce business</h2>
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Option standard */}
             <div className={`bg-white rounded-xl shadow p-6 border-2 transition-all ${
@@ -329,7 +345,7 @@ export default function BusinessPage() {
                 </div>
               )}
               
-              <h3 className="text-2xl font-bold text-tekki-blue mb-4">Acquisition Complète</h3>
+              <h3 className="text-2xl font-bold text-tekki-blue mb-4">Achat immédiat</h3>
               
               <div className="mb-4">
                 <div className="text-3xl font-bold text-tekki-blue mb-1">{formatPrice(business.price)}</div>
@@ -341,19 +357,19 @@ export default function BusinessPage() {
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start">
                   <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Transfert immédiat de propriété</span>
+                  <span>Vous devenez propriétaire immédiatement</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Paiement en 1 à 3 fois après signature du contrat d'acquisition</span>
+                  <span>Vous pouvez payer en 2 ou 3 mensualités</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>{business.standard_support_months || 2} mois d'accompagnement inclus</span>
+                  <span>{business.standard_support_months || 2} mois d'accompagnement offerts</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Tous les éléments du business livrés immédiatement</span>
+                  <span>Tous les éléments livrés immédiatement</span>
                 </li>
               </ul>
               
@@ -364,7 +380,7 @@ export default function BusinessPage() {
                 }}
                 className="w-full bg-tekki-blue text-white py-3 rounded-lg hover:bg-tekki-blue/90 transition-colors"
               >
-                Acquérir avec cette option
+                Acheter avec cette option
               </button>
             </div>
             
@@ -384,7 +400,7 @@ export default function BusinessPage() {
                   </div>
                 )}
                 
-                <h3 className="text-2xl font-bold text-tekki-orange mb-4">Acquisition Progressive</h3>
+                <h3 className="text-2xl font-bold text-tekki-orange mb-4">Achat progressif</h3>
                 
                 <div className="mb-4">
                   <div className="text-3xl font-bold text-black/80 mb-1">
@@ -398,19 +414,19 @@ export default function BusinessPage() {
                 <ul className="space-y-3 mb-6">
                   <li className="flex items-start">
                     <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                    <span>Démarrage avec seulement {business.entry_price_percentage || 40}% du prix</span>
+                    <span>Vous démarrez en payant seulement {business.entry_price_percentage || 40}% du prix</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                    <span>Versements mensuels de {business.monthly_payment_percentage || 10}% + {business.monthly_payment_fixed_amount || 5000}F pendant {business.monthly_payment_duration || 6} mois</span>
+                    <span>Vous payez {business.monthly_payment_percentage || 10}% par mois + {business.monthly_payment_fixed_amount || 5000}F de frais pendant {business.monthly_payment_duration || 6} mois</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                    <span>{business.progressive_support_months || 3} mois d'accompagnement inclus</span>
+                    <span>{business.progressive_support_months || 2} mois d'accompagnement offerts</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                    <span>Transférez votre business en douceur</span>
+                    <span>Devenez progressivement propriétaire de votre business</span>
                   </li>
                 </ul>
                 
@@ -421,34 +437,34 @@ export default function BusinessPage() {
                   }}
                   className="w-full bg-tekki-orange text-white py-3 rounded-lg hover:bg-tekki-orange/90 transition-colors"
                 >
-                  Acquérir avec cette option
+                  Acheter avec cette option
                 </button>
               </div>
             )}
           </div>
-        </Container>
+        </div>
       </section>
 
-      {/* Section accordéon pour les détails du business */}
+      {/* Section accordéon pour les détails du business - Utiliser des termes simplifiés */}
       <section className="py-12">
-        <Container maxWidth="full">
-          <h2 className="text-2xl font-bold text-tekki-blue mb-6 text-center">Détails du business</h2>
+        <div className="mx-auto px-3 md:px-8 w-full"> {/* Container personnalisé avec marges réduites sur mobile */}
+          <h2 className="text-2xl font-bold text-tekki-blue mb-6 text-center">Tout ce que vous devez savoir sur ce business</h2>
           <div className="max-w-5xl mx-auto">
             <BusinessAccordion 
               business={business} 
               businessType={businessType}
             />
           </div>
-        </Container>
+        </div>
       </section>
 
-      {/* Ce qui est inclus et cartes d'information - section complète */}
+      {/* Ce qui est inclus et cartes d'information - section simplifiée */}
       <div className="bg-gray-50 py-10">
-        <Container maxWidth="full">
+        <div className="mx-auto px-3 md:px-8 w-full"> {/* Container personnalisé avec marges réduites sur mobile */}
           <div className="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto">
             {/* Ce qui est inclus */}
             <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-              <h3 className="text-xl font-semibold mb-4">Ce qui est inclus</h3>
+              <h3 className="text-xl font-semibold mb-4">Ce que vous recevez</h3>
               <ul className="space-y-3">
                 {(business.includes || []).length > 0 ? (
                   business.includes.map((item: string, index: number) => (
@@ -462,33 +478,33 @@ export default function BusinessPage() {
                   <>
                     <li className="flex items-start">
                       <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">Site web complet avec toutes les fonctionnalités</span>
+                      <span className="text-gray-700">Site web complet prêt à l'emploi</span>
                     </li>
                     <li className="flex items-start">
                       <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">Logo et identité visuelle</span>
+                      <span className="text-gray-700">Logo et design professionnel</span>
                     </li>
                     <li className="flex items-start">
                       <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">Documentation et guides d'utilisation</span>
+                      <span className="text-gray-700">Guide détaillé pas à pas</span>
                     </li>
                     <li className="flex items-start">
                       <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">Accès à tous les comptes administrateurs</span>
+                      <span className="text-gray-700">Accès à tous les comptes</span>
                     </li>
                     <li className="flex items-start">
                       <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{businessType === 'physical' ? 'Liste de fournisseurs validés' : 'Frameworks et outils techniques'}</span>
+                      <span className="text-gray-700">{businessType === 'physical' ? 'Liste de fournisseurs vérifiés' : 'Tous les outils techniques'}</span>
                     </li>
                     {businessType === 'physical' ? (
                       <li className="flex items-start">
                         <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">Processus logistique éprouvé</span>
+                        <span className="text-gray-700">Guide de gestion des livraisons</span>
                       </li>
                     ) : (
                       <li className="flex items-start">
                         <CheckCircle2 className="h-5 w-5 text-tekki-blue mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">Hébergement inclus {business.standard_support_months || 2} mois</span>
+                        <span className="text-gray-700">Hébergement inclus pour {business.standard_support_months || 2} mois</span>
                       </li>
                     )}
                   </>
@@ -496,38 +512,38 @@ export default function BusinessPage() {
               </ul>
             </div>
             
-            {/* Aspects Financiers - remplace Support inclus */}
+            {/* Aspects Financiers - Simplifiés */}
             <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-              <h3 className="text-xl font-semibold mb-4">Aspects Financiers</h3>
+              <h3 className="text-xl font-semibold mb-4">Aspect financier</h3>
               <ul className="space-y-3">
                 {business.financials ? (
                   <>
                     <li className="flex items-start">
                       <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
                       <div>
-                        <span className="font-medium">Investissement initial:</span>
-                        <span className="text-gray-700"> {business.financials.setupCost || 'Inclus dans le prix d\'acquisition'}</span>
+                        <span className="font-medium">Montant pour démarrer :</span>
+                        <span className="text-gray-700"> {business.financials.setupCost || 'Inclus dans le prix d\'achat'}</span>
                       </div>
                     </li>
                     <li className="flex items-start">
                       <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
                       <div>
-                        <span className="font-medium">Charges mensuelles:</span>
-                        <span className="text-gray-700"> {business.financials.monthlyExpenses || 'Variables selon l\'activité'}</span>
+                        <span className="font-medium">Dépenses mensuelles :</span>
+                        <span className="text-gray-700"> {business.financials.monthlyExpenses || 'Varient selon votre activité'}</span>
                       </div>
                     </li>
                     <li className="flex items-start">
                       <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
                       <div>
-                        <span className="font-medium">Point mort:</span> 
-                        <span className="text-gray-700"> {business.financials.breakevenPoint || 'Environ 4 mois'}</span>
+                        <span className="font-medium">Rentabilité attendue:</span> 
+                        <span className="text-gray-700"> Après environ {business.financials.breakevenPoint || '4 mois'}</span>
                       </div>
                     </li>
                     <li className="flex items-start">
                       <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
                       <div>
-                        <span className="font-medium">Retour sur investissement:</span>
-                        <span className="text-gray-700"> {business.financials.roi || `Entre ${business.roi_min || 12} et ${business.roi_max || 18} mois`}</span>
+                        <span className="font-medium">Retour sur investissement :</span>
+                        <span className="text-gray-700"> En {business.financials.roi || `${business.roi_min || 12} à ${business.roi_max || 6} mois`}</span>
                       </div>
                     </li>
                   </>
@@ -536,29 +552,29 @@ export default function BusinessPage() {
                     <li className="flex items-start">
                       <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
                       <div>
-                        <span className="font-medium">Investissement initial:</span>
-                        <span className="text-gray-700"> Inclus dans le prix d'acquisition</span>
+                        <span className="font-medium">Coût de démarrage:</span>
+                        <span className="text-gray-700"> Déjà inclus dans le prix d'achat</span>
                       </div>
                     </li>
                     <li className="flex items-start">
                       <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
                       <div>
-                        <span className="font-medium">Charges mensuelles:</span>
+                        <span className="font-medium">Dépenses mensuelles:</span>
                         <span className="text-gray-700"> Environ {formatPrice(business.monthly_potential * 0.3)} à {formatPrice(business.monthly_potential * 0.4)}</span>
                       </div>
                     </li>
                     <li className="flex items-start">
                       <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
                       <div>
-                        <span className="font-medium">Rentabilité estimée:</span>
-                        <span className="text-gray-700"> {businessType === 'digital' ? '30-45%' : '25-35%'} du chiffre d'affaires</span>
+                        <span className="font-medium">Ce que vous gardez:</span>
+                        <span className="text-gray-700"> {businessType === 'digital' ? '30-45%' : '25-35%'} des revenus</span>
                       </div>
                     </li>
                     <li className="flex items-start">
                       <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
                       <div>
-                        <span className="font-medium">Retour sur investissement:</span>
-                        <span className="text-gray-700"> Environ {business.roi_estimation_months || 6} à {business.roi_estimation_months + 6 || 12} mois</span>
+                        <span className="font-medium">Remboursement de l'achat:</span>
+                        <span className="text-gray-700"> En {business.roi_estimation_months || 6} à {business.roi_estimation_months + 6 || 12} mois</span>
                       </div>
                     </li>
                   </>
@@ -566,9 +582,9 @@ export default function BusinessPage() {
               </ul>
             </div>
             
-            {/* Questions fréquentes - mise à jour avec plus d'informations */}
+            {/* Questions fréquentes - simplifiées */}
             <div className="bg-gray-50 rounded-lg shadow-sm p-6 border border-gray-100">
-              <h3 className="text-xl font-semibold mb-4">Questions fréquentes</h3>
+              <h3 className="text-xl font-semibold mb-4">Questions courantes</h3>
               <div className="space-y-4">
                 {business.common_questions && business.common_questions.length > 0 ? (
                   // Utiliser les questions personnalisées si disponibles
@@ -579,28 +595,28 @@ export default function BusinessPage() {
                     </div>
                   ))
                 ) : (
-                  // Questions par défaut
+                  // Questions par défaut simplifiées
                   <>
                     <div>
-                      <h4 className="font-medium mb-1">Combien de temps avant de pouvoir démarrer?</h4>
+                      <h4 className="font-medium mb-1">Combien de temps pour commencer?</h4>
                       <p className="text-sm text-gray-600">
-                        Une fois l'acquisition finalisée, vous pourrez démarrer en {business.setup_time || '3 semaines'} en moyenne.
+                        Vous pouvez commencer en {business.setup_time || '3 semaines'} après votre achat.
                       </p>
                     </div>
                     <div>
-                      <h4 className="font-medium mb-1">De combien de temps ai-je besoin pour gérer ce business?</h4>
+                      <h4 className="font-medium mb-1">Combien d'heures par semaine faut-il?</h4>
                       <p className="text-sm text-gray-600">
                         {businessType === 'ecommerce' || businessType === 'physical' ? 
-                          'Ce business e-commerce nécessite en moyenne 15-20h par semaine pour une gestion optimale.' : 
-                          'Ce business digital nécessite en moyenne 10-15h par semaine pour une gestion optimale.'}
+                          'Ce business demande environ 15-20h par semaine pour bien le gérer.' : 
+                          'Ce business demande environ 10-15h par semaine pour bien le gérer.'}
                       </p>
                     </div>
                     <div>
-                      <h4 className="font-medium mb-1">Quel niveau d'expertise est requis?</h4>
+                      <h4 className="font-medium mb-1">Faut-il des connaissances spéciales?</h4>
                       <p className="text-sm text-gray-600">
                         {business.skill_level_required 
-                          ? `Niveau ${business.skill_level_required}. ${business.skill_level_required === 'débutant' ? 'Aucune expertise technique particulière n\'est requise.' : 'Une formation complète est incluse avec l\'acquisition.'}`
-                          : 'Aucune expertise technique particulière n\'est requise. Notre accompagnement vous permet de prendre en main le business facilement.'}
+                          ? `Niveau ${business.skill_level_required}. ${business.skill_level_required === 'débutant' ? 'Aucune connaissance spéciale n\'est nécessaire.' : 'Une formation complète est incluse avec l\'achat.'}`
+                          : 'Non, aucune connaissance spéciale n\'est nécessaire. Nous vous montrons tout ce qu\'il faut savoir.'}
                       </p>
                     </div>
                   </>
@@ -608,23 +624,23 @@ export default function BusinessPage() {
                 
                 {/* Lien vers toutes les FAQ */}
                 <div className="mt-6">
-                  <Link href="/#faq" className="text-tekki-blue hover:text-tekki-orange text-sm flex items-center">
-                    Voir toutes les FAQ
+                  <Link href="https://wa.me/221781362728" className="text-tekki-blue hover:text-tekki-orange text-sm flex items-center">
+                    J'ai d'autres questions
                     <ArrowLeft className="h-4 w-4 ml-1 rotate-180" />
                   </Link>
                 </div>
               </div>
             </div>
           </div>
-        </Container>
+        </div>
       </div>
 
-      {/* CTA final */}
+      {/* CTA final - simplifié */}
       <section className="py-12 bg-gray-100 text-gray-800">
-        <Container maxWidth="full">
+        <div className="mx-auto px-3 md:px-8 w-full"> {/* Container personnalisé avec marges réduites sur mobile */}
           <div className="text-center max-w-5xl mx-auto">
-            <h2 className="text-3xl font-bold mb-4">Prêt(e) à lancer ce business ?</h2>
-            <p className="text-xl mb-8 max-w-3xl mx-auto">Ne laissez pas passer cette opportunité unique de démarrer avec un business en ligne clé en main et un accompagnement expert.</p>
+            <h2 className="text-3xl font-bold mb-4">Prêt(e) à commencer votre aventure?</h2>
+            <p className="text-xl mb-8 max-w-3xl mx-auto">Ce business clé en main est votre chance de démarrer facilement avec notre aide et notre expérience.</p>
             <div className="flex flex-col md:flex-row gap-4 justify-center">
               <button 
                 className="bg-tekki-blue text-white px-6 py-4 rounded-lg text-lg font-bold hover:bg-tekki-blue/90 transition-colors flex-1 max-w-xs mx-auto"
@@ -633,7 +649,7 @@ export default function BusinessPage() {
                   setIsModalOpen(true);
                 }}
               >
-                Acquisition complète
+                Acheter maintenant
               </button>
               {business.progressive_option_enabled !== false && (
                 <button 
@@ -643,13 +659,13 @@ export default function BusinessPage() {
                     setIsModalOpen(true);
                   }}
                 >
-                  Acquisition progressive
+                  Acheter progressivement
                   <span className="bg-white text-tekki-orange text-xs px-2 py-0.5 rounded-full">NOUVEAU</span>
                 </button>
               )}
             </div>
           </div>
-        </Container>
+        </div>
       </section>
 
       {/* Modal d'intérêt */}
