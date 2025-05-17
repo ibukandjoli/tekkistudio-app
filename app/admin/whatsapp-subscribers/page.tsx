@@ -64,6 +64,10 @@ interface WhatsAppSubscriber {
   status: 'active' | 'inactive' | 'blocked';
   subscribed_at: string;
   last_message_sent?: string;
+  name?: string;
+  email?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 type StatusType = 'active' | 'inactive' | 'blocked';
@@ -315,7 +319,10 @@ function WhatsAppSubscribersPage() {
     try {
       const { error } = await supabase
         .from('whatsapp_subscribers')
-        .update({ status: newStatus })
+        .update({ 
+          status: newStatus,
+          updated_at: new Date().toISOString() // Mise à jour du champ updated_at
+        })
         .eq('id', subscriberId);
 
       if (error) throw error;
@@ -323,7 +330,11 @@ function WhatsAppSubscribersPage() {
       // Mettre à jour l'état local
       setSubscribers(prevSubscribers => 
         prevSubscribers.map(sub => 
-          sub.id === subscriberId ? { ...sub, status: newStatus } : sub
+          sub.id === subscriberId ? { 
+            ...sub, 
+            status: newStatus,
+            updated_at: new Date().toISOString()
+          } : sub
         )
       );
 
@@ -378,7 +389,10 @@ function WhatsAppSubscribersPage() {
       // Mettre à jour la date du dernier message pour tous les abonnés filtrés et actifs
       const { error } = await supabase
         .from('whatsapp_subscribers')
-        .update({ last_message_sent: now })
+        .update({ 
+          last_message_sent: now,
+          updated_at: now // Mise à jour du champ updated_at
+        })
         .in('id', selectedSubscribers.map(sub => sub.id))
         .eq('status', 'active');
 
@@ -388,7 +402,11 @@ function WhatsAppSubscribersPage() {
       setSubscribers(prevSubscribers => 
         prevSubscribers.map(sub => 
           selectedSubscribers.some(selected => selected.id === sub.id) 
-            ? { ...sub, last_message_sent: now } 
+            ? { 
+                ...sub, 
+                last_message_sent: now,
+                updated_at: now 
+              } 
             : sub
         )
       );
@@ -441,13 +459,17 @@ function WhatsAppSubscribersPage() {
         return;
       }
 
-      // Préparer les données pour l'insertion
+      // Préparer les données pour l'insertion avec les nouveaux champs
       const now = new Date().toISOString();
       const newSubscribers = newNumbers.map(phone => ({
         phone,
         country: 'SN', // Par défaut, à améliorer avec une détection basée sur l'indicatif
         status: 'active',
-        subscribed_at: now
+        subscribed_at: now,
+        name: '', // Nouveau champ ajouté
+        email: '', // Nouveau champ ajouté
+        created_at: now, // Nouveau champ ajouté
+        updated_at: now  // Nouveau champ ajouté
       }));
 
       // Insérer les nouveaux abonnés
@@ -473,7 +495,7 @@ function WhatsAppSubscribersPage() {
   };
 
   const exportToCsv = () => {
-    const headers = ['ID', 'Téléphone', 'Pays', 'Statut', 'Date d\'inscription', 'Dernier message envoyé'];
+    const headers = ['ID', 'Téléphone', 'Pays', 'Statut', 'Date d\'inscription', 'Dernier message envoyé', 'Nom', 'Email'];
     
     const csvData = filteredSubscribers.map(subscriber => [
       subscriber.id,
@@ -481,7 +503,9 @@ function WhatsAppSubscribersPage() {
       subscriber.country,
       subscriber.status,
       new Date(subscriber.subscribed_at).toLocaleDateString('fr-FR'),
-      subscriber.last_message_sent ? new Date(subscriber.last_message_sent).toLocaleDateString('fr-FR') : '-'
+      subscriber.last_message_sent ? new Date(subscriber.last_message_sent).toLocaleDateString('fr-FR') : '-',
+      subscriber.name || '-',
+      subscriber.email || '-'
     ]);
     
     // Ajouter les en-têtes au début

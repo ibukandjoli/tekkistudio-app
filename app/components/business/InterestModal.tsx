@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { supabase } from '../../lib/supabase';
 import { X, CheckCircle, ChevronLeft, Phone, Mail, Map, CheckCircle2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import  useMediaQuery  from '../../hooks/useMediaQuery';
+import useMediaQuery from '../../hooks/useMediaQuery';
 
 interface InterestModalProps {
   isOpen: boolean;
@@ -75,21 +75,21 @@ const InterestModal = ({
     {
       id: 'two',
       label: 'Paiement en 2 fois',
-      description: '60% à la commande, 40% à la livraison',
+      description: '60% à l\'aquisition, 40% au transfert de propriété',
       icon: '📅',
       recommended: false
     },
     {
       id: 'three',
       label: 'Paiement en 3 fois',
-      description: '40% à la commande, 30% à la livraison, 30% après 30 jours',
+      description: '40% à l\'aquisition, 30% après 30 jours, 30% au transfert de propriété',
       icon: '📊',
       recommended: false
     },
     {
       id: 'progressive',
       label: 'Acquisition progressive',
-      description: '40% à la commande + versements mensuels pendant 6 mois',
+      description: '40% à la commande + versements mensuels de 10% + frais pendant 6 mois',
       icon: '🚀',
       recommended: businessType === 'physical' || businessType === 'ecommerce'
     }
@@ -257,7 +257,7 @@ const InterestModal = ({
         status: 'new',
         is_whatsapp: formData.isWhatsApp,
         subscribe_to_updates: formData.subscribeToUpdates,
-        business_type: businessType
+        business_type: businessType  
       };
       
       const { data, error } = await supabase
@@ -283,7 +283,7 @@ const InterestModal = ({
                 businessId: String(businessId),
                 email: formData.email,
                 fullName: formData.fullName,
-                businessType
+                businessType: businessType // OK dans les détails JSON
               }
             }
           ]);
@@ -512,7 +512,8 @@ const InterestModal = ({
             </div>
           </div>
         );
-      case 3:
+
+        case 3:
         return (
           <div className="space-y-6">
             <h3 className={`text-lg font-semibold ${getThemeColor()} flex items-center`}>
@@ -679,7 +680,7 @@ const InterestModal = ({
               <DialogHeader className={isMobile ? "text-left" : ""}>
                 <DialogTitle className={cn(
                   "text-xl font-bold flex items-center",
-                  businessType === 'digital' ? "text-tekki-coral" : "text-tekki-blue"
+                  businessType === 'digital' ? "text-black/90" : "text-tekki-blue"
                 )}>
                   {businessType === 'digital' ? '🚀' : '🛍️'} Acquérir {businessName}
                 </DialogTitle>
@@ -687,7 +688,7 @@ const InterestModal = ({
                   <div className={isMobile ? "mt-1" : "mt-2"}>
                     <span className={cn(
                       "font-semibold",
-                      businessType === 'digital' ? "text-tekki-coral" : "text-tekki-blue"
+                      businessType === 'digital' ? "text-black/90" : "text-tekki-blue"
                     )}>
                       Prix : {businessPrice}
                     </span>
@@ -707,7 +708,7 @@ const InterestModal = ({
                     <div className={cn(
                       "h-1 rounded-full transition-all",
                       index < currentStep ? (
-                        businessType === 'digital' ? "bg-tekki-coral" : "bg-tekki-blue"
+                        businessType === 'digital' ? "bg-black/90" : "bg-tekki-blue"
                       ) : "bg-gray-200"
                     )}></div>
                   </div>

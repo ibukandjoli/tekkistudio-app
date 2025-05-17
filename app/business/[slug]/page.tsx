@@ -521,7 +521,7 @@ export default function BusinessPage() {
                     <li className="flex items-start">
                       <CheckCircle2 className="h-5 w-5 text-tekki-orange mr-3 mt-0.5 flex-shrink-0" />
                       <div>
-                        <span className="font-medium">Montant pour démarrer :</span>
+                        <span className="font-medium">Autres dépenses, après acquisition :</span>
                         <span className="text-gray-700"> {business.financials.setupCost || 'Inclus dans le prix d\'achat'}</span>
                       </div>
                     </li>

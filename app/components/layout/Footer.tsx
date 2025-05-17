@@ -73,7 +73,8 @@ const Footer = () => {
         return;
       }
 
-      // Ajouter le nouveau abonné
+      // Ajouter le nouveau abonné avec les nouveaux champs
+      const now = new Date().toISOString();
       const { data, error } = await supabase
         .from('whatsapp_subscribers')
         .insert([
@@ -81,7 +82,11 @@ const Footer = () => {
             phone: cleanedPhone,
             country: 'SN', // Par défaut, peut être détecté selon l'indicatif
             status: 'active',
-            subscribed_at: new Date().toISOString()
+            subscribed_at: now,
+            name: '', // Nouveau champ ajouté
+            email: '', // Nouveau champ ajouté
+            created_at: now, // Nouveau champ ajouté  
+            updated_at: now  // Nouveau champ ajouté
           }
         ])
         .select();
@@ -217,7 +222,7 @@ const Footer = () => {
                       type="tel"
                       value={phoneNumber}
                       onChange={handlePhoneChange}
-                      placeholder="Votre numéro WhatsApp"
+                      placeholder="+221 XX XXX XX XX"
                       className={`w-full px-4 py-2 rounded-lg bg-white/10 border text-white placeholder-gray-300 focus:outline-none ${
                         isValid 
                           ? 'border-green-400 focus:border-green-500' 
