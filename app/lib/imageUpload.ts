@@ -1,9 +1,13 @@
-// app/lib/cloudinaryUpload.ts
+// app/lib/imageUpload.ts
+
+'use client';
 
 import { v4 as uuidv4 } from 'uuid';
-import cloudinary from './cloudinary';
 
-export const cloudinaryUploadService = {
+/**
+ * Service pour gérer l'upload d'images vers Cloudinary
+ */
+export const imageUploadService = {
   /**
    * Télécharge une image vers Cloudinary
    * @param file Fichier image à télécharger
@@ -17,30 +21,24 @@ export const cloudinaryUploadService = {
         throw new Error("Le fichier doit être une image (JPEG, PNG, WEBP ou GIF)");
       }
 
-      // Convertir le fichier en base64
-      const base64data = await this.fileToBase64(file);
+      // Préparer les données pour l'upload
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'tekki_preset'); // Créez un preset non-signé dans Cloudinary
+      formData.append('folder', folder);
       
-      // Générer un nom de fichier unique (sans l'extension car Cloudinary la gère)
-      const fileName = `${uuidv4()}`;
-      
-      // Télécharger le fichier vers Cloudinary
-      const result = await new Promise<any>((resolve, reject) => {
-        cloudinary.uploader.upload(
-          base64data as string,
-          {
-            folder: folder,
-            public_id: fileName,
-            resource_type: 'image',
-            quality: 'auto',
-            fetch_format: 'auto',
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
+      // Uploader directement via l'API Cloudinary (sans SDK)
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: 'POST',
+        body: formData,
       });
-
+      
+      if (!response.ok) {
+        throw new Error(`Erreur lors de l'upload: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
       return result.secure_url;
     } catch (error) {
       console.error("Erreur lors de l'upload de l'image:", error);
@@ -49,7 +47,7 @@ export const cloudinaryUploadService = {
   },
 
   /**
-   * Supprime une image de Cloudinary
+   * Supprime une image de Cloudinary (via une API serverless)
    * @param imageUrl URL de l'image à supprimer
    * @returns true si la suppression a réussi, false sinon
    */
@@ -62,37 +60,26 @@ export const cloudinaryUploadService = {
         throw new Error("Impossible d'extraire l'identifiant public de l'URL");
       }
 
-      // Supprimer l'image
-      const result = await new Promise<any>((resolve, reject) => {
-        cloudinary.uploader.destroy(
-          publicId,
-          { resource_type: 'image' },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
+      // Cette fonction devrait appeler une API serverless pour supprimer l'image
+      // car la suppression nécessite l'API_SECRET de Cloudinary qui ne doit pas être exposé au client
+      const response = await fetch('/api/delete-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ publicId }),
       });
 
-      return result.result === 'ok';
+      if (!response.ok) {
+        throw new Error(`Erreur lors de la suppression: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      return result.success;
     } catch (error) {
       console.error("Erreur lors de la suppression de l'image:", error);
       return false;
     }
-  },
-
-  /**
-   * Convertit un fichier en base64
-   * @param file Fichier à convertir
-   * @returns Chaîne base64 du fichier
-   */
-  async fileToBase64(file: File): Promise<string | ArrayBuffer | null> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-    });
   },
 
   /**

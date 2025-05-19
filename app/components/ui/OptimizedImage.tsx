@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { cn } from '@/app/lib/utils';
+import { transformCloudinaryUrl } from '@/app/lib/cloudinary-client';
 
 interface OptimizedImageProps {
   src: string;
@@ -12,7 +13,6 @@ interface OptimizedImageProps {
   className?: string;
   priority?: boolean;
   objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
-  // Ajoutez ces propriétés
   onLoadingComplete?: () => void;
   onError?: () => void;
 }
@@ -26,7 +26,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   priority = false,
   objectFit = 'cover',
   onLoadingComplete,
-  onError, // Assurez-vous de les inclure ici aussi
+  onError,
 }) => {
   // Vérifier si c'est une URL Cloudinary
   const isCloudinaryUrl = src.includes('res.cloudinary.com');
@@ -61,23 +61,5 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
     </div>
   );
 };
-
-// Fonction pour transformer les URLs Cloudinary
-function transformCloudinaryUrl(url: string, width: number, height: number): string {
-  // Ne pas transformer si ce n'est pas une URL Cloudinary
-  if (!url.includes('res.cloudinary.com')) {
-    return url;
-  }
-  
-  // Format de l'URL Cloudinary:
-  // https://res.cloudinary.com/cloud-name/image/upload/v1234567890/folder/file.jpg
-  
-  // Séparer l'URL en parties
-  const parts = url.split('/upload/');
-  if (parts.length !== 2) return url;
-  
-  // Ajouter les transformations
-  return `${parts[0]}/upload/q_auto,f_auto,w_${width},h_${height},c_limit/${parts[1]}`;
-}
 
 export default OptimizedImage;

@@ -11,17 +11,3 @@ cloudinary.config({
 });
 
 export default cloudinary;
-
-// Fonction utilitaire pour générer des URLs optimisées
-export function getOptimizedImageUrl(publicId: string, options = {}) {
-  // Options par défaut pour l'optimisation
-  const defaultOptions = {
-    quality: 'auto', // Qualité auto (Cloudinary optimise)
-    format: 'auto',  // Format auto (WebP si supporté)
-    fetch_format: 'auto',
-    dpr: 'auto',     // Ratio de pixels auto basé sur l'appareil
-  };
-  
-  const finalOptions = { ...defaultOptions, ...options };
-  return cloudinary.url(publicId, finalOptions);
-}
