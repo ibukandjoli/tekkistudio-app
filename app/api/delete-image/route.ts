@@ -1,7 +1,7 @@
 // app/api/delete-image/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import cloudinary from '@/app/lib/cloudinary';
+import cloudinary from '@/app/lib/cloudinary'; // Import sans 'use server'
 
 export async function POST(request: NextRequest) {
   try {
