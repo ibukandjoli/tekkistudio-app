@@ -55,7 +55,7 @@ export default function BusinessPage() {
     
     // Si le business existe mais pas de marge définie, utiliser une valeur par défaut selon le type
     if (business) {
-      return business.type === 'digital' ? '65%' : '40%';
+      return business.type === 'digital' ? '65%' : '30%';
     }
     
     // Valeur par défaut si aucune information n'est disponible
@@ -155,7 +155,7 @@ export default function BusinessPage() {
 
   const typeColor = {
     ecommerce: 'bg-tekki-blue/10 text-tekki-blue',
-    digital: 'bg-tekki-orange/10 text-tekki-orange',
+    digital: 'bg-gray/10 text-tekki-orange',
     physical: 'bg-green-100 text-green-700'
   };
 

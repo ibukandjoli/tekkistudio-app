@@ -360,7 +360,7 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
               <div className="grid md:grid-cols-2 gap-8">
                 {business.financials.setupCost && (
                   <div>
-                    <h3 className="font-semibold mb-2">Coût pour démarrer ce business</h3>
+                    <h3 className="font-semibold mb-2">Autres dépenses, après acquisition</h3>
                     <p className="text-gray-600">
                       {typeof business.financials.setupCost === 'number'
                         ? formatPrice(business.financials.setupCost)
@@ -371,7 +371,7 @@ const BusinessAccordion: React.FC<BusinessAccordionProps> = ({ business, busines
                 
                 {business.financials.monthlyExpenses && (
                   <div>
-                    <h3 className="font-semibold mb-2">Dépenses mensuelles</h3>
+                    <h3 className="font-semibold mb-2">Dépenses mensuelles estimées</h3>
                     <p className="text-gray-600">
                       {typeof business.financials.monthlyExpenses === 'number'
                         ? formatPrice(business.financials.monthlyExpenses)

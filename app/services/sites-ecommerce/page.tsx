@@ -123,7 +123,7 @@ export default function EcommerceServicePage() {
   return (
     <main className="pb-0">
       {/* Hero Section avec background gradient */}
-      <section className="relative pt-28 pb-20 bg-gradient-to-r from-tekki-blue to-tekki-coral overflow-hidden">
+      <section className="relative pt-28 pb-20 bg-gradient-to-r from-tekki-blue to-tekki-blue overflow-hidden">
         {/* Motif géométrique en arrière-plan */}
         <div className="absolute inset-0 opacity-10">
           <div className="grid grid-cols-12 h-full">

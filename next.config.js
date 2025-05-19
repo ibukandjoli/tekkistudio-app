@@ -7,6 +7,16 @@ const nextConfig = {
       allowedOrigins: ['*'],
     },
   },
+  // Configuration des images
+  images: {
+    domains: [
+      'res.cloudinary.com',
+      'ythxumuniqxvfrwapfft.supabase.co', // Remplacez par votre domaine Supabase réel
+    ],
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
   // Ajouter cette configuration webpack
   webpack: (config, { isServer }) => {
     // Ignorer complètement pdf-parse en le remplaçant par un module vide

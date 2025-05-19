@@ -2,8 +2,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/app/lib/utils';
+import OptimizedImage from '@/app/components/ui/OptimizedImage';
 
 interface ImageType {
   src: string;
@@ -125,11 +126,14 @@ const BusinessGallery: React.FC<BusinessGalleryProps> = ({ images = [], classNam
           </div>
         )}
         
-        <img
+        <OptimizedImage 
           src={normalizedImages[selectedImage]?.src}
           alt={normalizedImages[selectedImage]?.alt || `Image ${selectedImage + 1}`}
+          width={800}
+          height={600} 
           className="w-full h-full object-cover"
-          onLoad={() => handleImageLoad(selectedImage)}
+          priority={selectedImage === 0}
+          onLoadingComplete={() => handleImageLoad(selectedImage)}
           onError={() => handleImageError(selectedImage)}
         />
         
@@ -180,14 +184,13 @@ const BusinessGallery: React.FC<BusinessGalleryProps> = ({ images = [], classNam
                   selectedImage === index ? 'ring-2 ring-tekki-orange' : 'opacity-70'
                 }`}
               >
-                <img
+                <OptimizedImage
                   src={image.src}
                   alt={`Miniature ${index + 1}`}
+                  width={200}
+                  height={150}
                   className="w-full h-full object-cover"
-                  onError={(e) => {
-                    // Fallback pour les miniatures
-                    e.currentTarget.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23f2f2f2"/%3E%3Ctext x="50" y="50" font-size="18" text-anchor="middle" alignment-baseline="middle" font-family="sans-serif" fill="%23999999"%3EImage%3C/text%3E%3C/svg%3E';
-                  }}
+                  onError={() => handleImageError(index)}
                 />
               </button>
             ))}

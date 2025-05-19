@@ -18,13 +18,23 @@ import { Popover, PopoverContent, PopoverTrigger } from '../../../../components/
 import { Calendar } from '../../../../components/ui/calendar';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Loader2, AlertCircle, ArrowLeft, Plus, Trash, Save, Calendar as CalendarIcon, Info } from 'lucide-react';
+import { 
+  Loader2, 
+  AlertCircle, 
+  ArrowLeft, 
+  Plus, 
+  Trash, 
+  Save, 
+  Calendar as CalendarIcon, 
+  Info,
+  HelpCircle
+} from 'lucide-react';
 import { supabase } from '../../../../lib/supabase';
 import type { Business, FAQ, SuccessStory, ProjectionGraphData, MonthlyCostsBreakdown } from '../../../../types/database';
 import { toast } from 'sonner';
 
 type BusinessFormData = Omit<Business, 'id' | 'created_at' | 'updated_at'> & {
-  // Champs additionnels pour le nouveau modèle économique
+  // Champs additionnels pour le modèle économique
   progressive_option_enabled?: boolean;
   entry_price_percentage?: number;
   monthly_payment_percentage?: number;
@@ -32,6 +42,7 @@ type BusinessFormData = Omit<Business, 'id' | 'created_at' | 'updated_at'> & {
   monthly_payment_duration?: number;
   standard_support_months?: number;
   progressive_support_months?: number;
+  seo_tags?: string; // Ajout de la propriété manquante
 };
 
 // Fonction utilitaire pour générer un slug à partir d'un nom
@@ -67,6 +78,7 @@ function BusinessForm() {
     pitch: '',
     description: '',
     images: [],
+    seo_tags: '',
     market_analysis: {
       size: '',
       growth: '',
@@ -114,7 +126,7 @@ function BusinessForm() {
       expenses: [0, 0, 0, 0, 0, 0],
       profit: [0, 0, 0, 0, 0, 0]
     },
-    // Valeurs par défaut pour le nouveau modèle économique
+    // Valeurs par défaut pour le modèle économique
     progressive_option_enabled: true,
     entry_price_percentage: 40,
     monthly_payment_percentage: 10,
@@ -152,6 +164,7 @@ function BusinessForm() {
           faqs: data.faqs || [],
           benefits: data.benefits || [],
           success_stories: data.success_stories || [],
+          seo_tags: data.seo_tags || '',
           monthly_costs_breakdown: data.monthly_costs_breakdown || {
             hosting: 15,
             marketing: 40,
@@ -471,7 +484,7 @@ function BusinessForm() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-[#ff7f50]" />
+        <Loader2 className="h-8 w-8 animate-spin text-tekki-orange" />
       </div>
     );
   }
@@ -496,7 +509,7 @@ function BusinessForm() {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold text-[#0f4c81]">
+          <h2 className="text-3xl font-bold text-tekki-blue">
             {isEditing ? 'Modifier le business' : 'Nouveau business'}
           </h2>
           <p className="text-gray-500">
@@ -523,9 +536,9 @@ function BusinessForm() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-6 mb-6">
           <TabsTrigger value="basic">Informations de base</TabsTrigger>
-          <TabsTrigger value="details">Détails produit</TabsTrigger>
+          <TabsTrigger value="details">Le marché et les produits</TabsTrigger>
           <TabsTrigger value="marketing">Marketing</TabsTrigger>
-          <TabsTrigger value="financial">Financier</TabsTrigger>
+          <TabsTrigger value="financial">Aspect financier</TabsTrigger>
           <TabsTrigger value="content">Contenu</TabsTrigger>
           <TabsTrigger value="advanced">Avancé</TabsTrigger>
         </TabsList>
@@ -541,7 +554,7 @@ function BusinessForm() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Nom*</Label>
+                    <Label htmlFor="name">Nom du business*</Label>
                     <Input
                       id="name"
                       name="name"
@@ -552,7 +565,7 @@ function BusinessForm() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="slug">Slug*</Label>
+                    <Label htmlFor="slug">Slug URL*</Label>
                     <Input
                       id="slug"
                       name="slug"
@@ -578,7 +591,7 @@ function BusinessForm() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="type">Type*</Label>
+                    <Label htmlFor="type">Type de business*</Label>
                     <Select
                       name="type"
                       value={formData.type}
@@ -588,8 +601,8 @@ function BusinessForm() {
                         <SelectValue placeholder="Sélectionnez un type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="physical">Physique</SelectItem>
-                        <SelectItem value="digital">Digital</SelectItem>
+                        <SelectItem value="physical">Physique (E-commerce)</SelectItem>
+                        <SelectItem value="digital">Digital (100% en ligne)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -597,7 +610,7 @@ function BusinessForm() {
 
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="price">Prix (FCFA)*</Label>
+                    <Label htmlFor="price">Prix du business (FCFA)*</Label>
                     <Input
                       id="price"
                       name="price"
@@ -609,19 +622,19 @@ function BusinessForm() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="original_price">Prix original (FCFA)*</Label>
+                    <Label htmlFor="original_price">Prix barré / original (FCFA)</Label>
                     <Input
                       id="original_price"
                       name="original_price"
                       type="number"
                       value={formData.original_price}
                       onChange={handleChange}
-                      required
                       placeholder="Ex: 650000"
                     />
+                    <p className="text-xs text-gray-500">Pour montrer une réduction (affichera un prix barré)</p>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="monthly_potential">Potentiel mensuel (FCFA)*</Label>
+                    <Label htmlFor="monthly_potential">Revenu mensuel possible (FCFA)*</Label>
                     <Input
                       id="monthly_potential"
                       name="monthly_potential"
@@ -635,7 +648,7 @@ function BusinessForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="pitch">Pitch (court descriptif)*</Label>
+                  <Label htmlFor="pitch">Résumé court (affiché sous le titre)*</Label>
                   <Textarea
                     id="pitch"
                     name="pitch"
@@ -647,7 +660,7 @@ function BusinessForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description détaillée*</Label>
+                  <Label htmlFor="description">À propos de ce business (description détaillée)*</Label>
                   <Textarea
                     id="description"
                     name="description"
@@ -728,7 +741,7 @@ function BusinessForm() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Public cible</CardTitle>
+                <CardTitle>Qui peut acheter ce business</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -763,7 +776,7 @@ function BusinessForm() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="time_required_weekly">Temps requis par semaine (heures)</Label>
+                    <Label htmlFor="time_required_weekly">Heures par semaine requises</Label>
                     <Input
                       id="time_required_weekly"
                       name="time_required_weekly"
@@ -778,11 +791,11 @@ function BusinessForm() {
             </Card>
           </TabsContent>
 
-          {/* Tab: Détails produit */}
+          {/* Tab: Le marché et les produits */}
           <TabsContent value="details" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Analyse du marché</CardTitle>
+                <CardTitle>Le marché et ses clients</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -797,7 +810,7 @@ function BusinessForm() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="market_growth">Croissance*</Label>
+                    <Label htmlFor="market_growth">Potentiel de croissance*</Label>
                     <Input
                       id="market_growth"
                       value={formData.market_analysis.growth}
@@ -809,7 +822,7 @@ function BusinessForm() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="market_competition">Concurrence*</Label>
+                    <Label htmlFor="market_competition">Concurrence locale*</Label>
                     <Input
                       id="market_competition"
                       value={formData.market_analysis.competition}
@@ -819,7 +832,7 @@ function BusinessForm() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="market_opportunity">Opportunité*</Label>
+                    <Label htmlFor="market_opportunity">Pourquoi ça marche*</Label>
                     <Input
                       id="market_opportunity"
                       value={formData.market_analysis.opportunity}
@@ -834,12 +847,12 @@ function BusinessForm() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Détails produits</CardTitle>
+                <CardTitle>Ce que vous vendez</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="product_type">Type de produits*</Label>
+                    <Label htmlFor="product_type">Type de produits/services*</Label>
                     <Input
                       id="product_type"
                       value={formData.product_details.type}
@@ -849,7 +862,7 @@ function BusinessForm() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="product_margin">Marge brute*</Label>
+                    <Label htmlFor="product_margin">Bénéfice sur les ventes*</Label>
                     <Input
                       id="product_margin"
                       value={formData.product_details.margin}
@@ -871,7 +884,7 @@ function BusinessForm() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="product_logistics">Logistique*</Label>
+                    <Label htmlFor="product_logistics">Livraison aux clients*</Label>
                     <Input
                       id="product_logistics"
                       value={formData.product_details.logistics}
@@ -886,7 +899,7 @@ function BusinessForm() {
             
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Images</CardTitle>
+                <CardTitle>Images du business</CardTitle>
                 <Button 
                   type="button" 
                   variant="outline" 
@@ -942,11 +955,11 @@ function BusinessForm() {
           <TabsContent value="marketing" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Stratégie marketing</CardTitle>
+                <CardTitle>Comment attirer des clients</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="marketing_channels">Canaux (séparés par des virgules)*</Label>
+                  <Label htmlFor="marketing_channels">Où trouver vos clients (séparés par des virgules)*</Label>
                   <Input
                     id="marketing_channels"
                     value={Array.isArray(formData.marketing_strategy.channels) 
@@ -965,7 +978,7 @@ function BusinessForm() {
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="marketing_target">Cible*</Label>
+                    <Label htmlFor="marketing_target">Qui sont vos clients*</Label>
                     <Input
                       id="marketing_target"
                       value={formData.marketing_strategy.targetAudience}
@@ -974,7 +987,7 @@ function BusinessForm() {
                       placeholder="Ex: Femmes 25-45 ans, urbaines"/>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="marketing_cac">Coût d'acquisition*</Label>
+                    <Label htmlFor="marketing_cac">Coût pour attirer un client*</Label>
                     <Input
                       id="marketing_cac"
                       value={formData.marketing_strategy.acquisitionCost}
@@ -984,7 +997,7 @@ function BusinessForm() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="marketing_conversion">Taux de conversion*</Label>
+                    <Label htmlFor="marketing_conversion">Taux de visiteurs convertis*</Label>
                     <Input
                       id="marketing_conversion"
                       value={formData.marketing_strategy.conversionRate}
@@ -999,7 +1012,7 @@ function BusinessForm() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Avantages clés</CardTitle>
+                <CardTitle>Pourquoi choisir ce business?</CardTitle>
                 <Button 
                   type="button" 
                   variant="outline" 
@@ -1137,16 +1150,16 @@ function BusinessForm() {
             </Card>
           </TabsContent>
 
-          {/* Tab: Financier */}
+          {/* Tab: Aspect financier */}
           <TabsContent value="financial" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Aspects financiers</CardTitle>
+                <CardTitle>Comment gagner de l'argent</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="financials_setup">Investissement initial*</Label>
+                    <Label htmlFor="financials_setup">Coût pour démarrer ce business*</Label>
                     <Input
                       id="financials_setup"
                       value={formData.financials.setupCost}
@@ -1156,7 +1169,7 @@ function BusinessForm() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="financials_monthly">Charges mensuelles*</Label>
+                    <Label htmlFor="financials_monthly">Dépenses mensuelles*</Label>
                     <Input
                       id="financials_monthly"
                       value={formData.financials.monthlyExpenses}
@@ -1168,7 +1181,7 @@ function BusinessForm() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="financials_breakeven">Point mort*</Label>
+                    <Label htmlFor="financials_breakeven">Temps estimé avant de récupérer votre investissement*</Label>
                     <Input
                       id="financials_breakeven"
                       value={formData.financials.breakevenPoint}
@@ -1178,7 +1191,7 @@ function BusinessForm() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="financials_roi">Retour sur investissement*</Label>
+                    <Label htmlFor="financials_roi">Temps estimé avant vos premiers bénéfices*</Label>
                     <Input
                       id="financials_roi"
                       value={formData.financials.roi}
@@ -1193,12 +1206,12 @@ function BusinessForm() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Délai de ROI estimé</CardTitle>
+                <CardTitle>Délai de récupération de l'investissement</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <Label htmlFor="roi_estimation_months">
-                    Délai de ROI estimé en mois (utilisé pour le calculateur de ROI)
+                    Délai estimé pour récupérer l'investissement (en mois)
                   </Label>
                   <Input
                     id="roi_estimation_months"
@@ -1216,11 +1229,11 @@ function BusinessForm() {
               </CardContent>
             </Card>
 
-            {/* Nouvelle section pour les options d'acquisition */}
+            {/* Options d'acquisition progressive */}
             <Card>
               <CardHeader>
-                <CardTitle>Options d'acquisition</CardTitle>
-                <CardDescription>Configuration du modèle d'acquisition progressive</CardDescription>
+                <CardTitle>Options d'achat</CardTitle>
+                <CardDescription>Configuration des options d'achat immédiat et progressif</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-2">
@@ -1231,13 +1244,13 @@ function BusinessForm() {
                       setFormData(prev => ({ ...prev, progressive_option_enabled: checked }))
                     }
                   />
-                  <Label htmlFor="progressive-enabled">Activer l'option d'acquisition progressive</Label>
+                  <Label htmlFor="progressive-enabled">Activer l'option d'achat progressif</Label>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4 mt-4">
                   <div className="space-y-2">
                     <Label htmlFor="entry_price_percentage">
-                      Pourcentage du prix pour l'apport initial (%)
+                      Apport initial (% du prix total)
                     </Label>
                     <Input
                       id="entry_price_percentage"
@@ -1255,7 +1268,7 @@ function BusinessForm() {
                   
                   <div className="space-y-2">
                     <Label htmlFor="monthly_payment_percentage">
-                      Pourcentage du prix pour les mensualités (%)
+                      Mensualités (% du prix total)
                     </Label>
                     <Input
                       id="monthly_payment_percentage"
@@ -1273,7 +1286,7 @@ function BusinessForm() {
                   
                   <div className="space-y-2">
                     <Label htmlFor="monthly_payment_fixed_amount">
-                      Montant fixe ajouté aux mensualités (FCFA)
+                      Frais fixes mensuels (FCFA)
                     </Label>
                     <Input
                       id="monthly_payment_fixed_amount"
@@ -1310,7 +1323,7 @@ function BusinessForm() {
                 <div className="grid grid-cols-2 gap-4 mt-2">
                   <div className="space-y-2">
                     <Label htmlFor="standard_support_months">
-                      Durée d'accompagnement pour l'option standard (mois)
+                      Mois d'accompagnement (option standard)
                     </Label>
                     <Input
                       id="standard_support_months"
@@ -1325,7 +1338,7 @@ function BusinessForm() {
                   
                   <div className="space-y-2">
                     <Label htmlFor="progressive_support_months">
-                      Durée d'accompagnement pour l'option progressive (mois)
+                      Mois d'accompagnement (option progressive)
                     </Label>
                     <Input
                       id="progressive_support_months"
@@ -1346,7 +1359,6 @@ function BusinessForm() {
                     <p><span className="font-medium">Apport initial:</span> {Math.round(formData.price * (formData.entry_price_percentage || 40) / 100).toLocaleString()} FCFA ({formData.entry_price_percentage || 40}%)</p>
                     <p><span className="font-medium">Mensualité:</span> {(Math.round(formData.price * (formData.monthly_payment_percentage || 10) / 100) + (formData.monthly_payment_fixed_amount || 1000)).toLocaleString()} FCFA pendant {formData.monthly_payment_duration || 6} mois</p>
                     <p><span className="font-medium">Total payé:</span> {(Math.round(formData.price * (formData.entry_price_percentage || 40) / 100) + (Math.round(formData.price * (formData.monthly_payment_percentage || 10) / 100) + (formData.monthly_payment_fixed_amount || 1000)) * (formData.monthly_payment_duration || 6)).toLocaleString()} FCFA</p>
-                    <p><span className="font-medium">Surcoût:</span> {((Math.round(formData.price * (formData.entry_price_percentage || 40) / 100) + (Math.round(formData.price * (formData.monthly_payment_percentage || 10) / 100) + (formData.monthly_payment_fixed_amount || 1000)) * (formData.monthly_payment_duration || 6)) - formData.price).toLocaleString()} FCFA</p>
                   </div>
                 </div>
               </CardContent>
@@ -1354,14 +1366,14 @@ function BusinessForm() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Répartition des coûts mensuels</CardTitle>
+                <CardTitle>Répartition des dépenses mensuelles</CardTitle>
                 <CardDescription>Pourcentage des différents postes de dépenses</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <Label htmlFor="cost_hosting">Hébergement et outils web (%)</Label>
+                      <Label htmlFor="cost_hosting">Site web et outils (%)</Label>
                       <span className="text-sm text-gray-500">{formData.monthly_costs_breakdown?.hosting || 15}%</span>
                     </div>
                     <Input
@@ -1376,7 +1388,7 @@ function BusinessForm() {
                   
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <Label htmlFor="cost_marketing">Marketing et publicité (%)</Label>
+                      <Label htmlFor="cost_marketing">Publicité (%)</Label>
                       <span className="text-sm text-gray-500">{formData.monthly_costs_breakdown?.marketing || 40}%</span>
                     </div>
                     <Input
@@ -1391,7 +1403,7 @@ function BusinessForm() {
                   
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <Label htmlFor="cost_stock">Stock de produits (%)</Label>
+                      <Label htmlFor="cost_stock">Achat de produits (%)</Label>
                       <span className="text-sm text-gray-500">{formData.monthly_costs_breakdown?.stock || 35}%</span>
                     </div>
                     <Input
@@ -1406,7 +1418,7 @@ function BusinessForm() {
                   
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <Label htmlFor="cost_other">Autres frais divers (%)</Label>
+                      <Label htmlFor="cost_other">Autres dépenses (%)</Label>
                       <span className="text-sm text-gray-500">{formData.monthly_costs_breakdown?.other || 10}%</span>
                     </div>
                     <Input
@@ -1431,19 +1443,19 @@ function BusinessForm() {
                   <div className="mt-2 flex flex-wrap gap-3 text-xs">
                     <div className="flex items-center gap-1">
                       <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                      <span>Hébergement</span>
+                      <span>Site web et outils</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                      <span>Marketing</span>
+                      <span>Publicité</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                      <span>Stock</span>
+                      <span>Achat de produits</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                      <span>Autres</span>
+                      <span>Autres dépenses</span>
                     </div>
                   </div>
                 </div>
@@ -1504,7 +1516,7 @@ function BusinessForm() {
                             ))}
                           </tr>
                           <tr>
-                            <td className="border px-4 py-2 font-medium bg-green-50">Profit (FCFA)</td>
+                            <td className="border px-4 py-2 font-medium bg-green-50">Bénéfices (FCFA)</td>
                             {formData.projection_graph_data.profit.map((value, index) => (
                               <td key={index} className="border px-4 py-2">
                                 <Input
@@ -1543,7 +1555,7 @@ function BusinessForm() {
                       }}
                       className="w-full"
                     >
-                      Calculer les profits automatiquement
+                      Calculer les bénéfices automatiquement
                     </Button>
                   </div>
                 )}
@@ -1555,7 +1567,7 @@ function BusinessForm() {
           <TabsContent value="content" className="space-y-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Ce qui est inclus</CardTitle>
+                <CardTitle>Ce que vous recevez</CardTitle>
                 <Button 
                   type="button" 
                   variant="outline" 
@@ -1600,7 +1612,7 @@ function BusinessForm() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Questions fréquentes</CardTitle>
+                <CardTitle>Questions courantes</CardTitle>
                 <Button 
                   type="button" 
                   variant="outline" 
@@ -1773,13 +1785,46 @@ function BusinessForm() {
 
             <Card>
               <CardHeader>
+                <CardTitle>Indexation et SEO</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 bg-blue-50 rounded-lg flex items-start gap-2">
+                  <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm text-blue-700 mb-2">
+                      Astuces pour optimiser la visibilité de ce business:
+                    </p>
+                    <ul className="text-sm text-blue-700 list-disc pl-5 space-y-1">
+                      <li>Incluez des mots-clés pertinents dans le titre et la description</li>
+                      <li>Utilisez des termes de recherche populaires dans votre catégorie</li>
+                      <li>Complétez tous les champs avec des informations précises</li>
+                      <li>Ajoutez des images de qualité avec des descriptions</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="seo_tags">Tags et mots-clés (séparés par des virgules)</Label>
+                  <Input
+                    id="seo_tags"
+                    name="seo_tags"
+                    value={formData.seo_tags || ''}
+                    onChange={handleChange}
+                    placeholder="Ex: business en ligne, e-commerce, dropshipping, Sénégal, Dakar, revenu passif"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
                 <CardTitle>Données JSON brutes</CardTitle>
                 <CardDescription>
                   Édition avancée des données au format JSON (pour les développeurs)
                 </CardDescription>
               </CardHeader>
               <CardContent>
-              <Accordion type="single" collapsible className="w-full">
+                <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="raw-json">
                     <AccordionTrigger>
                       Afficher/masquer JSON
@@ -1806,7 +1851,7 @@ function BusinessForm() {
               <div className="flex gap-4">
                 <Button
                   type="submit"
-                  className="bg-[#ff7f50] hover:bg-[#ff6b3d]"
+                  className="bg-tekki-orange hover:bg-tekki-orange/90"
                   disabled={saving}
                 >
                   {saving ? (
@@ -1833,11 +1878,11 @@ function BusinessForm() {
               
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 {isEditing ? 'Modification du business' : 'Création d\'un nouveau business'} - 
-                <span className="font-medium text-[#0f4c81]">
+                <span className="font-medium text-tekki-blue">
                   {activeTab === 'basic' ? 'Informations de base' : 
-                   activeTab === 'details' ? 'Détails produit' : 
+                   activeTab === 'details' ? 'Le marché et les produits' : 
                    activeTab === 'marketing' ? 'Marketing' :
-                   activeTab === 'financial' ? 'Financier' :
+                   activeTab === 'financial' ? 'Aspect financier' :
                    activeTab === 'content' ? 'Contenu' : 'Avancé'}
                 </span>
               </div>
