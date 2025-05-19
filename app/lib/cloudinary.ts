@@ -1,5 +1,7 @@
 // app/lib/cloudinary.ts
 
+'use server';
+
 import { v2 as cloudinary } from 'cloudinary';
 
 // Configuration de Cloudinary avec vos identifiants

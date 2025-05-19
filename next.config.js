@@ -19,27 +19,27 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   
-  // Configuration webpack
+  // Configuration webpack simplifiée
   webpack: (config, { isServer }) => {
-    // Ignorer les modules côté client qui ne sont pas compatibles avec le navigateur
+    // Ignorer les modules côté client
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
+        child_process: false,
+        path: false,
+        os: false,
+        crypto: false,
+        stream: false,
+        http: false,
+        https: false,
+        zlib: false,
         net: false,
         tls: false,
-        crypto: require.resolve('crypto-browserify'),
-        stream: require.resolve('stream-browserify'),
-        path: require.resolve('path-browserify'),
-        os: require.resolve('os-browserify/browser'),
-        http: require.resolve('stream-http'),
-        https: require.resolve('https-browserify'),
-        zlib: require.resolve('browserify-zlib'),
-        child_process: false,
       };
     }
     
-    // Ignorer complètement pdf-parse en le remplaçant par un module vide
+    // Ignorer complètement pdf-parse
     if (isServer) {
       config.resolve.alias['pdf-parse'] = false;
     }
@@ -49,16 +49,11 @@ const nextConfig = {
   
   // Désactiver la vérification ESLint pendant le build
   eslint: {
-    // Cela permet aux builds de production de se terminer avec succès même si
-    // votre projet contient des erreurs ESLint
     ignoreDuringBuilds: true,
   },
   
-  // Désactiver également la vérification de type TypeScript pendant le build
-  // pour contourner l'erreur du Badge variant
+  // Désactiver la vérification TypeScript pendant le build
   typescript: {
-    // Cela permet aux builds de production de se terminer avec succès même si
-    // votre projet contient des erreurs TypeScript
     ignoreBuildErrors: true,
   },
 };
