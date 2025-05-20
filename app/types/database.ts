@@ -305,3 +305,54 @@ export interface Payment {
   created_at: string;
   updated_at: string;
 }
+
+// Nouveaux types pour les offres d'emploi
+export interface JobOpening {
+  id: string;
+  title: string;
+  slug: string;
+  department: string;
+  location: string;
+  type: string; // Full-time, Part-time, Contract, Remote, etc.
+  description: string;
+  responsibilities: string[];
+  requirements: string[];
+  benefits: string[];
+  is_active: boolean;
+  is_featured: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface JobApplication {
+  id: string;
+  job_opening_id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  location: string;
+  resume_url?: string;
+  portfolio_url?: string;
+  linkedin_url?: string;
+  cover_letter?: string;
+  status: 'new' | 'reviewing' | 'interview' | 'hired' | 'rejected';
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  job_title?: string; // Champ virtuel pour les jointures
+}
+
+// Types pour les filtres et la recherche
+export interface JobOpeningFilters {
+  department?: string;
+  location?: string;
+  type?: string;
+  isActive?: boolean;
+  searchTerm?: string;
+}
+
+export interface JobApplicationFilters {
+  status?: string;
+  jobId?: string;
+  searchTerm?: string;
+}

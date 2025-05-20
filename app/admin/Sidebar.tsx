@@ -1,4 +1,4 @@
-// app/admin/Sidebar.tsx
+// app/admin/Sidebar.tsx 
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -25,7 +25,9 @@ import {
   Bot,
   BarChart2,
   Activity,
-  Globe
+  Globe,
+  Briefcase,
+  FileText
 } from 'lucide-react';
 import { useAuth } from '@/app/contexts/AuthContext';
 import Image from 'next/image';
@@ -108,6 +110,21 @@ export default function Sidebar() {
           name: 'Inscriptions', 
           href: '/admin/enrollments', 
           icon: <GraduationCap className="mr-3 h-5 w-5" /> 
+        }
+      ]
+    },
+    {
+      title: 'Carrières',
+      items: [
+        { 
+          name: 'Offres d\'emploi', 
+          href: '/admin/jobs', 
+          icon: <Briefcase className="mr-3 h-5 w-5" /> 
+        },
+        { 
+          name: 'Candidatures', 
+          href: '/admin/applications', 
+          icon: <FileText className="mr-3 h-5 w-5" /> 
         }
       ]
     },

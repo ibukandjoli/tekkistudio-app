@@ -1,4 +1,4 @@
-// app/components/layout/Footer.tsx
+// app/components/layout/Footer.tsx - Mise à jour pour inclure le lien vers la page Carrières
 'use client';
 
 import React, { useState } from 'react';
@@ -165,8 +165,13 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/expertise" className="text-gray-300 hover:text-[#ff7f50]">
-                  Notre expertise
+                <Link href="/formations" className="text-gray-300 hover:text-[#ff7f50]">
+                  Nos formations
+                </Link>
+              </li>
+              <li>
+                <Link href="/careers" className="text-gray-300 hover:text-[#ff7f50]">
+                  Carrières
                 </Link>
               </li>
               <li>
