@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, Linkedin, Twitter, Instagram, Mail, ExternalLink, ChevronDown, UserPlus, Briefcase, GraduationCap, Heart, MapPin, MessageSquare } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { FaWhatsapp } from 'react-icons/fa';
 
 const TeamPage = () => {
   // État pour suivre quel membre de l'équipe a sa bio développée
@@ -56,15 +57,15 @@ const TeamPage = () => {
       id: "ibuka",
       name: "Ibuka Ndjoli",
       role: "Fondateur & Directeur",
-      imageSrc: "/images/tekkistudio/team/ibuka.png",
+      imageSrc: "/images/tekkistudio/team/ibuka.webp",
       bio: "Expert en e-commerce et développement de marques avec plus de 10 ans d'expérience dans le marketing digital et la création de business innovants.",
       fullBio: "Passionné par l'entrepreneuriat depuis son plus jeune âge, Ibuka a fondé TEKKI Studio avec une vision claire : créer des marques qui résolvent de vrais problèmes pour les consommateurs africains. Avant de lancer TEKKI Studio, il a travaillé comme consultant en stratégie digitale pour plusieurs entreprises en Europe et en Afrique, où il a développé une expertise unique dans l'identification des opportunités de marché. Son approche combine créativité et rigueur analytique pour développer des business models innovants et durables.",
       location: "Dakar, Sénégal",
       expertise: ["Stratégie de marque", "E-commerce", "Business développement"],
       education: "Master en Digital Business, ESC Paris",
       social: {
-        linkedin: "https://linkedin.com/in/ibuka",
-        twitter: "https://twitter.com/ibuka"
+        linkedin: "https://linkedin.com/in/ibukandjoli",
+        twitter: "https://twitter.com/ibukandjoli"
       },
       featured: true
     },
@@ -72,7 +73,7 @@ const TeamPage = () => {
       id: "sara",
       name: "Sara Eanga",
       role: "Customer Success Manager",
-      imageSrc: "/images/tekkistudio/team/sara.png",
+      imageSrc: "/images/tekkistudio/team/sara.webp",
       bio: "Spécialiste de la Relation Client, avec 3 ans d'expérience en closing et vente en ligne, passionnée par la Psychologie et la Création de produits.",
       fullBio: "Sara est le pilier de l'expérience client chez TEKKI Studio. Avec un background en psychologie et une expérience significative dans le service client, elle comprend parfaitement les besoins et les attentes des clients. Sa capacité à construire des relations de confiance et à transformer les feedbacks en améliorations concrètes est essentielle à notre succès. Sara accompagne les entrepreneurs dans leur parcours d'acquisition et d'exploitation des business clé en main, en veillant à ce que chaque étape soit fluide et enrichissante.",
       location: "Dakar, Sénégal",
@@ -88,7 +89,7 @@ const TeamPage = () => {
       id: "jeremie",
       name: "Jeremie Branham",
       role: "Developpeur Frontend",
-      imageSrc: "/images/tekkistudio/team/jeremie.png",
+      imageSrc: "/images/tekkistudio/team/jeremie.webp",
       bio: "Développeur fullstack avec 3 ans d'expérience en développement de sites et applications web, passionné par la programmation et l'IA.",
       fullBio: "Jérémie est le magicien technique derrière notre plateforme. Développeur autodidacte passionné par les technologies modernes, il a rejoint TEKKI Studio dès ses débuts pour construire une infrastructure digitale robuste et évolutive. Sa maîtrise de React, Next.js et des technologies frontend modernes nous permet d'offrir une expérience utilisateur exceptionnelle. Jérémie est constamment à l'affût des nouvelles tendances technologiques pour améliorer notre plateforme et intégrer des fonctionnalités innovantes.",
       location: "Abidjan, Côte d'Ivoire",
@@ -96,7 +97,7 @@ const TeamPage = () => {
       education: "Formation Développeur Web Fullstack, OpenClassrooms",
       social: {
         linkedin: "https://linkedin.com/in/jeremie-branham",
-        github: "https://github.com/jeremie"
+        github: "https://github.com/jeremie.branham"
       },
       featured: true
     },
@@ -104,7 +105,7 @@ const TeamPage = () => {
       id: "binta",
       name: "Binta Sonko",
       role: "Content Strategist",
-      imageSrc: "/images/tekkistudio/team/binta.png",
+      imageSrc: "/images/tekkistudio/team/binta.webp",
       bio: "Créatrice de contenu expérimentée avec une expertise particulière dans le storytelling de marque et le marketing de contenu pour les marchés africains.",
       fullBio: "Binta est la voix captivante derrière notre contenu et nos récits de marque. Avec un background en journalisme et communication, elle excelle dans l'art de créer des narratifs authentiques qui résonnent avec notre audience. Sa connaissance approfondie des cultures et tendances locales lui permet de développer des stratégies de contenu qui captivent et engagent. Chez TEKKI Studio, Binta supervise la création de tous les contenus marketing, des descriptions de produits aux articles de blog, en veillant à maintenir une voix cohérente à travers toutes nos communications.",
       location: "Dakar, Sénégal",
@@ -120,7 +121,7 @@ const TeamPage = () => {
       id: "moise",
       name: "Moïse Junior",
       role: "Community Manager",
-      imageSrc: "/images/tekkistudio/team/moise.png",
+      imageSrc: "/images/tekkistudio/team/moise.webp",
       bio: "Expert en gestion de communauté et stratégie social media, avec une passion pour la création de contenu viral et l'engagement client.",
       fullBio: "Moïse est notre maestro des médias sociaux, créant des connexions significatives entre nos marques et nos communautés. Son approche créative et sa compréhension profonde des plateformes sociales nous permettent de maintenir une présence digitale dynamique et engageante. Moïse est particulièrement doué pour anticiper les tendances et adapter notre stratégie social media en conséquence. Il travaille en étroite collaboration avec l'équipe marketing pour s'assurer que notre message est cohérent à travers tous les canaux et qu'il atteint efficacement notre audience cible.",
       location: "Abidjan, Côte d'Ivoire",
@@ -136,7 +137,7 @@ const TeamPage = () => {
       id: "rose",
       name: "Rose Sharonn",
       role: "Brand Manager",
-      imageSrc: "/images/tekkistudio/team/rose.png",
+      imageSrc: "/images/tekkistudio/team/rose.webp",
       bio: "Stratège en branding avec un œil aiguisé pour le design et une profonde compréhension du parcours client et de l'expérience utilisateur.",
       fullBio: "Rose est la gardienne de nos identités de marque. Avec son background en design et marketing, elle veille à ce que chaque marque développée par TEKKI Studio ait une identité visuelle cohérente et impactante. Sa compréhension intuitive des tendances du design et sa capacité à traduire les valeurs d'une marque en éléments visuels reconnaissables sont inestimables. Rose supervise également le processus de naming et de positionnement pour chaque nouvelle marque, en s'assurant qu'elle se démarque sur le marché tout en restant fidèle à sa mission fondamentale.",
       location: "Dakar, Sénégal",
@@ -157,21 +158,21 @@ const TeamPage = () => {
   // Section "Nous rejoindre"
   const openPositions = [
     {
-      title: "Product Manager",
-      department: "Produit",
+      title: "Responsable Relation Client",
+      department: "Service Client",
+      location: "Full Remote",
+      type: "Temps plein"
+    },
+    {
+      title: "Content Strategist",
+      department: "Marketing",
       location: "Dakar, Sénégal",
       type: "Temps plein"
     },
     {
-      title: "Growth Marketer",
-      department: "Marketing",
-      location: "Abidjan, Côte d'Ivoire",
-      type: "Temps plein"
-    },
-    {
-      title: "UI/UX Designer",
-      department: "Design",
-      location: "Remote",
+      title: "Développeur Frontend",
+      department: "Développement",
+      location: "Full Remote",
       type: "Freelance"
     }
   ];
@@ -355,7 +356,7 @@ const TeamPage = () => {
             ))}
           </div>
 
-          {/* Reste de l'équipe */}
+          {/* Reste de l'équipe 
           <h3 className="text-2xl font-bold text-tekki-blue text-center mb-12">
             Notre Équipe
           </h3>
@@ -388,7 +389,7 @@ const TeamPage = () => {
                       {member.location}
                     </div>
                     
-                    {/* Spécialités */}
+                    {/* Spécialités 
                     <div className="flex flex-wrap gap-2 mb-4">
                       {member.expertise.map((skill, idx) => (
                         <span 
@@ -416,7 +417,7 @@ const TeamPage = () => {
                       />
                     </button>
                     
-                    {/* Réseaux sociaux */}
+                    {/* Réseaux sociaux 
                     <div className="flex gap-2">
                       {member.social.linkedin && (
                         <a 
@@ -478,6 +479,7 @@ const TeamPage = () => {
               </div>
             ))}
           </div>
+          */}
         </div>
       </section>
 
@@ -552,7 +554,7 @@ const TeamPage = () => {
             </div>
             <div className="relative h-[400px] rounded-xl overflow-hidden shadow-lg">
               <Image 
-                src="/images/tekkistudio/office-team.jpg" 
+                src="/images/tekkistudio/team/team.webp" 
                 alt="L'équipe TEKKI Studio dans ses locaux" 
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -687,11 +689,11 @@ const TeamPage = () => {
               <Briefcase className="ml-2 h-5 w-5" />
             </Link>
             <Link 
-              href="/contact" 
+              href="https://wa.me/221781362728" 
               className="bg-white/10 border border-white/20 text-white hover:bg-white/20 px-8 py-4 rounded-lg font-bold text-lg transition-all flex items-center justify-center"
             >
               Nous contacter
-              <Mail className="ml-2 h-5 w-5" />
+              <FaWhatsapp className="ml-2 h-5 w-5" />
             </Link>
           </div>
         </div>
