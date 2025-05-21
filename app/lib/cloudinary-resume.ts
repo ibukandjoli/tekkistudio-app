@@ -55,12 +55,12 @@ export const uploadResumeToCloudinary = async (file: File, folder: string = 'tek
     formData.append('public_id', filename.replace(/\.[^.]+$/, '')); // Enlever l'extension
     formData.append('resource_type', 'auto'); // Permet de détecter automatiquement le type de ressource
     
-    // Ajouter des options spécifiques pour les PDFs
+    // Pour les PDFs, n'ajoutez PAS les paramètres access_mode ou public_id_prefix
+    // qui provoquent des erreurs avec les presets non signés
     if (file.type === 'application/pdf') {
-      // Ne pas forcer le téléchargement par défaut
-      // formData.append('flags', 'attachment'); // Supprimé pour permettre la visualisation
+      // Ajouter uniquement des tags et le type de livraison
+      formData.append('tags', 'resume,pdf');
       formData.append('delivery_type', 'upload');
-      formData.append('access_mode', 'public'); // S'assure que le PDF est accessible publiquement
     }
     
     // Utiliser la variable d'environnement ou une valeur par défaut (pour les tests)
@@ -87,7 +87,13 @@ export const uploadResumeToCloudinary = async (file: File, folder: string = 'tek
     const result = await response.json();
     console.log("Réponse de Cloudinary:", result);
     
-    // Renvoyer l'URL sans modifier
+    // Pour les PDFs, s'assurer que l'URL est correcte pour le téléchargement si nécessaire
+    if (file.type === 'application/pdf' && result.secure_url) {
+      // Nous n'utilisons plus l'ajout de paramètre fl_attachment dans l'URL
+      // car cela peut causer des problèmes avec certains presets
+      return result.secure_url;
+    }
+    
     return result.secure_url;
   } catch (error) {
     console.error('Erreur lors de l\'upload vers Cloudinary:', error);
