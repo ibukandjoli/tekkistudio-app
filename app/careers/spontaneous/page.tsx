@@ -21,6 +21,9 @@ import {
 import { createJobApplication } from '@/app/lib/db/jobs';
 import { uploadResume } from '@/app/lib/cloudinary-resume';
 
+// Constante UUID pour les candidatures spontanées
+const SPONTANEOUS_JOB_ID = '00000000-0000-0000-0000-000000000000'; // UUID format standard
+
 const SpontaneousApplicationPage = () => {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -125,7 +128,7 @@ const SpontaneousApplicationPage = () => {
         throw new Error('Veuillez entrer une adresse email valide');
       }
       
-      // Upload du CV - CORRECTION ICI
+      // Upload du CV
       console.log("Début de l'upload du CV...");
       const resumeUrl = await uploadResume(resumeFile);
       console.log("CV uploadé avec succès:", resumeUrl);
@@ -134,17 +137,14 @@ const SpontaneousApplicationPage = () => {
         throw new Error("L'upload du CV a échoué. URL non reçue.");
       }
       
-      // Pour une candidature spontanée, nous utilisons un ID spécial
-      const spontaneousJobId = 'spontaneous';
-      
       // Préparation des données pour l'enregistrement
       const applicationData = {
-        job_opening_id: spontaneousJobId,
+        job_opening_id: SPONTANEOUS_JOB_ID, // Utilisation de l'UUID valide
         full_name: formData.full_name,
         email: formData.email,
         phone: formData.phone,
         location: formData.location,
-        resume_url: resumeUrl, // Maintenant nous sommes sûrs que resumeUrl n'est pas null
+        resume_url: resumeUrl,
         portfolio_url: formData.portfolio_url || undefined,
         linkedin_url: formData.linkedin_url || undefined,
         cover_letter: formData.cover_letter,
