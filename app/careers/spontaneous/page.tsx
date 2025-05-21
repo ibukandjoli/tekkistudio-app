@@ -125,28 +125,13 @@ const SpontaneousApplicationPage = () => {
         throw new Error('Veuillez entrer une adresse email valide');
       }
       
-      // Upload du CV avec gestion d'erreur améliorée
+      // Upload du CV - CORRECTION ICI
       console.log("Début de l'upload du CV...");
-      let resumeUrl = null;
+      const resumeUrl = await uploadResume(resumeFile);
+      console.log("CV uploadé avec succès:", resumeUrl);
       
-      try {
-        // Utiliser la méthode qui fonctionne sur l'autre page
-        resumeUrl = await uploadResume(resumeFile);
-        console.log("CV uploadé avec succès:", resumeUrl);
-        
-        if (!resumeUrl) {
-          throw new Error("L'upload du CV a échoué. URL non reçue.");
-        }
-      } catch (uploadError: any) {
-        console.error("Erreur d'upload du CV:", uploadError);
-        
-        // En dev, continuer avec une URL simulée
-        if (process.env.NODE_ENV === 'development') {
-          resumeUrl = `https://res.cloudinary.com/dmy2jt7wo/image/upload/tekki-studio/careers/resumes/${Date.now()}_${resumeFile.name.replace(/\s+/g, '_')}`;
-          console.warn("Mode développement: utilisation d'une URL fictive:", resumeUrl);
-        } else {
-          throw new Error(uploadError.message || "Impossible d'uploader votre CV. Veuillez réessayer.");
-        }
+      if (!resumeUrl) {
+        throw new Error("L'upload du CV a échoué. URL non reçue.");
       }
       
       // Pour une candidature spontanée, nous utilisons un ID spécial
@@ -159,7 +144,7 @@ const SpontaneousApplicationPage = () => {
         email: formData.email,
         phone: formData.phone,
         location: formData.location,
-        resume_url: resumeUrl,
+        resume_url: resumeUrl, // Maintenant nous sommes sûrs que resumeUrl n'est pas null
         portfolio_url: formData.portfolio_url || undefined,
         linkedin_url: formData.linkedin_url || undefined,
         cover_letter: formData.cover_letter,
