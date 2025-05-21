@@ -1,4 +1,4 @@
-// Correction pour app/careers/page.tsx
+// app/careers/page.tsx
 
 'use client';
 
@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { getJobOpenings } from '@/app/lib/db/jobs';
 import type { JobOpening, JobOpeningFilters } from '@/app/types/database';
-import Container from '@/app/components/ui/Container';
 import JobOpeningCard from '@/app/components/careers/JobOpeningCard';
 import { Badge } from '@/app/components/ui/badge';
 
@@ -165,7 +164,7 @@ const CareersPage = () => {
     <main className="pb-20">
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-tekki-blue to-tekki-coral py-16 pt-32 text-white">
-        <Container>
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Rejoignez l'équipe TEKKI Studio
@@ -186,16 +185,16 @@ const CareersPage = () => {
               />
             </div>
           </div>
-        </Container>
+        </div>
       </section>
       
       {/* Section de contenu principal */}
       <section className="py-12">
-        <Container>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8">
             {/* Sidebar de filtres */}
             <div className="lg:col-span-1">
-              <div className="bg-white shadow-sm rounded-xl p-6 border border-gray-200 sticky top-24">
+              <div className="bg-white shadow-sm rounded-xl p-4 sm:p-6 border border-gray-200 sticky top-24">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="font-bold text-tekki-blue text-lg">Filtres</h2>
                   {countActiveFilters() > 0 && (
@@ -346,12 +345,12 @@ const CareersPage = () => {
               )}
             </div>
           </div>
-        </Container>
+        </div>
       </section>
       
       {/* Call to Action */}
       <section className="py-12 bg-gray-50 border-t border-gray-200">
-        <Container>
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-tekki-blue mb-4">
               Vous ne trouvez pas le poste idéal ?
@@ -366,7 +365,7 @@ const CareersPage = () => {
               Candidature spontanée
             </Link>
           </div>
-        </Container>
+        </div>
       </section>
     </main>
   );

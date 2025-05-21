@@ -18,15 +18,15 @@ const AboutPage = () => {
     },
     {
       name: "Sara Eanga",
-      role: "Directrice des Opérations",
+      role: "Customer Success Manager",
       imageSrc: "/images/tekkistudio/team/sara.png",
-      bio: "Spécialiste en gestion de supply chain et opérations e-commerce, assurant l'excellence opérationnelle de chaque marque lancée."
+      bio: "Spécialiste de la Relation Client, avec 3 ans d'expérience en closing et vente en ligne, passionnée par la Psychologie et la Création de produits."
     },
     {
       name: "Jeremie Branham",
-      role: "Developpeur E-commerce",
+      role: "Developpeur Frontend",
       imageSrc: "/images/tekkistudio/team/jeremie.png",
-      bio: "Développeur fullstack avec 3 ans d'expérience en développement de sites et applications web, passionné par l'UX et l'E-commerce. "
+      bio: "Développeur fullstack avec 3 ans d'expérience en développement de sites et applications web, passionné par la programmation et l'IA. "
     }
   ];
 
@@ -35,7 +35,7 @@ const AboutPage = () => {
     { year: "2023", title: "Lancement de la 1ère marque", description: "Création et lancement réussi de notre première marque : VIENS ON S'CONNAÎT." },
     { year: "2024", title: "Expansion du portfolio", description: "Développement et premier tests du produit phare de de notre 2e marque : AMANI." },
     { year: "2024", title: "Lancement des business clé en main", description: "Début de notre offre de business e-commerce prêts à l'emploi pour les entrepreneurs." },
-    { year: "2025", title: "Développement continu", description: "Expansion de notre portfolio de marques, avec ECOBOOM, et renforcement de notre position sur le marché ouest-africain." }
+    { year: "2025", title: "Développement continu", description: "Expansion de notre portfolio de marques, et lancement de notre offre de business 100% digitaux. " }
   ];
 
   return (

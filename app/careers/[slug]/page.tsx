@@ -1,4 +1,4 @@
-// Correction pour app/careers/[slug]/page.tsx
+// app/careers/[slug]/page.tsx
 
 'use client';
 
@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 import { getJobOpeningBySlug } from '@/app/lib/db/jobs';
 import type { JobOpening } from '@/app/types/database';
-import Container from '@/app/components/ui/Container';
 import { Badge } from '@/app/components/ui/badge';
 import JobApplicationForm from '@/app/components/careers/JobApplicationForm';
 import { formatRelativeDate } from '@/app/lib/utils/date-utils';
@@ -127,7 +126,7 @@ const JobOpeningDetail = () => {
   if (error || !job) {
     return (
       <main className="pb-20 pt-32">
-        <Container>
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
             <div className="flex items-start">
               <AlertCircle className="h-6 w-6 text-red-500 mr-3 mt-0.5" />
@@ -146,7 +145,7 @@ const JobOpeningDetail = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour aux offres d'emploi
           </Link>
-        </Container>
+        </div>
       </main>
     );
   }
@@ -154,7 +153,7 @@ const JobOpeningDetail = () => {
   if (!job.is_active) {
     return (
       <main className="pb-20 pt-32">
-        <Container>
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
             <div className="flex items-start">
               <AlertCircle className="h-6 w-6 text-amber-500 mr-3 mt-0.5" />
@@ -173,7 +172,7 @@ const JobOpeningDetail = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voir les offres d'emploi disponibles
           </Link>
-        </Container>
+        </div>
       </main>
     );
   }
@@ -182,19 +181,19 @@ const JobOpeningDetail = () => {
     <main className="pb-20">
       {/* Hero section minimaliste pour garantir la visibilité des éléments du header */}
       <div className="bg-gradient-to-r from-tekki-blue to-tekki-coral py-12 pt-28 text-white">
-        <Container>
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="flex items-center">
             <Link href="/careers" className="inline-flex items-center text-white hover:text-white/80 transition-colors">
               <ArrowLeft className="h-5 w-5 mr-2" />
               Retour aux offres d'emploi
             </Link>
           </div>
-        </Container>
+        </div>
       </div>
       
       {/* En-tête du poste */}
       <section className="py-10 bg-white">
-        <Container>
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="max-w-4xl">
             <div className="mb-6 flex flex-wrap gap-2">
               <Badge variant="jobActive">Ouvert</Badge>
@@ -256,17 +255,17 @@ const JobOpeningDetail = () => {
               </button>
             </div>
           </div>
-        </Container>
+        </div>
       </section>
       
       {/* Contenu principal */}
       <section className="py-10 bg-gray-50">
-        <Container>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
             {/* Description et détails */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-8">
               {/* Description */}
-              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+              <div className="bg-white p-4 sm:p-8 rounded-xl shadow-sm border border-gray-200">
                 <h2 className="text-2xl font-bold text-tekki-blue mb-6">
                   À propos du poste
                 </h2>
@@ -276,7 +275,7 @@ const JobOpeningDetail = () => {
               </div>
               
               {/* Responsabilités */}
-              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+              <div className="bg-white p-4 sm:p-8 rounded-xl shadow-sm border border-gray-200">
                 <h2 className="text-2xl font-bold text-tekki-blue mb-6">
                   Responsabilités
                 </h2>
@@ -291,7 +290,7 @@ const JobOpeningDetail = () => {
               </div>
               
               {/* Exigences */}
-              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+              <div className="bg-white p-4 sm:p-8 rounded-xl shadow-sm border border-gray-200">
                 <h2 className="text-2xl font-bold text-tekki-blue mb-6">
                   Compétences et qualifications
                 </h2>
@@ -307,7 +306,7 @@ const JobOpeningDetail = () => {
               
               {/* Avantages */}
               {job.benefits && job.benefits.length > 0 && (
-                <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                <div className="bg-white p-4 sm:p-8 rounded-xl shadow-sm border border-gray-200">
                   <h2 className="text-2xl font-bold text-tekki-blue mb-6">
                     Ce que nous offrons
                   </h2>
@@ -325,14 +324,14 @@ const JobOpeningDetail = () => {
               {/* Formulaire de candidature */}
               <div id="application-form" className="scroll-mt-16">
                 {showApplicationForm ? (
-                  <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                  <div className="bg-white p-4 sm:p-8 rounded-xl shadow-sm border border-gray-200">
                     <h2 className="text-2xl font-bold text-tekki-blue mb-6">
                       Postuler à {job.title}
                     </h2>
                     <JobApplicationForm job={job} />
                   </div>
                 ) : (
-                  <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
+                  <div className="bg-white p-4 sm:p-8 rounded-xl shadow-sm border border-gray-200 text-center">
                     <h2 className="text-2xl font-bold text-tekki-blue mb-4">
                       Intéressé(e) par ce poste ?
                     </h2>
@@ -351,9 +350,9 @@ const JobOpeningDetail = () => {
             </div>
             
             {/* Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* À propos de l'entreprise */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
                 <h3 className="text-xl font-bold text-tekki-blue mb-4">
                   À propos de TEKKI Studio
                 </h3>
@@ -370,7 +369,7 @@ const JobOpeningDetail = () => {
               </div>
               
               {/* Infos du poste */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
                 <h3 className="text-xl font-bold text-tekki-blue mb-4">
                   Infos du poste
                 </h3>
@@ -410,7 +409,7 @@ const JobOpeningDetail = () => {
               </div>
               
               {/* Call-to-action */}
-              <div className="bg-gradient-to-r from-tekki-blue to-tekki-coral p-6 rounded-xl shadow-sm text-white">
+              <div className="bg-gradient-to-r from-tekki-blue to-tekki-coral p-4 sm:p-6 rounded-xl shadow-sm text-white">
                 <h3 className="text-xl font-bold mb-4">
                   Rejoignez notre équipe
                 </h3>
@@ -426,7 +425,7 @@ const JobOpeningDetail = () => {
               </div>
               
               {/* Partager */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
                 <h3 className="text-xl font-bold text-tekki-blue mb-4">
                   Partager cette offre
                 </h3>
@@ -459,7 +458,7 @@ const JobOpeningDetail = () => {
               </div>
             </div>
           </div>
-        </Container>
+        </div>
       </section>
     </main>
   );

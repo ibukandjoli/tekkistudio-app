@@ -579,15 +579,13 @@ function ApplicationsAdminPage() {
                         </DropdownMenuItem>
                         {application.resume_url && (
                           <DropdownMenuItem asChild>
-                            <a
-                              href={application.resume_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                            <Link
+                              href={`/admin/resumes/${application.id}`}
                               className="flex items-center"
                             >
                               <FileText className="h-4 w-4 mr-2" />
                               <span>Voir le CV</span>
-                            </a>
+                            </Link>
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuItem

@@ -536,15 +536,13 @@ interface ExtendedJobApplication extends JobApplication {
                 <CardTitle>Curriculum Vitae</CardTitle>
               </CardHeader>
               <CardContent>
-                <a
-                  href={application.resume_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href={`/admin/resumes/${application.id}`}
                   className="bg-tekki-blue hover:bg-tekki-blue/90 text-white px-4 py-3 rounded-lg flex items-center justify-center"
                 >
                   <FileText className="h-5 w-5 mr-2" />
                   Voir le CV
-                </a>
+                </Link>
               </CardContent>
             </Card>
           )}

@@ -55,8 +55,16 @@ export const uploadResumeToCloudinary = async (file: File, folder: string = 'tek
     formData.append('public_id', filename.replace(/\.[^.]+$/, '')); // Enlever l'extension
     formData.append('resource_type', 'auto'); // Permet de détecter automatiquement le type de ressource
     
+    // Ajouter des options spécifiques pour les PDFs
+    if (file.type === 'application/pdf') {
+      // Ne pas forcer le téléchargement par défaut
+      // formData.append('flags', 'attachment'); // Supprimé pour permettre la visualisation
+      formData.append('delivery_type', 'upload');
+      formData.append('access_mode', 'public'); // S'assure que le PDF est accessible publiquement
+    }
+    
     // Utiliser la variable d'environnement ou une valeur par défaut (pour les tests)
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'tekki-studio';
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dmy2jt7wo';
     
     if (!cloudName) {
       console.error("NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME n'est pas défini dans les variables d'environnement");
@@ -78,6 +86,8 @@ export const uploadResumeToCloudinary = async (file: File, folder: string = 'tek
     
     const result = await response.json();
     console.log("Réponse de Cloudinary:", result);
+    
+    // Renvoyer l'URL sans modifier
     return result.secure_url;
   } catch (error) {
     console.error('Erreur lors de l\'upload vers Cloudinary:', error);
@@ -105,7 +115,7 @@ export const uploadResume = async (file: File | null): Promise<string | null> =>
     if (process.env.NODE_ENV === 'development') {
       console.warn('Mode développement: simulation d\'un upload réussi');
       // Créer une URL fictive pour les tests
-      const mockUrl = `https://res.cloudinary.com/demo/image/upload/tekki-studio/careers/resumes/${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+      const mockUrl = `https://res.cloudinary.com/dmy2jt7wo/image/upload/tekki-studio/careers/resumes/${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
       return mockUrl;
     }
     
