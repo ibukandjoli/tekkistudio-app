@@ -18,7 +18,6 @@ import {
   Loader2,
   AlertCircle
 } from 'lucide-react';
-import Container from '@/app/components/ui/Container';
 import { createJobApplication } from '@/app/lib/db/jobs';
 import { uploadResume } from '@/app/lib/cloudinary-resume';
 
@@ -126,13 +125,31 @@ const SpontaneousApplicationPage = () => {
         throw new Error('Veuillez entrer une adresse email valide');
       }
       
-      // Upload du CV
+      // Upload du CV avec gestion d'erreur améliorée
       console.log("Début de l'upload du CV...");
-      const resumeUrl = await uploadResume(resumeFile);
-      console.log("CV uploadé:", resumeUrl);
+      let resumeUrl = null;
       
-      // Pour une candidature spontanée, nous utilisons un ID spécial (à configurer côté serveur)
-      // La table côté serveur devrait avoir une entrée pour les candidatures spontanées
+      try {
+        // Utiliser la méthode qui fonctionne sur l'autre page
+        resumeUrl = await uploadResume(resumeFile);
+        console.log("CV uploadé avec succès:", resumeUrl);
+        
+        if (!resumeUrl) {
+          throw new Error("L'upload du CV a échoué. URL non reçue.");
+        }
+      } catch (uploadError: any) {
+        console.error("Erreur d'upload du CV:", uploadError);
+        
+        // En dev, continuer avec une URL simulée
+        if (process.env.NODE_ENV === 'development') {
+          resumeUrl = `https://res.cloudinary.com/dmy2jt7wo/image/upload/tekki-studio/careers/resumes/${Date.now()}_${resumeFile.name.replace(/\s+/g, '_')}`;
+          console.warn("Mode développement: utilisation d'une URL fictive:", resumeUrl);
+        } else {
+          throw new Error(uploadError.message || "Impossible d'uploader votre CV. Veuillez réessayer.");
+        }
+      }
+      
+      // Pour une candidature spontanée, nous utilisons un ID spécial
       const spontaneousJobId = 'spontaneous';
       
       // Préparation des données pour l'enregistrement
@@ -142,7 +159,7 @@ const SpontaneousApplicationPage = () => {
         email: formData.email,
         phone: formData.phone,
         location: formData.location,
-        resume_url: resumeUrl || undefined,
+        resume_url: resumeUrl,
         portfolio_url: formData.portfolio_url || undefined,
         linkedin_url: formData.linkedin_url || undefined,
         cover_letter: formData.cover_letter,
@@ -174,7 +191,7 @@ const SpontaneousApplicationPage = () => {
   if (success) {
     return (
       <main className="pb-20 pt-32">
-        <Container>
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="max-w-3xl mx-auto">
             <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center">
               <div className="flex justify-center mb-4">
@@ -198,7 +215,7 @@ const SpontaneousApplicationPage = () => {
               </div>
             </div>
           </div>
-        </Container>
+        </div>
       </main>
     );
   }
@@ -207,19 +224,19 @@ const SpontaneousApplicationPage = () => {
     <main className="pb-20">
       {/* Hero section minimaliste pour garantir la visibilité des éléments du header */}
       <div className="bg-gradient-to-r from-tekki-blue to-tekki-coral py-12 pt-28 text-white">
-        <Container>
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="flex items-center">
             <Link href="/careers" className="inline-flex items-center text-white hover:text-white/80 transition-colors">
               <ArrowLeft className="h-5 w-5 mr-2" />
               Retour aux offres d'emploi
             </Link>
           </div>
-        </Container>
+        </div>
       </div>
       
       {/* En-tête de la page */}
       <section className="py-10 bg-white">
-        <Container>
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-3xl md:text-4xl font-bold text-tekki-blue mb-4">
               Candidature spontanée
@@ -228,14 +245,14 @@ const SpontaneousApplicationPage = () => {
               Vous souhaitez rejoindre l'équipe TEKKI Studio mais vous n'avez pas trouvé le poste qui vous convient ? Faites-nous part de votre intérêt !
             </p>
           </div>
-        </Container>
+        </div>
       </section>
       
       {/* Formulaire de candidature */}
       <section className="py-10 bg-gray-50">
-        <Container>
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="max-w-3xl mx-auto">
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+            <div className="bg-white p-4 sm:p-8 rounded-xl shadow-sm border border-gray-200">
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start mb-6">
                   <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 mr-2 flex-shrink-0" />
@@ -453,7 +470,7 @@ const SpontaneousApplicationPage = () => {
               </form>
             </div>
           </div>
-        </Container>
+        </div>
       </section>
     </main>
   );
