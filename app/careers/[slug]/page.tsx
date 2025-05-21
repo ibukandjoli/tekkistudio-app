@@ -357,7 +357,14 @@ const JobOpeningDetail = () => {
                   À propos de TEKKI Studio
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  TEKKI Studio est une "fabrique de business en ligne clé en main". Notre mission est de permettre à toute personne souhaitant se lancer dans les business en ligne de le faire sans partir de zéro, grâce à des business déjà prêts, testés, documentés et disponibles à l'achat immédiat.
+                TEKKI Studio est une fabrique de business en ligne clé en main.
+
+                Nous créons et mettons en vente des business e-commerce et digitaux prêts à lancer, pour permettre aux entrepreneurs de démarrer sans partir de zéro.
+
+                Mais nous ne nous arrêtons pas là :
+                Nous développons également nos propres marques de produits, conçues pour répondre à des besoins spécifiques en Afrique.
+
+                Notre mission : rendre l’entrepreneuriat en ligne plus simple, plus rapide et plus accessible, tout en bâtissant des marques utiles, durables et rentables.
                 </p>
                 <Link
                   href="/"

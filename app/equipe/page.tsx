@@ -158,7 +158,7 @@ const TeamPage = () => {
   // Section "Nous rejoindre"
   const openPositions = [
     {
-      title: "Responsable Relation Client",
+      title: "Chargé(e) Relation Client",
       department: "Service Client",
       location: "Full Remote",
       type: "Temps plein"
