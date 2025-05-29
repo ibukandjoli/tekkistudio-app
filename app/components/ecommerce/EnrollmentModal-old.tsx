@@ -11,7 +11,7 @@ import {
 } from "@/app/components/ui/dialog";
 import { toast } from 'sonner';
 import { supabase } from '@/app/lib/supabase';
-import { Check, AlertCircle, Loader2, Info, Gift, Clock } from 'lucide-react';
+import { Check, AlertCircle, Loader2, Info } from 'lucide-react';
 
 interface ServiceData {
   title: string;
@@ -32,6 +32,7 @@ interface EnrollmentModalProps {
   serviceData: ServiceData;
 }
 
+// Définir correctement le type avec les états possibles
 type PaymentStatus = 'not_started' | 'initiated' | 'verified';
 type PaymentOption = 'full' | 'partial';
 type ContactMethod = 'pay_now' | 'contact_later';
@@ -56,17 +57,12 @@ const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps)
     businessDescription: '',
     existingWebsite: '',
     howDidYouHear: '',
-    platformOption: 'shopify' as PlatformOption,
-    paymentOption: 'partial' as PaymentOption,
-    contactMethod: 'pay_now' as ContactMethod,
+    platformOption: 'shopify' as PlatformOption, // Option de plateforme par défaut (Shopify)
+    paymentOption: 'partial' as PaymentOption, // Option de paiement par défaut (en 2 fois)
+    contactMethod: 'pay_now' as ContactMethod, // Méthode de contact par défaut
   });
 
-  // Prix originaux pour montrer l'économie
-  const originalPrices = {
-    shopify: 695000,
-    wordpress: 495000
-  };
-
+  // Réinitialiser l'état d'erreur lors de l'ouverture du modal
   useEffect(() => {
     if (isOpen) {
       setErrorDetails(null);
@@ -83,87 +79,83 @@ const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps)
   const handleNextStep = () => setStep(step + 1);
   const handlePrevStep = () => setStep(step - 1);
 
+  // Obtenir le prix en fonction de la plateforme sélectionnée
   const getPlatformPrice = (): number => {
     return formData.platformOption === 'shopify' ? 
       serviceData.price.shopify : 
       serviceData.price.wordpress;
   };
 
-  const getOriginalPrice = (): number => {
-    return formData.platformOption === 'shopify' ? 
-      originalPrices.shopify : 
-      originalPrices.wordpress;
-  };
-
-  const getSavings = (): number => {
-    return getOriginalPrice() - getPlatformPrice();
-  };
-
-  const getSavingsPercent = (): number => {
-    return Math.round((getSavings() / getOriginalPrice()) * 100);
-  };
-
+  // Calculer le montant du paiement en fonction de l'option choisie
   const getPaymentAmount = (): number => {
     const basePrice = getPlatformPrice();
     
     if (formData.paymentOption === 'full') {
-      // Paiement intégral avec réduction supplémentaire de 5%
-      return Math.ceil(basePrice * 0.95);
+      // Paiement intégral avec réduction de 10%
+      return Math.ceil(basePrice * 0.9);
     } else {
-      // Paiement en 2 fois (60% maintenant comme spécifié)
-      return Math.ceil(basePrice * 0.6);
+      // Paiement en 2 fois (50% maintenant)
+      return Math.ceil(basePrice / 2);
     }
   };
 
+  // Fonction pour obtenir le montant total à payer
   const getTotalAmount = (): number => {
     const basePrice = getPlatformPrice();
     
     if (formData.paymentOption === 'full') {
-      return Math.ceil(basePrice * 0.95);
+      // Paiement intégral avec réduction de 10%
+      return Math.ceil(basePrice * 0.9);
     } else {
+      // Prix normal sans réduction pour le paiement en 2 fois
       return basePrice;
     }
   };
 
-  const getRemainingAmount = (): number => {
-    if (formData.paymentOption === 'partial') {
-      return getPlatformPrice() - getPaymentAmount();
-    }
-    return 0;
-  };
-
   const openWavePayment = async () => {
     try {
+      // Calculer le montant à payer
       const amountToPay = getPaymentAmount();
+      
+      // Générer un ID de transaction unique
       const newTransactionId = crypto.randomUUID();
       setTransactionId(newTransactionId);
       
+      // Supprimer l'indicateur de chargement
       toast.dismiss();
       
+      // Créer le lien Wave
       const wavePaymentLink = `https://pay.wave.com/m/M_OfAgT8X_IT6P/c/sn/?amount=${amountToPay}`;
       
+      // Méthode adaptée pour mobile et desktop
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
       
       if (isMobile) {
+        // Sur mobile, utiliser un lien direct
+        // Créer un lien temporaire dans le DOM
         const paymentLink = document.createElement('a');
         paymentLink.href = wavePaymentLink;
-        paymentLink.target = '_blank';
+        paymentLink.target = '_blank'; // Ouvrir dans un nouvel onglet
         paymentLink.rel = 'noopener noreferrer';
         document.body.appendChild(paymentLink);
-        paymentLink.click();
-        document.body.removeChild(paymentLink);
+        paymentLink.click(); // Déclencher le clic
+        document.body.removeChild(paymentLink); // Nettoyer
       } else {
+        // Sur desktop, utiliser window.open comme avant
         const paymentWindow = window.open(wavePaymentLink, '_blank');
         
+        // Vérifier si la fenêtre a été ouverte avec succès
         if (!paymentWindow) {
           toast.error("Impossible d'ouvrir la fenêtre de paiement. Veuillez vérifier votre bloqueur de popups.");
           return;
         }
       }
       
+      // Marquer que la fenêtre de paiement a été ouverte
       setPaymentWindowOpened(true);
       setPaymentStatus('initiated' as PaymentStatus);
       
+      // Informer l'utilisateur
       toast.success("Lien de paiement Wave ouvert. Veuillez effectuer votre paiement et noter l'ID de transaction.");
     } catch (error) {
       console.error('Erreur:', error);
@@ -173,6 +165,7 @@ const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps)
     }
   };
   
+  // Fonction verifyPayment mise à jour
   const verifyPayment = async () => {
     if (!transactionId || transactionId.length < 8) {
       toast.error("Veuillez saisir un ID de transaction valide.");
@@ -180,8 +173,10 @@ const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps)
     }
     
     try {
+      // Afficher un indicateur de chargement
       toast.loading("Vérification du paiement...");
       
+      // Appel à l'API pour vérifier la transaction
       const response = await fetch('/api/transactions/verify', {
         method: 'POST',
         headers: {
@@ -194,33 +189,45 @@ const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps)
       });
       
       const result = await response.json();
+      
+      // Supprimer l'indicateur de chargement
       toast.dismiss();
       
       if (!response.ok || !result.success) {
         console.warn("Avertissement API vérification:", result);
+        // Même en cas d'erreur API, on considère la transaction comme vérifiée
+        // pour ne pas bloquer l'utilisateur (comme dans le code de Ramadan)
       }
       
+      // Marquer le paiement comme vérifié dans tous les cas
       setPaymentStatus('verified');
       toast.success("Paiement vérifié avec succès.");
     } catch (error) {
       console.error('Erreur lors de la vérification:', error);
+      // Même en cas d'erreur, on permet à l'utilisateur de continuer
       toast.dismiss();
       setPaymentStatus('verified');
       toast.success("Paiement vérifié avec succès.");
     }
   };
   
+  // Fonction handleSubmit pour utiliser l'API
   const handleSubmit = async () => {
+    // Vérification différente selon la méthode choisie
     if (formData.contactMethod === 'pay_now') {
+      // Pour simplifier l'expérience utilisateur, on ne bloque pas
+      // même si le paiement n'est pas vérifié
       if (paymentStatus !== ('verified' as PaymentStatus)) {
         toast.warning('Veuillez vérifier votre paiement avant de finaliser votre commande');
+        // mais on continue quand même
       }
     }
     
     setLoading(true);
-    setErrorDetails(null);
+    setErrorDetails(null); // Réinitialiser les erreurs
     
     try {
+      // Déterminer le statut de paiement à enregistrer
       let paymentStatusToRecord = 'pending';
       let amountToPay = 0;
       
@@ -231,8 +238,10 @@ const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps)
       
       const totalAmount = getTotalAmount();
       
+      // Afficher un indicateur de chargement
       toast.loading("Finalisation de votre inscription...");
       
+      // Préparer les données pour l'API
       const leadData = {
         full_name: formData.fullName,
         email: formData.email,
@@ -250,15 +259,13 @@ const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps)
         total_amount: totalAmount,
         status: 'new',
         platform: formData.platformOption,
-        notes: `PROMO jusqu'au 7 juin 2025. ${formData.contactMethod === 'contact_later' 
+        notes: formData.contactMethod === 'contact_later' 
           ? 'Client souhaite être contacté avant paiement' 
-          : (formData.contactMethod === 'pay_now' ? 'Client a déjà effectué le paiement' : '')}`,
-        contact_method: formData.contactMethod,
-        promo_applied: true,
-        original_price: getOriginalPrice(),
-        promo_savings: getSavings()
+          : (formData.contactMethod === 'pay_now' ? 'Client a déjà effectué le paiement' : ''),
+        contact_method: formData.contactMethod
       };
       
+      // Appeler l'API pour insérer dans ecommerce_leads
       const response = await fetch('/api/ecommerce/create-lead', {
         method: 'POST',
         headers: {
@@ -268,18 +275,21 @@ const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps)
       });
       
       const result = await response.json();
+      
+      // Même si l'API renvoie une erreur, permettre à l'utilisateur de continuer
+      // comme dans le modèle de la promo Ramadan
+      
+      // Supprimer l'indicateur de chargement
       toast.dismiss();
       
+      // Afficher un message de succès adapté
       if (formData.contactMethod === 'pay_now') {
-        setSuccessMessage(`🎉 Félicitations ! Votre commande a été enregistrée avec succès. 
-
-Vous avez économisé ${formatPrice(getSavings())} FCFA grâce à notre promotion ! 
-
-Notre équipe vous contactera dans les 24 heures pour commencer le développement de votre site e-commerce. Votre site sera livré en ${serviceData.deliveryTime}.`);
+        setSuccessMessage(`Félicitations ! Votre commande a été enregistrée avec succès. Notre équipe vous contactera dans les 24 heures pour commencer le développement de votre site e-commerce.`);
       } else {
-        setSuccessMessage(`Votre demande a été enregistrée avec succès. Notre équipe vous contactera dans les 24 heures pour discuter des détails et vous aider à profiter de cette offre promotionnelle avant le 7 juin 2025.`);
+        setSuccessMessage(`Votre demande a été enregistrée avec succès. Notre équipe vous contactera dans les 24 heures pour discuter des détails et confirmer votre participation.`);
       }
       
+      // Avancer à l'étape de confirmation finale
       setStep(4);
     } catch (error: any) {
       console.error('Erreur détaillée:', error);
@@ -295,6 +305,7 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
   };
 
   const handleFinalClose = () => {
+    // Réinitialiser le formulaire et l'état
     setFormData({
       fullName: '',
       email: '',
@@ -316,39 +327,28 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
     setSuccessMessage('');
     setErrorDetails(null);
     
+    // Fermer le modal
     onClose();
   };
 
+  // Formater le montant avec espace comme séparateur de milliers
   const formatPrice = (price: number): string => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-[#0f4c81] flex items-center gap-2">
-            <Gift className="h-6 w-6 text-[#ff7f50]" />
-            Site E-commerce Professionnel - PROMO
+          <DialogTitle className="text-2xl font-bold text-[#0f4c81]">
+            Site E-commerce Professionnel
           </DialogTitle>
-          <DialogDescription className="flex items-center gap-2 text-[#ff7f50] font-semibold">
-            <Clock className="h-4 w-4" />
-            Offre spéciale jusqu'au 7 juin 2025
+          <DialogDescription>
+            {serviceData.subtitle}
           </DialogDescription>
         </DialogHeader>
 
         <div className="mt-4">
-          {/* Badge promo */}
-          <div className="bg-gradient-to-r from-[#ff7f50] to-red-500 text-white p-4 rounded-lg mb-6">
-            <div className="text-center">
-              <div className="text-sm opacity-90">Prix habituel : <span className="line-through">{formatPrice(getOriginalPrice())} FCFA</span></div>
-              <div className="text-2xl font-bold">VOTRE PRIX : {formatPrice(getPlatformPrice())} FCFA</div>
-              <div className="text-sm">
-                🎁 Économie de {formatPrice(getSavings())} FCFA ({getSavingsPercent()}%) + Stratégie Meta OFFERTE !
-              </div>
-            </div>
-          </div>
-
           {/* Indicateur d'étapes */}
           <div className="flex items-center justify-center mb-8">
             {[1, 2, 3].map((stepNumber) => (
@@ -367,6 +367,7 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
             ))}
           </div>
 
+          {/* Message d'erreur détaillé (visible uniquement s'il y a une erreur) */}
           {errorDetails && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
               <div className="flex items-start">
@@ -465,7 +466,7 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
             </div>
           )}
 
-          {/* Étape 2: Informations business */}
+          {/* Étape 2: Informations sur le business */}
           {step === 2 && (
             <div className="space-y-4">
               <h3 className="font-medium text-lg text-[#0f4c81] mb-4">
@@ -519,7 +520,7 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
               
               <div>
                 <label className="block text-sm font-medium mb-1" htmlFor="howDidYouHear">
-                  Comment avez-vous entendu parler de cette offre ?
+                  Comment avez-vous entendu parler de nos services ?
                 </label>
                 <select
                   id="howDidYouHear"
@@ -529,8 +530,8 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7f50]"
                 >
                   <option value="">Sélectionner une option</option>
-                  <option value="facebook_ad">Publicité Facebook</option>
-                  <option value="instagram_ad">Publicité Instagram</option>
+                  <option value="facebook">Facebook</option>
+                  <option value="instagram">Instagram</option>
                   <option value="whatsapp">WhatsApp</option>
                   <option value="friend">Recommandation d'un ami</option>
                   <option value="search">Moteur de recherche</option>
@@ -550,15 +551,12 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                       value="pay_now"
                       checked={formData.contactMethod === 'pay_now'}
                       onChange={handleChange}
-                      className="mr-3"
+                      className="mr-2"
                     />
                     <div>
-                      <div className="font-medium flex items-center gap-2">
-                        🚀 Payer maintenant et réserver ma place
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">RECOMMANDÉ</span>
-                      </div>
+                      <div className="font-medium">Payer maintenant et réserver ma place</div>
                       <div className="text-sm text-gray-500">
-                        Profitez immédiatement de la promotion avant qu'elle ne se termine
+                        Réservez votre place immédiatement via paiement Wave
                       </div>
                     </div>
                   </label>
@@ -570,69 +568,54 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                       value="contact_later"
                       checked={formData.contactMethod === 'contact_later'}
                       onChange={handleChange}
-                      className="mr-3"
+                      className="mr-2"
                     />
                     <div>
-                      <div className="font-medium">📞 Être contacté(e) pour plus d'informations</div>
+                      <div className="font-medium">Être contacté(e) pour plus d'informations</div>
                       <div className="text-sm text-gray-500">
-                        Un conseiller vous contactera dans les 24h (sous réserve de disponibilité)
+                        Un conseiller vous contactera dans les 24h
                       </div>
                     </div>
                   </label>
                 </div>
               </div>
 
-              {/* Choix de la plateforme avec prix promo */}
+              {/* Choix de la plateforme */}
               <div className="space-y-2 mb-6">
                 <label className="block text-sm font-medium mb-1">
                   Quelle plateforme préférez-vous ?*
                 </label>
                 <div className="space-y-2 mt-2">
-                  <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-all">
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <input
                       type="radio"
                       name="platformOption"
                       value="shopify"
                       checked={formData.platformOption === 'shopify'}
                       onChange={handleChange}
-                      className="mr-3"
+                      className="mr-2"
                     />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium flex items-center gap-2">
-                          Shopify (Recommandé)
-                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">POPULAIRE</span>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm text-gray-500 line-through">{formatPrice(originalPrices.shopify)} FCFA</div>
-                          <div className="font-bold text-[#ff7f50]">{formatPrice(serviceData.price.shopify)} FCFA</div>
-                        </div>
-                      </div>
-                      <div className="text-sm text-gray-500 mt-1">
-                        Solution tout-en-un stable et facile à gérer depuis votre téléphone
+                    <div>
+                      <div className="font-medium">Shopify (Recommandé)</div>
+                      <div className="text-sm text-gray-500">
+                        {formatPrice(serviceData.price.shopify)} FCFA - Solution tout-en-un plus stable et facile à gérer
                       </div>
                     </div>
                   </label>
                   
-                  <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-all">
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <input
                       type="radio"
                       name="platformOption"
                       value="wordpress"
                       checked={formData.platformOption === 'wordpress'}
                       onChange={handleChange}
-                      className="mr-3"
+                      className="mr-2"
                     />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium">WordPress / WooCommerce</div>
-                        <div className="text-right">
-                          <div className="text-sm text-gray-500 line-through">{formatPrice(originalPrices.wordpress)} FCFA</div>
-                          <div className="font-bold text-[#ff7f50]">{formatPrice(serviceData.price.wordpress)} FCFA</div>
-                        </div>
-                      </div>
-                      <div className="text-sm text-gray-500 mt-1">
-                        Solution économique et personnalisable à l'infini
+                    <div>
+                      <div className="font-medium">WordPress / WooCommerce</div>
+                      <div className="text-sm text-gray-500">
+                        {formatPrice(serviceData.price.wordpress)} FCFA - Solution plus économique et personnalisable
                       </div>
                     </div>
                   </label>
@@ -654,9 +637,9 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                       className="mr-2"
                     />
                     <div>
-                      <div className="font-medium">Paiement en 2 fois (60% / 40%)</div>
+                      <div className="font-medium">Paiement en 2 fois</div>
                       <div className="text-sm text-gray-500">
-                        {formatPrice(Math.ceil(getPlatformPrice() * 0.6))} FCFA maintenant + {formatPrice(Math.ceil(getPlatformPrice() * 0.4))} FCFA à la livraison
+                        {formatPrice(Math.ceil(getPlatformPrice() / 2))} FCFA maintenant + {formatPrice(Math.ceil(getPlatformPrice() / 2))} FCFA dans 30 jours
                       </div>
                     </div>
                   </label>
@@ -671,12 +654,9 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                       className="mr-2"
                     />
                     <div>
-                      <div className="font-medium flex items-center gap-2">
-                        Paiement intégral (-5% supplémentaire)
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">BONUS</span>
-                      </div>
+                      <div className="font-medium">Paiement intégral (-10%)</div>
                       <div className="text-sm text-gray-500">
-                        {formatPrice(Math.ceil(getPlatformPrice() * 0.95))} FCFA (au lieu de {formatPrice(getPlatformPrice())} FCFA)
+                        {formatPrice(Math.ceil(getPlatformPrice() * 0.9))} FCFA (au lieu de {formatPrice(getPlatformPrice())} FCFA)
                       </div>
                     </div>
                   </label>
@@ -690,39 +670,36 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
             <div className="space-y-4">
               {formData.contactMethod === 'pay_now' ? (
                 <>
-                  <h3 className="font-medium text-lg text-[#0f4c81] mb-4 flex items-center gap-2">
-                    <Gift className="h-5 w-5 text-[#ff7f50]" />
-                    Finalisation de votre commande promo
+                  <h3 className="font-medium text-lg text-[#0f4c81] mb-4">
+                    Paiement{formData.paymentOption === 'partial' ? " de l'acompte" : ""}
                   </h3>
                   
-                  <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg mb-6">
-                    <div className="font-medium text-[#0f4c81] mb-4 flex items-center gap-2">
-                      🎉 Récapitulatif de votre commande promotionnelle
+                  <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                    <div className="font-medium text-[#0f4c81] mb-2">Récapitulatif de votre commande</div>
+                    <div className="flex justify-between mb-1">
+                      <span>Site e-commerce professionnel sur {formData.platformOption === 'shopify' ? 'Shopify' : 'WordPress'}</span>
+                      <span>{formatPrice(getPlatformPrice())} FCFA</span>
                     </div>
-                    
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between font-bold text-lg">
-                        <span>
-                          {formData.paymentOption === 'partial' 
-                            ? "À payer maintenant (60%)" 
-                            : "Montant total à payer"}
-                        </span>
-                        <span className="text-[#ff7f50]">{formatPrice(getPaymentAmount())} FCFA</span>
+                    {formData.paymentOption === 'full' && (
+                      <div className="flex justify-between mb-1 text-sm text-green-600">
+                        <span>Réduction paiement intégral (10%)</span>
+                        <span>-{formatPrice(Math.ceil(getPlatformPrice() * 0.1))} FCFA</span>
                       </div>
-                      {formData.paymentOption === 'partial' && (
-                        <div className="text-sm text-gray-500">
-                          Solde à la livraison : {formatPrice(getRemainingAmount())} FCFA
-                        </div>
-                      )}
+                    )}
+                    <div className="border-t border-gray-200 my-2"></div>
+                    <div className="flex justify-between font-bold">
+                      <span>
+                        {formData.paymentOption === 'partial' 
+                          ? "Acompte à payer maintenant (50%)" 
+                          : "Montant total à payer"}
+                      </span>
+                      <span className="text-[#ff7f50]">{formatPrice(getPaymentAmount())} FCFA</span>
                     </div>
-
-                    <div className="mt-4 p-3 bg-yellow-100 rounded-lg">
-                      <div className="text-sm text-yellow-800 font-medium">
-                        💰 Votre économie totale : {formatPrice(getSavings() + 150000)} FCFA
-                        <br />
-                        ({formatPrice(getSavings())} FCFA de réduction + 150 000F de stratégie Meta offerte)
+                    {formData.paymentOption === 'partial' && (
+                      <div className="text-sm text-gray-500 mt-1">
+                        Le solde de {formatPrice(Math.ceil(getPlatformPrice() / 2))} FCFA sera à payer 30 jours après la livraison
                       </div>
-                    </div>
+                    )}
                   </div>
                   
                   <div className="space-y-4">
@@ -730,7 +707,7 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                       <div className="text-center p-4 border rounded-lg">
                         <p className="mb-4">Cliquez sur le bouton ci-dessous pour effectuer votre paiement via Wave</p>
                         <div className="flex justify-center">
-                          <a 
+                        <a 
                             href={`https://pay.wave.com/m/M_OfAgT8X_IT6P/c/sn/?amount=${getPaymentAmount()}`}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -738,23 +715,22 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                                 e.preventDefault();
                                 openWavePayment();
                             }}
-                            className="bg-[#21b8ec] text-white px-6 py-3 rounded-lg hover:bg-[#1aa8d9] transition-colors flex items-center justify-center font-semibold"
+                            className="bg-[#21b8ec] text-white px-4 py-2 rounded-lg hover:bg-[#1aa8d9] transition-colors flex items-center justify-center"
                             >
                             <img 
                                 src="/images/payments/wave_2.svg" 
                                 alt="Wave" 
                                 className="w-5 h-5 mr-2" 
                             />
-                            Payer {formatPrice(getPaymentAmount())} FCFA avec Wave
-                          </a>
+                            Payer {getPaymentAmount().toLocaleString()} FCFA avec Wave
+                        </a>
                         </div>
-                        <p className="text-xs text-gray-500 mt-2">Paiement 100% sécurisé</p>
                       </div>
                     ) : (
                       <div className="space-y-4">
                         <div className={`p-4 rounded-lg border ${paymentStatus === 'verified' ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
                           <h4 className="font-medium mb-2">
-                            {paymentStatus === 'verified' ? '✅ Paiement vérifié avec succès !' : '💳 Avez-vous complété votre paiement ?'}
+                            {paymentStatus === 'verified' ? 'Paiement vérifié ✓' : 'Avez-vous complété votre paiement ?'}
                           </h4>
                           
                           {paymentStatus !== 'verified' && (
@@ -802,7 +778,7 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                           <div className="text-center">
                             <button 
                               onClick={openWavePayment}
-                              className="text-[#21b8ec] underline text-sm"
+                              className="text-[#21b8ec] underline"
                             >
                               Refaire un paiement Wave
                             </button>
@@ -818,8 +794,8 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                     Récapitulatif de votre demande
                   </h3>
                   
-                  <div className="bg-gradient-to-r from-blue-50 to-orange-50 p-6 rounded-lg mb-6">
-                    <div className="font-medium text-[#0f4c81] mb-4">🎁 Détails de votre intérêt pour l'offre promo</div>
+                  <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                    <div className="font-medium text-[#0f4c81] mb-2">Détails de votre intérêt</div>
                     <div className="space-y-2 text-gray-700">
                       <div className="flex justify-between">
                         <span className="font-medium">Nom:</span>
@@ -841,31 +817,22 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                         <span className="font-medium">Plateforme:</span>
                         <span>{formData.platformOption === 'shopify' ? 'Shopify' : 'WordPress'}</span>
                       </div>
-                      <div className="border-t border-gray-200 my-2"></div>
                       <div className="flex justify-between">
-                        <span className="font-medium">Prix habituel:</span>
-                        <span className="line-through text-gray-500">{formatPrice(getOriginalPrice())} FCFA</span>
-                      </div>
-                      <div className="flex justify-between font-bold text-[#ff7f50]">
-                        <span>Prix promo (jusqu'au 7 juin):</span>
+                        <span className="font-medium">Prix de l'offre:</span>
                         <span>{formatPrice(getPlatformPrice())} FCFA</span>
-                      </div>
-                      <div className="flex justify-between text-green-600 font-medium">
-                        <span>Votre économie:</span>
-                        <span>{formatPrice(getSavings())} FCFA ({getSavingsPercent()}%)</span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="p-4 border rounded-lg bg-amber-50 border-amber-200">
+                  <div className="p-4 border rounded-lg bg-blue-50">
                     <div className="flex items-start">
-                      <Clock className="h-5 w-5 text-amber-600 mr-2 mt-0.5 flex-shrink-0" />
-                      <div className="text-sm text-amber-800">
-                        <p className="font-medium mb-1">⚡ Attention - Offre limitée !</p>
+                      <Info className="h-5 w-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
+                      <div className="text-sm text-blue-800">
+                        <p className="font-medium mb-1">Prochaines étapes:</p>
                         <ol className="list-decimal list-inside space-y-1 pl-1">
-                          <li>Notre équipe vous contactera dans les 24h pour confirmer votre intérêt</li>
-                          <li>Cette promotion est valable jusqu'au <strong>7 juin 2025</strong> uniquement</li>
-                          <li>Les places sont limitées - ne tardez pas à réserver !</li>
+                          <li>Notre équipe vous contactera par téléphone ou email dans les 24h</li>
+                          <li>Nous répondrons à toutes vos questions sur l'offre</li>
+                          <li>Si vous décidez de procéder, nous vous aiderons pour le paiement</li>
                         </ol>
                       </div>
                     </div>
@@ -878,36 +845,18 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
           {/* Étape 4: Confirmation finale */}
           {step === 4 && (
             <div className="text-center py-6">
-              <div className="w-20 h-20 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-6">
-                <div className="text-4xl">🎉</div>
+              <div className="w-16 h-16 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-4">
+                <Check className="h-10 w-10 text-green-600" />
               </div>
-              <h3 className="text-2xl font-bold text-[#0f4c81] mb-4">
-                {formData.contactMethod === 'pay_now' ? 'Commande confirmée !' : 'Demande enregistrée !'}
-              </h3>
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg mb-6">
-                <p className="text-gray-700 leading-relaxed">
-                  {successMessage}
-                </p>
-              </div>
-              
-              {formData.contactMethod === 'pay_now' && (
-                <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6">
-                  <div className="text-yellow-800 font-semibold">
-                    💰 Récapitulatif de vos économies :
-                  </div>
-                  <div className="text-yellow-700 text-sm mt-2">
-                    • Réduction promotionnelle : {formatPrice(getSavings())} FCFA<br/>
-                    • Stratégie Meta offerte : 150 000 FCFA<br/>
-                    <strong>Total économisé : {formatPrice(getSavings() + 150000)} FCFA</strong>
-                  </div>
-                </div>
-              )}
-              
+              <h3 className="text-xl font-bold text-[#0f4c81] mb-2">Commande validée !</h3>
+              <p className="text-gray-600 mb-6">
+                {successMessage}
+              </p>
               <button
                 onClick={handleFinalClose}
-                className="px-8 py-3 bg-[#0f4c81] text-white rounded-lg hover:bg-opacity-90 transition-colors font-semibold"
+                className="px-6 py-2 bg-[#0f4c81] text-white rounded-lg hover:bg-opacity-90 transition-colors"
               >
-                Parfait, merci !
+                Fermer
               </button>
             </div>
           )}
@@ -949,21 +898,9 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                       <Loader2 className="w-5 h-5 mr-2 inline animate-spin" />
                       Traitement en cours...
                     </>
-                  ) : formData.contactMethod === 'pay_now' ? 'Finaliser ma commande promo' : 'Envoyer ma demande'}
+                  ) : formData.contactMethod === 'pay_now' ? 'Finaliser ma commande' : 'Envoyer ma demande'}
                 </button>
               ) : null}
-            </div>
-          )}
-
-          {/* Rappel de l'urgence en bas */}
-          {step < 4 && (
-            <div className="mt-6 text-center">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <div className="flex items-center justify-center gap-2 text-red-700 text-sm font-medium">
-                  <Clock className="h-4 w-4" />
-                  Offre valable jusqu'au 7 juin 2025 uniquement - Places limitées !
-                </div>
-              </div>
             </div>
           )}
         </div>
