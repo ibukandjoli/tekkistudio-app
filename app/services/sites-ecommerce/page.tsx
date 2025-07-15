@@ -19,231 +19,312 @@ import {
   Clock,
   TrendingUp,
   MessageCircle,
-  AlertCircle
+  AlertCircle,
+  Smartphone,
+  Laptop,
+  Globe,
+  Target,
+  Users,
+  Palette,
+  LineChart,
+  Heart,
+  CheckCircle,
+  PlayCircle,
+  Quote,
+  Lightbulb,
+  Megaphone,
+  Trophy
 } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
-import EnrollmentModal from '@/app/components/ecommerce/EnrollmentModal-old';
-import PriceFormatter from '../../components/common/PriceFormatter';
-import Container from '@/app/components/ui/Container';
 
-// Données de service mises à jour avec la promo
+// Simuler les composants nécessaires pour la démo
+interface ContainerProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+const Container = ({ children, className = "" }: ContainerProps) => (
+  <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
+    {children}
+  </div>
+);
+
+interface PriceFormatterProps {
+  amount: number;
+}
+
+const PriceFormatter = ({ amount }: PriceFormatterProps) => {
+  return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " FCFA";
+};
+
+// Données mises à jour
 const serviceData = {
-  title: "Site E-commerce Professionnel",
-  subtitle: "Site E-commerce Professionnel + Stratégie Meta",
-  originalPrice: 695000,
-  promoPrice: 465000,
-  promoEndDate: "7 juin 2025",
-  deliveryTime: "7 jours ouvrés",
+  title: "Sites E-commerce Professionnels pour Marques",
+  subtitle: "La solution complète pour faire rayonner votre marque en ligne",
+  shopifyPrice: 695000,
+  wordpressPrice: 495000,
+  deliveryTime: "7-10 jours ouvrés",
   portfolioItems: [
-    { name: "Momo Le Bottier", url: "https://momolebottier.com", image: "/images/portfolio/momolebottier.png" },
-    { name: "Abarings", url: "https://abarings.com", image: "/images/portfolio/abarings.png" },
-    { name: "YoupyBaby", url: "https://youpybaby.com", image: "/images/portfolio/youpybaby.png" },
-    { name: "Maika Déco", url: "https://maikadeco.com", image: "/images/portfolio/maikadeco.png" },
-    { name: "6C No Filter", url: "https://6cnofilter.com", image: "/images/portfolio/6cnofilter.png" },
-    { name: "Viens on s'connaît", url: "https://viensonsconnait.com", image: "/images/portfolio/viensonsconnait.png" }
+    { name: "Momo Le Bottier", url: "https://momolebottier.com", image: "/images/portfolio/momolebottier.png", category: "Chaussures" },
+    { name: "Abarings", url: "https://abarings.com", image: "/images/portfolio/abarings.png", category: "Bijoux" },
+    { name: "YoupyBaby", url: "https://youpybaby.com", image: "/images/portfolio/youpybaby.png", category: "Enfants" },
+    { name: "Maika Déco", url: "https://maikadeco.com", image: "/images/portfolio/maikadeco.png", category: "Décoration" },
+    { name: "6C No Filter", url: "https://6cnofilter.com", image: "/images/portfolio/6cnofilter.png", category: "Mode" },
+    { name: "Viens on s'connaît", url: "https://viensonsconnait.com", image: "/images/portfolio/viensonsconnait.png", category: "Événements" }
   ],
-  problems: [
-    "DM qui s'accumulent sans fin sur toutes les apps",
-    "Commandes oubliées ou perdues",
-    "Clients qui disparaissent en cours de discussion",
-    "Impossible de vendre quand vous n'êtes pas disponible",
-    "Difficile de suivre qui a commandé quoi",
-    "Pas de visibilité sur vos performances"
+  brandChallenges: [
+    {
+      icon: "📱",
+      title: "Ventes limitées aux DM",
+      description: "Votre marque mérite plus que des ventes dans les messages privés"
+    },
+    {
+      icon: "😴",
+      title: "Aucune vente la nuit",
+      description: "Vous perdez des clients quand vous dormez"
+    },
+    {
+      icon: "📊",
+      title: "Pas de données sur vos clients",
+      description: "Impossible de comprendre et fidéliser votre audience"
+    },
+    {
+      icon: "🌍",
+      title: "Portée limitée",
+      description: "Difficile d'atteindre de nouveaux marchés"
+    },
+    {
+      icon: "💳",
+      title: "Paiements compliqués",
+      description: "Processus de commande fastidieux qui fait fuir les clients"
+    },
+    {
+      icon: "🏪",
+      title: "Image amateur",
+      description: "Votre marque n'a pas la crédibilité qu'elle mérite"
+    }
   ],
-  solutions: [
-    "Vendez 24h/24 sans devoir répondre à chaque message",
-    "Recevez vos commandes automatiquement organisées",
-    "Organisez facilement vos livraisons",
-    "Atteignez plus de clients, où qu'ils soient",
-    "Gérez tout depuis votre téléphone",
-    "Suivez vos ventes et performances en temps réel"
+  brandBenefits: [
+    {
+      icon: "🚀",
+      title: "Ventes 24h/24",
+      description: "Votre boutique travaille pour votre marque même pendant votre sommeil"
+    },
+    {
+      icon: "🌟",
+      title: "Image de marque professionnelle",
+      description: "Une vitrine digne de votre marque qui inspire confiance"
+    },
+    {
+      icon: "📈",
+      title: "Croissance exponentielle",
+      description: "Touchez des milliers de clients potentiels chaque jour"
+    },
+    {
+      icon: "💡",
+      title: "Données précieuses",
+      description: "Comprenez vos clients pour mieux les servir"
+    },
+    {
+      icon: "🌍",
+      title: "Expansion internationale",
+      description: "Vendez partout dans le monde sans limites"
+    },
+    {
+      icon: "⚡",
+      title: "Automatisation complète",
+      description: "Focus sur votre marque, nous gérons la technique"
+    }
   ],
-  features: [
-    "Site e-commerce adapté à tous les écrans",
-    "Design moderne, intuitif et professionnel",
-    "Gestion automatique des commandes",
-    "Système de gestion de commandes intégré",
-    "Tableau de bord optimisé pour Smartphone",
-    "Référencement naturel sur Google",
-    "Formation complète à l'utilisation"
+  whyChooseUs: [
+    {
+      icon: <Award className="w-8 h-8" />,
+      title: "Experts en marques africaines",
+      description: "Nous comprenons les spécificités du marché africain et créons des expériences qui résonnent avec votre audience locale."
+    },
+    {
+      icon: <Trophy className="w-8 h-8" />,
+      title: "Fabrique de marques à succès",
+      description: "Nous créons nos propres marques qui cartonnent en ligne. Cette expertise, nous la mettons au service de votre marque."
+    },
+    {
+      icon: <Target className="w-8 h-8" />,
+      title: "Conversion avant tout",
+      description: "Chaque élément de votre site est pensé pour transformer vos visiteurs en acheteurs fidèles."
+    },
+    {
+      icon: <Smartphone className="w-8 h-8" />,
+      title: "Mobile-first pour l'Afrique",
+      description: "Des sites optimisés pour smartphone, car nous savons que 80% de vos clients naviguent sur mobile."
+    }
   ],
-  marketingStrategy: [
-    "Analyse de votre audience cible",
-    "Création de 2 publicités Facebook/Instagram",
-    "Configuration du Pixel Meta sur votre site",
-    "Stratégie de ciblage détaillée",
-    "Recommandations de budget publicitaire",
-    "Suivi des performances pendant 15 jours"
-  ],
-  successStories: [
-    { brand: "Momo Le Bottier", result: "Augmentation des ventes grâce au site e-commerce" },
-    { brand: "YoupyBaby", result: "Plus de visites et de ventes grâce au site e-commerce" },
-    { brand: "Abarings", result: "Professionnalisation du business et hausse des ventes" }
+  testimonials: [
+    {
+      name: "Mme Diouf",
+      brand: "Momo Le Bottier",
+      content: "TEKKI Studio a transformé notre marque de chaussures artisanales. En 3 mois, nous avons triplé nos ventes et touché des clients dans toute l'Afrique de l'Ouest.",
+      avatar: "MD",
+      rating: 5
+    },
+    {
+      name: "Fatou Diedhiou", 
+      brand: "Abarings",
+      content: "Enfin une équipe qui comprend les marques africaines ! Notre boutique en ligne reflète parfaitement l'essence de notre marque de bijoux.",
+      avatar: "FD",
+      rating: 5
+    },
+    {
+      name: "Mme Ndiaye",
+      brand: "YoupyBaby", 
+      content: "Grâce à TEKKI Studio, notre marque pour enfants a une présence en ligne professionnelle. Les commandes arrivent même la nuit !",
+      avatar: "FN", 
+      rating: 5
+    }
   ],
   faqs: [
     {
-      question: "Comment se déroule la création de mon site e-commerce ?",
-      answer: "Après votre commande, nous vous contacterons sous 24h pour discuter de vos besoins spécifiques. Nous vous fournirons un questionnaire pour recueillir toutes les informations nécessaires, puis nous passerons au développement de votre site. Tout le processus est terminé en 7 jours ouvrés."
+      question: "Pourquoi choisir TEKKI Studio plutôt qu'un freelance ?",
+      answer: "Nous sommes spécialisés dans les marques et l'e-commerce. En tant que créateurs de marques à succès, nous savons exactement ce qui fonctionne pour faire décoller une marque en ligne. Nos sites ne sont pas de simples catalogues, ce sont de véritables machines de vente."
     },
     {
-      question: "Cette offre promotionnelle inclut-elle vraiment la stratégie Meta ?",
-      answer: "Oui, absolument ! Même avec le prix promotionnel, vous bénéficiez de la stratégie Facebook & Instagram complète d'une valeur de 150 000 FCFA, incluant la création de publicités, le ciblage, et 15 jours de suivi personnalisé."
+      question: "Quelle est la différence entre Shopify et WordPress ?",
+      answer: "Shopify est une solution tout-en-un, facile à gérer depuis votre smartphone, idéale si vous voulez vous concentrer sur votre marque. WordPress offre plus de personnalisation et pas d'abonnement mensuel, parfait si vous avez des besoins techniques spécifiques."
     },
     {
-      question: "Comment fonctionne le paiement en 2 fois ?",
-      answer: "Vous payez 60% du montant promotionnel (279 000 FCFA) lors de votre commande pour démarrer le projet. Les 40% restants (186 000 FCFA) sont à payer à la livraison du site."
+      question: "Proposez-vous un accompagnement après la livraison ?",
+      answer: "Absolument ! Nous incluons 1 mois de support gratuit, une formation complète pour gérer votre boutique, et nous restons disponibles pour faire évoluer votre site avec votre marque."
     },
     {
-      question: "Jusqu'à quand cette promotion est-elle valable ?",
-      answer: "Cette offre spéciale est valable jusqu'au 7 juin 2025. Après cette date, le prix remontera à 695 000 FCFA. Nous vous conseillons de réserver votre place rapidement."
+      question: "Combien de temps faut-il pour créer le site ?",
+      answer: "7 à 10 jours ouvrés pour un site complet et optimisé. Nous travaillons rapidement sans compromettre la qualité, car nous savons que le temps c'est de l'argent pour votre marque."
     },
     {
-      question: "Pourquoi choisir TEKKI Studio plutôt qu'un freelance ou une autre agence ?",
-      answer: "Nous sommes nous-mêmes e-commerçants et comprenons parfaitement les défis de la vente en ligne, en particulier en Afrique. Contrairement aux autres prestataires qui créent de simples catalogues en ligne, nous concevons de véritables machines de vente optimisées pour la conversion. De plus, nous utilisons des thèmes professionnels premium et ajoutons des fonctionnalités sur mesure."
+      question: "Puis-je voir des exemples de vos réalisations ?",
+      answer: "Bien sûr ! Consultez notre portfolio ci-dessus avec des marques comme Momo Le Bottier, Abarings, YoupyBaby. Chaque site reflète l'identité unique de la marque tout en optimisant les conversions."
     }
   ]
 };
 
 export default function EcommerceServicePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const detailsRef = useRef<HTMLElement>(null);
-  const proofRef = useRef<HTMLElement>(null);
+  const [selectedPlatform, setSelectedPlatform] = useState<'shopify' | 'wordpress' | null>(null);
+  const portfolioRef = useRef<HTMLElement>(null);
+  const servicesRef = useRef<HTMLElement>(null);
 
-  // Calculer l'économie
-  const savings = serviceData.originalPrice - serviceData.promoPrice;
-  const savingsPercent = Math.round((savings / serviceData.originalPrice) * 100);
+  const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
+    ref.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-  // Fonction pour le défilement fluide
-  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, ref: React.RefObject<HTMLElement>) => {
-    e.preventDefault();
-    
-    if (ref.current) {
-      window.scrollTo({
-        top: ref.current.offsetTop - 100,
-        behavior: 'smooth'
-      });
-    }
+  const openModal = (platform: 'shopify' | 'wordpress') => {
+    setSelectedPlatform(platform);
+    setIsModalOpen(true);
   };
 
   return (
-    <main className="pb-0">
-      {/* Hero Section avec urgence de la promo */}
-      <section className="relative pt-28 pb-20 bg-gradient-to-r from-tekki-blue to-tekki-coral overflow-hidden">
-        {/* Badge de promotion - Desktop uniquement */}
-        <div className="hidden md:block absolute top-20 right-4 lg:right-10 rotate-12 z-20">
-          <div className="bg-yellow-400 text-tekki-blue font-bold px-4 py-2 lg:px-6 lg:py-3 rounded-full shadow-lg text-sm lg:text-base animate-pulse">
-            🎁 PROMO jusqu'au 7 juin !
-          </div>
-        </div>
-
-        {/* Motif géométrique en arrière-plan */}
+    <main className="overflow-x-hidden">
+      {/* Hero Section */}
+      <section className="relative pt-20 pb-32 bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 overflow-hidden">
+        {/* Motifs décoratifs */}
         <div className="absolute inset-0 opacity-10">
-          <div className="grid grid-cols-12 h-full">
-            {[...Array(48)].map((_, i) => (
-              <div key={i} className="border border-white/20" />
-            ))}
-          </div>
+          <div className="absolute top-20 left-10 w-64 h-64 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-yellow-300 rounded-full blur-3xl"></div>
         </div>
 
         <Container className="relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-5xl mx-auto text-center">
             {/* Badge d'introduction */}
-            <div className="inline-block mb-6 bg-white/10 backdrop-blur-sm px-6 py-2 rounded-full">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full mb-8">
+              <Trophy className="w-5 h-5 text-yellow-300" />
               <span className="text-white font-medium">
-                Vous vendez sur WhatsApp, Instagram ou TikTok ? 📱
+                #1 des sites e-commerce pour marques africaines
               </span>
             </div>
             
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              Arrêtez de perdre des ventes à cause des <span className="text-yellow-300">DM ingérables</span>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
+              Faites rayonner votre 
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400"> marque</span> en ligne
             </h1>
             
-            <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
-              Transformez votre business avec un <strong>site e-commerce professionnel</strong> qui vend 24h/24, 
-              même quand vous dormez 🌙
+            <p className="text-xl md:text-2xl text-white/90 mb-12 leading-relaxed max-w-4xl mx-auto">
+              Des sites e-commerce qui transforment votre vision en 
+              <strong> boutique en ligne professionnelle</strong> qui vend réellement. 
+              Spécialement conçus pour les marques africaines qui veulent conquérir le monde.
             </p>
 
-            {/* Compteur d'urgence */}
-            <div className="bg-red-500 text-white px-6 py-3 rounded-lg inline-block mb-8 animate-pulse">
-              <div className="flex items-center justify-center gap-2 text-lg font-bold">
-                <Clock className="w-5 h-5" />
-                Offre limitée jusqu'au 7 juin 2025
-              </div>
-            </div>
-            
-            {/* Prix en promotion */}
-            <div className="bg-white/15 backdrop-blur-sm p-6 rounded-2xl inline-block mb-8">
-              <div className="text-center">
-                <div className="text-white/80 mb-2">Prix normal</div>
-                <div className="text-white line-through text-2xl mb-2">
-                  <PriceFormatter amount={serviceData.originalPrice} />
-                </div>
-                <div className="text-yellow-300 font-bold text-4xl md:text-5xl mb-2">
-                  <PriceFormatter amount={serviceData.promoPrice} />
-                </div>
-                <div className="bg-red-500 text-white px-4 py-1 rounded-full text-sm font-bold inline-block">
-                  Économisez ({<PriceFormatter amount={savings} />})
-                </div>
-                <div className="text-white/80 mt-3 text-sm">
-                  Paiement facilité : <strong>279 000F</strong> à la commande + <strong>186 000F</strong> à la livraison
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">
               <button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-yellow-400 hover:bg-yellow-300 text-tekki-blue px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-lg flex items-center justify-center animate-bounce"
+                onClick={() => scrollToSection(servicesRef)}
+                className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-black px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-2xl flex items-center gap-3"
               >
-                🚀 Je profite de l'offre
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ShoppingCart className="w-6 h-6" />
+                Créer ma boutique en ligne
+                <ArrowRight className="w-5 h-5" />
               </button>
               
-              <a
-                href="#proof"
-                onClick={(e) => scrollToSection(e, proofRef)}
-                className="text-white border-2 border-white/30 hover:border-white/60 px-8 py-4 rounded-lg font-semibold transition-all flex items-center justify-center"
+              <button
+                onClick={() => scrollToSection(portfolioRef)}
+                className="text-white border-2 border-white/30 hover:border-white/60 hover:bg-white/10 px-8 py-4 rounded-xl font-semibold transition-all flex items-center gap-3"
               >
-                Voir los résultats clients
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
+                <PlayCircle className="w-6 h-6" />
+                Voir nos réalisations
+              </button>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">50+</div>
+                <div className="text-white/80 text-sm">Marques accompagnées</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">500%</div>
+                <div className="text-white/80 text-sm">Croissance moyenne</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">24/7</div>
+                <div className="text-white/80 text-sm">Ventes automatiques</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">15+</div>
+                <div className="text-white/80 text-sm">Pays couverts</div>
+              </div>
             </div>
           </div>
         </Container>
       </section>
 
-      {/* Section des problèmes - Accroche émotionnelle */}
-      <section className="py-16 bg-gray-50">
+      {/* Problèmes des marques */}
+      <section className="py-20 bg-gray-50">
         <Container>
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-tekki-blue mb-6">
-              Ça vous dit quelque chose ? 🤔
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+              Votre marque mérite mieux que des ventes en DM 😤
             </h2>
             <p className="text-xl text-gray-600">
-              Ces situations frustrantes que vivent tous les entrepreneurs qui vendent sur les réseaux sociaux...
+              Nous comprenons les défis des marques africaines qui veulent percer en ligne
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {serviceData.problems.map((problem, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-400 hover:shadow-lg transition-all">
-                <div className="flex items-start">
-                  <AlertCircle className="w-6 h-6 text-red-500 mr-3 mt-1 flex-shrink-0" />
-                  <p className="text-gray-700 font-medium">{problem}</p>
-                </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {serviceData.brandChallenges.map((challenge, index) => (
+              <div key={index} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all group">
+                <div className="text-4xl mb-4">{challenge.icon}</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                  {challenge.title}
+                </h3>
+                <p className="text-gray-600">{challenge.description}</p>
               </div>
             ))}
           </div>
 
-          <div className="text-center mt-12">
-            <div className="bg-tekki-blue text-white p-6 rounded-xl max-w-3xl mx-auto">
+          <div className="text-center mt-16">
+            <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white p-8 rounded-2xl max-w-4xl mx-auto">
               <h3 className="text-2xl font-bold mb-4">
-                Et si nous vous disions qu'il existe une solution ? ✨
+                Stop aux opportunités manquées ! 🛑
               </h3>
               <p className="text-lg opacity-90">
-                Des dizaines de marques africaines ont déjà résolu ces problèmes avec un site e-commerce professionnel. 
-                Certaines ont même <strong>triplé leurs ventes</strong> en quelques mois ! 🚀
+                Chaque jour sans site e-commerce, c'est des ventes perdues, 
+                des clients qui vont chez la concurrence, et votre marque qui stagne. 
+                <strong> Il est temps de passer au niveau supérieur.</strong>
               </p>
             </div>
           </div>
@@ -251,489 +332,437 @@ export default function EcommerceServicePage() {
       </section>
 
       {/* Solutions - Transformation */}
-      <section className="py-16 bg-white">
+      <section className="py-20 bg-white">
         <Container>
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-tekki-blue mb-6">
-              Voici ce qui change avec un site e-commerce professionnel 🎯
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+              Transformez votre marque en 
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600"> empire digital</span> 🚀
             </h2>
             <p className="text-xl text-gray-600">
-              Transformez votre façon de vendre et libérez-vous des contraintes des réseaux sociaux
+              Voici ce qui change quand votre marque a enfin la boutique en ligne qu'elle mérite
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {serviceData.solutions.map((solution, index) => (
-              <div key={index} className="bg-green-50 p-6 rounded-xl shadow-sm border-l-4 border-green-400 hover:shadow-lg transition-all group">
-                <div className="flex items-start">
-                  <Check className="w-6 h-6 text-green-500 mr-3 mt-1 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                  <p className="text-gray-700 font-medium">{solution}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-tekki-coral hover:bg-tekki-coral/90 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 shadow-lg inline-flex items-center"
-            >
-              🎁 Je veux mon site
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </button>
-          </div>
-        </Container>
-      </section>
-
-      {/* Preuve sociale - Résultats clients */}
-      <section ref={proofRef} id="proof" className="py-16 bg-gradient-to-r from-green-50 to-blue-50">
-        <Container>
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-tekki-blue mb-6">
-              Des résultats qui parlent d'eux-mêmes 📈
-            </h2>
-            <p className="text-xl text-gray-600">
-              Voici ce que nos clients ont accompli avec leur nouveau site e-commerce
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto mb-12">
-            {serviceData.successStories.map((story, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl shadow-lg text-center border-t-4 border-green-500">
-                <div className="text-3xl mb-4">🚀</div>
-                <h3 className="font-bold text-lg text-tekki-blue mb-2">{story.brand}</h3>
-                <p className="text-green-600 font-semibold">{story.result}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Portfolio visuel */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto mb-8">
-            {serviceData.portfolioItems.slice(0, 6).map((item, index) => (
-              <div key={index} className="group relative overflow-hidden rounded-xl shadow-sm hover:shadow-lg transition-all h-40">
-                <div className="absolute inset-0 bg-gray-200">
-                  {item.image ? (
-                    <Image 
-                      src={item.image} 
-                      alt={item.name}
-                      fill
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.onerror = null;
-                        target.src = '/images/placeholder-site.jpg';
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-300 flex items-center justify-center">
-                      <span className="text-gray-500 text-sm">Image non disponible</span>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="absolute inset-0 bg-tekki-blue/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center p-4">
-                  <h3 className="text-white font-bold text-center mb-2">{item.name}</h3>
-                  <a 
-                    href={item.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-white text-sm flex items-center hover:text-yellow-300 transition-colors"
-                  >
-                    Visiter le site
-                    <ExternalLink className="ml-1 w-4 h-4" />
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center">
-            <p className="text-lg text-gray-600 mb-6">
-              <strong>Si nous avons réussi à vous atteindre avec la publicité qui vous a conduit ici, 
-              imaginez ce qu'on peut faire pour votre business ! 🎯</strong>
-            </p>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-tekki-blue hover:bg-tekki-blue/90 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 shadow-lg inline-flex items-center"
-            >
-              💰 Je profite du prix promo maintenant
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </button>
-          </div>
-        </Container>
-      </section>
-
-      {/* Ce qui est inclus - Version promo */}
-      <section ref={detailsRef} id="details" className="py-16 bg-white">
-        <Container>
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-tekki-blue mb-6">
-              Tout ce que vous obtenez avec l'offre promo 🎁
-            </h2>
-            <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 inline-block">
-              <p className="text-yellow-800 font-semibold">
-                ⚡ Valeur totale normale : <PriceFormatter amount={serviceData.originalPrice + 150000} /> • 
-                Votre prix promo : <PriceFormatter amount={serviceData.promoPrice} />
-              </p>
-            </div>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {/* Site e-commerce */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-8 border-2 border-blue-200 relative">
-              <div className="absolute -top-3 left-6 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-bold">
-                Valeur : <PriceFormatter amount={serviceData.originalPrice} />
-              </div>
-              <div className="w-16 h-16 bg-tekki-blue/10 rounded-full flex items-center justify-center mb-6">
-                <ShoppingCart className="w-8 h-8 text-tekki-blue" />
-              </div>
-              <h3 className="text-2xl font-bold text-tekki-blue mb-4">
-                Site E-commerce Professionnel
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Un site moderne, rapide et optimisé pour convertir vos visiteurs en clients. 
-                Livré clé en main en 7 jours ouvrés.
-              </p>
-              
-              <ul className="space-y-3">
-                {serviceData.features.map((feature, index) => (
-                  <li key={index} className="flex items-start">
-                    <Check className="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" />
-                    <span className="text-gray-700">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            {/* Stratégie Meta OFFERTE */}
-            <div className="bg-gradient-to-br from-orange-50 to-red-100 rounded-xl p-8 border-2 border-orange-200 relative">
-              <div className="absolute -top-3 left-6 bg-red-500 text-white px-4 py-1 rounded-full text-sm font-bold">
-                🎁 OFFERTE (Valeur : 150 000F)
-              </div>
-              <div className="w-16 h-16 bg-tekki-coral/10 rounded-full flex items-center justify-center mb-6">
-                <TrendingUp className="w-8 h-8 text-tekki-coral" />
-              </div>
-              <h3 className="text-2xl font-bold text-tekki-blue mb-4">
-                Stratégie d'Acquisition Client Meta
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Une stratégie complète pour attirer des clients qualifiés via Facebook et Instagram. 
-                Normalement facturée 150 000F, elle est incluse gratuitement !
-              </p>
-              
-              <ul className="space-y-3">
-                {serviceData.marketingStrategy.map((feature, index) => (
-                  <li key={index} className="flex items-start">
-                    <Check className="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" />
-                    <span className="text-gray-700">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* CTA avec urgence */}
-          <div className="text-center mt-12">
-            <div className="bg-gradient-to-r from-tekki-coral to-red-500 text-white p-8 rounded-xl max-w-3xl mx-auto mb-8">
-              <h3 className="text-2xl font-bold mb-4">
-                ⏰ Cette offre se termine le 7 juin 2025
-              </h3>
-              <p className="text-lg opacity-90 mb-6">
-                Après cette date, le prix remontera à <PriceFormatter amount={serviceData.originalPrice} /> et la stratégie Meta sera facturée en plus. Ne manquez pas cette opportunité !
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="bg-yellow-400 hover:bg-yellow-300 text-tekki-blue px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-lg inline-flex items-center"
-                >
-                  🚀 Je réserve ma place
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </button>
-                <div className="text-white/90 text-sm">
-                  Paiement par Wave ou en cash dans nos locaux
-                </div>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* Témoignages clients */}
-      <section className="py-16 bg-gray-50">
-        <Container>
-          <h2 className="text-3xl font-bold text-tekki-blue text-center mb-12">
-            Ce que disent nos clients 💬
-          </h2>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-all">
-              <div className="flex items-center gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
-                ))}
-              </div>
-              <p className="text-gray-600 mb-4 italic">
-                "Avant, nous passions nos journées à répondre à chaque message, même ceux des gens qui ne voulaient pas acheter. 
-                Maintenant, notre site travaille pour nous 24h/24, 7j/7. 
-                J'ai triplé mes ventes et je peux enfin me concentrer sur le développement de mes produits !"
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-tekki-blue rounded-full flex items-center justify-center text-white font-bold">
-                  MD
-                </div>
-                <div>
-                  <div className="font-medium">Mme Diouf</div>
-                  <div className="text-sm text-gray-500">Momo Le Bottier • Nouveau canal de ventes</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-all">
-              <div className="flex items-center gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
-                ))}
-              </div>
-              <p className="text-gray-600 mb-4 italic">
-                "Notre ancien site convertissait très peu de visiteurs en clients. Grâce à la refonte du site réalisée par TEKKI Studio, 
-                nous avons un site rapide, optimisé pour la conversion, qui se charge de vendre nos produits pendant que nous nous occupons
-                des achats dans nos boutiques physiques à Dakar."
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-tekki-blue rounded-full flex items-center justify-center text-white font-bold">
-                  FN
-                </div>
-                <div>
-                  <div className="font-medium">Mme Ndiaye</div>
-                  <div className="text-sm text-gray-500">YoupyBaby • Hausse des ventes en ligne</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-all md:col-span-2 lg:col-span-1">
-              <div className="flex items-center gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
-                ))}
-              </div>
-              <p className="text-gray-600 mb-4 italic">
-                "Ça fait du bien de savoir que nous n'aurons plus de commandes perdues dans WhatsApp ! Tout est automatisé et organisé. 
-                Mes clients peuvent commander à toute heure, même quand je dors. C'est magique !"
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-tekki-blue rounded-full flex items-center justify-center text-white font-bold">
-                  FD
-                </div>
-                <div>
-                  <div className="font-medium">Fatou Diedhiou</div>
-                  <div className="text-sm text-gray-500">Abarings • Vente à l'international simplifiée</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* FAQ avec focus promo */}
-      <section className="py-16 bg-white">
-        <Container>
-          <h2 className="text-3xl font-bold text-tekki-blue text-center mb-12">
-            Questions fréquentes 🤔
-          </h2>
-          
-          <div className="max-w-3xl mx-auto space-y-6">
-            {serviceData.faqs.map((faq, index) => (
-              <div key={index} className="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-100 hover:border-tekki-coral/20">
-                <h3 className="text-xl font-bold text-tekki-blue mb-3">
-                  {faq.question}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {serviceData.brandBenefits.map((benefit, index) => (
+              <div key={index} className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-2xl border border-blue-100 hover:shadow-xl transition-all group hover:scale-105">
+                <div className="text-4xl mb-4">{benefit.icon}</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                  {benefit.title}
                 </h3>
-                <p className="text-gray-600">
-                  {faq.answer}
-                </p>
+                <p className="text-gray-600">{benefit.description}</p>
               </div>
             ))}
           </div>
+        </Container>
+      </section>
 
-          <div className="text-center mt-12">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto">
-              <h3 className="font-bold text-tekki-blue mb-2">Encore des questions ?</h3>
-              <p className="text-gray-600 mb-4">
-                Notre équipe est là pour vous aider. Contactez-nous et obtenez une réponse sous 2h !
-              </p>
+      {/* Nos offres */}
+      <section ref={servicesRef} className="py-20 bg-gradient-to-br from-gray-900 to-blue-900">
+        <Container>
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+              Choisissez la solution parfaite pour votre marque 💎
+            </h2>
+            <p className="text-xl text-white/80">
+              Deux options professionnelles, une seule promesse : faire briller votre marque
+            </p>
+          </div>
+          
+          <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            {/* Offre Shopify */}
+            <div className="bg-white rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all group hover:scale-105 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-gradient-to-l from-green-500 to-emerald-400 text-white px-6 py-2 rounded-bl-2xl">
+                <span className="font-bold text-sm">RECOMMANDÉ</span>
+              </div>
+              
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center">
+                  <Smartphone className="w-8 h-8 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Shopify Premium</h3>
+                  <p className="text-green-600 font-medium">La Rolls-Royce de l'e-commerce</p>
+                </div>
+              </div>
+              
+              <div className="mb-8">
+                <div className="text-4xl font-bold text-gray-900 mb-2">
+                  <PriceFormatter amount={serviceData.shopifyPrice} />
+                </div>
+                <p className="text-gray-600">Clé en main • Formation incluse</p>
+              </div>
+              
+              <div className="space-y-4 mb-8">
+                {[
+                  "Design sur-mesure reflétant votre marque",
+                  "Interface ultra-simple (gérable depuis smartphone)",
+                  "Paiements sécurisés (Wave, Stripe, PayPal)",
+                  "Optimisation mobile parfaite",
+                  "Support technique 24/7 Shopify",
+                  "Apps premium incluses (avis, marketing)",
+                  "Formation complète en français",
+                  "1 mois de support TEKKI gratuit"
+                ].map((feature, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
+                    <span className="text-gray-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
+              
               <button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-tekki-coral hover:bg-tekki-coral/90 text-white px-6 py-3 rounded-lg font-semibold transition-all"
+                onClick={() => openModal('shopify')}
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
               >
-                Poser ma question et réserver
+                <Zap className="w-5 h-5" />
+                Choisir Shopify Premium
+                <ArrowRight className="w-5 h-5" />
+              </button>
+              
+              <p className="text-center text-sm text-gray-500 mt-4">
+                ⚡ Parfait pour les marques qui veulent la simplicité
+              </p>
+            </div>
+
+            {/* Offre WordPress */}
+            <div className="bg-white rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all group hover:scale-105 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-gradient-to-l from-blue-500 to-indigo-400 text-white px-6 py-2 rounded-bl-2xl">
+                <span className="font-bold text-sm">ÉCONOMIQUE</span>
+              </div>
+              
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center">
+                  <Laptop className="w-8 h-8 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">WordPress Pro</h3>
+                  <p className="text-blue-600 font-medium">Personnalisation illimitée</p>
+                </div>
+              </div>
+              
+              <div className="mb-8">
+                <div className="text-4xl font-bold text-gray-900 mb-2">
+                  <PriceFormatter amount={serviceData.wordpressPrice} />
+                </div>
+                <p className="text-gray-600">Thème premium • Sans abonnement</p>
+              </div>
+              
+              <div className="space-y-4 mb-8">
+                {[
+                  "Design 100% personnalisé pour votre marque",
+                  "Aucun abonnement mensuel (hosting inclus 1 an)",
+                  "WooCommerce optimisé pour conversions",
+                  "SEO avancé pour Google",
+                  "Vitesse de chargement optimisée",
+                  "Extensions premium incluses",
+                  "Formation WordPress complète",
+                  "1 mois de support TEKKI gratuit"
+                ].map((feature, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-blue-500 mt-1 flex-shrink-0" />
+                    <span className="text-gray-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <button
+                onClick={() => openModal('wordpress')}
+                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
+              >
+                <Lightbulb className="w-5 h-5" />
+                Choisir WordPress Pro
+                <ArrowRight className="w-5 h-5" />
+              </button>
+              
+              <p className="text-center text-sm text-gray-500 mt-4">
+                💡 Parfait pour les marques qui veulent le contrôle total
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center mt-16">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-3xl mx-auto">
+              <h3 className="text-2xl font-bold text-white mb-4">
+                🤔 Pas sûr du choix ? On vous aide !
+              </h3>
+              <p className="text-white/90 mb-6">
+                Nos experts analysent votre marque et vous conseillent la meilleure solution. 
+                Consultation gratuite de 30min.
+              </p>
+              <button className="bg-white text-gray-900 px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
+                Consultation gratuite
               </button>
             </div>
           </div>
         </Container>
       </section>
 
-      {/* Garanties et confiance */}
-      <section className="py-16 bg-gradient-to-r from-green-50 to-blue-50">
+      {/* Portfolio */}
+      <section ref={portfolioRef} className="py-20 bg-white">
         <Container>
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold text-tekki-blue mb-6">
-              Pourquoi nous faire confiance ? 🛡️
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+              Des marques africaines qui 
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-red-500"> cartonnent</span> grâce à nous 🔥
             </h2>
             <p className="text-xl text-gray-600">
-              Votre tranquillité d'esprit est notre priorité
+              La preuve par l'exemple : des boutiques en ligne qui transforment réellement les visiteurs en clients
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white p-6 rounded-xl shadow-sm text-center hover:shadow-lg transition-all">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Calendar className="w-8 h-8 text-blue-600" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
+            {serviceData.portfolioItems.map((item, index) => (
+              <div key={index} className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 h-80">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-700">
+                  <div className="w-full h-full bg-gray-200 opacity-90"></div>
+                </div>
+                
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                  <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 text-sm font-medium mb-3 inline-block">
+                    {item.category}
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">{item.name}</h3>
+                  <a 
+                    href={item.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors"
+                  >
+                    Visiter le site
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </div>
+                
+                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-bold">
+                    ✓ En ligne
+                  </div>
+                </div>
               </div>
-              <h3 className="font-bold text-lg text-tekki-blue mb-2">
-                Livraison garantie en 7 jours
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Votre site est livré dans les délais promis, ou nous vous remboursons intégralement.
-              </p>
-            </div>
+            ))}
+          </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm text-center hover:shadow-lg transition-all">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-8 h-8 text-green-600" />
-              </div>
-              <h3 className="font-bold text-lg text-tekki-blue mb-2">
-                Paiement sécurisé en 2 fois
+          <div className="text-center">
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 max-w-4xl mx-auto">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                🎯 Résultats concrets de nos clients
               </h3>
-              <p className="text-gray-600 text-sm">
-                Vous ne payez le solde qu'à la livraison, après validation de votre site. Zéro risque !
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-sm text-center hover:shadow-lg transition-all">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MessageCircle className="w-8 h-8 text-orange-600" />
+              <div className="grid md:grid-cols-3 gap-6 mt-8">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-600 mb-2">+300%</div>
+                  <div className="text-gray-700">Ventes en moyenne</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">24/7</div>
+                  <div className="text-gray-700">Commandes automatiques</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-purple-600 mb-2">15+</div>
+                  <div className="text-gray-700">Pays de livraison</div>
+                </div>
               </div>
-              <h3 className="font-bold text-lg text-tekki-blue mb-2">
-                Support inclus 30 jours
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Formation complète + support technique pendant 1 mois après la livraison.
-              </p>
             </div>
           </div>
         </Container>
       </section>
 
-      {/* CTA Final avec urgence maximale */}
-      <section className="py-16 bg-gradient-to-r from-tekki-blue via-tekki-coral to-red-600 text-white relative overflow-hidden">
-        {/* Animation de fond */}
+      {/* Pourquoi nous choisir */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+        <Container>
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+              Pourquoi les marques africaines nous font-elles confiance ? 🏆
+            </h2>
+            <p className="text-xl text-gray-600">
+              Parce que nous ne sommes pas juste des développeurs. Nous sommes des créateurs de marques.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+            {serviceData.whyChooseUs.map((reason, index) => (
+              <div key={index} className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all group">
+                <div className="flex items-start gap-6">
+                  <div className="text-blue-600 group-hover:text-blue-700 transition-colors">
+                    {reason.icon}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">
+                      {reason.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      {reason.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* Témoignages */}
+      <section className="py-20 bg-white">
+        <Container>
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+              Ce que disent nos marques clientes 💬
+            </h2>
+            <p className="text-xl text-gray-600">
+              Des témoignages authentiques de marques qui ont transformé leur business
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {serviceData.testimonials.map((testimonial, index) => (
+              <div key={index} className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all group">
+                <div className="flex items-center gap-1 mb-6">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
+                  ))}
+                </div>
+                
+                <div className="relative mb-6">
+                  <Quote className="absolute -top-2 -left-2 w-8 h-8 text-blue-200" />
+                  <p className="text-gray-700 italic leading-relaxed pl-6">
+                    "{testimonial.content}"
+                  </p>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    {testimonial.avatar}
+                  </div>
+                  <div>
+                    <div className="font-bold text-gray-900">{testimonial.name}</div>
+                    <div className="text-blue-600 font-medium">{testimonial.brand}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-20 bg-gray-50">
+        <Container>
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+                Questions fréquentes 🤔
+              </h2>
+              <p className="text-xl text-gray-600">
+                Tout ce que vous devez savoir avant de franchir le pas
+              </p>
+            </div>
+            
+            <div className="space-y-6">
+              {serviceData.faqs.map((faq, index) => (
+                <div key={index} className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-all">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">
+                    {faq.question}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    {faq.answer}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* CTA Final */}
+      <section className="py-20 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 relative overflow-hidden">
+        {/* Effets visuels */}
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'radial-gradient(circle at 25% 25%, white 2px, transparent 2px)',
-            backgroundSize: '50px 50px',
-            animation: 'float 6s ease-in-out infinite'
-          }}></div>
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-yellow-400 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-400 rounded-full blur-3xl"></div>
         </div>
 
-        <Container className="text-center relative z-10">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            ⏰ Plus que quelques jours pour profiter de l'offre !
-          </h2>
-          <p className="text-xl md:text-2xl opacity-90 max-w-4xl mx-auto mb-8 leading-relaxed">
-            Ne laissez plus vos concurrents prendre vos clients. 
-            <strong> Rejoignez les dizaines de marques africaines qui ont transformé leur business </strong>
-            avec un site e-commerce professionnel.
-          </p>
-          
-          {/* Récap de l'offre */}
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-2xl mx-auto mb-8">
-            <h3 className="text-2xl font-bold mb-4">🎁 Récapitulatif de votre offre :</h3>
-            <div className="space-y-3 text-lg">
-              <div className="flex justify-between items-center">
-                <span>Site e-commerce professionnel</span>
-                <span className="line-through opacity-70"><PriceFormatter amount={serviceData.originalPrice} /></span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Stratégie Meta complète</span>
-                <span className="line-through opacity-70">150 000F</span>
-              </div>
-              <div className="border-t border-white/20 pt-3 flex justify-between items-center font-bold text-2xl">
-                <span>Votre prix aujourd'hui :</span>
-                <span className="text-yellow-300"><PriceFormatter amount={serviceData.promoPrice} /></span>
-              </div>
-              <div className="text-yellow-200 text-sm">
-                Soit <strong>{savingsPercent}% d'économie</strong> + stratégie Meta offerte !
-              </div>
-            </div>
-          </div>
-
-          {/* Modalités de paiement */}
-          <div className="mb-8">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 inline-block">
-              <div className="text-white/90 max-w-xl mx-auto">
-                💳 <strong>Paiement simplifié :</strong><br/>
-                279 000F à la commande + 186 000F à la livraison<br/>
-                <span className="text-sm opacity-80">Paiement sécurisé via Wave • Pas de frais cachés</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex flex-col lg:flex-row items-center justify-center gap-6">
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-yellow-400 hover:bg-yellow-300 text-tekki-blue px-12 py-5 rounded-lg font-bold text-xl transition-all transform hover:scale-105 shadow-2xl inline-flex items-center animate-pulse"
-            >
-              🚀 Je réserve ma place maintenant
-              <ArrowRight className="ml-3 h-6 w-6" />
-            </button>
+        <Container className="relative z-10">
+          <div className="max-w-5xl mx-auto text-center">
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-8 leading-tight">
+              Prêt à faire décoller votre marque ? 🚀
+            </h2>
             
-            <div className="text-center lg:text-left">
-              <div className="text-white/90 font-semibold">⚡ Réponse sous 24h garantie</div>
-              <div className="text-white/80 text-sm">Votre site livré en 7 jours ouvrés</div>
+            <p className="text-xl md:text-2xl text-white/90 mb-12 leading-relaxed max-w-4xl mx-auto">
+              Rejoignez les dizaines de marques africaines qui ont choisi TEKKI Studio 
+              pour <strong>transformer leur vision en empire digital</strong>. 
+              Votre succès commence maintenant.
+            </p>
+            
+            <div className="flex flex-col lg:flex-row items-center justify-center gap-8 mb-16">
+              <button
+                onClick={() => openModal('shopify')}
+                className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-black px-10 py-5 rounded-2xl font-bold text-xl transition-all transform hover:scale-105 shadow-2xl flex items-center gap-3"
+              >
+                <Smartphone className="w-6 h-6" />
+                Commencer avec Shopify
+                <ArrowRight className="w-6 h-6" />
+              </button>
+              
+              <button
+                onClick={() => openModal('wordpress')}
+                className="bg-white/10 backdrop-blur-sm border-2 border-white/30 hover:bg-white/20 text-white px-10 py-5 rounded-2xl font-bold text-xl transition-all flex items-center gap-3"
+              >
+                <Laptop className="w-6 h-6" />
+                Commencer avec WordPress
+                <ArrowRight className="w-6 h-6" />
+              </button>
             </div>
-          </div>
 
-          {/* Compteur d'urgence final */}
-          <div className="mt-12">
-            <div className="bg-red-500 text-white px-8 py-4 rounded-lg inline-block animate-bounce">
-              <div className="flex items-center justify-center gap-2 text-lg font-bold">
-                <Clock className="w-6 h-6" />
-                Offre valable jusqu'au 7 juin 2025 - Ne manquez pas cette opportunité !
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-4xl mx-auto">
+              <div className="grid md:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <Shield className="w-12 h-12 text-green-400 mx-auto mb-4" />
+                  <h3 className="font-bold text-white mb-2">Livraison garantie</h3>
+                  <p className="text-white/80 text-sm">Votre site en 7-10 jours ou remboursé</p>
+                </div>
+                <div className="text-center">
+                  <Heart className="w-12 h-12 text-red-400 mx-auto mb-4" />
+                  <h3 className="font-bold text-white mb-2">Support inclus</h3>
+                  <p className="text-white/80 text-sm">1 mois de support + formation gratuite</p>
+                </div>
+                <div className="text-center">
+                  <Trophy className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
+                  <h3 className="font-bold text-white mb-2">Expertise prouvée</h3>
+                  <p className="text-white/80 text-sm">50+ marques satisfaites • 5⭐ garanties</p>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Social proof final */}
-          <div className="mt-8 text-white/80 text-sm">
-            ✅ Déjà <strong>50+ marques</strong> nous ont fait confiance • ⭐ <strong>4.9/5</strong> de satisfaction client
           </div>
         </Container>
       </section>
 
-      {/* Modal d'inscription */}
-      <EnrollmentModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        serviceData={{
-          title: serviceData.title,
-          subtitle: serviceData.subtitle,
-          price: {
-            shopify: serviceData.promoPrice, // Prix promo pour Shopify
-            wordpress: Math.round(serviceData.promoPrice * 0.85) // Prix promo pour WordPress (légèrement moins cher)
-          },
-          deliveryTime: serviceData.deliveryTime,
-          portfolioItems: serviceData.portfolioItems,
-          features: serviceData.features,
-          marketingStrategy: serviceData.marketingStrategy
-        }}
-      />
-
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-10px) rotate(180deg); }
-        }
-      `}</style>
+      {/* Modal factice pour la démo */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              {selectedPlatform === 'shopify' ? 'Shopify Premium' : 'WordPress Pro'}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Excellent choix ! Notre équipe va vous contacter dans les 24h pour démarrer votre projet.
+            </p>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+              >
+                Fermer
+              </button>
+              <button className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors">
+                Commencer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

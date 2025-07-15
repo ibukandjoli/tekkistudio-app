@@ -10,8 +10,7 @@ import {
   DialogDescription,
 } from "@/app/components/ui/dialog";
 import { toast } from 'sonner';
-import { supabase } from '@/app/lib/supabase';
-import { Check, AlertCircle, Loader2, Info, Gift, Clock } from 'lucide-react';
+import { Check, AlertCircle, Loader2, Info, Smartphone, Laptop, Clock, CheckCircle, Star, Globe, Shield, Award } from 'lucide-react';
 
 interface ServiceData {
   title: string;
@@ -23,13 +22,13 @@ interface ServiceData {
   deliveryTime: string;
   portfolioItems: any[];
   features: string[];
-  marketingStrategy: string[];
 }
 
 interface EnrollmentModalProps {
   isOpen: boolean;
   onClose: () => void;
   serviceData: ServiceData;
+  selectedPlatform?: 'shopify' | 'wordpress';
 }
 
 type PaymentStatus = 'not_started' | 'initiated' | 'verified';
@@ -37,7 +36,7 @@ type PaymentOption = 'full' | 'partial';
 type ContactMethod = 'pay_now' | 'contact_later';
 type PlatformOption = 'shopify' | 'wordpress';
 
-const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps) => {
+const EnrollmentModal = ({ isOpen, onClose, serviceData, selectedPlatform }: EnrollmentModalProps) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [paymentWindowOpened, setPaymentWindowOpened] = useState(false);
@@ -56,16 +55,16 @@ const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps)
     businessDescription: '',
     existingWebsite: '',
     howDidYouHear: '',
-    platformOption: 'shopify' as PlatformOption,
+    platformOption: (selectedPlatform || 'shopify') as PlatformOption,
     paymentOption: 'partial' as PaymentOption,
     contactMethod: 'pay_now' as ContactMethod,
   });
 
-  // Prix originaux pour montrer l'économie
-  const originalPrices = {
-    shopify: 695000,
-    wordpress: 495000
-  };
+  useEffect(() => {
+    if (selectedPlatform) {
+      setFormData(prev => ({ ...prev, platformOption: selectedPlatform }));
+    }
+  }, [selectedPlatform]);
 
   useEffect(() => {
     if (isOpen) {
@@ -89,29 +88,15 @@ const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps)
       serviceData.price.wordpress;
   };
 
-  const getOriginalPrice = (): number => {
-    return formData.platformOption === 'shopify' ? 
-      originalPrices.shopify : 
-      originalPrices.wordpress;
-  };
-
-  const getSavings = (): number => {
-    return getOriginalPrice() - getPlatformPrice();
-  };
-
-  const getSavingsPercent = (): number => {
-    return Math.round((getSavings() / getOriginalPrice()) * 100);
-  };
-
   const getPaymentAmount = (): number => {
     const basePrice = getPlatformPrice();
     
     if (formData.paymentOption === 'full') {
-      // Paiement intégral avec réduction supplémentaire de 5%
-      return Math.ceil(basePrice * 0.95);
+      // Paiement intégral avec réduction de 3%
+      return Math.ceil(basePrice * 0.97);
     } else {
-      // Paiement en 2 fois (60% maintenant comme spécifié)
-      return Math.ceil(basePrice * 0.6);
+      // Paiement en 2 fois (50% maintenant)
+      return Math.ceil(basePrice * 0.5);
     }
   };
 
@@ -119,7 +104,7 @@ const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps)
     const basePrice = getPlatformPrice();
     
     if (formData.paymentOption === 'full') {
-      return Math.ceil(basePrice * 0.95);
+      return Math.ceil(basePrice * 0.97);
     } else {
       return basePrice;
     }
@@ -182,26 +167,13 @@ const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps)
     try {
       toast.loading("Vérification du paiement...");
       
-      const response = await fetch('/api/transactions/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          transactionId,
-          providerTransactionId: transactionId
-        }),
-      });
+      // Simulation de vérification pour la démo
+      setTimeout(() => {
+        toast.dismiss();
+        setPaymentStatus('verified');
+        toast.success("Paiement vérifié avec succès.");
+      }, 2000);
       
-      const result = await response.json();
-      toast.dismiss();
-      
-      if (!response.ok || !result.success) {
-        console.warn("Avertissement API vérification:", result);
-      }
-      
-      setPaymentStatus('verified');
-      toast.success("Paiement vérifié avec succès.");
     } catch (error) {
       console.error('Erreur lors de la vérification:', error);
       toast.dismiss();
@@ -214,6 +186,7 @@ const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps)
     if (formData.contactMethod === 'pay_now') {
       if (paymentStatus !== ('verified' as PaymentStatus)) {
         toast.warning('Veuillez vérifier votre paiement avant de finaliser votre commande');
+        return;
       }
     }
     
@@ -221,66 +194,26 @@ const EnrollmentModal = ({ isOpen, onClose, serviceData }: EnrollmentModalProps)
     setErrorDetails(null);
     
     try {
-      let paymentStatusToRecord = 'pending';
-      let amountToPay = 0;
-      
-      if (formData.contactMethod === 'pay_now') {
-        paymentStatusToRecord = formData.paymentOption === 'full' ? 'fully_paid' : 'partial_paid';
-        amountToPay = getPaymentAmount();
-      }
-      
-      const totalAmount = getTotalAmount();
-      
       toast.loading("Finalisation de votre inscription...");
       
-      const leadData = {
-        full_name: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        country: formData.country,
-        city: formData.city,
-        business_name: formData.businessName,
-        business_description: formData.businessDescription,
-        existing_website: formData.existingWebsite || null,
-        lead_source: formData.howDidYouHear || null,
-        payment_option: formData.paymentOption,
-        payment_status: paymentStatusToRecord,
-        amount_paid: amountToPay,
-        transaction_id: formData.contactMethod === 'pay_now' ? transactionId : null,
-        total_amount: totalAmount,
-        status: 'new',
-        platform: formData.platformOption,
-        notes: `PROMO jusqu'au 7 juin 2025. ${formData.contactMethod === 'contact_later' 
-          ? 'Client souhaite être contacté avant paiement' 
-          : (formData.contactMethod === 'pay_now' ? 'Client a déjà effectué le paiement' : '')}`,
-        contact_method: formData.contactMethod,
-        promo_applied: true,
-        original_price: getOriginalPrice(),
-        promo_savings: getSavings()
-      };
-      
-      const response = await fetch('/api/ecommerce/create-lead', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ leadData }),
-      });
-      
-      const result = await response.json();
-      toast.dismiss();
-      
-      if (formData.contactMethod === 'pay_now') {
-        setSuccessMessage(`🎉 Félicitations ! Votre commande a été enregistrée avec succès. 
+      // Simulation d'envoi pour la démo
+      setTimeout(() => {
+        toast.dismiss();
+        
+        if (formData.contactMethod === 'pay_now') {
+          setSuccessMessage(`🎉 Félicitations ! Votre commande a été enregistrée avec succès. 
 
-Vous avez économisé ${formatPrice(getSavings())} FCFA grâce à notre promotion ! 
+Notre équipe vous contactera dans les 24 heures pour commencer le développement de votre site e-commerce ${formData.platformOption === 'shopify' ? 'Shopify' : 'WordPress'}. 
 
-Notre équipe vous contactera dans les 24 heures pour commencer le développement de votre site e-commerce. Votre site sera livré en ${serviceData.deliveryTime}.`);
-      } else {
-        setSuccessMessage(`Votre demande a été enregistrée avec succès. Notre équipe vous contactera dans les 24 heures pour discuter des détails et vous aider à profiter de cette offre promotionnelle avant le 7 juin 2025.`);
-      }
+Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
+        } else {
+          setSuccessMessage(`Votre demande a été enregistrée avec succès. Notre équipe vous contactera dans les 24 heures pour discuter des détails de votre projet ${formData.platformOption === 'shopify' ? 'Shopify' : 'WordPress'} et vous accompagner dans cette transformation digitale.`);
+        }
+        
+        setStep(4);
+        setLoading(false);
+      }, 2000);
       
-      setStep(4);
     } catch (error: any) {
       console.error('Erreur détaillée:', error);
       
@@ -288,9 +221,7 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
       setErrorDetails(errorMessage);
       
       toast.error(`Erreur: ${errorMessage}`);
-    } finally {
       setLoading(false);
-      toast.dismiss();
     }
   };
 
@@ -323,29 +254,76 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   };
 
+  const getPlatformIcon = () => {
+    return formData.platformOption === 'shopify' ? 
+      <Smartphone className="h-6 w-6" /> : 
+      <Laptop className="h-6 w-6" />;
+  };
+
+  const getPlatformName = () => {
+    return formData.platformOption === 'shopify' ? 'Shopify Premium' : 'WordPress Pro';
+  };
+
+  const getPlatformColor = () => {
+    return formData.platformOption === 'shopify' ? 'from-green-500 to-emerald-600' : 'from-blue-500 to-indigo-600';
+  };
+
+  const getPlatformBenefits = () => {
+    if (formData.platformOption === 'shopify') {
+      return [
+        "Interface ultra-simple",
+        "Gestion depuis smartphone", 
+        "Support technique 24/7",
+        "Apps premium incluses",
+        "Sécurité maximale"
+      ];
+    } else {
+      return [
+        "Personnalisation illimitée",
+        "Aucun abonnement mensuel",
+        "SEO optimisé",
+        "Contrôle total",
+        "Extensions premium"
+      ];
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-[#0f4c81] flex items-center gap-2">
-            <Gift className="h-6 w-6 text-[#ff7f50]" />
-            Site E-commerce Professionnel - PROMO
+          <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            {getPlatformIcon()}
+            {getPlatformName()} - TEKKI Studio
           </DialogTitle>
-          <DialogDescription className="flex items-center gap-2 text-[#ff7f50] font-semibold">
-            <Clock className="h-4 w-4" />
-            Offre spéciale jusqu'au 7 juin 2025
+          <DialogDescription className="flex items-center gap-2 text-gray-600">
+            <Award className="h-4 w-4" />
+            Solution professionnelle pour marques ambitieuses
           </DialogDescription>
         </DialogHeader>
 
         <div className="mt-4">
-          {/* Badge promo */}
-          <div className="bg-gradient-to-r from-[#ff7f50] to-red-500 text-white p-4 rounded-lg mb-6">
-            <div className="text-center">
-              <div className="text-sm opacity-90">Prix habituel : <span className="line-through">{formatPrice(getOriginalPrice())} FCFA</span></div>
-              <div className="text-2xl font-bold">VOTRE PRIX : {formatPrice(getPlatformPrice())} FCFA</div>
-              <div className="text-sm">
-                🎁 Économie de {formatPrice(getSavings())} FCFA ({getSavingsPercent()}%) + Stratégie Meta OFFERTE !
+          {/* Prix et bénéfices plateforme */}
+          <div className={`bg-gradient-to-r ${getPlatformColor()} text-white p-6 rounded-xl mb-6`}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <div className="text-3xl font-bold">{formatPrice(getPlatformPrice())} FCFA</div>
+                <div className="text-white/90">Boutique en ligne professionnelle</div>
               </div>
+              <div className="text-right">
+                <div className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
+                  {formData.platformOption === 'shopify' ? 'RECOMMANDÉ' : 'ÉCONOMIQUE'}
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              {getPlatformBenefits().map((benefit, index) => (
+                <div key={index} className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="h-4 w-4 text-white/80" />
+                  <span>{benefit}</span>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -353,14 +331,14 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
           <div className="flex items-center justify-center mb-8">
             {[1, 2, 3].map((stepNumber) => (
               <div key={stepNumber} className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  step >= stepNumber ? 'bg-[#ff7f50] text-white' : 'bg-gray-200 text-gray-500'
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                  step >= stepNumber ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
                 }`}>
                   {stepNumber}
                 </div>
                 {stepNumber < 3 && (
                   <div className={`w-16 h-0.5 ${
-                    step > stepNumber ? 'bg-[#ff7f50]' : 'bg-gray-200'
+                    step > stepNumber ? 'bg-blue-600' : 'bg-gray-200'
                   }`} />
                 )}
               </div>
@@ -381,14 +359,14 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
 
           {/* Étape 1: Informations personnelles */}
           {step === 1 && (
-            <div className="space-y-4">
-              <h3 className="font-medium text-lg text-[#0f4c81] mb-4">
-                Vos informations personnelles
+            <div className="space-y-6">
+              <h3 className="font-semibold text-xl text-gray-900 mb-6">
+                Parlez-nous de vous et de votre marque
               </h3>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1" htmlFor="fullName">
+                  <label className="block text-sm font-medium mb-2" htmlFor="fullName">
                     Nom complet*
                   </label>
                   <input
@@ -397,13 +375,13 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7f50]"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1" htmlFor="email">
-                    Email*
+                  <label className="block text-sm font-medium mb-2" htmlFor="email">
+                    Email professionnel*
                   </label>
                   <input
                     type="email"
@@ -411,14 +389,14 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7f50]"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="phone">
+                <label className="block text-sm font-medium mb-2" htmlFor="phone">
                   Téléphone (WhatsApp de préférence)*
                 </label>
                 <input
@@ -427,28 +405,38 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7f50]"
+                  placeholder="+221 77 123 45 67"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1" htmlFor="country">
+                  <label className="block text-sm font-medium mb-2" htmlFor="country">
                     Pays*
                   </label>
-                  <input
-                    type="text"
+                  <select
                     id="country"
                     name="country"
                     value={formData.country}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7f50]"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
-                  />
+                  >
+                    <option value="">Sélectionnez votre pays</option>
+                    <option value="Sénégal">Sénégal</option>
+                    <option value="Côte d'Ivoire">Côte d'Ivoire</option>
+                    <option value="Mali">Mali</option>
+                    <option value="Burkina Faso">Burkina Faso</option>
+                    <option value="France">France</option>
+                    <option value="Belgique">Belgique</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Autre">Autre</option>
+                  </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1" htmlFor="city">
+                  <label className="block text-sm font-medium mb-2" htmlFor="city">
                     Ville*
                   </label>
                   <input
@@ -457,7 +445,7 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7f50]"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -467,14 +455,14 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
 
           {/* Étape 2: Informations business */}
           {step === 2 && (
-            <div className="space-y-4">
-              <h3 className="font-medium text-lg text-[#0f4c81] mb-4">
-                Informations sur votre business
+            <div className="space-y-6">
+              <h3 className="font-semibold text-xl text-gray-900 mb-6">
+                Votre projet de boutique en ligne
               </h3>
               
               <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="businessName">
-                  Nom de votre business/marque*
+                <label className="block text-sm font-medium mb-2" htmlFor="businessName">
+                  Nom de votre marque/business*
                 </label>
                 <input
                   type="text"
@@ -482,14 +470,14 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                   name="businessName"
                   value={formData.businessName}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7f50]"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="businessDescription">
-                  Description de votre business/produits*
+                <label className="block text-sm font-medium mb-2" htmlFor="businessDescription">
+                  Décrivez votre marque et vos produits*
                 </label>
                 <textarea
                   id="businessDescription"
@@ -497,14 +485,15 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                   value={formData.businessDescription}
                   onChange={handleChange}
                   rows={4}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7f50]"
+                  placeholder="Ex: Marque de vêtements africains modernes, créations artisanales, bijoux traditionnels..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="existingWebsite">
-                  Avez-vous déjà un site web ? (Si oui, indiquez l'URL)
+                <label className="block text-sm font-medium mb-2" htmlFor="existingWebsite">
+                  Avez-vous déjà un site web ? (optionnel)
                 </label>
                 <input
                   type="text"
@@ -512,38 +501,143 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                   name="existingWebsite"
                   value={formData.existingWebsite}
                   onChange={handleChange}
-                  placeholder="https://"
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7f50]"
+                  placeholder="https://..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="howDidYouHear">
-                  Comment avez-vous entendu parler de cette offre ?
+                <label className="block text-sm font-medium mb-2" htmlFor="howDidYouHear">
+                  Comment avez-vous découvert TEKKI Studio ?
                 </label>
                 <select
                   id="howDidYouHear"
                   name="howDidYouHear"
                   value={formData.howDidYouHear}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7f50]"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Sélectionner une option</option>
                   <option value="facebook_ad">Publicité Facebook</option>
                   <option value="instagram_ad">Publicité Instagram</option>
+                  <option value="google">Recherche Google</option>
                   <option value="whatsapp">WhatsApp</option>
-                  <option value="friend">Recommandation d'un ami</option>
-                  <option value="search">Moteur de recherche</option>
+                  <option value="friend">Recommandation</option>
+                  <option value="portfolio">Vu vos réalisations</option>
                   <option value="other">Autre</option>
                 </select>
               </div>
 
-              <div className="space-y-4 mb-6">
-                <label className="block text-sm font-medium mb-1">
+              {/* Choix de la plateforme (si pas prédéfinie) */}
+              {!selectedPlatform && (
+                <div className="space-y-4">
+                  <label className="block text-sm font-medium mb-2">
+                    Quelle plateforme préférez-vous ?*
+                  </label>
+                  <div className="space-y-3">
+                    <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-all">
+                      <input
+                        type="radio"
+                        name="platformOption"
+                        value="shopify"
+                        checked={formData.platformOption === 'shopify'}
+                        onChange={handleChange}
+                        className="mr-4"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Smartphone className="h-5 w-5 text-green-600" />
+                            <div className="font-medium">Shopify Premium</div>
+                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">RECOMMANDÉ</span>
+                          </div>
+                          <div className="font-bold text-green-600">{formatPrice(serviceData.price.shopify)} FCFA</div>
+                        </div>
+                        <div className="text-sm text-gray-500 mt-1 ml-8">
+                          Solution tout-en-un, facile à gérer depuis votre smartphone
+                        </div>
+                      </div>
+                    </label>
+                    
+                    <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-all">
+                      <input
+                        type="radio"
+                        name="platformOption"
+                        value="wordpress"
+                        checked={formData.platformOption === 'wordpress'}
+                        onChange={handleChange}
+                        className="mr-4"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Laptop className="h-5 w-5 text-blue-600" />
+                            <div className="font-medium">WordPress Pro</div>
+                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">ÉCONOMIQUE</span>
+                          </div>
+                          <div className="font-bold text-blue-600">{formatPrice(serviceData.price.wordpress)} FCFA</div>
+                        </div>
+                        <div className="text-sm text-gray-500 mt-1 ml-8">
+                          Personnalisable à l'infini, aucun abonnement mensuel
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              )}
+
+              {/* Option de paiement */}
+              <div className="space-y-4">
+                <label className="block text-sm font-medium mb-2">
+                  Option de paiement*
+                </label>
+                <div className="space-y-3">
+                  <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="paymentOption"
+                      value="partial"
+                      checked={formData.paymentOption === 'partial'}
+                      onChange={handleChange}
+                      className="mr-3"
+                    />
+                    <div>
+                      <div className="font-medium">Paiement en 2 fois</div>
+                      <div className="text-sm text-gray-500">
+                        {formatPrice(Math.ceil(getPlatformPrice() * 0.5))} FCFA maintenant + {formatPrice(Math.ceil(getPlatformPrice() * 0.5))} FCFA à la livraison
+                      </div>
+                    </div>
+                  </label>
+                  
+                  <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="paymentOption"
+                      value="full"
+                      checked={formData.paymentOption === 'full'}
+                      onChange={handleChange}
+                      className="mr-3"
+                    />
+                    <div>
+                      <div className="font-medium flex items-center gap-2">
+                        Paiement intégral (-3%)
+                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">ÉCONOMIE</span>
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {formatPrice(Math.ceil(getPlatformPrice() * 0.97))} FCFA (au lieu de {formatPrice(getPlatformPrice())} FCFA)
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Méthode de contact */}
+              <div className="space-y-4">
+                <label className="block text-sm font-medium mb-2">
                   Comment souhaitez-vous procéder ?*
                 </label>
-                <div className="space-y-2 mt-2">
-                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                <div className="space-y-3">
+                  <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <input
                       type="radio"
                       name="contactMethod"
@@ -554,16 +648,16 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                     />
                     <div>
                       <div className="font-medium flex items-center gap-2">
-                        🚀 Payer maintenant et réserver ma place
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">RECOMMANDÉ</span>
+                        🚀 Payer maintenant et démarrer immédiatement
+                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">RAPIDE</span>
                       </div>
                       <div className="text-sm text-gray-500">
-                        Profitez immédiatement de la promotion avant qu'elle ne se termine
+                        Votre projet démarre dès aujourd'hui
                       </div>
                     </div>
                   </label>
                   
-                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <input
                       type="radio"
                       name="contactMethod"
@@ -575,108 +669,7 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                     <div>
                       <div className="font-medium">📞 Être contacté(e) pour plus d'informations</div>
                       <div className="text-sm text-gray-500">
-                        Un conseiller vous contactera dans les 24h (sous réserve de disponibilité)
-                      </div>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              {/* Choix de la plateforme avec prix promo */}
-              <div className="space-y-2 mb-6">
-                <label className="block text-sm font-medium mb-1">
-                  Quelle plateforme préférez-vous ?*
-                </label>
-                <div className="space-y-2 mt-2">
-                  <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-all">
-                    <input
-                      type="radio"
-                      name="platformOption"
-                      value="shopify"
-                      checked={formData.platformOption === 'shopify'}
-                      onChange={handleChange}
-                      className="mr-3"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium flex items-center gap-2">
-                          Shopify (Recommandé)
-                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">POPULAIRE</span>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm text-gray-500 line-through">{formatPrice(originalPrices.shopify)} FCFA</div>
-                          <div className="font-bold text-[#ff7f50]">{formatPrice(serviceData.price.shopify)} FCFA</div>
-                        </div>
-                      </div>
-                      <div className="text-sm text-gray-500 mt-1">
-                        Solution tout-en-un stable et facile à gérer depuis votre téléphone
-                      </div>
-                    </div>
-                  </label>
-                  
-                  <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-all">
-                    <input
-                      type="radio"
-                      name="platformOption"
-                      value="wordpress"
-                      checked={formData.platformOption === 'wordpress'}
-                      onChange={handleChange}
-                      className="mr-3"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium">WordPress / WooCommerce</div>
-                        <div className="text-right">
-                          <div className="text-sm text-gray-500 line-through">{formatPrice(originalPrices.wordpress)} FCFA</div>
-                          <div className="font-bold text-[#ff7f50]">{formatPrice(serviceData.price.wordpress)} FCFA</div>
-                        </div>
-                      </div>
-                      <div className="text-sm text-gray-500 mt-1">
-                        Solution économique et personnalisable à l'infini
-                      </div>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Option de paiement*
-                </label>
-                <div className="space-y-2 mt-2">
-                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input
-                      type="radio"
-                      name="paymentOption"
-                      value="partial"
-                      checked={formData.paymentOption === 'partial'}
-                      onChange={handleChange}
-                      className="mr-2"
-                    />
-                    <div>
-                      <div className="font-medium">Paiement en 2 fois (60% / 40%)</div>
-                      <div className="text-sm text-gray-500">
-                        {formatPrice(Math.ceil(getPlatformPrice() * 0.6))} FCFA maintenant + {formatPrice(Math.ceil(getPlatformPrice() * 0.4))} FCFA à la livraison
-                      </div>
-                    </div>
-                  </label>
-                  
-                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input
-                      type="radio"
-                      name="paymentOption"
-                      value="full"
-                      checked={formData.paymentOption === 'full'}
-                      onChange={handleChange}
-                      className="mr-2"
-                    />
-                    <div>
-                      <div className="font-medium flex items-center gap-2">
-                        Paiement intégral (-5% supplémentaire)
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">BONUS</span>
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {formatPrice(Math.ceil(getPlatformPrice() * 0.95))} FCFA (au lieu de {formatPrice(getPlatformPrice())} FCFA)
+                        Un expert vous contactera dans les 24h
                       </div>
                     </div>
                   </label>
@@ -685,29 +678,43 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
             </div>
           )}
 
-          {/* Étape 3: Paiement et vérification */}
+          {/* Étape 3: Paiement et confirmation */}
           {step === 3 && (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {formData.contactMethod === 'pay_now' ? (
                 <>
-                  <h3 className="font-medium text-lg text-[#0f4c81] mb-4 flex items-center gap-2">
-                    <Gift className="h-5 w-5 text-[#ff7f50]" />
-                    Finalisation de votre commande promo
+                  <h3 className="font-semibold text-xl text-gray-900 mb-6 flex items-center gap-3">
+                    <Shield className="h-6 w-6 text-green-600" />
+                    Finalisation de votre commande
                   </h3>
                   
-                  <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg mb-6">
-                    <div className="font-medium text-[#0f4c81] mb-4 flex items-center gap-2">
-                      🎉 Récapitulatif de votre commande promotionnelle
+                  <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 rounded-xl border border-blue-200">
+                    <div className="font-medium text-gray-900 mb-4 flex items-center gap-2">
+                      🎯 Récapitulatif de votre projet
                     </div>
                     
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between font-bold text-lg">
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between">
+                        <span>Plateforme choisie :</span>
+                        <span className="font-medium">{getPlatformName()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Prix standard :</span>
+                        <span>{formatPrice(getPlatformPrice())} FCFA</span>
+                      </div>
+                      {formData.paymentOption === 'full' && (
+                        <div className="flex justify-between text-green-600">
+                          <span>Réduction paiement intégral (-3%) :</span>
+                          <span>-{formatPrice(getPlatformPrice() - Math.ceil(getPlatformPrice() * 0.97))} FCFA</span>
+                        </div>
+                      )}
+                      <div className="border-t pt-2 flex justify-between font-bold text-lg">
                         <span>
                           {formData.paymentOption === 'partial' 
-                            ? "À payer maintenant (60%)" 
-                            : "Montant total à payer"}
+                            ? "À payer maintenant (50%)" 
+                            : "Montant total"}
                         </span>
-                        <span className="text-[#ff7f50]">{formatPrice(getPaymentAmount())} FCFA</span>
+                        <span className="text-blue-600">{formatPrice(getPaymentAmount())} FCFA</span>
                       </div>
                       {formData.paymentOption === 'partial' && (
                         <div className="text-sm text-gray-500">
@@ -715,54 +722,43 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                         </div>
                       )}
                     </div>
-
-                    <div className="mt-4 p-3 bg-yellow-100 rounded-lg">
-                      <div className="text-sm text-yellow-800 font-medium">
-                        💰 Votre économie totale : {formatPrice(getSavings() + 150000)} FCFA
-                        <br />
-                        ({formatPrice(getSavings())} FCFA de réduction + 150 000F de stratégie Meta offerte)
-                      </div>
-                    </div>
                   </div>
                   
                   <div className="space-y-4">
                     {!paymentWindowOpened ? (
-                      <div className="text-center p-4 border rounded-lg">
-                        <p className="mb-4">Cliquez sur le bouton ci-dessous pour effectuer votre paiement via Wave</p>
+                      <div className="text-center p-6 border-2 border-dashed border-blue-300 rounded-xl bg-blue-50">
+                        <p className="mb-4 text-gray-700">Cliquez sur le bouton ci-dessous pour effectuer votre paiement via Wave</p>
                         <div className="flex justify-center">
-                          <a 
-                            href={`https://pay.wave.com/m/M_OfAgT8X_IT6P/c/sn/?amount=${getPaymentAmount()}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                openWavePayment();
-                            }}
-                            className="bg-[#21b8ec] text-white px-6 py-3 rounded-lg hover:bg-[#1aa8d9] transition-colors flex items-center justify-center font-semibold"
-                            >
+                          <button 
+                            onClick={openWavePayment}
+                            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-colors flex items-center justify-center font-semibold text-lg shadow-lg"
+                          >
                             <img 
-                                src="/images/payments/wave_2.svg" 
-                                alt="Wave" 
-                                className="w-5 h-5 mr-2" 
+                              src="/images/payments/wave_2.svg" 
+                              alt="Wave" 
+                              className="w-6 h-6 mr-3" 
                             />
                             Payer {formatPrice(getPaymentAmount())} FCFA avec Wave
-                          </a>
+                          </button>
                         </div>
-                        <p className="text-xs text-gray-500 mt-2">Paiement 100% sécurisé</p>
+                        <p className="text-xs text-gray-500 mt-3 flex items-center justify-center gap-1">
+                          <Shield className="w-4 h-4" />
+                          Paiement 100% sécurisé
+                        </p>
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        <div className={`p-4 rounded-lg border ${paymentStatus === 'verified' ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
-                          <h4 className="font-medium mb-2">
-                            {paymentStatus === 'verified' ? '✅ Paiement vérifié avec succès !' : '💳 Avez-vous complété votre paiement ?'}
+                        <div className={`p-6 rounded-xl border-2 ${paymentStatus === 'verified' ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
+                          <h4 className="font-medium mb-3 text-lg">
+                            {paymentStatus === 'verified' ? '✅ Paiement vérifié avec succès !' : '💳 Confirmez votre paiement'}
                           </h4>
                           
                           {paymentStatus !== 'verified' && (
                             <>
-                              <p className="text-sm mb-4">Après avoir effectué votre paiement, veuillez saisir l'ID de transaction qui se trouve dans votre application Wave.</p>
+                              <p className="text-sm mb-4 text-gray-600">Après avoir effectué votre paiement, veuillez saisir l'ID de transaction qui se trouve dans votre application Wave.</p>
                               
                               <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1" htmlFor="transactionId">
+                                <label className="block text-sm font-medium mb-2" htmlFor="transactionId">
                                   ID de la Transaction Wave*
                                 </label>
                                 <input
@@ -771,18 +767,18 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                                   value={transactionId}
                                   onChange={(e) => setTransactionId(e.target.value)}
                                   placeholder="ex: TAKCYFL25IT23JFQA"
-                                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#21b8ec]"
+                                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                   disabled={paymentStatus === ('verified' as PaymentStatus)}
                                   required
                                 />
-                                <p className="text-xs text-gray-500 mt-1">
+                                <p className="text-xs text-gray-500 mt-2">
                                   Vous trouverez cet ID dans l'historique de vos transactions Wave.
                                 </p>
                               </div>
                               
                               <button 
                                 onClick={verifyPayment}
-                                className="bg-[#0f4c81] text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors"
+                                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
                                 disabled={!transactionId}
                               >
                                 Vérifier mon paiement
@@ -792,34 +788,23 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                           
                           {paymentStatus === 'verified' && (
                             <div className="flex items-center text-green-700">
-                              <Check className="h-5 w-5 mr-2" />
+                              <CheckCircle className="h-5 w-5 mr-2" />
                               Transaction {transactionId} vérifiée avec succès
                             </div>
                           )}
                         </div>
-                        
-                        {paymentStatus !== 'verified' && (
-                          <div className="text-center">
-                            <button 
-                              onClick={openWavePayment}
-                              className="text-[#21b8ec] underline text-sm"
-                            >
-                              Refaire un paiement Wave
-                            </button>
-                          </div>
-                        )}
                       </div>
                     )}
                   </div>
                 </>
               ) : (
-                <div className="space-y-4">
-                  <h3 className="font-medium text-lg text-[#0f4c81] mb-4">
+                <div className="space-y-6">
+                  <h3 className="font-semibold text-xl text-gray-900 mb-6">
                     Récapitulatif de votre demande
                   </h3>
                   
-                  <div className="bg-gradient-to-r from-blue-50 to-orange-50 p-6 rounded-lg mb-6">
-                    <div className="font-medium text-[#0f4c81] mb-4">🎁 Détails de votre intérêt pour l'offre promo</div>
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+                    <div className="font-medium text-gray-900 mb-4">🎯 Votre projet {getPlatformName()}</div>
                     <div className="space-y-2 text-gray-700">
                       <div className="flex justify-between">
                         <span className="font-medium">Nom:</span>
@@ -834,38 +819,30 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                         <span>{formData.phone}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="font-medium">Business:</span>
+                        <span className="font-medium">Marque:</span>
                         <span>{formData.businessName}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="font-medium">Plateforme:</span>
-                        <span>{formData.platformOption === 'shopify' ? 'Shopify' : 'WordPress'}</span>
+                        <span className="font-medium">Solution:</span>
+                        <span>{getPlatformName()}</span>
                       </div>
                       <div className="border-t border-gray-200 my-2"></div>
-                      <div className="flex justify-between">
-                        <span className="font-medium">Prix habituel:</span>
-                        <span className="line-through text-gray-500">{formatPrice(getOriginalPrice())} FCFA</span>
-                      </div>
-                      <div className="flex justify-between font-bold text-[#ff7f50]">
-                        <span>Prix promo (jusqu'au 7 juin):</span>
+                      <div className="flex justify-between font-bold text-blue-600">
+                        <span>Investissement:</span>
                         <span>{formatPrice(getPlatformPrice())} FCFA</span>
-                      </div>
-                      <div className="flex justify-between text-green-600 font-medium">
-                        <span>Votre économie:</span>
-                        <span>{formatPrice(getSavings())} FCFA ({getSavingsPercent()}%)</span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="p-4 border rounded-lg bg-amber-50 border-amber-200">
+                  <div className="p-6 border-2 border-amber-200 rounded-xl bg-amber-50">
                     <div className="flex items-start">
-                      <Clock className="h-5 w-5 text-amber-600 mr-2 mt-0.5 flex-shrink-0" />
+                      <Clock className="h-5 w-5 text-amber-600 mr-3 mt-1 flex-shrink-0" />
                       <div className="text-sm text-amber-800">
-                        <p className="font-medium mb-1">⚡ Attention - Offre limitée !</p>
+                        <p className="font-medium mb-2">⚡ Prochaines étapes :</p>
                         <ol className="list-decimal list-inside space-y-1 pl-1">
-                          <li>Notre équipe vous contactera dans les 24h pour confirmer votre intérêt</li>
-                          <li>Cette promotion est valable jusqu'au <strong>7 juin 2025</strong> uniquement</li>
-                          <li>Les places sont limitées - ne tardez pas à réserver !</li>
+                          <li>Notre équipe vous contactera dans les 24h</li>
+                          <li>Analyse de vos besoins et conseils personnalisés</li>
+                          <li>Démarrage de votre projet après validation</li>
                         </ol>
                       </div>
                     </div>
@@ -877,35 +854,36 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
           
           {/* Étape 4: Confirmation finale */}
           {step === 4 && (
-            <div className="text-center py-6">
+            <div className="text-center py-8">
               <div className="w-20 h-20 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-6">
                 <div className="text-4xl">🎉</div>
               </div>
-              <h3 className="text-2xl font-bold text-[#0f4c81] mb-4">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
                 {formData.contactMethod === 'pay_now' ? 'Commande confirmée !' : 'Demande enregistrée !'}
               </h3>
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg mb-6">
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl mb-6 text-left">
                 <p className="text-gray-700 leading-relaxed">
                   {successMessage}
                 </p>
               </div>
               
               {formData.contactMethod === 'pay_now' && (
-                <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6">
-                  <div className="text-yellow-800 font-semibold">
-                    💰 Récapitulatif de vos économies :
+                <div className="bg-blue-50 border border-blue-200 p-6 rounded-xl mb-6">
+                  <div className="text-blue-800 font-semibold mb-2">
+                    🚀 Votre transformation digitale commence maintenant !
                   </div>
-                  <div className="text-yellow-700 text-sm mt-2">
-                    • Réduction promotionnelle : {formatPrice(getSavings())} FCFA<br/>
-                    • Stratégie Meta offerte : 150 000 FCFA<br/>
-                    <strong>Total économisé : {formatPrice(getSavings() + 150000)} FCFA</strong>
+                  <div className="text-blue-700 text-sm">
+                    • Livraison garantie en {serviceData.deliveryTime}<br/>
+                    • Formation complète incluse<br/>
+                    • 1 mois de support gratuit<br/>
+                    • Votre marque va enfin briller en ligne ✨
                   </div>
                 </div>
               )}
               
               <button
                 onClick={handleFinalClose}
-                className="px-8 py-3 bg-[#0f4c81] text-white rounded-lg hover:bg-opacity-90 transition-colors font-semibold"
+                className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-semibold"
               >
                 Parfait, merci !
               </button>
@@ -918,7 +896,7 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
               {step > 1 ? (
                 <button
                   onClick={handlePrevStep}
-                  className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   disabled={loading}
                 >
                   Précédent
@@ -930,7 +908,7 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
               {step < 3 ? (
                 <button
                   onClick={handleNextStep}
-                  className="px-6 py-2 bg-[#ff7f50] text-white rounded-lg hover:bg-[#ff6b3d] transition-colors"
+                  className={`px-6 py-3 bg-gradient-to-r ${getPlatformColor()} text-white rounded-lg hover:opacity-90 transition-opacity`}
                   disabled={
                     (step === 1 && (!formData.fullName || !formData.email || !formData.phone || !formData.country || !formData.city)) ||
                     (step === 2 && (!formData.businessName || !formData.businessDescription))
@@ -942,26 +920,36 @@ Notre équipe vous contactera dans les 24 heures pour commencer le développemen
                 <button
                   onClick={handleSubmit}
                   disabled={loading || (formData.contactMethod === 'pay_now' && paymentStatus !== 'verified')}
-                  className="px-6 py-2 bg-[#ff7f50] text-white rounded-lg hover:bg-[#ff6b3d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`px-6 py-3 bg-gradient-to-r ${getPlatformColor()} text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {loading ? (
                     <>
                       <Loader2 className="w-5 h-5 mr-2 inline animate-spin" />
                       Traitement en cours...
                     </>
-                  ) : formData.contactMethod === 'pay_now' ? 'Finaliser ma commande promo' : 'Envoyer ma demande'}
+                  ) : formData.contactMethod === 'pay_now' ? 'Finaliser ma commande' : 'Envoyer ma demande'}
                 </button>
               ) : null}
             </div>
           )}
 
-          {/* Rappel de l'urgence en bas */}
+          {/* Garanties en bas */}
           {step < 4 && (
-            <div className="mt-6 text-center">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <div className="flex items-center justify-center gap-2 text-red-700 text-sm font-medium">
-                  <Clock className="h-4 w-4" />
-                  Offre valable jusqu'au 7 juin 2025 uniquement - Places limitées !
+            <div className="mt-8 text-center">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center justify-center gap-6 text-sm text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <Shield className="h-4 w-4 text-green-600" />
+                    <span>Livraison garantie</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 text-yellow-500" />
+                    <span>Support inclus</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Award className="h-4 w-4 text-blue-600" />
+                    <span>50+ marques satisfaites</span>
+                  </div>
                 </div>
               </div>
             </div>
