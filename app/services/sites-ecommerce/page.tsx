@@ -85,17 +85,17 @@ const serviceData = {
     {
       icon: "📊",
       title: "Pas de données sur vos clients",
-      description: "Impossible de comprendre et fidéliser votre audience"
+      description: "Impossible de comprendre et fidéliser vos clients"
     },
     {
       icon: "🌍",
       title: "Portée limitée",
-      description: "Difficile d'atteindre de nouveaux marchés"
+      description: "Difficile d'atteindre de nouveaux clients et marchés"
     },
     {
       icon: "💳",
       title: "Paiements compliqués",
-      description: "Processus de commande fastidieux qui fait fuir les clients"
+      description: "Processus de commande compliqué qui fait fuir les clients"
     },
     {
       icon: "🏪",
@@ -232,7 +232,7 @@ export default function EcommerceServicePage() {
         <Container className="relative z-10">
           <div className="max-w-5xl mx-auto text-center">
             {/* Badge d'introduction */}
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full mb-8">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full mt-4 mb-8">
               <Trophy className="w-5 h-5 text-yellow-300" />
               <span className="text-white font-medium">
                 #1 des sites e-commerce pour marques africaines
