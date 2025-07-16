@@ -85,17 +85,17 @@ const serviceData = {
     {
       icon: "📊",
       title: "Pas de données sur vos clients",
-      description: "Impossible de comprendre et fidéliser vos clients"
+      description: "Impossible de comprendre et fidéliser votre audience"
     },
     {
       icon: "🌍",
       title: "Portée limitée",
-      description: "Difficile d'atteindre de nouveaux clients et marchés"
+      description: "Difficile d'atteindre de nouveaux marchés"
     },
     {
       icon: "💳",
       title: "Paiements compliqués",
-      description: "Processus de commande compliqué qui fait fuir les clients"
+      description: "Processus de commande fastidieux qui fait fuir les clients"
     },
     {
       icon: "🏪",
@@ -232,7 +232,7 @@ export default function EcommerceServicePage() {
         <Container className="relative z-10">
           <div className="max-w-5xl mx-auto text-center">
             {/* Badge d'introduction */}
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full mt-4 mb-8">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full mb-8">
               <Trophy className="w-5 h-5 text-yellow-300" />
               <span className="text-white font-medium">
                 #1 des sites e-commerce pour marques africaines
@@ -515,12 +515,35 @@ export default function EcommerceServicePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
             {serviceData.portfolioItems.map((item, index) => (
               <div key={index} className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 h-80">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-700">
-                  <div className="w-full h-full bg-gray-200 opacity-90"></div>
+                {/* Image de fond */}
+                <div className="absolute inset-0">
+                  {item.image ? (
+                    <img 
+                      src={item.image} 
+                      alt={`${item.name} - ${item.category}`}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      onError={(e) => {
+                        // Fallback vers une image placeholder en cas d'erreur
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null;
+                        target.src = `https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=320&fit=crop&crop=center&auto=format&q=60`;
+                      }}
+                    />
+                  ) : (
+                    // Image placeholder par défaut
+                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                      <div className="text-white text-center">
+                        <ShoppingCart className="w-16 h-16 mx-auto mb-3 opacity-50" />
+                        <div className="text-lg font-semibold opacity-75">{item.category}</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
+                {/* Overlay sombre au hover */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 
+                {/* Contenu au survol */}
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                   <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 text-sm font-medium mb-3 inline-block">
                     {item.category}
@@ -531,17 +554,22 @@ export default function EcommerceServicePage() {
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     Visiter le site
                     <ExternalLink className="w-4 h-4" />
                   </a>
                 </div>
                 
+                {/* Badge "En ligne" */}
                 <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-bold">
                     ✓ En ligne
                   </div>
                 </div>
+
+                {/* Overlay subtil permanent pour améliorer la lisibilité */}
+                <div className="absolute inset-0 bg-black/10"></div>
               </div>
             ))}
           </div>
