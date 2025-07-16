@@ -1,5 +1,4 @@
 // app/services/sites-ecommerce/page.tsx
-// app/services/sites-ecommerce/page.tsx
 'use client';
 
 import React, { useState, useRef } from 'react';
