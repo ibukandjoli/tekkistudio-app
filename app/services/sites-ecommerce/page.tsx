@@ -136,7 +136,7 @@ const EcommerceModal = ({ isOpen, onClose, selectedPlatform, serviceData }: Ecom
     const basePrice = getPlatformPrice();
     
     if (formData.paymentOption === 'full') {
-      return Math.ceil(basePrice * 0.97);
+      return Math.ceil(basePrice * 0.95); // 5% de réduction
     } else {
       return Math.ceil(basePrice * 0.5);
     }
@@ -146,7 +146,7 @@ const EcommerceModal = ({ isOpen, onClose, selectedPlatform, serviceData }: Ecom
     const basePrice = getPlatformPrice();
     
     if (formData.paymentOption === 'full') {
-      return Math.ceil(basePrice * 0.97);
+      return Math.ceil(basePrice * 0.95); // 5% de réduction
     } else {
       return basePrice;
     }
@@ -330,23 +330,23 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
         </div>
 
         {/* Prix et bénéfices plateforme */}
-        <div className={`bg-gradient-to-r ${getPlatformColor()} text-white p-6 rounded-xl mb-6`}>
-          <div className="flex items-center justify-between mb-4">
+        <div className={`bg-gradient-to-r ${getPlatformColor()} text-white p-4 md:p-6 rounded-xl mb-6`}>
+          <div className="flex items-center justify-between mb-3 md:mb-4">
             <div>
-              <div className="text-3xl font-bold">{formatPrice(getPlatformPrice())} FCFA</div>
-              <div className="text-white/90">Boutique en ligne professionnelle</div>
+              <div className="text-2xl md:text-3xl font-bold">{formatPrice(getPlatformPrice())} FCFA</div>
+              <div className="text-white/90 text-sm md:text-base">Boutique en ligne professionnelle</div>
             </div>
             <div className="text-right">
-              <div className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
+              <div className="bg-white/20 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium">
                 {formData.platformOption === 'shopify' ? 'RECOMMANDÉ' : 'ÉCONOMIQUE'}
               </div>
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
             {getPlatformBenefits().map((benefit, index) => (
-              <div key={index} className="flex items-center gap-2 text-sm">
-                <CheckCircle className="h-4 w-4 text-white/80" />
+              <div key={index} className="flex items-center gap-2 text-xs md:text-sm">
+                <CheckCircle className="h-3 w-3 md:h-4 md:w-4 text-white/80 flex-shrink-0" />
                 <span>{benefit}</span>
               </div>
             ))}
@@ -584,11 +584,11 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
                   />
                   <div>
                     <div className="font-medium flex items-center gap-2">
-                      Paiement intégral (-3%)
+                      Paiement intégral (-5%)
                       <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">ÉCONOMIE</span>
                     </div>
                     <div className="text-sm text-gray-500">
-                      {formatPrice(Math.ceil(getPlatformPrice() * 0.97))} FCFA (au lieu de {formatPrice(getPlatformPrice())} FCFA)
+                      {formatPrice(Math.ceil(getPlatformPrice() * 0.95))} FCFA (au lieu de {formatPrice(getPlatformPrice())} FCFA)
                     </div>
                   </div>
                 </label>
@@ -660,8 +660,8 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
                     </div>
                     {formData.paymentOption === 'full' && (
                       <div className="flex justify-between text-green-600">
-                        <span>Réduction paiement intégral (-3%) :</span>
-                        <span>-{formatPrice(getPlatformPrice() - Math.ceil(getPlatformPrice() * 0.97))} FCFA</span>
+                        <span>Réduction paiement intégral (-5%) :</span>
+                        <span>-{formatPrice(getPlatformPrice() - Math.ceil(getPlatformPrice() * 0.95))} FCFA</span>
                       </div>
                     )}
                     <div className="border-t pt-2 flex justify-between font-bold text-lg">
@@ -1291,9 +1291,14 @@ export default function EcommerceServicePage() {
                 Nos experts analysent votre marque et vous conseillent la meilleure solution. 
                 Consultation gratuite de 15min.
               </p>
-              <button className="bg-white text-gray-900 px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
+              <a 
+                href="https://calendly.com/tekki-studio" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="bg-white text-gray-900 px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors inline-block"
+              >
                 Consultation gratuite
-              </button>
+              </a>
             </div>
           </div>
         </Container>
@@ -1314,7 +1319,13 @@ export default function EcommerceServicePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
             {serviceData.portfolioItems.map((item, index) => (
-              <div key={index} className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 h-80">
+              <a 
+                key={index}
+                href={item.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 h-80 block cursor-pointer"
+              >
                 {/* Image de fond */}
                 <div className="absolute inset-0">
                   {item.image ? (
@@ -1349,16 +1360,10 @@ export default function EcommerceServicePage() {
                     {item.category}
                   </div>
                   <h3 className="text-xl font-bold mb-2">{item.name}</h3>
-                  <a 
-                    href={item.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="inline-flex items-center gap-2 text-white/90 group-hover:text-white transition-colors">
                     Visiter le site
                     <ExternalLink className="w-4 h-4" />
-                  </a>
+                  </div>
                 </div>
                 
                 {/* Badge "En ligne" */}
@@ -1370,7 +1375,7 @@ export default function EcommerceServicePage() {
 
                 {/* Overlay subtil permanent pour améliorer la lisibilité */}
                 <div className="absolute inset-0 bg-black/10"></div>
-              </div>
+              </a>
             ))}
           </div>
 
