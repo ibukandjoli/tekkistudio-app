@@ -986,7 +986,7 @@ const serviceData = {
     {
       icon: <Bot className="w-6 h-6" />,
       title: "Vendeur IA Personnalisé",
-      description: "Un agent commercial virtuel avec nom, photo et personnalité unique à votre marque, formé sur vos produits."
+      description: "Un agent commercial virtuel avec nom, avatar, titre et personnalité adapté à votre marque, et formé sur vos produits."
     },
     {
       icon: <MessageSquare className="w-6 h-6" />,

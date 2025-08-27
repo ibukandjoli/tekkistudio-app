@@ -1572,7 +1572,7 @@ export default function EcommerceServicePage() {
           <div className="text-center mt-16">
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-3xl mx-auto">
               <h3 className="text-2xl font-bold text-white mb-4">
-                Vous hésitez entre les deux solutions ?
+                Vous hésitez entre ces deux solutions ?
               </h3>
               <p className="text-white/90 mb-6">
                 Nos experts analysent votre marque et vous conseillent la solution la plus adaptée à votre situation. 
