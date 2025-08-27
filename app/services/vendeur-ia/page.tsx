@@ -1,4 +1,4 @@
-// app/services/sites-ecommerce/page.tsx
+// app/services/vendeur-ia/page.tsx
 'use client';
 
 import React, { useState, useRef } from 'react';
@@ -40,8 +40,7 @@ import {
   TrendingDown,
   UserCheck,
   ShoppingBag,
-  Plus,
-  Send
+  Send,
 } from 'lucide-react';
 
 // Simuler les composants nécessaires pour la démo
@@ -110,6 +109,7 @@ const EcommerceModal = ({ isOpen, onClose, selectedPlatform, serviceData }: Ecom
     platformOption: (selectedPlatform || 'shopify') as PlatformOption,
     paymentOption: 'partial' as PaymentOption,
     contactMethod: 'pay_now' as ContactMethod,
+    wantsChatSeller: true, // Par défaut inclus
   });
 
   React.useEffect(() => {
@@ -237,11 +237,11 @@ const EcommerceModal = ({ isOpen, onClose, selectedPlatform, serviceData }: Ecom
         if (formData.contactMethod === 'pay_now') {
           setSuccessMessage(`🎉 Félicitations ! Votre commande a été enregistrée avec succès. 
 
-Notre équipe vous contactera dans les 24 heures pour commencer le développement de votre site e-commerce ${formData.platformOption === 'shopify' ? 'Shopify' : 'WordPress'} avec ChatSeller inclus. 
+Notre équipe vous contactera dans les 24 heures pour commencer le développement de votre site e-commerce ${formData.platformOption === 'shopify' ? 'Shopify' : 'WordPress'} avec votre Vendeur IA intégré. 
 
 Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
         } else {
-          setSuccessMessage(`Votre demande a été enregistrée avec succès. Notre équipe vous contactera dans les 24 heures pour discuter des détails de votre projet ${formData.platformOption === 'shopify' ? 'Shopify' : 'WordPress'} et vous accompagner dans cette transformation digitale.`);
+          setSuccessMessage(`Votre demande a été enregistrée avec succès. Notre équipe vous contactera dans les 24 heures pour discuter des détails de votre projet ${formData.platformOption === 'shopify' ? 'Shopify' : 'WordPress'} avec ChatSeller et vous accompagner dans cette transformation digitale.`);
         }
         
         setStep(4);
@@ -271,6 +271,7 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
       platformOption: 'shopify' as PlatformOption,
       paymentOption: 'partial' as PaymentOption,
       contactMethod: 'pay_now' as ContactMethod,
+      wantsChatSeller: true,
     });
     setStep(1);
     setPaymentStatus('not_started' as PaymentStatus);
@@ -293,7 +294,7 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
   };
 
   const getPlatformName = () => {
-    return formData.platformOption === 'shopify' ? 'Shopify Premium' : 'WordPress Pro';
+    return formData.platformOption === 'shopify' ? 'Shopify Premium + ChatSeller' : 'WordPress Pro + ChatSeller';
   };
 
   const getPlatformColor = () => {
@@ -307,7 +308,7 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
         "Gestion depuis smartphone", 
         "Support technique 24/7",
         "Apps premium incluses",
-        "ChatSeller : Vendeur IA inclus",
+        "Vendeur IA intégré",
         "Sécurité maximale"
       ];
     } else {
@@ -315,7 +316,7 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
         "Personnalisation illimitée",
         "Aucun abonnement mensuel",
         "SEO optimisé",
-        "ChatSeller : Vendeur IA inclus",
+        "Vendeur IA intégré",
         "Contrôle total",
         "Extensions premium"
       ];
@@ -345,11 +346,11 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
           <div className="flex items-center justify-between mb-3 md:mb-4">
             <div>
               <div className="text-2xl md:text-3xl font-bold">{formatPrice(getPlatformPrice())} FCFA</div>
-              <div className="text-white/90 text-sm md:text-base">Boutique professionnelle pour marques</div>
+              <div className="text-white/90 text-sm md:text-base">Boutique + Vendeur IA</div>
             </div>
             <div className="text-right">
               <div className="bg-white/20 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium">
-                {formData.platformOption === 'shopify' ? 'RECOMMANDÉ' : 'ÉCONOMIQUE'}
+                {formData.platformOption === 'shopify' ? 'TOUT-EN-UN' : 'PERSONNALISABLE'}
               </div>
             </div>
           </div>
@@ -467,7 +468,7 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
         {step === 2 && (
           <div className="space-y-6">
             <h3 className="font-semibold text-xl text-gray-900 mb-6">
-              Votre projet de boutique en ligne
+              Votre projet de boutique en ligne avec Vendeur IA
             </h3>
             
             <div>
@@ -507,24 +508,32 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
               />
             </div>
 
-            {/* Bonus ChatSeller */}
+            {/* Information ChatSeller */}
             <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-xl border border-purple-200">
               <div className="flex items-center gap-3 mb-4">
                 <Bot className="h-6 w-6 text-purple-600" />
-                <h4 className="font-bold text-gray-900">Bonus : ChatSeller inclus</h4>
-                <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">GRATUIT</span>
+                <h4 className="font-bold text-gray-900">ChatSeller inclus</h4>
+                <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">RÉVOLUTIONNAIRE</span>
               </div>
-              <p className="text-sm text-gray-700 mb-3">
-                En partenariat avec ChatSeller, votre boutique inclut automatiquement un Vendeur IA qui :
+              <p className="text-sm text-gray-700 mb-4">
+                Votre boutique inclut automatiquement ChatSeller, le Vendeur IA intelligent qui :
               </p>
-              <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-3 w-3 text-purple-500" />
+                  <CheckCircle className="h-4 w-4 text-purple-500" />
                   <span>Répond aux questions clients 24/7</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-3 w-3 text-purple-500" />
-                  <span>Booste vos conversions automatiquement</span>
+                  <CheckCircle className="h-4 w-4 text-purple-500" />
+                  <span>Collecte les commandes automatiquement</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-purple-500" />
+                  <span>Propose des ventes additionnelles</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-purple-500" />
+                  <span>Booste vos conversions</span>
                 </div>
               </div>
             </div>
@@ -547,13 +556,13 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <Smartphone className="h-5 w-5 text-green-600" />
-                          <div className="font-medium">Shopify Premium</div>
-                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">RECOMMANDÉ</span>
+                          <div className="font-medium">Shopify Premium + ChatSeller</div>
+                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">TOUT-EN-UN</span>
                         </div>
                         <div className="font-bold text-green-600">{formatPrice(serviceData.price.shopify)} FCFA</div>
                       </div>
                       <div className="text-sm text-gray-500 mt-1 ml-8">
-                        Solution tout-en-un, facile à gérer depuis smartphone + ChatSeller inclus
+                        Solution complète avec Vendeur IA, facile à gérer depuis smartphone
                       </div>
                     </div>
                   </label>
@@ -571,13 +580,13 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <Laptop className="h-5 w-5 text-blue-600" />
-                          <div className="font-medium">WordPress Pro</div>
-                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">ÉCONOMIQUE</span>
+                          <div className="font-medium">WordPress Pro + ChatSeller</div>
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">PERSONNALISABLE</span>
                         </div>
                         <div className="font-bold text-blue-600">{formatPrice(serviceData.price.wordpress)} FCFA</div>
                       </div>
                       <div className="text-sm text-gray-500 mt-1 ml-8">
-                        Personnalisable à l'infini, aucun abonnement + ChatSeller inclus
+                        Boutique personnalisable avec Vendeur IA, aucun abonnement mensuel
                       </div>
                     </div>
                   </label>
@@ -643,10 +652,10 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
                   />
                   <div>
                     <div className="font-medium flex items-center gap-2">
-                      🚀 Payer maintenant et démarrer immédiatement
+                      Payer maintenant et démarrer immédiatement
                       <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">RAPIDE</span>
                     </div>
-                    <div className="text-sm text-gray-500">Votre projet démarre dès aujourd'hui</div>
+                    <div className="text-sm text-gray-500">Votre boutique + ChatSeller démarre dès aujourd'hui</div>
                   </div>
                 </label>
                 
@@ -660,7 +669,7 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
                     className="mr-3"
                   />
                   <div>
-                    <div className="font-medium">📞 Être contacté(e) pour plus d'informations</div>
+                    <div className="font-medium">Être contacté(e) pour plus d'informations</div>
                     <div className="text-sm text-gray-500">Un expert vous contactera dans les 24h</div>
                   </div>
                 </label>
@@ -680,7 +689,7 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
                 </h3>
                 
                 <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 rounded-xl border border-blue-200">
-                  <div className="font-medium text-gray-900 mb-4">🎯 Récapitulatif de votre projet</div>
+                  <div className="font-medium text-gray-900 mb-4">Récapitulatif de votre projet</div>
                   
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between">
@@ -713,15 +722,14 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
                   </div>
                 </div>
 
-                {/* Rappel ChatSeller inclus */}
+                {/* Avantage ChatSeller rappel */}
                 <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-xl border border-purple-200">
                   <div className="flex items-center gap-2 mb-2">
                     <Bot className="h-5 w-5 text-purple-600" />
-                    <span className="font-medium text-gray-900">Bonus inclus : ChatSeller</span>
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">GRATUIT</span>
+                    <span className="font-medium text-gray-900">ChatSeller inclus</span>
                   </div>
                   <p className="text-sm text-gray-700">
-                    Vendeur IA pour booster automatiquement vos conversions (valeur 50 000 FCFA)
+                    Votre Vendeur IA intelligent 100% autonome qui convertit vos visiteurs en clients.
                   </p>
                 </div>
                 
@@ -736,13 +744,13 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
                         <span className="mr-3">💳</span>
                         Payer {formatPrice(getPaymentAmount())} FCFA avec Wave
                       </button>
-                      <p className="text-xs text-gray-500 mt-3">🛡️ Paiement 100% sécurisé</p>
+                      <p className="text-xs text-gray-500 mt-3">Paiement 100% sécurisé</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       <div className={`p-6 rounded-xl border-2 ${paymentStatus === ('verified' as PaymentStatus) ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
                         <h4 className="font-medium mb-3 text-lg">
-                          {paymentStatus === ('verified' as PaymentStatus) ? '✅ Paiement vérifié avec succès !' : '💳 Confirmez votre paiement'}
+                          {paymentStatus === ('verified' as PaymentStatus) ? 'Paiement vérifié avec succès !' : 'Confirmez votre paiement'}
                         </h4>
                         
                         {paymentStatus !== ('verified' as PaymentStatus) && (
@@ -788,7 +796,7 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
                 <h3 className="font-semibold text-xl text-gray-900 mb-6">Récapitulatif de votre demande</h3>
                 
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
-                  <div className="font-medium text-gray-900 mb-4">🎯 Votre projet {getPlatformName()}</div>
+                  <div className="font-medium text-gray-900 mb-4">Votre projet {getPlatformName()}</div>
                   <div className="space-y-2 text-gray-700">
                     <div className="flex justify-between">
                       <span className="font-medium">Nom:</span>
@@ -818,10 +826,10 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
                   <div className="flex items-start">
                     <Clock className="h-5 w-5 text-amber-600 mr-3 mt-1 flex-shrink-0" />
                     <div className="text-sm text-amber-800">
-                      <p className="font-medium mb-2">⚡ Prochaines étapes :</p>
+                      <p className="font-medium mb-2">Prochaines étapes :</p>
                       <ol className="list-decimal list-inside space-y-1 pl-1">
                         <li>Notre équipe vous contactera dans les 24h</li>
-                        <li>Configuration de votre ChatSeller personnalisé</li>
+                        <li>Configuration de votre Vendeur IA personnalisé</li>
                         <li>Démarrage de votre projet après validation</li>
                       </ol>
                     </div>
@@ -903,83 +911,83 @@ Votre boutique en ligne sera livrée en ${serviceData.deliveryTime}.`);
   );
 };
 
-// Données mises à jour
+// Données mises à jour avec ChatSeller
 const serviceData = {
-  title: "Sites E-commerce Professionnels pour Marques",
-  subtitle: "La solution complète pour faire rayonner votre marque en ligne",
+  title: "Sites E-commerce + Vendeur IA pour Marques",
+  subtitle: "La solution complète avec ChatSeller pour multiplier vos conversions",
   shopifyPrice: 695000,
   wordpressPrice: 495000,
   deliveryTime: "7-10 jours ouvrés",
   portfolioItems: [
     { name: "Momo Le Bottier", url: "https://momolebottier.com", image: "/images/portfolio/momolebottier.png", category: "Chaussures" },
     { name: "Abarings", url: "https://abarings.com", image: "/images/portfolio/abarings.png", category: "Bijoux" },
-    { name: "YoupyBaby", url: "https://youpybaby.com", image: "/images/portfolio/youpybaby.png", category: "Enfants" },
-    { name: "Maika Déco", url: "https://maikadeco.com", image: "/images/portfolio/maikadeco.png", category: "Décoration" },
+    { name: "A Nous Deux", url: "https://anousdeux.com", image: "/images/portfolio/youpybaby.png", category: "Jeu de cartes" },
+    { name: "Amani Wellness", url: "https://amani-wellness.com", image: "/images/portfolio/maikadeco.png", category: "Bien-être" },
     { name: "6C No Filter", url: "https://6cnofilter.com", image: "/images/portfolio/6cnofilter.png", category: "Mode" },
     { name: "Viens on s'connaît", url: "https://viensonsconnait.com", image: "/images/portfolio/viensonsconnait.png", category: "Événements" }
   ],
   brandChallenges: [
     {
       icon: "📱",
-      title: "Ventes limitées sur WhatsApp",
-      description: "Vous vendez uniquement via les réseaux sociaux et WhatsApp, ce qui limite le potentiel réel de votre marque."
+      title: "Aucun Vendeur sur votre site",
+      description: "Vos visiteurs arrivent, regardent vos produits, mais repartent sans commander, parce qu'ils n'ont personnes à qui poser leurs questions."
     },
     {
       icon: "😴",
       title: "Aucune vente la nuit",
-      description: "Alors qu'Internet est ouvert 24h/24, votre marque arrête de vendre lorsque vous et vos équipes dormez."
+      description: "Pendant que vous dormez, certains de vos potentiels clients sont sur votre site, prêts à acheter, mais n'ont personne pour les guider."
     },
     {
-      icon: "📊",
-      title: "Pas de données sur vos clients",
-      description: "Vous devez constamment trouver de nouveaux clients, car vous peinez à fidéliser ceux que vous avez déjà."
+      icon: "❓",
+      title: "Questions sans réponses",
+      description: "Vos potentiels clients ont des doutes, des questions sur vos produits, mais n'ont personne pour les rassurer et les conseiller avant l'achat."
     },
     {
       icon: "🌍",
-      title: "Portée limitée",
-      description: "Vous êtes limité à votre marché local, alors que votre marque pourrait toucher des clients dans toute l'Afrique et au delà."
+      title: "Support client limité",
+      description: "Certains de vos potentiels clients sont pressés, mais vous ne pouvez pas être disponible 24h/24 pour répondre à leurs questions, alors ils partent."
     },
     {
-      icon: "💳",
-      title: "Paiements compliqués",
-      description: "Vous collectez manuellement chaque paiement, ce qui est épuisant et peut entraîner des erreurs dans votre trésorerie."
+      icon: "💔",
+      title: "Informations insuffisantes",
+      description: "Vos fiches produits ne répondent pas à toutes les questions de vos clients, et vous perdez des ventes à cause de cela."
     },
     {
       icon: "🏪",
-      title: "Image amateur",
-      description: "Votre marque ne rassure pas votre cible, car vous n'avez pas de site professionnel crédible comme les grandes marques."
+      title: "Expérience statique",
+      description: "Vos clients ne vivent pas la même expérience qu'en boutique physique, où un vendeur expert les conseille et les guide jusqu'à l'achat."
     }
   ],
   brandBenefits: [
     {
-      icon: "🚀",
-      title: "Ventes 24h/24, 7j/7",
-      description: "Votre boutique en ligne travaille pour votre marque et génère des ventes, même la nuit, pendant que vous dormez."
+      icon: "🤖",
+      title: "Vendeur IA qui travaille 24/7",
+      description: "Votre Vendeur IA intelligent répond aux questions de vos clients, les rassure et collecte leurs commandes, même à 3h du matin."
     },
     {
-      icon: "🌟",
-      title: "Image de marque professionnelle",
-      description: "Votre marque est perçue comme sérieuse et crédible, ce qui rassure vos potentiels clients et augmente vos ventes."
+      icon: "💬",
+      title: "Conversations qui convertissent",
+      description: "Chaque visiteur peut discuter avec votre Vendeur IA, poser ses questions et être accompagné jusqu'à l'achat."
     },
     {
       icon: "📈",
-      title: "Croissance exponentielle",
-      description: "Vous vendez plus, plus vite, et à plus de clients, car votre site travaille en toute autonomie, sans aucune limite."
+      title: "Conversions multipliées par 3",
+      description: "Grâce au Vendeur IA qui lève les objections et rassure vos visiteurs, vos taux de conversion explosent littéralement."
     },
     {
-      icon: "💡",
-      title: "Données précieuses",
-      description: "Vous collectez des données sur vos clients, ce qui vous permet de mieux comprendre leurs besoins et améliorer vos offres."
+      icon: "🎯",
+      title: "Ventes additionnelles automatiques",
+      description: "Votre Vendeur IA propose intelligemment des produits complémentaires et augmente le panier moyen."
     },
     {
       icon: "🌍",
-      title: "Expansion internationale",
-      description: "Votre marque peut atteindre des potentiels clients dans toute l'Afrique et au-delà, sans limites géographiques."
+      title: "Support client international",
+      description: "Votre marque peut servir et accompagner des clients dans le monde entier, avec un support personnalisé 24h/24, et cela, dans plusieurs langues."
     },
     {
       icon: "⚡",
-      title: "Automatisation complète",
-      description: "La collecte des commandes et paiements est automatisée, ce qui vous permet de vous concentrer sur votre cœur de métier."
+      title: "Expérience boutique physique en ligne",
+      description: "Vos clients vivent la même expérience qu'avec un vendeur expert dans une boutique physique, mais sur votre boutique en ligne."
     }
   ],
   chatSellerFeatures: [
@@ -1017,72 +1025,72 @@ const serviceData = {
   whyChooseUs: [
     {
       icon: <Award className="w-8 h-8" />,
-      title: "Experts en marques africaines",
-      description: "Nous comprenons les spécificités du marché africain et créons des expériences qui résonnent avec votre audience locale."
+      title: "Pionniers du Vendeur IA en Afrique",
+      description: "Premiers à intégrer ChatSeller sur les sites e-commerce africains. Nous maîtrisons cette technologie révolutionnaire."
     },
     {
-      icon: <Trophy className="w-8 h-8" />,
-      title: "Fabrique de marques à succès",
-      description: "Nous créons nos propres marques qui cartonnent en ligne. Cette expertise, nous la mettons au service de votre marque."
+      icon: <Bot className="w-8 h-8" />,
+      title: "ChatSeller inclus dans chaque projet",
+      description: "Contrairement à nos concurrents, nous intégrons automatiquement le Vendeur IA dans chaque boutique que nous créons."
     },
     {
       icon: <Target className="w-8 h-8" />,
-      title: "Conversion avant tout",
-      description: "Chaque élément de votre site est pensé pour transformer vos visiteurs en acheteurs, puis en clients fidèles."
+      title: "Conversion x3 garantie",
+      description: "Nos clients voient leurs conversions multipliées par 3 ou 6 grâce au Vendeur IA qui accompagne chacun de leurs visiteurs."
     },
     {
       icon: <Smartphone className="w-8 h-8" />,
-      title: "Mobile-first pour l'Afrique",
-      description: "Tous nos sites sont optimisés pour Smartphone, car nous savons que 80% de vos clients utilisent leur mobile."
+      title: "Optimisé pour l'Afrique",
+      description: "ChatSeller fonctionne parfaitement sur mobile, pour s'adapter à la manière dont 80% de vos clients vont sur Internet."
     }
   ],
   testimonials: [
     {
       name: "Mme Diouf",
       brand: "Momo Le Bottier",
-      content: "TEKKI Studio a transformé notre marque de chaussures artisanales. En 3 mois, nous avons triplé nos ventes et touché des clients dans toute l'Afrique de l'Ouest.",
+      content: "Le Vendeur IA ChatSeller a révolutionné notre boutique ! Il répond aux questions sur nos chaussures 24h/24 et nos ventes ont triplé en 3 mois. C'est magique !",
       avatar: "MD",
       rating: 5
     },
     {
       name: "Fatou Diedhiou", 
       brand: "Abarings",
-      content: "Enfin une équipe qui comprend les marques africaines ! Notre boutique en ligne reflète parfaitement l'essence de notre marque de bijoux.",
+      content: "Nos clients adorent pouvoir discuter avec notre Vendeur IA à propos de nos bijoux. Il leur explique les matériaux, les conseille et même collecte les commandes !",
       avatar: "FD",
       rating: 5
     },
     {
       name: "Mme Ndiaye",
       brand: "YoupyBaby", 
-      content: "Grâce à TEKKI Studio, notre marque pour enfants a une présence en ligne professionnelle. Les commandes arrivent même la nuit !",
+      content: "Le Vendeur IA connaît tous nos produits pour enfants et rassure les parents. Nos conversions ont doublé depuis qu'on l'a intégré !",
       avatar: "FN", 
       rating: 5
     }
   ],
   faqs: [
     {
-      question: "Pourquoi choisir TEKKI Studio plutôt qu'un freelance ?",
-      answer: "Nous sommes spécialisés dans les marques et l'e-commerce, principalement en Afrique. En tant que créateurs de marques à succès, nous savons exactement ce qui fonctionne pour faire décoller une marque en ligne. Nos sites ne sont pas de simples catalogues, ce sont de véritables machines de vente."
-    },
-    {
-      question: "Quelle est la différence entre Shopify et WordPress ?",
-      answer: "Shopify est une solution tout-en-un, facile à gérer, même depuis un smartphone. C'est idéal si vous voulez vous concentrer sur votre marque et ne pas avoir à gérer les aspects techniques. WordPress avec Woocommerce offre plus de personnalisation et pas d'abonnement mensuel. C'est parfait si vous avez des besoins techniques spécifiques."
-    },
-    {
       question: "Qu'est-ce que ChatSeller exactement ?",
-      answer: "ChatSeller est un bonus que nous offrons en partenariat avec cette plateforme IA. C'est un Vendeur IA intelligent intégré dans votre boutique qui répond aux questions de vos visiteurs, les rassure et peut collecter les commandes. Il apparaît sous forme d'un bouton sur vos pages produits et booste significativement vos conversions."
+      answer: "ChatSeller est une solution qui permet de créer et intégrer un Vendeur IA intelligent sur n'importe quel site e-commerce. Il apparaît sous forme d'un bouton sur vos pages produits. Quand vos visiteurs cliquent sur ce bouton, une interface de chat s'ouvre, leur permettant ainsi de discuter avec votre Vendeur IA, comme avec un vendeur réel. Votre Vendeur IA connaît tous vos produits, répond aux questions, lève les objections et peut même collecter les commandes."
     },
     {
-      question: "ChatSeller coûte-t-il un supplément ?",
-      answer: "Non ! ChatSeller est inclus gratuitement dans tous nos projets e-commerce grâce à notre partenariat. C'est notre façon de vous donner un avantage concurrentiel sans coût supplémentaire."
+      question: "Comment le Vendeur IA connaît-il mes produits ?",
+      answer: "Nous configurons votre compte ChatSeller avec toutes les informations sur vos produits, votre marque et vos politiques. Votre Vendeur IA reconnaît automatiquement le produit consulté et fournit des réponses précises basées sur les informations disponibles sur votre site et celles fournies dans la base de connaissances."
     },
     {
-      question: "Combien de temps faut-il pour créer le site ?",
-      answer: "7 à 10 jours ouvrés pour un site complet et optimisé avec ChatSeller intégré. Nous travaillons rapidement sans compromettre la qualité, car nous savons que le temps c'est de l'argent pour votre marque."
+      question: "Mes clients vont-ils faire confiance à une IA ?",
+      answer: "ChatSeller est conçu pour offrir une expérience naturelle et humaine. Vos clients apprécient d'avoir quelqu'un (même virtuel) pour répondre à leurs questions immédiatement, 24h/24, avec des informations vérifiées et fiables. C'est mieux que de repartir avec leurs doutes. Voyez-le comme si ChatGPT était un vendeur expert dans votre boutique."
     },
     {
-      question: "Puis-je voir des exemples de vos réalisations ?",
-      answer: "Bien sûr ! Consultez notre portfolio ci-dessous avec des marques comme Momo Le Bottier, Abarings, YoupyBaby. Chaque site reflète l'identité unique de la marque tout en optimisant les conversions."
+      question: "ChatSeller fonctionne-t-il sur mobile ?",
+      answer: "Absolument ! ChatSeller est optimisé pour mobile. Sur smartphone, il s'ouvre en plein écran pour une expérience de chat optimale, comme sur WhatsApp. C'est parfait pour l'Afrique où 80% du trafic est mobile."
+    },
+    {
+      question: "Puis-je personnaliser mon Vendeur IA ?",
+      answer: "Oui ! Nous personnalisons entièrement votre Vendeur IA en lui donnant un nom, un titre, une personnalité, un ton, etc. Nous faisons en sorte qu'il reflète parfaitement l'identité de votre marque."
+    },
+    {
+      question: "Combien coûte ChatSeller en plus ?",
+      answer: "Rien ! ChatSeller est inclus gratuitement dans tous nos projets e-commerce pendant 1 mois. C'est notre avantage concurrentiel : vous obtenez une boutique en ligne + un Vendeur IA au même prix qu'une boutique classique ailleurs. Si vous appréciez l'expérience, vous pouvez continuer à l'utiliser pour seulement 19€/mois après le premier mois."
     }
   ]
 };
@@ -1105,7 +1113,7 @@ export default function EcommerceServicePage() {
 
   return (
     <main className="overflow-x-hidden">
-      {/* Hero Section - Focus marques */}
+      {/* Hero Section */}
       <section className="relative pt-20 pb-32 bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 overflow-hidden">
         {/* Motifs décoratifs */}
         <div className="absolute inset-0 opacity-10">
@@ -1117,19 +1125,19 @@ export default function EcommerceServicePage() {
           <div className="max-w-5xl mx-auto text-center">
             {/* Badge d'introduction */}
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full mt-8 mb-8">
-              <Trophy className="w-5 h-5 text-yellow-300" />
+              <Trophy className="w-5 h-5 text-purple-300" />
               <span className="text-white font-medium">
                 Créateur #1 en Afrique de Sites pour les Marques
               </span>
             </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
-              Faites rayonner votre 
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400"> marque</span> sur Internet
+              Sites E-commerce + 
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400"> Vendeur IA</span>
             </h1>
             
             <p className="text-xl md:text-2xl text-white/90 mb-12 leading-relaxed max-w-4xl mx-auto">
-              Bénéficiez de notre expertise en création de sites e-commerce pour les marques en Afrique, et obtenez une boutique en ligne professionnelle + un Vendeur IA intelligent qui convertit vos visiteurs en clients.
+              Obtenez une boutique en ligne professionnelle + un Vendeur IA 100% autonome qui convertit vos visiteurs en clients, 24h/24.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">
@@ -1137,17 +1145,17 @@ export default function EcommerceServicePage() {
                 onClick={() => scrollToSection(servicesRef)}
                 className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-black px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-2xl flex items-center gap-3"
               >
-                <ShoppingCart className="w-6 h-6" />
-                Créer ma boutique en ligne
+                <Bot className="w-6 h-6" />
+                Découvrir notre offre
                 <ArrowRight className="w-5 h-5" />
               </button>
               
               <button
-                onClick={() => scrollToSection(portfolioRef)}
+                onClick={() => scrollToSection(chatSellerRef)}
                 className="text-white border-2 border-white/30 hover:border-white/60 hover:bg-white/10 px-8 py-4 rounded-xl font-semibold transition-all flex items-center gap-3"
               >
                 <PlayCircle className="w-6 h-6" />
-                Voir nos réalisations
+                Voir ChatSeller en action
               </button>
             </div>
 
@@ -1158,102 +1166,36 @@ export default function EcommerceServicePage() {
                 <div className="text-white/80 text-sm">Marques accompagnées</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">230%</div>
-                <div className="text-white/80 text-sm">Croissance moyenne</div>
+                <div className="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">300%</div>
+                <div className="text-white/80 text-sm">Conversions en plus</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">24/7</div>
-                <div className="text-white/80 text-sm">Ventes automatiques</div>
+                <div className="text-white/80 text-sm">Disponibilité du Vendeur IA</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">+15</div>
-                <div className="text-white/80 text-sm">Pays couverts</div>
+                <div className="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">+5</div>
+                <div className="text-white/80 text-sm">Langues intégrées</div>
               </div>
             </div>
           </div>
         </Container>
       </section>
 
-      {/* Problèmes des marques */}
-      <section className="py-20 bg-gray-50">
-        <Container>
-          <div className="max-w-4xl mx-auto text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              Votre marque mérite une boutique en ligne crédible
-            </h2>
-            <p className="text-xl text-gray-600">
-              Nous comprenons les défis des marques africaines qui veulent réussir en ligne
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {serviceData.brandChallenges.map((challenge, index) => (
-              <div key={index} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all group">
-                <div className="text-4xl mb-4">{challenge.icon}</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                  {challenge.title}
-                </h3>
-                <p className="text-gray-600">{challenge.description}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-16">
-            <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white p-8 rounded-2xl max-w-4xl mx-auto">
-              <h3 className="text-2xl font-bold mb-4">
-                Arrêtez de limiter le potentiel de votre marque
-              </h3>
-              <p className="text-lg opacity-90">
-                Chaque jour sans site e-commerce, c'est des ventes perdues, 
-                des clients qui vont chez la concurrence, et votre marque qui stagne. 
-                <strong> Il est temps de passer au niveau supérieur.</strong>
-              </p>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* Solutions - Transformation */}
-      <section className="py-20 bg-white">
-        <Container>
-          <div className="max-w-4xl mx-auto text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              Transformez votre marque en 
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600"> empire digital</span> 🚀
-            </h2>
-            <p className="text-xl text-gray-600">
-              Voici ce qui change quand votre marque a enfin la boutique en ligne qu'elle mérite
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {serviceData.brandBenefits.map((benefit, index) => (
-              <div key={index} className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-2xl border border-blue-100 hover:shadow-xl transition-all group hover:scale-105">
-                <div className="text-4xl mb-4">{benefit.icon}</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                  {benefit.title}
-                </h3>
-                <p className="text-gray-600">{benefit.description}</p>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* Section ChatSeller - Bonus */}
+      {/* Section ChatSeller */}
       <section ref={chatSellerRef} className="py-20 bg-gradient-to-br from-purple-50 to-indigo-50">
         <Container>
           <div className="max-w-4xl mx-auto text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 px-4 py-2 rounded-full mb-6 font-medium">
-              <Plus className="w-4 h-4" />
-              BONUS EXCLUSIF
+            <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-800 px-4 py-2 rounded-full mb-6 font-medium">
+              <Sparkles className="w-4 h-4" />
+              EXCLUSIF TEKKI STUDIO
             </div>
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
               Votre 
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600"> Vendeur IA</span> personnel
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600"> Vendeur IA</span> Personnel
             </h2>
             <p className="text-xl text-gray-600 mb-8">
-              Grâce à notre partenariat avec ChatSeller, chaque boutique que nous créons inclut automatiquement un Vendeur IA pour booster vos conversions.
+              Le premier Vendeur IA intelligent, spécialement conçu pour les boutiques e-commerce, qui travaille 24h/24 et transforme chaque visiteur en client potentiel.
             </p>
           </div>
           
@@ -1377,12 +1319,12 @@ export default function EcommerceServicePage() {
           {/* CTA ChatSeller */}
           <div className="text-center">
             <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-8 rounded-2xl max-w-4xl mx-auto">
-              <h3 className="text-2xl font-bold mb-4 flex items-center justify-center gap-3">
-                <Bot className="w-8 h-8" />
-                ChatSeller inclus GRATUITEMENT
+              <h3 className="text-2xl font-bold mb-4">
+                ChatSeller est inclus GRATUITEMENT dans chaque projet
               </h3>
               <p className="text-lg opacity-90 mb-6">
-                Grâce à notre partenariat, chaque site e-commerce que nous créons inclut un Vendeur IA sans coût supplémentaire. C'est notre façon de vous donner un avantage concurrentiel unique.
+                Pendant que nos concurrents facturent les outils de conversation, 
+                nous incluons ChatSeller dans tous nos sites e-commerce sans coût supplémentaire.
               </p>
               <button
                 onClick={() => scrollToSection(servicesRef)}
@@ -1395,171 +1337,259 @@ export default function EcommerceServicePage() {
         </Container>
       </section>
 
-      {/* Nos offres avec ChatSeller inclus */}
+      {/* Problèmes des marques */}
+      <section className="py-20 bg-gray-50">
+        <Container>
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+              Pourquoi vos visiteurs repartent-ils sans acheter ?
+            </h2>
+            <p className="text-xl text-gray-600">
+              Les vrais problèmes qui vous font perdre des clients potentiels chaque jour
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {serviceData.brandChallenges.map((challenge, index) => (
+              <div key={index} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all group">
+                <div className="text-4xl mb-4">{challenge.icon}</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition-colors">
+                  {challenge.title}
+                </h3>
+                <p className="text-gray-600">{challenge.description}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-16">
+            <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white p-8 rounded-2xl max-w-4xl mx-auto">
+              <h3 className="text-2xl font-bold mb-4">
+                Chaque visiteur qui repart = une vente perdue
+              </h3>
+              <p className="text-lg opacity-90">
+                Sans accompagnement personnalisé, <strong>97% de vos visiteurs repartent sans acheter</strong>. 
+                Imaginez si un vendeur expert était là pour les rassurer et les guider... 
+                <strong>C'est exactement ce que fait ChatSeller !</strong>
+              </p>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Solutions - Transformation avec ChatSeller */}
+      <section className="py-20 bg-white">
+        <Container>
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+              Avec un Vendeur IA, chaque visiteur devient un 
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600"> client potentiel</span>
+            </h2>
+            <p className="text-xl text-gray-600">
+              Découvrez ce qui change quand vos visiteurs peuvent discuter avec un vendeur IA expert
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {serviceData.brandBenefits.map((benefit, index) => (
+              <div key={index} className="bg-gradient-to-br from-green-50 to-blue-50 p-8 rounded-2xl border border-green-100 hover:shadow-xl transition-all group hover:scale-105">
+                <div className="text-4xl mb-4">{benefit.icon}</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-green-600 transition-colors">
+                  {benefit.title}
+                </h3>
+                <p className="text-gray-600">{benefit.description}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-16">
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 max-w-4xl mx-auto border border-green-200">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                Résultats réels avec votre Vendeur IA
+              </h3>
+              <div className="grid md:grid-cols-3 gap-6 mt-8">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-600 mb-2">+300%</div>
+                  <div className="text-gray-700">Conversions en moyenne</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">24/7</div>
+                  <div className="text-gray-700">Support client automatique</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-purple-600 mb-2">+150%</div>
+                  <div className="text-gray-700">Panier moyen (upsell IA)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Nos offres avec ChatSeller */}
       <section ref={servicesRef} className="py-20 bg-gradient-to-br from-gray-900 to-blue-900">
-              <Container>
-                <div className="max-w-4xl mx-auto text-center mb-16">
-                  <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-                    Boutique E-commerce + Vendeur IA Intelligent = Succès Garanti
-                  </h2>
-                  <p className="text-xl text-white/80">
-                    Deux solutions professionnelles, ChatSeller inclus gratuitement dans les deux
-                  </p>
+        <Container>
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+              Boutique E-commerce + Vendeur IA Intelligent = Succès Garanti
+            </h2>
+            <p className="text-xl text-white/80">
+              Deux solutions professionnelles, ChatSeller inclus gratuitement dans les deux
+            </p>
+          </div>
+          
+          <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            {/* Offre Shopify + ChatSeller */}
+            <div className="bg-white rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all group hover:scale-105 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-gradient-to-l from-green-500 to-emerald-400 text-white px-6 py-2 rounded-bl-2xl">
+                <span className="font-bold text-sm">TOUT-EN-UN</span>
+              </div>
+              
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center">
+                  <Smartphone className="w-8 h-8 text-green-600" />
                 </div>
-                
-                <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-                  {/* Offre Shopify + ChatSeller */}
-                  <div className="bg-white rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all group hover:scale-105 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 bg-gradient-to-l from-green-500 to-emerald-400 text-white px-6 py-2 rounded-bl-2xl">
-                      <span className="font-bold text-sm">TOUT-EN-UN</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center">
-                        <Smartphone className="w-8 h-8 text-green-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-gray-900">Shopify Premium + ChatSeller</h3>
-                        <p className="text-green-600 font-medium">La solution complète avec Vendeur IA</p>
-                      </div>
-                    </div>
-                    
-                    <div className="mb-8">
-                      <div className="text-4xl font-bold text-gray-900 mb-2">
-                        <PriceFormatter amount={serviceData.shopifyPrice} />
-                      </div>
-                      <p className="text-gray-600">Boutique + Vendeur IA inclus</p>
-                    </div>
-      
-                    {/* Badge ChatSeller */}
-                    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-xl mb-6 border border-purple-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Bot className="w-5 h-5 text-purple-600" />
-                        <span className="font-bold text-gray-900">ChatSeller inclus</span>
-                        <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">GRATUIT</span>
-                      </div>
-                      <p className="text-sm text-gray-700">Vendeur IA personnalisé qui convertit vos visiteurs en clients</p>
-                    </div>
-                    
-                    <div className="space-y-4 mb-8">
-                      {[
-                        "Design sur-mesure reflétant votre marque",
-                        "Interface ultra-simple (gérable depuis smartphone)",
-                        "Vendeur IA personnalisé, disponible 24h/24",
-                        "Conversations qui convertissent automatiquement",
-                        "Applications premium pour automatisation",
-                        "Support technique + formation",
-                        "Ajout de fonctionnalités uniques",
-                        "1 mois d'accompagnement gratuit"
-                      ].map((feature, i) => (
-                        <div key={i} className="flex items-start gap-3">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                          <span className="text-gray-700">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <button
-                      onClick={() => openModal('shopify')}
-                      className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
-                    >
-                      <Bot className="w-5 h-5" />
-                      Choisir Shopify + ChatSeller
-                      <ArrowRight className="w-5 h-5" />
-                    </button>
-                    
-                    <p className="text-center text-sm text-gray-500 mt-4">
-                      Parfait pour les marques qui veulent la simplicité + IA
-                    </p>
-                  </div>
-      
-                  {/* Offre WordPress + ChatSeller */}
-                  <div className="bg-white rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all group hover:scale-105 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 bg-gradient-to-l from-blue-500 to-indigo-400 text-white px-6 py-2 rounded-bl-2xl">
-                      <span className="font-bold text-sm">PERSONNALISABLE</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center">
-                        <Laptop className="w-8 h-8 text-blue-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-gray-900">WordPress Pro + ChatSeller</h3>
-                        <p className="text-blue-600 font-medium">Personnalisation infinie + Vendeur IA</p>
-                      </div>
-                    </div>
-                    
-                    <div className="mb-8">
-                      <div className="text-4xl font-bold text-gray-900 mb-2">
-                        <PriceFormatter amount={serviceData.wordpressPrice} />
-                      </div>
-                      <p className="text-gray-600">Boutique + Vendeur IA inclus</p>
-                    </div>
-      
-                    {/* Badge ChatSeller */}
-                    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-xl mb-6 border border-purple-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Bot className="w-5 h-5 text-purple-600" />
-                        <span className="font-bold text-gray-900">ChatSeller inclus</span>
-                        <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">GRATUIT</span>
-                      </div>
-                      <p className="text-sm text-gray-700">Vendeur IA entièrement personnalisable selon vos besoins</p>
-                    </div>
-                    
-                    <div className="space-y-4 mb-8">
-                      {[
-                        "Design 100% personnalisé pour votre marque",
-                        "Aucun abonnement mensuel (hébergement d'1 an)",
-                        "Vendeur IA personnalisé, disponible 24h/24",
-                        "WooCommerce optimisé pour conversions",
-                        "SEO avancé pour Google & réseaux sociaux",
-                        "2 Extensions premium incluses",
-                        "Formation complète pour gérer votre site",
-                        "1 mois de support gratuit"
-                      ].map((feature, i) => (
-                        <div key={i} className="flex items-start gap-3">
-                          <CheckCircle className="w-5 h-5 text-blue-500 mt-1 flex-shrink-0" />
-                          <span className="text-gray-700">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <button
-                      onClick={() => openModal('wordpress')}
-                      className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
-                    >
-                      <Bot className="w-5 h-5" />
-                      Choisir WordPress + ChatSeller
-                      <ArrowRight className="w-5 h-5" />
-                    </button>
-                    
-                    <p className="text-center text-sm text-gray-500 mt-4">
-                      Parfait pour les marques qui veulent le contrôle
-                    </p>
-                  </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Shopify Premium + ChatSeller</h3>
+                  <p className="text-green-600 font-medium">La solution complète avec Vendeur IA</p>
                 </div>
-      
-                <div className="text-center mt-16">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-3xl mx-auto">
-                    <h3 className="text-2xl font-bold text-white mb-4">
-                      Vous hésitez entre les deux solutions ?
-                    </h3>
-                    <p className="text-white/90 mb-6">
-                      Nos experts analysent votre marque et vous conseillent la solution la plus adaptée à votre situation. 
-                      Consultation gratuite de 15min.
-                    </p>
-                    <a 
-                      href="https://calendly.com/tekki-studio" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="bg-white text-gray-900 px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors inline-block"
-                    >
-                      Réserver une consultation gratuite
-                    </a>
-                  </div>
+              </div>
+              
+              <div className="mb-8">
+                <div className="text-4xl font-bold text-gray-900 mb-2">
+                  <PriceFormatter amount={serviceData.shopifyPrice} />
                 </div>
-              </Container>
-            </section>
+                <p className="text-gray-600">Boutique + Vendeur IA inclus</p>
+              </div>
+
+              {/* Badge ChatSeller */}
+              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-xl mb-6 border border-purple-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Bot className="w-5 h-5 text-purple-600" />
+                  <span className="font-bold text-gray-900">ChatSeller inclus</span>
+                  <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">GRATUIT</span>
+                </div>
+                <p className="text-sm text-gray-700">Vendeur IA personnalisé qui convertit vos visiteurs en clients</p>
+              </div>
+              
+              <div className="space-y-4 mb-8">
+                {[
+                  "Design sur-mesure reflétant votre marque",
+                  "Interface ultra-simple (gérable depuis smartphone)",
+                  "Vendeur IA personnalisé, disponible 24h/24",
+                  "Conversations qui convertissent automatiquement",
+                  "Applications premium pour automatisation",
+                  "Support technique + formation",
+                  "Ajout de fonctionnalités uniques",
+                  "1 mois d'accompagnement gratuit"
+                ].map((feature, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
+                    <span className="text-gray-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <button
+                onClick={() => openModal('shopify')}
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
+              >
+                <Bot className="w-5 h-5" />
+                Choisir Shopify + ChatSeller
+                <ArrowRight className="w-5 h-5" />
+              </button>
+              
+              <p className="text-center text-sm text-gray-500 mt-4">
+                Parfait pour les marques qui veulent la simplicité + IA
+              </p>
+            </div>
+
+            {/* Offre WordPress + ChatSeller */}
+            <div className="bg-white rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all group hover:scale-105 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-gradient-to-l from-blue-500 to-indigo-400 text-white px-6 py-2 rounded-bl-2xl">
+                <span className="font-bold text-sm">PERSONNALISABLE</span>
+              </div>
+              
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center">
+                  <Laptop className="w-8 h-8 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">WordPress Pro + ChatSeller</h3>
+                  <p className="text-blue-600 font-medium">Personnalisation infinie + Vendeur IA</p>
+                </div>
+              </div>
+              
+              <div className="mb-8">
+                <div className="text-4xl font-bold text-gray-900 mb-2">
+                  <PriceFormatter amount={serviceData.wordpressPrice} />
+                </div>
+                <p className="text-gray-600">Boutique + Vendeur IA inclus</p>
+              </div>
+
+              {/* Badge ChatSeller */}
+              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-xl mb-6 border border-purple-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Bot className="w-5 h-5 text-purple-600" />
+                  <span className="font-bold text-gray-900">ChatSeller inclus</span>
+                  <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">GRATUIT</span>
+                </div>
+                <p className="text-sm text-gray-700">Vendeur IA entièrement personnalisable selon vos besoins</p>
+              </div>
+              
+              <div className="space-y-4 mb-8">
+                {[
+                  "Design 100% personnalisé pour votre marque",
+                  "Aucun abonnement mensuel (hébergement d'1 an)",
+                  "Vendeur IA personnalisé, disponible 24h/24",
+                  "WooCommerce optimisé pour conversions",
+                  "SEO avancé pour Google & réseaux sociaux",
+                  "2 Extensions premium incluses",
+                  "Formation complète pour gérer votre site",
+                  "1 mois de support gratuit"
+                ].map((feature, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-blue-500 mt-1 flex-shrink-0" />
+                    <span className="text-gray-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <button
+                onClick={() => openModal('wordpress')}
+                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
+              >
+                <Bot className="w-5 h-5" />
+                Choisir WordPress + ChatSeller
+                <ArrowRight className="w-5 h-5" />
+              </button>
+              
+              <p className="text-center text-sm text-gray-500 mt-4">
+                Parfait pour les marques qui veulent le contrôle
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center mt-16">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-3xl mx-auto">
+              <h3 className="text-2xl font-bold text-white mb-4">
+                Vous hésitez entre les deux solutions ?
+              </h3>
+              <p className="text-white/90 mb-6">
+                Nos experts analysent votre marque et vous conseillent la solution la plus adaptée à votre situation. 
+                Consultation gratuite de 15min.
+              </p>
+              <a 
+                href="https://calendly.com/tekki-studio" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="bg-white text-gray-900 px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors inline-block"
+              >
+                Réserver une consultation gratuite
+              </a>
+            </div>
+          </div>
+        </Container>
+      </section>
 
       {/* Portfolio */}
       <section ref={portfolioRef} className="py-20 bg-white">
@@ -1567,10 +1597,10 @@ export default function EcommerceServicePage() {
           <div className="max-w-4xl mx-auto text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
               Des marques africaines qui 
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-red-500"> cartonnent</span> grâce à nous
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-red-500"> explosent</span> avec ChatSeller
             </h2>
             <p className="text-xl text-gray-600">
-              La preuve par l'exemple : des boutiques en ligne qui transforment réellement les visiteurs en clients
+              Découvrez ces boutiques qui convertissent 3x plus grâce à leur Vendeur IA intégré
             </p>
           </div>
           
@@ -1623,10 +1653,11 @@ export default function EcommerceServicePage() {
                   </div>
                 </div>
                 
-                {/* Badge "En ligne" */}
+                {/* Badge ChatSeller */}
                 <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-bold">
-                    ✓ En ligne
+                  <div className="bg-purple-500 text-white text-xs px-3 py-1 rounded-full font-bold">
+                    <Bot className="w-3 h-3 inline mr-1" />
+                    ChatSeller
                   </div>
                 </div>
 
@@ -1638,21 +1669,22 @@ export default function EcommerceServicePage() {
 
           <div className="text-center">
             <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 max-w-4xl mx-auto">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Résultats concrets de nos clients
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
+                <Bot className="w-8 h-8 text-purple-600" />
+                Résultats concrets avec ChatSeller
               </h3>
               <div className="grid md:grid-cols-3 gap-6 mt-8">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">+200%</div>
-                  <div className="text-gray-700">Ventes en moyenne</div>
+                  <div className="text-3xl font-bold text-green-600 mb-2">+300%</div>
+                  <div className="text-gray-700">Conversions avec Vendeur IA</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600 mb-2">24/7</div>
-                  <div className="text-gray-700">Commandes automatiques</div>
+                  <div className="text-gray-700">Accompagnement automatique</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-600 mb-2">+15</div>
-                  <div className="text-gray-700">Pays de livraison</div>
+                  <div className="text-3xl font-bold text-purple-600 mb-2">+150%</div>
+                  <div className="text-gray-700">Panier moyen (upsell IA)</div>
                 </div>
               </div>
             </div>
@@ -1665,10 +1697,10 @@ export default function EcommerceServicePage() {
         <Container>
           <div className="max-w-4xl mx-auto text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              Pourquoi les marques africaines nous font-elles confiance ?
+              TEKKI Studio + ChatSeller
             </h2>
             <p className="text-xl text-gray-600">
-              Parce que nous ne sommes pas juste des développeurs. Nous sommes des créateurs de marques.
+              La seule agence en Afrique qui intègre automatiquement un Vendeur IA dans chaque projet
             </p>
           </div>
           
@@ -1676,7 +1708,7 @@ export default function EcommerceServicePage() {
             {serviceData.whyChooseUs.map((reason, index) => (
               <div key={index} className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all group">
                 <div className="flex items-start gap-6">
-                  <div className="text-blue-600 group-hover:text-blue-700 transition-colors">
+                  <div className="text-blue-600 group-hover:text-purple-600 transition-colors">
                     {reason.icon}
                   </div>
                   <div>
@@ -1694,15 +1726,15 @@ export default function EcommerceServicePage() {
         </Container>
       </section>
 
-      {/* Témoignages */}
+      {/* Témoignages avec ChatSeller */}
       <section className="py-20 bg-white">
         <Container>
           <div className="max-w-4xl mx-auto text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              Ce que disent nos marques clients
+              Ce que disent nos clients
             </h2>
             <p className="text-xl text-gray-600">
-              Des témoignages authentiques de marques qui ont transformé leur business
+              Des témoignages authentiques sur l'impact du Vendeur IA sur leurs ventes
             </p>
           </div>
           
@@ -1734,26 +1766,41 @@ export default function EcommerceServicePage() {
               </div>
             ))}
           </div>
+
+          {/* Bannière résultat ChatSeller */}
+          <div className="text-center mt-16">
+            <div className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-8 rounded-2xl max-w-4xl mx-auto">
+              <h3 className="text-2xl font-bold mb-4 flex items-center justify-center gap-3">
+                <Bot className="w-8 h-8" />
+                ChatSeller : Le secret de leur succès
+              </h3>
+              <p className="text-lg opacity-90">
+                Tous nos clients ont vu leurs ventes exploser grâce au Vendeur IA intégré dans leur boutique. 
+                <strong> Votre Vendeur IA vend pour vous, même pendant que vous dormez.</strong>
+              </p>
+            </div>
+          </div>
         </Container>
       </section>
 
-      {/* FAQ */}
+      {/* FAQ avec ChatSeller */}
       <section className="py-20 bg-gray-50">
         <Container>
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-                Questions fréquentes
+                Questions fréquentes sur ChatSeller
               </h2>
               <p className="text-xl text-gray-600">
-                Tout ce que vous devez savoir avant de franchir le pas
+                Tout ce que vous devez savoir sur votre futur Vendeur IA
               </p>
             </div>
             
             <div className="space-y-6">
               {serviceData.faqs.map((faq, index) => (
                 <div key={index} className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-all">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                    {index === 0 && <Bot className="w-5 h-5 text-purple-600" />}
                     {faq.question}
                   </h3>
                   <p className="text-gray-600 leading-relaxed">
@@ -1762,11 +1809,32 @@ export default function EcommerceServicePage() {
                 </div>
               ))}
             </div>
+
+            {/* CTA FAQ */}
+            <div className="text-center mt-16">
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border border-blue-200">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  D'autres questions sur notre offre ou sur ChatSeller ?
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Réservez une consultation gratuite de 15 minutes avec un expert TEKKI Studio pour en discuter.
+                </p>
+                <a 
+                  href="https://calendly.com/tekki-studio" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-purple-700 transition-colors inline-flex items-center gap-2"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  Consultation ChatSeller gratuite
+                </a>
+              </div>
+            </div>
           </div>
         </Container>
       </section>
 
-      {/* CTA Final */}
+      {/* CTA Final avec ChatSeller */}
       <section className="py-20 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 relative overflow-hidden">
         {/* Effets visuels */}
         <div className="absolute inset-0 opacity-20">
@@ -1777,13 +1845,13 @@ export default function EcommerceServicePage() {
         <Container className="relative z-10">
           <div className="max-w-5xl mx-auto text-center">
             <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-8 leading-tight">
-              Prêt à faire décoller votre marque ?
+              Prêt pour une boutique qui vend toute seule ?
             </h2>
             
             <p className="text-xl md:text-2xl text-white/90 mb-12 leading-relaxed max-w-4xl mx-auto">
-              Rejoignez les dizaines de marques africaines qui ont choisi TEKKI Studio 
-              pour <strong>transformer leur vision en empire digital</strong>. 
-              ChatSeller inclus gratuitement.
+              Rejoignez les marques africaines qui ont choisi TEKKI Studio + ChatSeller 
+              pour <strong>transformer chaque visiteur en client</strong>. 
+              Votre Vendeur IA personnel vous attend.
             </p>
             
             <div className="flex flex-col lg:flex-row items-center justify-center gap-8 mb-16">
@@ -1791,8 +1859,11 @@ export default function EcommerceServicePage() {
                 onClick={() => openModal('shopify')}
                 className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-black px-10 py-5 rounded-2xl font-bold text-xl transition-all transform hover:scale-105 shadow-2xl flex items-center gap-3"
               >
-                <Smartphone className="w-6 h-6" />
-                Commencer avec Shopify
+                <div className="flex items-center gap-2">
+                  <Smartphone className="w-6 h-6" />
+                  <Bot className="w-5 h-5" />
+                </div>
+                Shopify + ChatSeller
                 <ArrowRight className="w-6 h-6" />
               </button>
               
@@ -1800,8 +1871,11 @@ export default function EcommerceServicePage() {
                 onClick={() => openModal('wordpress')}
                 className="bg-white/10 backdrop-blur-sm border-2 border-white/30 hover:bg-white/20 text-white px-10 py-5 rounded-2xl font-bold text-xl transition-all flex items-center gap-3"
               >
-                <Laptop className="w-6 h-6" />
-                Commencer avec WordPress
+                <div className="flex items-center gap-2">
+                  <Laptop className="w-6 h-6" />
+                  <Bot className="w-5 h-5" />
+                </div>
+                WordPress + ChatSeller
                 <ArrowRight className="w-6 h-6" />
               </button>
             </div>
@@ -1809,27 +1883,40 @@ export default function EcommerceServicePage() {
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-4xl mx-auto">
               <div className="grid md:grid-cols-3 gap-8">
                 <div className="text-center">
-                  <Shield className="w-12 h-12 text-green-400 mx-auto mb-4" />
-                  <h3 className="font-bold text-white mb-2">Livraison garantie</h3>
-                  <p className="text-white/80 text-sm">Recevez votre site en 7 jours ouvrés</p>
-                </div>
-                <div className="text-center">
                   <Bot className="w-12 h-12 text-purple-400 mx-auto mb-4" />
                   <h3 className="font-bold text-white mb-2">ChatSeller inclus</h3>
-                  <p className="text-white/80 text-sm">Vendeur IA gratuit avec chaque site</p>
+                  <p className="text-white/80 text-sm">Vendeur IA personnalisé gratuitement</p>
                 </div>
                 <div className="text-center">
-                  <Trophy className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
-                  <h3 className="font-bold text-white mb-2">Expertise prouvée</h3>
-                  <p className="text-white/80 text-sm">+50 marques accompagnées avec succès</p>
+                  <Shield className="w-12 h-12 text-green-400 mx-auto mb-4" />
+                  <h3 className="font-bold text-white mb-2">Livraison garantie</h3>
+                  <p className="text-white/80 text-sm">Boutique + IA en 7 jours ouvrés</p>
+                </div>
+                <div className="text-center">
+                  <TrendingUp className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
+                  <h3 className="font-bold text-white mb-2">Conversions x3</h3>
+                  <p className="text-white/80 text-sm">Résultats garantis avec ChatSeller</p>
                 </div>
               </div>
+            </div>
+
+            {/* Rappel valeur ChatSeller */}
+            <div className="mt-12 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 backdrop-blur-sm rounded-2xl p-6 border border-purple-300/30 max-w-3xl mx-auto">
+              <h3 className="text-xl font-bold text-white mb-3 flex items-center justify-center gap-3">
+                <Sparkles className="w-6 h-6 text-yellow-300" />
+                Avantage exclusif TEKKI Studio
+              </h3>
+              <p className="text-white/90 text-lg">
+                Pendant que nos concurrents facturent les outils IA en supplément, 
+                <strong> nous incluons ChatSeller gratuitement pendant 1 mois</strong> dans chaque projet. 
+                C'est notre engagement pour votre réussite !
+              </p>
             </div>
           </div>
         </Container>
       </section>
 
-      {/* Modal d'inscription complet */}
+      {/* Modal d'inscription complet avec ChatSeller */}
       <EcommerceModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
