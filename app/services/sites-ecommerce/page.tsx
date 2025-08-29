@@ -1119,7 +1119,7 @@ export default function EcommerceServicePage() {
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full mt-8 mb-8">
               <Trophy className="w-5 h-5 text-yellow-300" />
               <span className="text-white font-medium">
-                Créateur #1 en Afrique de Sites pour les Marques
+                OFFRE SPÉCIALE : Votre Site E-commerce + Vendeur IA
               </span>
             </div>
             
@@ -1129,7 +1129,7 @@ export default function EcommerceServicePage() {
             </h1>
             
             <p className="text-xl md:text-2xl text-white/90 mb-12 leading-relaxed max-w-4xl mx-auto">
-              Bénéficiez de notre expertise en création de sites e-commerce pour les marques en Afrique, et obtenez une boutique en ligne professionnelle + un Vendeur IA intelligent qui convertit vos visiteurs en clients.
+              Bénéficiez de notre expertise en création de sites e-commerce pour les marques, et obtenez une boutique en ligne professionnelle + un Vendeur IA intelligent qui convertit vos visiteurs en clients.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">
@@ -1138,7 +1138,7 @@ export default function EcommerceServicePage() {
                 className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-black px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-2xl flex items-center gap-3"
               >
                 <ShoppingCart className="w-6 h-6" />
-                Créer ma boutique en ligne
+                Profiter de l'offre
                 <ArrowRight className="w-5 h-5" />
               </button>
               
@@ -1464,7 +1464,7 @@ export default function EcommerceServicePage() {
                       className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
                     >
                       <Bot className="w-5 h-5" />
-                      Choisir Shopify + ChatSeller
+                      Choisir Shopify + Vendeur IA
                       <ArrowRight className="w-5 h-5" />
                     </button>
                     
@@ -1529,7 +1529,7 @@ export default function EcommerceServicePage() {
                       className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
                     >
                       <Bot className="w-5 h-5" />
-                      Choisir WordPress + ChatSeller
+                      Choisir WordPress + Vendeur IA
                       <ArrowRight className="w-5 h-5" />
                     </button>
                     
@@ -1821,7 +1821,7 @@ export default function EcommerceServicePage() {
                 <div className="text-center">
                   <Trophy className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
                   <h3 className="font-bold text-white mb-2">Expertise prouvée</h3>
-                  <p className="text-white/80 text-sm">+50 marques accompagnées avec succès</p>
+                  <p className="text-white/80 text-sm">+50 marques accompagnées</p>
                 </div>
               </div>
             </div>

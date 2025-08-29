@@ -1127,17 +1127,17 @@ export default function EcommerceServicePage() {
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full mt-8 mb-8">
               <Trophy className="w-5 h-5 text-purple-300" />
               <span className="text-white font-medium">
-                Créateur #1 en Afrique de Sites pour les Marques
+                Vendeur IA = 4x plus de ventes en ligne
               </span>
             </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
-              Sites E-commerce + 
+              Augmentez vos ventes de +300% grâce à votre
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400"> Vendeur IA</span>
             </h1>
             
             <p className="text-xl md:text-2xl text-white/90 mb-12 leading-relaxed max-w-4xl mx-auto">
-              Obtenez une boutique en ligne professionnelle + un Vendeur IA 100% autonome qui convertit vos visiteurs en clients, 24h/24.
+              Intégrez un Vendeur IA 100% autonome sur votre site et laissez-le convertir vos visiteurs en clients, 24h/24.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">
@@ -1146,7 +1146,7 @@ export default function EcommerceServicePage() {
                 className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-black px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-2xl flex items-center gap-3"
               >
                 <Bot className="w-6 h-6" />
-                Découvrir notre offre
+                Découvrir cette offre
                 <ArrowRight className="w-5 h-5" />
               </button>
               
@@ -1155,15 +1155,15 @@ export default function EcommerceServicePage() {
                 className="text-white border-2 border-white/30 hover:border-white/60 hover:bg-white/10 px-8 py-4 rounded-xl font-semibold transition-all flex items-center gap-3"
               >
                 <PlayCircle className="w-6 h-6" />
-                Voir ChatSeller en action
+                Voir le Vendeur IA en action
               </button>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
               <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">+50</div>
-                <div className="text-white/80 text-sm">Marques accompagnées</div>
+                <div className="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">+20</div>
+                <div className="text-white/80 text-sm">E-commerçants conquis</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-yellow-300 mb-2">300%</div>
@@ -1195,7 +1195,7 @@ export default function EcommerceServicePage() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600"> Vendeur IA</span> Personnel
             </h2>
             <p className="text-xl text-gray-600 mb-8">
-              Le premier Vendeur IA intelligent, spécialement conçu pour les boutiques e-commerce, qui travaille 24h/24 et transforme chaque visiteur en client potentiel.
+              Ne laissez plus jamais un visiteur repartir sans acheter. Votre Vendeur IA intelligent répond aux questions, rassure et convertit vos visiteurs en clients, 24h/24.
             </p>
           </div>
           
@@ -1310,7 +1310,7 @@ export default function EcommerceServicePage() {
                   Résultat garanti
                 </h4>
                 <p className="text-gray-700">
-                  Vos conversions augmentent de <strong>200 à 300%</strong> car vos visiteurs sont accompagnés comme dans une boutique physique avec un vendeur expert.
+                  Vos conversions augmentent de <strong>200 à 300%</strong> car vos visiteurs sont accompagnés comme dans une boutique physique.
                 </p>
               </div>
             </div>
@@ -1320,17 +1320,16 @@ export default function EcommerceServicePage() {
           <div className="text-center">
             <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-8 rounded-2xl max-w-4xl mx-auto">
               <h3 className="text-2xl font-bold mb-4">
-                ChatSeller est inclus GRATUITEMENT dans chaque projet
+                Transformez chaque visiteur de votre site en client
               </h3>
               <p className="text-lg opacity-90 mb-6">
-                Pendant que nos concurrents facturent les outils de conversation, 
-                nous incluons ChatSeller dans tous nos sites e-commerce sans coût supplémentaire.
+                Votre Vendeur IA travaille pour vous 24h/24, 7j/7, sans pause ni congés. Ne perdez plus jamais une vente à cause d'un visiteur qui repart sans acheter.
               </p>
               <button
                 onClick={() => scrollToSection(servicesRef)}
                 className="bg-white text-purple-600 px-8 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors"
               >
-                Découvrir nos offres avec ChatSeller
+                Je veux mon Vendeur IA
               </button>
             </div>
           </div>
@@ -1572,11 +1571,10 @@ export default function EcommerceServicePage() {
           <div className="text-center mt-16">
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-3xl mx-auto">
               <h3 className="text-2xl font-bold text-white mb-4">
-                Vous hésitez entre ces deux solutions ?
+                Vous avez déjà votre propre site e-commerce ?
               </h3>
               <p className="text-white/90 mb-6">
-                Nos experts analysent votre marque et vous conseillent la solution la plus adaptée à votre situation. 
-                Consultation gratuite de 15min.
+                Nous pouvons intégrer votre Vendeur IA à votre boutique existante, quel que soit le CMS utilisé (Shopify, WooCommerce, Wix, Squarespace, etc.). Réservez une consultation gratuite pour en discuter.
               </p>
               <a 
                 href="https://calendly.com/tekki-studio" 
@@ -1596,11 +1594,11 @@ export default function EcommerceServicePage() {
         <Container>
           <div className="max-w-4xl mx-auto text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              Des marques africaines qui 
+              Des marques qui 
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-red-500"> explosent</span> avec ChatSeller
             </h2>
             <p className="text-xl text-gray-600">
-              Découvrez ces boutiques qui convertissent 3x plus grâce à leur Vendeur IA intégré
+              Découvrez ces boutiques qui convertissent 3 voire 4x plus grâce à leur Vendeur IA intégré
             </p>
           </div>
           
@@ -1863,7 +1861,7 @@ export default function EcommerceServicePage() {
                   <Smartphone className="w-6 h-6" />
                   <Bot className="w-5 h-5" />
                 </div>
-                Shopify + ChatSeller
+                Shopify + Vendeur IA
                 <ArrowRight className="w-6 h-6" />
               </button>
               
@@ -1875,7 +1873,7 @@ export default function EcommerceServicePage() {
                   <Laptop className="w-6 h-6" />
                   <Bot className="w-5 h-5" />
                 </div>
-                WordPress + ChatSeller
+                WordPress + Vendeur IA
                 <ArrowRight className="w-6 h-6" />
               </button>
             </div>
