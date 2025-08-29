@@ -1138,7 +1138,7 @@ export default function EcommerceServicePage() {
                 className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-black px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-2xl flex items-center gap-3"
               >
                 <ShoppingCart className="w-6 h-6" />
-                Profiter de l'offre
+                Profiter de l'offre maintenant
                 <ArrowRight className="w-5 h-5" />
               </button>
               
@@ -1253,7 +1253,7 @@ export default function EcommerceServicePage() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600"> Vendeur IA</span> personnel
             </h2>
             <p className="text-xl text-gray-600 mb-8">
-              Grâce à notre partenariat avec ChatSeller, chaque boutique que nous créons inclut automatiquement un Vendeur IA pour booster vos conversions.
+              Ne laissez plus jamais un visiteur repartir sans acheter. Votre Vendeur IA intelligent répond aux questions, rassure et convertit vos visiteurs en clients, 24h/24.
             </p>
           </div>
           
@@ -1368,7 +1368,7 @@ export default function EcommerceServicePage() {
                   Résultat garanti
                 </h4>
                 <p className="text-gray-700">
-                  Vos conversions augmentent de <strong>200 à 300%</strong> car vos visiteurs sont accompagnés comme dans une boutique physique avec un vendeur expert.
+                  Vos conversions augmentent de <strong>200 à 300%</strong> car vos visiteurs sont accompagnés comme dans une boutique physique.
                 </p>
               </div>
             </div>
@@ -1570,7 +1570,7 @@ export default function EcommerceServicePage() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-red-500"> cartonnent</span> grâce à nous
             </h2>
             <p className="text-xl text-gray-600">
-              La preuve par l'exemple : des boutiques en ligne qui transforment réellement les visiteurs en clients
+              La preuve par l'exemple : des boutiques en ligne qui transforment leurs visiteurs en clients
             </p>
           </div>
           
@@ -1665,7 +1665,7 @@ export default function EcommerceServicePage() {
         <Container>
           <div className="max-w-4xl mx-auto text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              Pourquoi les marques africaines nous font-elles confiance ?
+              Pourquoi les marques de produits nous font-elles confiance ?
             </h2>
             <p className="text-xl text-gray-600">
               Parce que nous ne sommes pas juste des développeurs. Nous sommes des créateurs de marques.
