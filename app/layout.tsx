@@ -8,7 +8,6 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import MetaPixel from './components/analytics/MetaPixel';
 import { Toaster } from 'sonner';
-import TekkiChatbot from '@/app/components/global/TekkiChatbot/index';
 import CurrencySelectorWrapper from './components/common/CurrencySelectorWrapper';
 
 // Utilisation de la police Inter avec tous les sous-ensembles nécessaires
@@ -128,10 +127,11 @@ export default function RootLayout({
           <CurrencySelectorWrapper />
         </div>
         
-        {/* Intégration du chatbot - maintenant masqué sur mobile */}
+        {/* Intégration du chatbot - maintenant masqué sur mobile 
         <div className="hidden md:block">
           <TekkiChatbot />
         </div>
+        */}
         
         {/* Système de notifications amélioré */}
         <Toaster 

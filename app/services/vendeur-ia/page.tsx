@@ -1132,12 +1132,12 @@ export default function EcommerceServicePage() {
             </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
-              Augmentez vos ventes de +300% grâce à votre
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400"> Vendeur IA</span>
+              Augmentez vos ventes en ligne de <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400">267%</span> grâce à votre
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400"> Vendeur IA</span> intelligent
             </h1>
             
             <p className="text-xl md:text-2xl text-white/90 mb-12 leading-relaxed max-w-4xl mx-auto">
-              Intégrez un Vendeur IA 100% autonome sur votre site et laissez-le convertir vos visiteurs en clients, 24h/24.
+              Intégrez dans votre site un Vendeur IA 100% autonome et laissez-le accueillir vos visiteurs, répondre à leurs questions, les conseiller et les convertir en clients, 24h/24.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">

@@ -1119,17 +1119,17 @@ export default function EcommerceServicePage() {
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full mt-8 mb-8">
               <Trophy className="w-5 h-5 text-yellow-300" />
               <span className="text-white font-medium">
-                OFFRE SPÉCIALE : Votre Site E-commerce + Vendeur IA
+                NOUVEAU : Un Vendeur IA dans votre site
               </span>
             </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
-              Faites rayonner votre 
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400"> marque</span> sur Internet
+              Multipliez vos ventes par <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400">3</span> grâce à un
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400"> Vendeur IA</span> dans votre site e-commerce
             </h1>
             
             <p className="text-xl md:text-2xl text-white/90 mb-12 leading-relaxed max-w-4xl mx-auto">
-              Bénéficiez de notre expertise en création de sites e-commerce pour les marques, et obtenez une boutique en ligne professionnelle + un Vendeur IA intelligent qui convertit vos visiteurs en clients.
+              Bénéficiez de notre expertise en création de boutiques en ligne pour les marques, et obtenez un site de vente en ligne clé en main + un Vendeur IA intelligent qui transforme vos visiteurs en clients.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">
