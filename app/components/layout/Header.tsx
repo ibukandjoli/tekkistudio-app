@@ -11,16 +11,8 @@ const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const pathname = usePathname();
     
-    // États pour gérer les sous-menus déroulants
-    const [openSubMenus, setOpenSubMenus] = useState({
-      services: false,
-      about: false
-    });
-    
     // Vérifier si nous sommes sur une page admin
     const isAdminPage = pathname.startsWith('/admin');
-    // Vérifier si nous sommes sur une page business
-    const isBusinessPage = pathname.startsWith('/business/');
     
     useEffect(() => {
       const handleScroll = () => {
@@ -28,59 +20,26 @@ const Header = () => {
       };
       window.addEventListener('scroll', handleScroll);
       
-      // Fermer les sous-menus lors du défilement
-      if (isScrolled) {
-        setOpenSubMenus({ services: false, about: false });
-      }
-      
       return () => window.removeEventListener('scroll', handleScroll);
-    }, [isScrolled]);
+    }, []);
     
     // Ne pas afficher le header sur les pages admin
     if (isAdminPage) {
       return null;
     }
 
-  // Fonction pour basculer l'état d'un sous-menu
-  const toggleSubMenu = (menu: 'services' | 'about') => {
-    setOpenSubMenus(prev => ({
-      ...prev,
-      [menu]: !prev[menu]
-    }));
-  };
-
-  // Structure des éléments de navigation avec sous-menus
+  // Structure des éléments de navigation - NOUVELLE VERSION
   const navItems = [
-    { label: 'Nos Business', href: '/business' },
-    { label: 'Nos Marques', href: '/marques' },
-    { label: 'Nos Formations', href: '/formations' },
-    { 
-      label: 'Nos Services', 
-      href: '#',
-      hasSubmenu: true,
-      menuKey: 'services',
-      submenu: [
-        { label: 'Site e-commerce', href: '/services/sites-ecommerce' }
-      ]
-    },
-    { 
-      label: 'À Propos', 
-      href: '/a-propos',
-      hasSubmenu: true,
-      menuKey: 'about',
-      submenu: [
-        { label: 'Notre Histoire', href: '/a-propos' },
-        { label: 'Notre Expertise', href: '/expertise' },
-        { label: 'L\'équipe', href: '/equipe' },
-        { label: 'Rejoignez-nous', href: '/careers' }
-      ]
-    },
+    { label: 'Nos Marques', href: '/nos-marques' },
+    { label: 'Nos Formules', href: '/nos-formules' },
+    { label: 'Cas Clients', href: '/cas-clients' },
+    { label: 'A Propos', href: '/a-propos' },
   ];
 
   return (
     <header 
         className={`fixed w-full top-0 z-50 transition-all duration-300 
-          ${isScrolled || isBusinessPage || isOpen ? 'bg-[#0f4c81]' : 'lg:bg-transparent bg-[#0f4c81]'}`}>
+          ${isScrolled || isOpen ? 'bg-[#0f4c81] shadow-lg' : 'lg:bg-transparent bg-[#0f4c81]'}`}>
 
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-20 py-6">
@@ -92,52 +51,26 @@ const Header = () => {
             />
           </Link>
 
-          {/* Menu de navigation - visible uniquement sur écrans larges (desktop) */}
+          {/* Menu de navigation - visible uniquement sur desktop */}
           <nav className="hidden lg:flex items-center space-x-8">
             {navItems.map((item) => (
-              <div key={item.href} className="relative group">
-                {item.hasSubmenu ? (
-                  <>
-                    <button 
-                      onClick={() => item.menuKey && toggleSubMenu(item.menuKey as 'services' | 'about')}
-                      className="flex items-center text-white hover:text-[#ff7f50] transition-colors"
-                    >
-                      {item.label} <ChevronDown className="w-4 h-4 ml-1" />
-                    </button>
-                    {item.menuKey && openSubMenus[item.menuKey as 'services' | 'about'] && (
-                      <div className="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-10">
-                        {item.submenu?.map((subItem) => (
-                          <Link 
-                            key={subItem.href} 
-                            href={subItem.href}
-                            className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                            onClick={() => setOpenSubMenus({ services: false, about: false })}
-                          >
-                            {subItem.label}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className="text-white hover:text-[#ff7f50] transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                )}
-              </div>
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-white hover:text-[#ff7f50] transition-colors font-medium"
+              >
+                {item.label}
+              </Link>
             ))}
           </nav>
 
           <div className="flex items-center space-x-4">
-            {/* Bouton Acheter un Business - visible sur tablette et desktop */}
+            {/* Bouton CTA Principal - visible sur tablette et desktop */}
             <Link
-              href="/business"
-              className="hidden sm:block bg-[#ff7f50] text-white px-4 py-2 rounded-lg hover:bg-[#ff6b3d] transition-colors whitespace-nowrap"
+              href="https://calendly.com/tekki-studio/consultation-gratuite"
+              className="hidden sm:block bg-[#ff7f50] text-white px-6 py-3 rounded-lg hover:bg-[#ff6b3d] transition-colors font-medium whitespace-nowrap shadow-lg hover:shadow-xl"
             >
-              Acheter un Business
+              Réserver un appel
             </Link>
 
             {/* Bouton hamburger - visible sur mobile et tablette */}
@@ -151,54 +84,28 @@ const Header = () => {
           </div>
         </div>
         
-        {/* Menu mobile - s'affiche quand le menu est ouvert */}
+        {/* Menu mobile */}
         {isOpen && (
-          <div className="lg:hidden py-4">
+          <div className="lg:hidden py-4 border-t border-white/10">
             {navItems.map((item) => (
-              <div key={item.href} className="py-2">
-                {item.hasSubmenu ? (
-                  <div>
-                    <button 
-                      onClick={() => item.menuKey && toggleSubMenu(item.menuKey as 'services' | 'about')}
-                      className="flex items-center text-white hover:text-[#ff7f50] w-full text-left"
-                    >
-                      {item.label} <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${item.menuKey && openSubMenus[item.menuKey as 'services' | 'about'] ? 'transform rotate-180' : ''}`} />
-                    </button>
-                    {item.menuKey && openSubMenus[item.menuKey as 'services' | 'about'] && (
-                      <div className="pl-4 mt-2 space-y-2 border-l border-white/20">
-                        {item.submenu?.map((subItem) => (
-                          <Link 
-                            key={subItem.href} 
-                            href={subItem.href}
-                            className="block py-1 text-white hover:text-[#ff7f50]"
-                            onClick={() => setIsOpen(false)}
-                          >
-                            {subItem.label}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className="block text-white hover:text-[#ff7f50]"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                )}
-              </div>
-            ))}
-            
-            {/* Version mobile du bouton Acheter - visible uniquement sur très petits écrans */}
-            <div className="sm:hidden mt-4">
               <Link
-                href="/business"
-                className="block bg-[#ff7f50] text-white px-4 py-2 rounded-lg text-center"
+                key={item.href}
+                href={item.href}
+                className="block py-3 text-white hover:text-[#ff7f50] font-medium transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Acheter un Business
+                {item.label}
+              </Link>
+            ))}
+            
+            {/* Version mobile du CTA */}
+            <div className="sm:hidden mt-4 pt-4 border-t border-white/10">
+              <Link
+                href="https://calendly.com/tekki-studio/consultation-gratuite"
+                className="block bg-[#ff7f50] text-white px-6 py-3 rounded-lg text-center font-medium hover:bg-[#ff6b3d] transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Réserver un appel
               </Link>
             </div>
           </div>

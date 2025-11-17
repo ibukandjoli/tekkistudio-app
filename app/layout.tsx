@@ -2,7 +2,7 @@
 
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Fraunces } from 'next/font/google';
 import { Suspense } from 'react';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
@@ -10,17 +10,26 @@ import MetaPixel from './components/analytics/MetaPixel';
 import { Toaster } from 'sonner';
 import CurrencySelectorWrapper from './components/common/CurrencySelectorWrapper';
 
-// Utilisation de la police Inter avec tous les sous-ensembles nécessaires
-const inter = Inter({ 
+// Configuration de Fraunces pour les titres (police élégante et professionnelle)
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-fraunces',
+  weight: ['400', '500', '600', '700', '800', '900']
+});
+
+// Configuration d'Inter pour le corps de texte
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
+  weight: ['400', '500', '600', '700']
 });
 
 export const metadata: Metadata = {
-  title: 'TEKKI Studio - Fabrique de Business en ligne clé en main',
-  description: 'Lancez-vous dans l\'e-commerce ou le digital sans partir de zéro. Achetez un business en ligne clé en main 100% opérationnel et commencez à générer des revenus',
-  keywords: 'business en ligne, business clé en main, online business, business en ligne afrique, e-commerce, business digital, marques de niche, marque de produits, fabrique de marque, entrepreneur africain, Sénégal, Côte d\'Ivoire',
+  title: 'TEKKI Studio - Créateurs & accélérateurs de marques africaines',
+  description: 'L\'agence de croissance digitale des marques africaines ambitieuses. Nous créons nos propres marques et mettons notre expertise au service des marques africaines qui veulent vendre plus, vendre mieux, et vendre partout.',
+  keywords: 'e-commerce afrique, agence digitale afrique, marque africaine, boutique en ligne sénégal, vendre en ligne afrique, agence e-commerce dakar, croissance digitale, marques africaines, TEKKI Studio',
   authors: [{ name: 'TEKKI Studio' }],
   creator: 'TEKKI Studio',
   publisher: 'TEKKI Studio',
@@ -28,41 +37,35 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'fr_FR',
     url: 'https://tekkistudio.com',
-    title: 'TEKKI Studio - Fabrique de Business en ligne en Main',
-    description: 'Lancez-vous dans l\'e-commerce ou le digital sans partir de zéro. Achetez un business en ligne clé en main 100% opérationnel et commencez à générer des revenus',
+    title: 'TEKKI Studio - Créateurs & accélérateurs de marques africaines',
+    description: 'Nous créons nos propres marques et mettons notre expertise au service des marques africaines qui veulent vendre plus, vendre mieux, et vendre partout.',
     siteName: 'TEKKI Studio',
     images: [
       {
         url: '/images/tekkistudio-og.jpg',
         width: 1200,
         height: 630,
-        alt: 'TEKKI Studio - Fabrique de Business E-commerce et Digitaux Clé en Main',
+        alt: 'TEKKI Studio - Créateurs & accélérateurs de marques africaines',
       }
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TEKKI Studio - Fabrique de Business E-commerce et Digitaux Clé en Main',
-    description: 'Lancez-vous dans l\'e-commerce ou le digital sans partir de zéro. Achetez un business clé en main 100% opérationnel et commencez à générer des revenus.',
+    title: 'TEKKI Studio - Créateurs & accélérateurs de marques africaines',
+    description: 'Nous créons nos propres marques et mettons notre expertise au service des marques africaines qui veulent vendre plus, vendre mieux, et vendre partout.',
     creator: '@tekkistudio',
     images: ['/images/tekkistudio-og.jpg'],
   },
   icons: {
     icon: [
-      { url: '/favicon.ico' },
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }
+      { url: '/images/tekkistudio/fav.png' },
+      { url: '/images/tekkistudio/fav.png', sizes: '16x16', type: 'image/png' },
+      { url: '/images/tekkistudio/fav.png', sizes: '32x32', type: 'image/png' }
     ],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
+      { url: '/images/tekkistudio/fav.png', sizes: '180x180', type: 'image/png' }
     ],
-    other: [
-      {
-        rel: 'mask-icon',
-        url: '/safari-pinned-tab.svg',
-        color: '#0f4c81'
-      }
-    ]
+    shortcut: '/images/tekkistudio/fav.png'
   },
   manifest: '/site.webmanifest',
 };
@@ -73,9 +76,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html 
-      lang="fr" 
-      className={inter.variable} 
+    <html
+      lang="fr"
+      className={`${fraunces.variable} ${inter.variable}`}
       suppressHydrationWarning={true}
     >
       <head>
@@ -88,18 +91,17 @@ export default function RootLayout({
         <meta name="theme-color" content="#0f4c81" />
         
         {/* Favicons et icônes */}
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#0f4c81" />
-        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="icon" href="/images/tekkistudio/fav.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/images/tekkistudio/fav.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/images/tekkistudio/fav.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/tekkistudio/fav.png" />
+        <link rel="shortcut icon" href="/images/tekkistudio/fav.png" />
         <meta name="msapplication-TileColor" content="#0f4c81" />
         
         {/* Ajout d'attributs pour éviter les erreurs d'hydratation */}
         <meta data-lt-installed="true" />
         
-        {/* Préchargement des ressources critiques */}
+        {/* Préchargement des ressources critiques pour les polices */}
         <link
           rel="preconnect"
           href="https://fonts.googleapis.com"
@@ -107,7 +109,7 @@ export default function RootLayout({
         />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className={`bg-background text-foreground min-h-screen flex flex-col`}>
+      <body className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col">
         {/* Composant Pixel Meta pour le suivi - avec Suspense */}
         <Suspense fallback={null}>
           <MetaPixel />

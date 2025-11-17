@@ -18,7 +18,9 @@ body {
 
 /* Base styles pour les éléments communs */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-fraunces), 'Fraunces', serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .container {
@@ -294,6 +296,28 @@ html, body {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+  }
+}
+
+@layer base {
+  /* Variables CSS pour les polices */
+  :root {
+    --font-fraunces: 'Fraunces', serif;
+    --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Application des polices aux éléments de titre */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-fraunces);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Application de la police au corps de texte */
+  body {
+    font-family: var(--font-inter);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 

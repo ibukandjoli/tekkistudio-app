@@ -1,4 +1,4 @@
-// app/components/home/FeaturedBusinesses.tsx avec animations
+// app/components/home/FeaturedBusinesses.tsx 
 'use client';
 
 import React, { useEffect, useState } from 'react';

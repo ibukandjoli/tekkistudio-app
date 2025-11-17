@@ -1,4 +1,4 @@
-// app/components/home/AcquisitionOptions.tsx avec animations
+// app/components/home/AcquisitionOptions.tsx
 'use client';
 
 import React from 'react';

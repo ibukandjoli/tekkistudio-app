@@ -2,40 +2,18 @@
 'use client';
 
 import React from 'react';
-import { Heart, Target, Rocket, Users, Star, Leaf, Calendar, Award, MessagesSquare, ArrowRight, ExternalLink } from 'lucide-react';
+import { Heart, Target, Rocket, Users, Star, Leaf, Calendar, Award, MessagesSquare, ArrowRight, ExternalLink, Lightbulb, TrendingUp, Zap } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Container from '@/app/components/ui/Container';
 
 const AboutPage = () => {
-  const teamMembers = [
-    {
-      name: "Ibuka Ndjoli",
-      role: "Fondateur & Directeur",
-      // Utilisez un placeholder à moins que vous n'ayez une vraie image
-      imageSrc: "/images/tekkistudio/team/ibuka.png",
-      bio: "Expert en e-commerce et développement de marques avec plus de 10 ans d'expérience dans le marketing digital et la création de business innovants."
-    },
-    {
-      name: "Sara Eanga",
-      role: "Customer Success Manager",
-      imageSrc: "/images/tekkistudio/team/sara.png",
-      bio: "Spécialiste de la Relation Client, avec 3 ans d'expérience en closing et vente en ligne, passionnée par la Psychologie et la Création de produits."
-    },
-    {
-      name: "Jeremie Branham",
-      role: "Developpeur Frontend",
-      imageSrc: "/images/tekkistudio/team/jeremie.png",
-      bio: "Développeur fullstack avec 3 ans d'expérience en développement de sites et applications web, passionné par la programmation et l'IA. "
-    }
-  ];
-
   const milestones = [
     { year: "2023", title: "Création de TEKKI Studio", description: "Fondation de la première Fabrique de Marques de Niche d'Afrique de l'Ouest." },
-    { year: "2023", title: "Lancement de la 1ère marque", description: "Création et lancement réussi de notre première marque : VIENS ON S'CONNAÎT." },
-    { year: "2024", title: "Expansion du portfolio", description: "Développement et premier tests du produit phare de de notre 2e marque : AMANI." },
-    { year: "2024", title: "Lancement des business clé en main", description: "Début de notre offre de business e-commerce prêts à l'emploi pour les entrepreneurs." },
-    { year: "2025", title: "Développement continu", description: "Expansion de notre portfolio de marques, et lancement de notre offre de business 100% digitaux. " }
+    { year: "2023", title: "Lancement de VIENS ON S'CONNAÎT", description: "Création et lancement réussi de notre première marque de jeux de conversation." },
+    { year: "2024", title: "Lancement de AMANI", description: "Développement et lancement de notre 2e marque dédiée au bien-être féminin." },
+    { year: "2024", title: "Début de l'accompagnement", description: "Ouverture de notre offre d'accompagnement pour aider d'autres marques africaines." },
+    { year: "2025", title: "Expansion continue", description: "Développement de nouvelles marques et accompagnement de plus de marques africaines vers le succès e-commerce." }
   ];
 
   return (
@@ -56,28 +34,28 @@ const AboutPage = () => {
               À Propos de TEKKI Studio
             </h1>
             <p className="text-xl opacity-90">
-              Créateurs de Marques et Business E-commerce à impact positif
+              Une fabrique de marques qui accompagne les marques africaines vers le succès e-commerce
             </p>
           </div>
         </Container>
       </section>
 
-      {/* Notre Histoire */}
+      {/* Notre Mission */}
       <section className="py-16 bg-white">
         <Container>
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold text-tekki-blue text-center mb-8">
-              Notre Histoire
+              Notre Mission
             </h2>
             <div className="bg-gray-50 p-8 rounded-xl shadow-sm hover:shadow-md transition-all">
               <p className="text-lg text-gray-600 mb-6">
-                <span className="font-bold text-tekki-blue">TEKKI Studio</span> est né d'une vision simple mais puissante : créer des marques qui résolvent véritablement les problèmes quotidiens des consommateurs africains. Fondée en 2023, notre entreprise est rapidement devenue un incubateur de marques innovantes qui comblent des lacunes importantes sur le marché.
+                <span className="font-bold text-tekki-blue">TEKKI Studio</span> est une fabrique de marques africaines qui crée ses propres marques tout en accompagnant d'autres marques du continent à devenir des success stories e-commerce.
               </p>
               <p className="text-lg text-gray-600 mb-6">
-                Notre fondateur, passionné d'entrepreneuriat et d'innovation, a constaté que de nombreux besoins spécifiques restaient non satisfaits, particulièrement en Afrique de l'Ouest. Il a alors imaginé un modèle unique : identifier ces besoins, développer des produits sur mesure, et créer des marques fortes autour de ces solutions.
+                Notre expertise unique provient du fait que nous testons d'abord toutes nos stratégies sur nos propres marques. Chaque technique de marketing, chaque optimisation de conversion, chaque stratégie de croissance que nous recommandons a déjà fait ses preuves sur VIENS ON S'CONNAÎT, AMANI ou nos autres marques.
               </p>
               <p className="text-lg text-gray-600">
-                Aujourd'hui, TEKKI Studio est fier d'avoir lancé avec succès trois marques distinctives et d'aider d'autres entrepreneurs à réaliser leurs ambitions grâce à nos business e-commerce clé en main.
+                Vous ne payez pas pour de la théorie ou des conseils génériques. Vous bénéficiez de stratégies testées, validées et optimisées sur le terrain africain, par des entrepreneurs qui comprennent vos défis parce qu'ils les vivent quotidiennement.
               </p>
             </div>
           </div>
@@ -93,7 +71,7 @@ const AboutPage = () => {
           <div className="max-w-3xl mx-auto relative">
             {/* Line connecting all milestones */}
             <div className="absolute left-16 top-0 bottom-0 w-1 bg-tekki-blue hidden md:block"></div>
-            
+
             {milestones.map((milestone, index) => (
               <div key={index} className="flex mb-12 last:mb-0 group">
                 <div className="mr-8 relative hidden md:block">
@@ -112,49 +90,136 @@ const AboutPage = () => {
         </Container>
       </section>
 
-      {/* Notre Approche */}
+      {/* Notre Double Expertise */}
       <section className="py-16 bg-white">
         <Container>
           <h2 className="text-3xl font-bold text-tekki-blue text-center mb-12">
-            Notre Approche
+            Notre Double Expertise
+          </h2>
+          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
+            {/* Fabrique de marques */}
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-8 rounded-xl shadow-sm hover:shadow-md transition-all border border-purple-100 hover:border-purple-200">
+              <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-white mb-4">
+                <Lightbulb className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-bold text-tekki-blue mb-4">
+                Fabrique de Marques
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Nous identifions des besoins non satisfaits sur le marché africain et créons des marques qui y répondent concrètement. VIENS ON S'CONNAÎT et AMANI sont nées de ce processus rigoureux.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <div className="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">
+                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                  </div>
+                  <span className="text-gray-700">+8 000 produits vendus</span>
+                </li>
+                <li className="flex items-start">
+                  <div className="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">
+                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                  </div>
+                  <span className="text-gray-700">7 pays d'export</span>
+                </li>
+                <li className="flex items-start">
+                  <div className="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">
+                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                  </div>
+                  <span className="text-gray-700">+95% de satisfaction client</span>
+                </li>
+              </ul>
+              <Link
+                href="/nos-marques"
+                className="inline-flex items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg hover:shadow-xl mt-6"
+              >
+                Découvrir nos marques
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Link>
+            </div>
+
+            {/* Accompagnement de marques */}
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-8 rounded-xl shadow-sm hover:shadow-md transition-all border border-blue-100 hover:border-blue-200">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-white mb-4">
+                <TrendingUp className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-bold text-tekki-blue mb-4">
+                Accompagnement E-commerce
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Nous aidons les marques africaines à atteindre leurs objectifs e-commerce en leur transmettant les stratégies qui ont fait le succès de nos propres marques.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  </div>
+                  <span className="text-gray-700">+200% de croissance CA en moyenne</span>
+                </li>
+                <li className="flex items-start">
+                  <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  </div>
+                  <span className="text-gray-700">Stratégies testées et validées</span>
+                </li>
+                <li className="flex items-start">
+                  <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  </div>
+                  <span className="text-gray-700">100% de satisfaction client</span>
+                </li>
+              </ul>
+              <Link
+                href="/cas-clients"
+                className="inline-flex items-center justify-center bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg hover:shadow-xl mt-6"
+              >
+                Voir nos cas clients
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Link>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Notre Approche */}
+      <section className="py-16 bg-gray-50">
+        <Container>
+          <h2 className="text-3xl font-bold text-tekki-blue text-center mb-12">
+            Notre Approche Unique
           </h2>
           <div className="max-w-3xl mx-auto">
-            <div className="bg-gray-50 p-8 rounded-xl shadow-sm hover:shadow-md transition-all mb-8 border border-gray-100 hover:border-tekki-blue/20 group">
+            <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-all mb-8 border border-gray-100 hover:border-tekki-blue/20 group">
+              <h3 className="text-2xl font-bold text-tekki-blue mb-4 flex items-center">
+                <div className="w-10 h-10 bg-tekki-coral/10 rounded-full flex items-center justify-center mr-3 group-hover:bg-tekki-coral/20 transition-all">
+                  <Zap className="w-6 h-6 text-tekki-coral" />
+                </div>
+                Testez d'abord, enseignez ensuite
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Chaque stratégie que nous recommandons a d'abord été testée sur nos propres marques. Nous ne vendons jamais de la théorie, uniquement des techniques qui ont généré des résultats mesurables.
+              </p>
+            </div>
+
+            <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-all mb-8 border border-gray-100 hover:border-tekki-blue/20 group">
               <h3 className="text-2xl font-bold text-tekki-blue mb-4 flex items-center">
                 <div className="w-10 h-10 bg-tekki-coral/10 rounded-full flex items-center justify-center mr-3 group-hover:bg-tekki-coral/20 transition-all">
                   <Target className="w-6 h-6 text-tekki-coral" />
                 </div>
-                Identification des Besoins
+                Expertise du marché africain
               </h3>
               <p className="text-gray-600 mb-4">
-                Nous commençons par une recherche approfondie pour identifier des besoins non satisfaits au sein de niches spécifiques. Notre processus combine analyse de marché, études des tendances et écoute attentive des consommateurs.
+                Nous comprenons les spécificités du marché africain : paiements mobile money, logistique locale, comportements d'achat, réseaux sociaux privilégiés. Notre expertise vient de notre expérience terrain.
               </p>
             </div>
-            
-            <div className="bg-gray-50 p-8 rounded-xl shadow-sm hover:shadow-md transition-all mb-8 border border-gray-100 hover:border-tekki-blue/20 group">
+
+            <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 hover:border-tekki-blue/20 group">
               <h3 className="text-2xl font-bold text-tekki-blue mb-4 flex items-center">
                 <div className="w-10 h-10 bg-tekki-coral/10 rounded-full flex items-center justify-center mr-3 group-hover:bg-tekki-coral/20 transition-all">
                   <Award className="w-6 h-6 text-tekki-coral" />
                 </div>
-                Développement de Produits
+                Accompagnement complet
               </h3>
               <p className="text-gray-600 mb-4">
-                Nous développons des produits sur mesure pour répondre précisément aux besoins identifiés. Nous accordons une attention particulière à la qualité, à l'efficacité et à l'expérience utilisateur.
-              </p>
-            </div>
-            
-            <div className="bg-gray-50 p-8 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 hover:border-tekki-blue/20 group">
-              <h3 className="text-2xl font-bold text-tekki-blue mb-4 flex items-center">
-                <div className="w-10 h-10 bg-tekki-coral/10 rounded-full flex items-center justify-center mr-3 group-hover:bg-tekki-coral/20 transition-all">
-                  <MessagesSquare className="w-6 h-6 text-tekki-coral" />
-                </div>
-                Validation et Itération
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Nous nous donnons trois mois pour valider le product market fit, en testant nos produits auprès de la cible visée et en itérant rapidement sur base des retours. Si le produit est validé, nous développons une marque complète autour de celui-ci.
-              </p>
-              <p className="text-gray-600">
-                Cette approche méthodique nous permet de créer des marques qui répondent véritablement aux besoins du marché et qui ont un impact significatif sur le quotidien de nos clients.
+                De la création de votre site e-commerce à l'optimisation de vos campagnes publicitaires, nous vous accompagnons à chaque étape avec des stratégies éprouvées qui génèrent des ventes.
               </p>
             </div>
           </div>
@@ -162,19 +227,19 @@ const AboutPage = () => {
       </section>
 
       {/* Vision et Valeurs */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-white">
         <Container>
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-tekki-blue mb-6">
               Notre Vision
             </h2>
-            <div className="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100">
+            <div className="max-w-3xl mx-auto bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100">
               <p className="text-lg text-gray-600">
-                Notre vision est de créer un écosystème d'innovation en Afrique de l'Ouest qui identifie et résout les problèmes quotidiens par des solutions ingénieuses et accessibles. Nous aspirons à devenir la référence africaine en matière de création de marques à impact, reconnues tant pour leur qualité que pour leur pertinence sur le marché local.
+                Devenir la référence africaine en création de marques et en accompagnement e-commerce, reconnue pour transformer des marques locales en success stories régionales et internationales grâce à des stratégies éprouvées sur le terrain.
               </p>
             </div>
           </div>
-          
+
           <h2 className="text-3xl font-bold text-tekki-blue text-center mb-12">
             Nos Valeurs Fondamentales
           </h2>
@@ -182,21 +247,21 @@ const AboutPage = () => {
             {[
               {
                 icon: <Star className="w-8 h-8 text-tekki-coral" />,
-                title: "Innovation",
-                description: "Recherche constante de solutions créatives et originales pour des problèmes concrets"
+                title: "Authenticité",
+                description: "Nous ne vendons que ce que nous avons testé et validé sur nos propres marques"
               },
               {
                 icon: <Target className="w-8 h-8 text-tekki-coral" />,
-                title: "Qualité",
-                description: "Engagement inébranlable envers l'excellence dans chaque aspect de nos créations"
+                title: "Résultats",
+                description: "Notre succès se mesure à vos ventes, pas à nos promesses"
               },
               {
-                icon: <Leaf className="w-8 h-8 text-tekki-coral" />,
+                icon: <Heart className="w-8 h-8 text-tekki-coral" />,
                 title: "Impact",
-                description: "Création de solutions qui transforment positivement le quotidien des consommateurs africains"
+                description: "Nous créons des solutions qui transforment positivement les marques africaines"
               }
             ].map((value, index) => (
-              <div key={index} className="text-center p-6 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300 border border-gray-100 hover:border-tekki-coral/20">
+              <div key={index} className="text-center p-6 bg-gray-50 rounded-xl shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300 border border-gray-100 hover:border-tekki-coral/20">
                 <div className="w-16 h-16 bg-tekki-coral/10 rounded-full flex items-center justify-center mx-auto mb-4 hover:bg-tekki-coral/20 transition-all">
                   {value.icon}
                 </div>
@@ -213,33 +278,22 @@ const AboutPage = () => {
       </section>
 
       {/* L'Équipe */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-gray-50">
         <Container>
-          <h2 className="text-3xl font-bold text-tekki-blue text-center mb-12">
+          <h2 className="text-3xl font-bold text-tekki-blue text-center mb-6">
             Notre Équipe
           </h2>
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {teamMembers.map((member, index) => (
-              <div key={index} className="bg-gray-50 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-gray-100 hover:border-tekki-coral/20 group">
-                <div className="w-full h-64 relative">
-                  <Image 
-                    src={member.imageSrc} 
-                    alt={member.name} 
-                    fill 
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    style={{objectFit: 'cover'}}
-                    className="transition-all group-hover:scale-105 duration-500"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-tekki-blue mb-1">
-                    {member.name}
-                  </h3>
-                  <div className="text-tekki-coral font-medium mb-3">{member.role}</div>
-                  <p className="text-gray-600">{member.bio}</p>
-                </div>
-              </div>
-            ))}
+          <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
+            Une équipe d'entrepreneurs et d'experts qui créent et font grandir des marques e-commerce chaque jour
+          </p>
+          <div className="text-center">
+            <Link
+              href="/equipe"
+              className="inline-flex items-center justify-center bg-tekki-blue hover:bg-tekki-blue/90 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl"
+            >
+              Rencontrer l'équipe
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Link>
           </div>
         </Container>
       </section>
@@ -248,27 +302,28 @@ const AboutPage = () => {
       <section className="py-16 bg-gradient-to-r from-tekki-blue to-tekki-coral text-white">
         <Container className="text-center">
           <h2 className="text-3xl font-bold mb-6">
-            Rejoignez l'aventure TEKKI Studio
+            Prêt à transformer votre marque en success story e-commerce ?
           </h2>
           <p className="text-xl opacity-90 max-w-3xl mx-auto mb-8">
-            Que vous souhaitiez lancer votre propre business e-commerce ou collaborer avec nous, nous avons des solutions adaptées à vos ambitions.
+            Découvrez nos formules d'accompagnement et bénéficiez de stratégies testées et validées sur nos propres marques
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link 
-              href="/business" 
+            <Link
+              href="/nos-formules"
               className="bg-white text-tekki-blue hover:bg-white/90 px-8 py-4 rounded-lg font-bold text-lg transition-all hover:shadow-lg flex items-center justify-center"
             >
-              Découvrir nos business
+              Découvrir nos formules
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
-            <Link 
-              href="https://wa.me/221781362728?text=Bonjour TEKKI Studio ! Je souhaite travailler avec vous." 
-              className="bg-white/10 border border-white/20 text-white hover:bg-white/20 px-8 py-4 rounded-lg font-bold text-lg transition-all flex items-center justify-center"
+            <a
+              href="https://calendly.com/tekki-studio/consultation-gratuite"
               target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white/10 border border-white/20 text-white hover:bg-white/20 px-8 py-4 rounded-lg font-bold text-lg transition-all flex items-center justify-center"
             >
-              Nous contacter
+              Réserver un appel gratuit
               <ExternalLink className="ml-2 h-5 w-5" />
-            </Link>
+            </a>
           </div>
         </Container>
       </section>

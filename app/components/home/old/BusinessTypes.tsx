@@ -1,4 +1,4 @@
-// app/components/home/BusinessTypes.tsx avec animations
+// app/components/home/BusinessTypes.tsx
 'use client';
 
 import React from 'react';
