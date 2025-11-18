@@ -119,7 +119,7 @@ const HeroSection = () => {
           >
             <Sparkles className="w-4 h-4 text-[#ff7f50] animate-pulse" />
             <span className="text-white/95 text-sm font-semibold tracking-wide">
-              Créateurs & accélérateurs de marques africaines
+              Fabrique de marques africaines
             </span>
           </motion.div>
           
@@ -165,7 +165,7 @@ const HeroSection = () => {
                 className="group relative inline-flex items-center justify-center bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-2xl hover:shadow-[#ff7f50]/50 overflow-hidden"
               >
                 <span className="relative z-10 flex items-center">
-                  Découvrir nos formules
+                  Découvrir nos offres
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-[#ff6b3d] to-[#ff7f50] opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -177,7 +177,7 @@ const HeroSection = () => {
               whileTap={{ scale: 0.98 }}
             >
               <a 
-                href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20réserver%20un%20appel%20gratuit%20pour%20discuter%20de%20ma%20marque." 
+                href="https://calendly.com/tekki-studio/consultation-gratuite" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex items-center justify-center bg-white/10 backdrop-blur-md hover:bg-white/20 border-2 border-white/40 hover:border-white/60 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg"

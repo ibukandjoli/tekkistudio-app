@@ -1,7 +1,7 @@
 // app/nos-formules/audit-depart/page.tsx
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -16,8 +16,10 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import FormulaQuoteForm from '@/app/components/FormulaQuoteForm';
 
 const AuditDepartPage = () => {
+  const [isQuoteFormOpen, setIsQuoteFormOpen] = useState(false);
   const deliverables = [
     {
       icon: <Search className="w-6 h-6" />,
@@ -109,15 +111,13 @@ const AuditDepartPage = () => {
               </div>
             </div>
 
-            <a
-              href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20commander%20un%20Audit%20de%20Départ."
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setIsQuoteFormOpen(true)}
               className="inline-flex items-center justify-center bg-white text-emerald-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
             >
               Commander mon audit
               <ArrowRight className="w-5 h-5 ml-2" />
-            </a>
+            </button>
           </motion.div>
         </div>
       </section>
@@ -210,18 +210,24 @@ const AuditDepartPage = () => {
               L'audit est remboursable si vous souscrivez à une formule
             </p>
 
-            <a
-              href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20commander%20un%20Audit%20de%20Départ."
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setIsQuoteFormOpen(true)}
               className="inline-flex items-center justify-center bg-white text-emerald-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
             >
               Commander mon audit (245 000F CFA)
               <ArrowRight className="w-5 h-5 ml-2" />
-            </a>
+            </button>
           </motion.div>
         </div>
       </section>
+
+      {/* Formulaire de devis */}
+      <FormulaQuoteForm
+        isOpen={isQuoteFormOpen}
+        onClose={() => setIsQuoteFormOpen(false)}
+        formulaType="audit-depart"
+        formulaName="Formule Audit de Départ"
+      />
     </div>
   );
 };

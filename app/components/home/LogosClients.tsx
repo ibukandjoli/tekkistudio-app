@@ -29,9 +29,9 @@ const LogosClients = () => {
     <section className="py-16 md:py-24 bg-white overflow-hidden">
       <div className="container mx-auto px-4">
         {/* Titre principal */}
-        <motion.div 
+        <motion.div
           ref={ref}
-          className="text-center mb-16"
+          className="text-center mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6 }}
@@ -68,12 +68,12 @@ const LogosClients = () => {
               {duplicatedBrands.map((brand, index) => (
                 <motion.div
                   key={index}
-                  className="flex-shrink-0 w-40 md:w-48 h-24 flex items-center justify-center group"
+                  className="flex-shrink-0 w-48 md:w-56 h-28 flex items-center justify-center group"
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.2 }}
                 >
                   <div className="relative w-full h-full bg-white rounded-xl flex items-center justify-center p-6">
-                    {/* Placeholder pour le logo - À remplacer par vos vrais logos 
+                    {/* Placeholder pour le logo - À remplacer par vos vrais logos
                     <div className="text-center">
                       <div className="text-3xl font-bold text-[#0f4c81] opacity-20 group-hover:opacity-30 transition-opacity mb-1">
                         {brand.name.substring(0, 2).toUpperCase()}
@@ -83,13 +83,13 @@ const LogosClients = () => {
                       </div>
                     </div>
                     */}
-                    
-                    <img 
-                      src={brand.logo} 
+
+                    <img
+                      src={brand.logo}
                       alt={brand.name}
-                      className="max-w-full max-h-full object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
+                      className="max-w-full max-h-full object-contain grayscale opacity-75 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
                     />
-                   
+
                   </div>
                 </motion.div>
               ))}

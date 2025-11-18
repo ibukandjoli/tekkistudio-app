@@ -29,8 +29,8 @@ const Footer = () => {
               />
             </div>
             <p className="text-gray-300 mb-4">
-              L'agence de croissance digitale des marques africaines ambitieuses. 
-              Nous transformons les marques locales en références e-commerce internationales.
+              La Fabrique des marques africaines. 
+              Nous créons nos propres marques et transformons les marques locales en success stories e-commerce.
             </p>
             <div className="flex space-x-4">
               <a href="https://facebook.com/tekkistudio" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff7f50] transition-colors">
@@ -47,7 +47,7 @@ const Footer = () => {
 
           {/* Nos Formules */}
           <div>
-            <h3 className="text-xl font-bold mb-4">Nos Formules</h3>
+            <h3 className="text-xl font-bold mb-4">Nos Offres</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/nos-formules/audit-depart" className="text-gray-300 hover:text-[#ff7f50] transition-colors">
@@ -71,7 +71,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link href="/nos-formules" className="text-[#ff7f50] hover:text-white font-medium transition-colors">
-                  Comparer les formules →
+                  Comparer les Offres →
                 </Link>
               </li>
             </ul>
@@ -94,6 +94,11 @@ const Footer = () => {
               <li>
                 <Link href="/equipe" className="text-gray-300 hover:text-[#ff7f50] transition-colors">
                   Notre équipe
+                </Link>
+              </li>
+              <li>
+                <Link href="/careers" className="text-gray-300 hover:text-[#ff7f50] transition-colors">
+                  Recrutement
                 </Link>
               </li>
               <li>

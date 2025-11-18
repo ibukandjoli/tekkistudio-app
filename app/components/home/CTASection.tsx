@@ -97,7 +97,7 @@ const CTASection = () => {
             className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
             variants={item}
           >
-            Prêt à faire rayonner votre marque au-delà des frontières ?
+            Prêt à faire rayonner votre marque au-delà de vos frontières ?
           </motion.h2>
           
           {/* Sous-titre */}
@@ -119,7 +119,7 @@ const CTASection = () => {
               <div className="text-sm text-white/80">Marques créées</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 hover:bg-white/15 transition-colors">
-              <div className="text-3xl md:text-4xl font-bold text-[#ff7f50] mb-1">+8K</div>
+              <div className="text-3xl md:text-4xl font-bold text-[#ff7f50] mb-1">+8 000</div>
               <div className="text-sm text-white/80">Produits vendus</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 hover:bg-white/15 transition-colors">
@@ -160,7 +160,7 @@ const CTASection = () => {
                 href="/nos-formules"
                 className="inline-flex items-center justify-center bg-white/10 backdrop-blur-sm hover:bg-white/20 border-2 border-white/30 hover:border-white/50 text-white px-8 py-4 md:px-10 md:py-5 rounded-xl font-bold text-lg transition-all"
               >
-                Voir toutes les formules
+                Voir toutes les offres
                 <ArrowRight className="w-6 h-6 ml-3" />
               </Link>
             </motion.div>

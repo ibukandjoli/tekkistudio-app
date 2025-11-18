@@ -226,8 +226,8 @@ const OurBrandsSection = () => {
                 Prêt à appliquer ces stratégies à votre marque ?
               </h3>
               <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
-                Chaque formule que nous proposons intègre les apprentissages concrets 
-                de nos propres succès entrepreneuriaux.
+                Chaque offre que nous proposons intègre les apprentissages concrets 
+                des succès de nos propres marques et de celles de nos clients.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -239,7 +239,7 @@ const OurBrandsSection = () => {
                     href="/nos-formules"
                     className="inline-flex items-center justify-center bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl hover:shadow-2xl"
                   >
-                    Découvrir nos formules
+                    Découvrir nos offres
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Link>
                 </motion.div>
@@ -248,7 +248,7 @@ const OurBrandsSection = () => {
                   whileTap={{ scale: 0.95 }}
                 >
                   <a
-                    href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27ai%20vu%20vos%20marques%20et%20j%27aimerais%20discuter%20de%20ma%20propre%20marque."
+                    href="https://calendly.com/tekki-studio/consultation-gratuite"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center bg-white/10 backdrop-blur-sm hover:bg-white/20 border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all"

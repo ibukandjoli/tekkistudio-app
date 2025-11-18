@@ -2,10 +2,10 @@
 'use client';
 
 import React from 'react';
-import { 
-  Search, 
-  MessageSquare, 
-  Rocket, 
+import {
+  Search,
+  MessageSquare,
+  Rocket,
   TrendingUp,
   CheckCircle,
   Clock,
@@ -14,8 +14,10 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { useIsMobile } from '@/app/hooks/useIsMobile';
 
 const ProcessSection = () => {
+  const isMobile = useIsMobile();
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1
@@ -61,10 +63,10 @@ const ProcessSection = () => {
       duration: "Semaines 4-8",
       description: "Notre équipe met en place votre boutique, vos campagnes marketing et tous vos systèmes de vente en mode sprint.",
       details: [
-        "Création/refonte de votre boutique",
+        "Création/refonte de votre site e-commerce",
         "Configuration technique complète",
         "Mise en place des outils d'analyse",
-        "Formation de votre équipe"
+        "Formation de votre équipe (si nécessaire)"
       ],
       color: "from-orange-500 to-red-500",
       iconBg: "bg-orange-100",
@@ -75,7 +77,7 @@ const ProcessSection = () => {
       icon: <TrendingUp className="w-8 h-8" />,
       title: "Croissance",
       duration: "Mois 3-6",
-      description: "Accompagnement continu pour optimiser, ajuster et multiplier vos résultats mois après mois jusqu'à  l'autonomie.",
+      description: "Accompagnement continu pour optimiser, ajuster et multiplier vos résultats mois après mois jusqu'à l'autonomie.",
       details: [
         "Lancement des campagnes marketing",
         "Optimisation continue des performances",
@@ -119,8 +121,8 @@ const ProcessSection = () => {
         <motion.div
           ref={ref}
           className="text-center mb-16 max-w-3xl mx-auto"
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          animate={inView || isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
         >
           <div className="inline-flex items-center gap-2 bg-[#0f4c81]/10 border border-[#0f4c81]/20 rounded-full px-4 py-2 mb-6">
@@ -148,7 +150,7 @@ const ProcessSection = () => {
           <motion.div
             className="grid grid-cols-4 gap-6"
             initial="hidden"
-            animate={inView ? "visible" : "hidden"}
+            animate={inView || isMobile ? "visible" : "hidden"}
             variants={containerVariants}
           >
             {steps.map((step, index) => (
@@ -246,11 +248,11 @@ const ProcessSection = () => {
         </motion.div>
 
         {/* Encadré accompagnement */}
-        <motion.div 
+        <motion.div
           className="bg-gradient-to-r from-[#0f4c81] to-[#1a5a8f] rounded-3xl shadow-2xl p-8 md:p-12 max-w-6xl mx-auto text-white relative overflow-hidden"
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
+          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          animate={inView || isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          transition={{ delay: isMobile ? 0 : 0.5, duration: 0.6 }}
         >
           {/* Décoration */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full blur-3xl"></div>
@@ -269,7 +271,7 @@ const ProcessSection = () => {
                   Accompagnement garanti jusqu'au succès
                 </h3>
                 <p className="text-white/90 mb-6 text-lg leading-relaxed">
-                  Chaque formule inclut une formation complète, un accompagnement personnalisé 
+                  Chaque offre inclut une formation complète, un accompagnement personnalisé 
                   et tous les outils nécessaires pour réussir votre lancement et votre croissance.
                 </p>
 

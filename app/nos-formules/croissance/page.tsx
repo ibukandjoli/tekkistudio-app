@@ -1,7 +1,7 @@
 // app/nos-formules/croissance/page.tsx
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -18,8 +18,10 @@ import {
   MessageCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import FormulaQuoteForm from '@/app/components/FormulaQuoteForm';
 
 const CroissancePage = () => {
+  const [isQuoteFormOpen, setIsQuoteFormOpen] = useState(false);
   const deliverables = [
     {
       icon: <Target className="w-6 h-6" />,
@@ -146,15 +148,13 @@ const CroissancePage = () => {
               </div>
             </div>
 
-            <a
-              href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20obtenir%20un%20devis%20pour%20la%20Formule%20Croissance."
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setIsQuoteFormOpen(true)}
               className="inline-flex items-center justify-center bg-white text-orange-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
             >
               Obtenir un devis gratuit
               <ArrowRight className="w-5 h-5 ml-2" />
-            </a>
+            </button>
           </motion.div>
         </div>
       </section>
@@ -295,18 +295,24 @@ const CroissancePage = () => {
               Commencez votre transformation dès aujourd'hui
             </p>
 
-            <a
-              href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20obtenir%20un%20devis%20pour%20la%20Formule%20Croissance."
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setIsQuoteFormOpen(true)}
               className="inline-flex items-center justify-center bg-white text-orange-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
             >
               Obtenir mon devis gratuit
               <ArrowRight className="w-5 h-5 ml-2" />
-            </a>
+            </button>
           </motion.div>
         </div>
       </section>
+
+      {/* Formulaire de devis */}
+      <FormulaQuoteForm
+        isOpen={isQuoteFormOpen}
+        onClose={() => setIsQuoteFormOpen(false)}
+        formulaType="croissance"
+        formulaName="Formule Croissance"
+      />
     </div>
   );
 };

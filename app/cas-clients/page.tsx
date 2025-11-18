@@ -54,7 +54,7 @@ const CasClientsPage = () => {
       stats: [
         { label: "Portée géographique", value: "Mondiale" },
         { label: "Automatisation", value: "100%" },
-        { label: "Clients satisfaits", value: "+500" }
+        { label: "Pays couverts", value: "+10" }
       ],
       testimonial: "TEKKI Studio a transformé notre marque avec un site professionnel qui dépasse nos attentes. Nos clients partout dans le monde peuvent désormais commander leurs chaussures et sacs et être livrés. C'était notre objectif.",
       author: "Maguette D., Co-fondatrice"
@@ -283,10 +283,10 @@ const CasClientsPage = () => {
             className="max-w-4xl mx-auto text-center"
           >
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-              Prêt à devenir la prochaine success story ?
+              Prêt à devenir la prochaine success story de notre portfolio?
             </h2>
             <p className="text-xl text-white/90 mb-8 leading-relaxed">
-              Découvrez quelle formule correspond à votre niveau d'ambition
+              Découvrez quelle offre correspond à votre niveau d'ambition
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -294,11 +294,11 @@ const CasClientsPage = () => {
                 href="/nos-formules"
                 className="inline-flex items-center justify-center bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl hover:shadow-2xl"
               >
-                Découvrir nos formules
+                Découvrir nos offres
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
               <a
-                href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20discuter%20de%20ma%20marque%20après%20avoir%20vu%20vos%20cas%20clients."
+                href="https://calendly.com/tekki-studio/consultation-gratuite"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all"

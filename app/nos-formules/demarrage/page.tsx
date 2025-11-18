@@ -1,7 +1,7 @@
 // app/nos-formules/demarrage/page.tsx
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import {
@@ -18,8 +18,10 @@ import {
   Rocket
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import FormulaQuoteForm from '@/app/components/FormulaQuoteForm';
 
 const DemarragePage = () => {
+  const [isQuoteFormOpen, setIsQuoteFormOpen] = useState(false);
   const deliverables = [
     {
       icon: <ShoppingCart className="w-6 h-6" />,
@@ -165,15 +167,13 @@ const DemarragePage = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <a
-                href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20obtenir%20un%20devis%20pour%20la%20Formule%20Démarrage."
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => setIsQuoteFormOpen(true)}
                 className="inline-flex items-center justify-center bg-white text-blue-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
               >
                 Obtenir un devis gratuit
                 <ArrowRight className="w-5 h-5 ml-2" />
-              </a>
+              </button>
               <Link
                 href="/nos-formules/audit-depart"
                 className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all"
@@ -335,15 +335,13 @@ const DemarragePage = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20obtenir%20un%20devis%20pour%20la%20Formule%20Démarrage."
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => setIsQuoteFormOpen(true)}
                 className="inline-flex items-center justify-center bg-white text-blue-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
               >
                 Obtenir mon devis gratuit
                 <ArrowRight className="w-5 h-5 ml-2" />
-              </a>
+              </button>
               <Link
                 href="/nos-formules"
                 className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all"
@@ -369,6 +367,14 @@ const DemarragePage = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Formulaire de devis */}
+      <FormulaQuoteForm
+        isOpen={isQuoteFormOpen}
+        onClose={() => setIsQuoteFormOpen(false)}
+        formulaType="demarrage"
+        formulaName="Formule Démarrage"
+      />
     </div>
   );
 };

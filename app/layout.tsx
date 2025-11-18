@@ -8,7 +8,6 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import MetaPixel from './components/analytics/MetaPixel';
 import { Toaster } from 'sonner';
-import CurrencySelectorWrapper from './components/common/CurrencySelectorWrapper';
 
 // Configuration de Fraunces pour les titres (police élégante et professionnelle)
 const fraunces = Fraunces({
@@ -123,17 +122,6 @@ export default function RootLayout({
           </main>
           <Footer />
         </div>
-
-        {/* Sélecteur de devise - maintenant masqué sur mobile */}
-        <div className="hidden md:block">
-          <CurrencySelectorWrapper />
-        </div>
-        
-        {/* Intégration du chatbot - maintenant masqué sur mobile 
-        <div className="hidden md:block">
-          <TekkiChatbot />
-        </div>
-        */}
         
         {/* Système de notifications amélioré */}
         <Toaster 

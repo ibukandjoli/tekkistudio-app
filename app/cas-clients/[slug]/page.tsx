@@ -199,7 +199,7 @@ const CaseStudyDetailPage = () => {
 
       challenge: {
         title: "Le défi",
-        description: "6C No Filter était encore une jeune marque seulement présente sur Instagram et TikTok lorsque Fatou nous a contactés. Elle avait beaucoup de mal à briser le plafond de verre de ventes mensuel, car elle vendait principalement à son entourage et sa communauté. De plus, gérer l'acquisition de clients via la création de contenu ET la création de ses produits était devenu impossible.",
+        description: "6C No Filter était encore une jeune marque seulement présente sur Instagram et TikTok lorsque Fatou nous a contactés. Elle avait beaucoup de mal à briser le plafond de verre de ventes mensuelles, car elle vendait principalement à son entourage et sa communauté. De plus, gérer l'acquisition de clients via la création de contenu ET la création de ses produits était devenu impossible.",
         problems: [
           "Présence limitée à Instagram et TikTok",
           "Plafond de ventes difficile à briser",
@@ -525,11 +525,11 @@ const CaseStudyDetailPage = () => {
                 href="/nos-formules"
                 className="inline-flex items-center justify-center bg-white text-[#0f4c81] px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
               >
-                Découvrir nos formules
+                Découvrir nos offres
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
               <a
-                href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20discuter%20de%20ma%20marque%20après%20avoir%20lu%20le%20cas%20client."
+                href="https://calendly.com/tekki-studio/consultation-gratuite"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all"

@@ -5,8 +5,10 @@ import React, { useState, useEffect } from 'react';
 import { Star, ArrowLeft, ArrowRight, Quote, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { useIsMobile } from '@/app/hooks/useIsMobile';
 
 const Testimonials = () => {
+  const isMobile = useIsMobile();
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1
@@ -81,8 +83,8 @@ const Testimonials = () => {
         <motion.div
           ref={ref}
           className="text-center mb-16 max-w-3xl mx-auto"
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          animate={inView || isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
         >
           <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-4 py-2 mb-6">
@@ -239,11 +241,11 @@ const Testimonials = () => {
         </div>
 
         {/* Badge satisfaction */}
-        <motion.div 
+        <motion.div
           className="max-w-4xl mx-auto mt-20 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
+          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          animate={inView || isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ delay: isMobile ? 0 : 0.5, duration: 0.6 }}
         >
           <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
             <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#0f4c81] to-[#1a5a8f] text-white px-6 py-3 rounded-full font-bold text-lg mb-4">

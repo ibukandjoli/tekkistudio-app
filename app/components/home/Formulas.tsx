@@ -170,7 +170,7 @@ const FormulasSection = () => {
           </h2>
           <p className="text-xl text-gray-600">
             Du diagnostic initial à l'expansion internationale, une offre adaptée 
-            à chaque étape de votre croissance
+            à chaque étape
           </p>
         </motion.div>
 
@@ -289,7 +289,7 @@ const FormulasSection = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <a
-                  href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20discuter%20pour%20savoir%20quelle%20formule%20me%20convient%20le%20mieux."
+                  href="https://calendly.com/tekki-studio/consultation-gratuite"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl hover:shadow-2xl"

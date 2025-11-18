@@ -30,7 +30,7 @@ const SolutionSection = () => {
     {
       icon: <ShoppingCart className="w-8 h-8" />,
       title: "Boutique Haute Performance",
-      description: "Nous créons votre site e-commerce optimisé pour convertir les visiteurs en clients, avec une expérience fluide et professionnelle.",
+      description: "Nous créons votre site e-commerce optimisé pour convertir les visiteurs en clients, avec une expérience fluide et professionnelle, adaptée à tous les écrans.",
       features: [
         "Design moderne et responsive",
         "Expérience utilisateur optimisée",
@@ -43,7 +43,7 @@ const SolutionSection = () => {
     {
       icon: <TrendingUp className="w-8 h-8" />,
       title: "Croissance & Optimisation",
-      description: "Nous mettons en place toutes les stratégies d'acquisition et de fidélisation pour générer des ventes constantes et croissantes pour votre marque.",
+      description: "Nous mettons en place toutes les stratégies d'acquisition et de fidélisation pour générer des ventes constantes et croissantes pour les produits de votre marque.",
       features: [
         "Publicité digitale (Meta, Google, TikTok)",
         "Marketing de contenu et storytelling",
@@ -97,7 +97,7 @@ const SolutionSection = () => {
           </div>
           
           <h2 className="text-3xl md:text-5xl font-bold text-[#0f4c81] mb-6">
-            TEKKI Studio : Votre partenaire de croissance
+            TEKKI Studio : le partenaire de croissance de votre marque
           </h2>
           
           <p className="text-xl text-gray-600 mb-6">
@@ -108,8 +108,8 @@ const SolutionSection = () => {
           {/* Différenciateur clé */}
           <div className="inline-block bg-gradient-to-r from-[#ff7f50]/10 to-[#ff6b3d]/10 border border-[#ff7f50]/20 rounded-2xl p-6 mt-4">
             <p className="text-lg font-semibold text-[#0f4c81]">
-              <span className="text-[#ff7f50]">Nous avons créé et développé nos propres marques </span> 
-              {' '}(VIENS ON S'CONNAÎT et AMANI). Nous savons ce qui fonctionne et l'appliquons aux marques africaines que nous accompagnons.
+              Nous avons créé et développé nos propres marques <span className="text-[#ff7f50]">(VIENS ON S'CONNAÎT et AMANI)</span> 
+              {' '}. Nous savons ce qui fonctionne et l'appliquons aux marques africaines que nous accompagnons.
             </p>
           </div>
         </motion.div>
@@ -198,8 +198,8 @@ const SolutionSection = () => {
                   Prêt à appliquer ces stratégies ?
                 </h3>
                 <p className="text-white/90 text-lg max-w-2xl mx-auto">
-                  Découvrez quelle formule correspond le mieux à votre niveau d'ambition 
-                  et commencez votre transformation dès aujourd'hui.
+                  Découvrez quelle offre correspond le mieux à votre niveau d'ambition 
+                  et commencez votre transformation digitale dès aujourd'hui.
                 </p>
               </div>
               
@@ -212,7 +212,7 @@ const SolutionSection = () => {
                     href="/nos-formules"
                     className="inline-flex items-center justify-center bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl hover:shadow-2xl"
                   >
-                    Découvrir nos formules
+                    Découvrir nos offres
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Link>
                 </motion.div>

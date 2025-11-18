@@ -205,7 +205,7 @@ const NosFormulesPage = () => {
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-5 py-2.5 mb-8">
               <Sparkles className="w-4 h-4 text-[#ff7f50]" />
               <span className="text-white/95 text-sm font-semibold">
-                Nos formules d'accompagnement
+                Nos offres d'accompagnement
               </span>
             </div>
 
@@ -214,8 +214,8 @@ const NosFormulesPage = () => {
             </h1>
 
             <p className="text-xl text-white/90 mb-8 leading-relaxed">
-              Du diagnostic initial à l'expansion internationale, une formule adaptée
-              à chaque étape de votre croissance
+              Du diagnostic initial à l'expansion internationale, une offre adaptée
+              à chaque étape
             </p>
 
             <div className="flex flex-wrap justify-center gap-6 text-white/90">
@@ -394,7 +394,7 @@ const NosFormulesPage = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20discuter%20pour%20savoir%20quelle%20formule%20me%20convient%20le%20mieux."
+                href="https://calendly.com/tekki-studio/consultation-gratuite"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl hover:shadow-2xl"

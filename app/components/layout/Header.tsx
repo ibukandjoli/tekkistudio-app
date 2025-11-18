@@ -31,7 +31,7 @@ const Header = () => {
   // Structure des éléments de navigation - NOUVELLE VERSION
   const navItems = [
     { label: 'Nos Marques', href: '/nos-marques' },
-    { label: 'Nos Formules', href: '/nos-formules' },
+    { label: 'Nos Offres', href: '/nos-formules' },
     { label: 'Cas Clients', href: '/cas-clients' },
     { label: 'A Propos', href: '/a-propos' },
   ];

@@ -91,10 +91,15 @@ export default function Sidebar() {
           href: '/admin/leads', 
           icon: <MessageSquare className="mr-3 h-5 w-5" /> 
         },
-        { 
-          name: 'Prospects Sites Ecom', 
-          href: '/admin/ecommerce-leads', 
-          icon: <Gift className="mr-3 h-5 w-5" /> 
+        {
+          name: 'Prospects Sites Ecom',
+          href: '/admin/ecommerce-leads',
+          icon: <Gift className="mr-3 h-5 w-5" />
+        },
+        {
+          name: 'Prospects Formules',
+          href: '/admin/formula-leads',
+          icon: <Briefcase className="mr-3 h-5 w-5" />
         }
       ]
     },

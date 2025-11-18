@@ -1,7 +1,7 @@
 // app/nos-formules/expansion/page.tsx
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -18,8 +18,10 @@ import {
   BarChart
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import FormulaQuoteForm from '@/app/components/FormulaQuoteForm';
 
 const ExpansionPage = () => {
+  const [isQuoteFormOpen, setIsQuoteFormOpen] = useState(false);
   const deliverables = [
     {
       icon: <Globe className="w-6 h-6" />,
@@ -149,15 +151,13 @@ const ExpansionPage = () => {
               </div>
             </div>
 
-            <a
-              href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20obtenir%20un%20devis%20pour%20la%20Formule%20Expansion."
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setIsQuoteFormOpen(true)}
               className="inline-flex items-center justify-center bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
             >
               Obtenir un devis gratuit
               <ArrowRight className="w-5 h-5 ml-2" />
-            </a>
+            </button>
           </motion.div>
         </div>
       </section>
@@ -328,18 +328,24 @@ const ExpansionPage = () => {
               Discutons de votre vision et créons ensemble votre empire e-commerce
             </p>
 
-            <a
-              href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20obtenir%20un%20devis%20pour%20la%20Formule%20Expansion."
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setIsQuoteFormOpen(true)}
               className="inline-flex items-center justify-center bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
             >
               Réserver un appel stratégique
               <ArrowRight className="w-5 h-5 ml-2" />
-            </a>
+            </button>
           </motion.div>
         </div>
       </section>
+
+      {/* Formulaire de devis */}
+      <FormulaQuoteForm
+        isOpen={isQuoteFormOpen}
+        onClose={() => setIsQuoteFormOpen(false)}
+        formulaType="expansion"
+        formulaName="Formule Expansion"
+      />
     </div>
   );
 };

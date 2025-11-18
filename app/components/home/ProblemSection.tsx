@@ -16,7 +16,7 @@ const ProblemSection = () => {
     {
       icon: <TrendingDown className="w-10 h-10" />,
       title: "Visibilité limitée",
-      description: "Vos produits sont exceptionnels, mais votre marque peine à atteindre de nouveaux clients au-delà de votre base actuelle. De nombreux potentiels clients cherchent activement des produits authentiques, mais ne vous trouvent pas en ligne.",
+      description: "Vos produits sont exceptionnels, mais votre marque peine à atteindre de nouveaux clients au-delà de votre base actuelle. De nombreux potentiels clients cherchent activement des produits authentiques, mais ne vous trouvent pas sur Internet.",
       impact: "Opportunités manquées"
     },
     {
@@ -28,7 +28,7 @@ const ProblemSection = () => {
     {
       icon: <BarChart3 className="w-10 h-10" />,
       title: "Ventes qui stagnent",
-      description: "Vous avez peut-être une présence sur Instagram ou même un site, mais les ventes ne décollent pas comme vous l'espériez. Vous ne savez pas comment attirer de nouveaux clients qualifiés, ni transformer vos visiteurs en clients fidèles.",
+      description: "Vous avez peut-être une présence sur Instagram ou même un site web, mais les ventes ne décollent pas comme vous l'espériez. Vous ne savez pas comment attirer de nouveaux clients qualifiés, ni transformer vos visiteurs actuels en clients fidèles.",
       impact: "Croissance bloquée"
     }
   ];
@@ -78,7 +78,7 @@ const ProblemSection = () => {
           </h2>
           <p className="text-xl text-gray-600">
             Nous comprenons les défis uniques auxquels font face les marques africaines 
-            qui veulent vendre en ligne et se développer à  l'international.
+            qui veulent vendre en ligne et se développer à l'international.
           </p>
         </motion.div>
 
