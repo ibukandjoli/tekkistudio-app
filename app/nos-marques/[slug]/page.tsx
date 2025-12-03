@@ -482,7 +482,7 @@ const BrandDetailPage = () => {
                 href="/nos-formules"
                 className="inline-flex items-center justify-center bg-white text-[#0f4c81] px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl hover:shadow-2xl hover:scale-105"
               >
-                Découvrir nos formules
+                Découvrir nos offres
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
               <a

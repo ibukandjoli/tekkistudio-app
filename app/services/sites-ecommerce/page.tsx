@@ -1066,7 +1066,7 @@ const serviceData = {
     },
     {
       question: "Quelle est la différence entre Shopify et WordPress ?",
-      answer: "Shopify est une solution tout-en-un, facile à gérer, même depuis un smartphone. C'est idéal si vous voulez vous concentrer sur votre marque et ne pas avoir à gérer les aspects techniques. WordPress avec Woocommerce offre plus de personnalisation et pas d'abonnement mensuel. C'est parfait si vous avez des besoins techniques spécifiques."
+      answer: "Shopify est une solution tout-en-un, facile à gérer depuis un smartphone ou un ordinateur, même lorsqu'on est débutant(e). C'est l'idéal si vous voulez vous concentrer sur votre marque ou business et ne pas avoir à gérer les aspects techniques. Cependant, il faut prévoir un abonnement de $29/mois ou $228/an. WordPress avec Woocommerce offre plus de personnalisation et pas d'abonnement mensuel. Vous ne payez que votre hébergement annuel. Cependant, il vous faut des compétences techniques pour gérer votre site en toute autonomie. C'est l'idéal si vous avez des besoins techniques spécifiques et possédez les compétences nécessaires pour gérer votre site."
     },
     {
       question: "Qu'est-ce que ChatSeller exactement ?",

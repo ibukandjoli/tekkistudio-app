@@ -97,7 +97,7 @@ const LogosClients = () => {
           </div>
         </div>
 
-        {/* Citation témoignage 
+        {/* Citation témoignage */}
         <motion.div
           className="text-center max-w-5xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
@@ -112,7 +112,7 @@ const LogosClients = () => {
             - Une marque agréablement surprise.
           </p>
         </motion.div>
-        */}
+        
       </div>
     </section>
   );
