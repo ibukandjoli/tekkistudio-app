@@ -96,23 +96,6 @@ const LogosClients = () => {
             </motion.div>
           </div>
         </div>
-
-        {/* Citation témoignage */}
-        <motion.div
-          className="text-center max-w-5xl mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        >
-          <blockquote className="text-2xl md:text-3xl lg:text-4xl font-normal text-gray-900 leading-relaxed mb-6">
-            "Travailler avec <span className="text-[#0f4c81] font-semibold">TEKKI Studio</span>, c'est comme découvrir que vous rouliez avec le{' '}
-            <span className="text-[#0f4c81] font-semibold">frein à main</span>."
-          </blockquote>
-          <p className="text-gray-600 text-lg">
-            - Une marque agréablement surprise.
-          </p>
-        </motion.div>
-        
       </div>
     </section>
   );
