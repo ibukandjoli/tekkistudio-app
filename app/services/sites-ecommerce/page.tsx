@@ -73,22 +73,22 @@ const SitesEcommercePage = () => {
     {
       icon: <Clock className="w-6 h-6" />,
       title: "Des stocks qui dorment",
-      description: "Vos produits stagnent en stock alors que c'est LA meilleure période de l'année pour vendre en ligne"
+      description: "Vos produits peinent à se vendre alors que c'est LA meilleure période de l'année pour vendre en ligne"
     },
     {
       icon: <Smartphone className="w-6 h-6" />,
       title: "Commandes WhatsApp ingérables",
-      description: "Vous perdez du temps et des ventes à cause d'une gestion manuelle chaotique"
+      description: "Vous perdez du temps et des ventes parce que tout est géré manuellement via WhatsApp"
     },
     {
       icon: <Users className="w-6 h-6" />,
       title: "Clients qui ghostent",
-      description: "Sans processus clair, et une bonne gestion des commandes, vos prospects disparaissent sans acheter"
+      description: "Sans processus clair, et une bonne gestion des commandes, vos potentiels clients disparaissent sans acheter"
     },
     {
       icon: <TrendingUp className="w-6 h-6" />,
-      title: "Opportunité Q4 manquée",
-      description: "Chaque jour sans un site e-commerce professionnel = des ventes perdues"
+      title: "Opportunité fin d'année manquée",
+      description: "Vous voyez vos concurrents vendre en ligne et profiter du Black Friday, Cyber Monday, etc., pendant que vous restez à la traîne"
     }
   ];
 
@@ -97,11 +97,11 @@ const SitesEcommercePage = () => {
       icon: <ShoppingCart className="w-6 h-6" />,
       title: "Site e-commerce Shopify professionnel",
       items: [
-        "Design moderne et responsive (mobile-first)",
-        "15 produits intégrés",
-        "Système de paiement sécurisé",
+        "Design moderne et adapté aux Smartphones",
+        "jusqu'à 15 produits intégrés sur votre site",
         "Gestion automatique des stocks et commandes",
-        "Formation complète à la gestion"
+        "Référencement sur Google et ChatGPT",
+        "Formation complète à la gestion du site"
       ]
     },
     {
@@ -112,17 +112,17 @@ const SitesEcommercePage = () => {
         "Ciblage optimisé pour votre audience",
         "Design des visuels publicitaires",
         "Paramétrage complet Facebook & Instagram",
-        "Formation au suivi des performances"
+        "Suivi des performances et recommandations"
       ]
     }
   ];
 
   const whyShopify = [
     "Interface ultra-simple : gérez tout depuis votre smartphone",
-    "Paiements internationaux : vendez partout en Afrique et au-delà",
+    "Gestion des commandes : vendez partout, même au-delà de votre localité",
     "Sécurité maximale : vos données et celles de vos clients sont protégées",
     "Support 24/7 : assistance technique disponible à tout moment",
-    "Apps illimitées : ajoutez des fonctionnalités selon vos besoins",
+    "Personnalisation : ajoutez des fonctionnalités selon vos besoins",
     "Hébergement inclus : site toujours rapide et accessible"
   ];
 
@@ -166,7 +166,7 @@ const SitesEcommercePage = () => {
     },
     {
       question: "Le budget publicitaire Meta Ads est-il inclus ?",
-      answer: "Non, la création et le paramétrage de la campagne sont offerts, mais vous devez prévoir votre propre budget publicitaire (minimum recommandé : 100 000 FCFA)."
+      answer: "Non, la création et le paramétrage de la campagne sont offerts, mais vous devez prévoir votre propre budget publicitaire (minimum recommandé : 50 000 FCFA)."
     },
     {
       question: "Puis-je payer en plusieurs fois ?",
@@ -183,9 +183,9 @@ const SitesEcommercePage = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden w-full">
       {/* Hero avec urgence */}
-      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500 relative overflow-hidden">
+      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500 relative overflow-hidden w-full">
         <div className="absolute inset-0 bg-black/20"></div>
 
         <div className="container mx-auto px-4 relative z-10">
@@ -250,7 +250,7 @@ const SitesEcommercePage = () => {
                 onClick={() => setIsQuoteFormOpen(true)}
                 className="inline-flex items-center justify-center bg-white text-orange-600 px-8 py-5 rounded-xl font-bold text-xl hover:bg-gray-100 transition-all shadow-2xl hover:scale-105"
               >
-                Réserver ma place maintenant
+                Je veux profiter de cette offre
                 <ArrowRight className="w-6 h-6 ml-2" />
               </button>
             </div>
@@ -314,7 +314,7 @@ const SitesEcommercePage = () => {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              Ce que vous recevez
+              Ce que vous allez recevoir
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Pas de théorie, que du chiffre. Tout ce dont vous avez besoin pour vendre en ligne.
@@ -356,7 +356,7 @@ const SitesEcommercePage = () => {
                   Important : Budget publicitaire
                 </h4>
                 <p className="text-gray-700">
-                  La création et le paramétrage de votre campagne Meta Ads sont OFFERTS, mais vous devez prévoir votre propre budget publicitaire pour faire tourner les publicités (minimum recommandé : 100 000 FCFA pour des résultats significatifs).
+                  La création et le paramétrage de votre campagne Meta Ads sont OFFERTS, mais vous devez prévoir votre propre budget publicitaire pour faire tourner les publicités (minimum recommandé : 50 000 FCFA pour des résultats significatifs).
                 </p>
               </div>
             </div>
@@ -380,7 +380,7 @@ const SitesEcommercePage = () => {
               Pourquoi Shopify ?
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Nous ne proposons plus WordPress. Shopify est LA solution professionnelle pour les marques africaines qui veulent vendre sérieusement.
+              Shopify est LA meilleure solution e-commerce pour les marques qui souhaitent vendre de manière efficace sans se soucier des aspects techniques.
             </p>
           </motion.div>
 
@@ -420,7 +420,7 @@ const SitesEcommercePage = () => {
                   Nos réalisations
                 </h2>
                 <p className="text-lg md:text-xl text-gray-600 max-w-xl">
-                  Découvrez les sites e-commerce que nous avons créés pour les marques africaines
+                  Découvrez quelques sites e-commerce que nous avons créés pour des marques africaines
                 </p>
               </div>
 
@@ -586,7 +586,7 @@ const SitesEcommercePage = () => {
             </h2>
 
             <p className="text-xl md:text-2xl mb-8 opacity-95">
-              Rejoignez les 7 marques africaines qui vont transformer leur Q4 et préparer un 2026 explosif
+              Rejoignez les 7 marques africaines qui vont transformer leur fin d'année 2025 en succès et préparer un 2026 explosif
             </p>
 
             <div className="bg-white/10 backdrop-blur-md border-2 border-white/30 rounded-2xl p-8 mb-8 max-w-2xl mx-auto">
@@ -605,12 +605,12 @@ const SitesEcommercePage = () => {
               onClick={() => setIsQuoteFormOpen(true)}
               className="inline-flex items-center justify-center bg-white text-orange-600 px-10 py-6 rounded-xl font-bold text-2xl hover:bg-gray-100 transition-all shadow-2xl hover:scale-105 mb-6"
             >
-              Réserver ma place maintenant
+              Je saisis l'opportunité
               <ArrowRight className="w-7 h-7 ml-3" />
             </button>
 
             <p className="text-sm opacity-90 mb-8">
-              ⏰ Plus que 7 places • Offre valable jusqu'au 31 décembre 2025
+              ⏰ Plus que 7 places • Offre valable jusqu'au 10 décembre 2025
             </p>
 
             <div className="flex flex-wrap justify-center gap-6 text-sm">
@@ -624,7 +624,7 @@ const SitesEcommercePage = () => {
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5" />
-                <span>Livraison 10-15 jours</span>
+                <span>Livraison 3-7 jours</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5" />
