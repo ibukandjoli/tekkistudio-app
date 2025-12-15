@@ -26,8 +26,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'TEKKI Studio - Créateurs & accélérateurs de marques africaines',
-  description: 'L\'agence de croissance digitale des marques africaines ambitieuses. Nous créons nos propres marques et mettons notre expertise au service des marques africaines qui veulent vendre plus, vendre mieux, et vendre partout.',
+  title: 'TEKKI Studio - Fabrique de Marques E-commerce Africaines',
+  description: 'Nous avons vendu +8 000 produits en ligne en 2 ans avec nos propres marques. A présent, nous appliquons ces stratégies aux marques africaines qui veulent exploser leurs ventes en ligne.',
   keywords: 'e-commerce afrique, agence digitale afrique, marque africaine, boutique en ligne sénégal, vendre en ligne afrique, agence e-commerce dakar, croissance digitale, marques africaines, TEKKI Studio',
   authors: [{ name: 'TEKKI Studio' }],
   creator: 'TEKKI Studio',
@@ -36,22 +36,22 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'fr_FR',
     url: 'https://tekkistudio.com',
-    title: 'TEKKI Studio - Créateurs & accélérateurs de marques africaines',
-    description: 'Nous créons nos propres marques et mettons notre expertise au service des marques africaines qui veulent vendre plus, vendre mieux, et vendre partout.',
+    title: 'TEKKI Studio - Fabrique de Marques E-commerce Africaines',
+    description: 'Nous avons vendu +8 000 produits en 2 ans avec nos propres marques. A présent, nous appliquons ces stratégies aux marques africaines qui veulent exploser leurs ventes en ligne.',
     siteName: 'TEKKI Studio',
     images: [
       {
         url: '/images/tekkistudio-og.jpg',
         width: 1200,
         height: 630,
-        alt: 'TEKKI Studio - Créateurs & accélérateurs de marques africaines',
+        alt: 'TEKKI Studio - Fabrique de Marques E-commerce Africaines',
       }
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TEKKI Studio - Créateurs & accélérateurs de marques africaines',
-    description: 'Nous créons nos propres marques et mettons notre expertise au service des marques africaines qui veulent vendre plus, vendre mieux, et vendre partout.',
+    title: 'TEKKI Studio - Fabrique de Marques E-commerce Africaines',
+    description: 'Nous avons vendu +8 000 produits en 2 ans avec nos propres marques. A présent, nous appliquons ces stratégies aux marques africaines qui veulent exploser leurs ventes en ligne.',
     creator: '@tekkistudio',
     images: ['/images/tekkistudio-og.jpg'],
   },
