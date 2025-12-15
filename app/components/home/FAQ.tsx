@@ -73,31 +73,35 @@ const FAQ = () => {
   const whatsappUrl = "https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27ai%20une%20question%20dont%20je%20ne%20trouve%20pas%20la%20réponse%20sur%20votre%20site.";
 
   return (
-    <section className="py-20 md:py-28 bg-gradient-to-b from-white to-gray-50">
-      <div className="container mx-auto px-4">
+    <section className="py-20 md:py-32 bg-white relative overflow-hidden">
+      {/* Décoration */}
+      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[#fe6117]/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[#0f4c81]/5 rounded-full blur-3xl"></div>
+
+      <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20 relative z-10">
         {/* Header */}
-        <motion.div 
-          className="text-center mb-16 max-w-3xl mx-auto"
+        <motion.div
+          className="text-center mb-16 max-w-4xl mx-auto"
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center gap-2 bg-[#0f4c81]/10 border border-[#0f4c81]/20 rounded-full px-4 py-2 mb-6">
-            <Sparkles className="w-4 h-4 text-[#0f4c81]" />
-            <span className="text-[#0f4c81] text-xs font-bold tracking-wider uppercase">
+          <div className="inline-flex items-center gap-2 bg-[#fe6117]/10 border border-[#fe6117]/20 rounded-full px-5 py-2.5 mb-6">
+            <Sparkles className="w-4 h-4 text-[#fe6117]" />
+            <span className="text-[#fe6117] text-sm font-bold tracking-wide uppercase">
               Questions fréquentes
             </span>
           </div>
-          
-          <h2 className="text-3xl md:text-5xl font-bold text-[#0f4c81] mb-4">
-            Tout ce que vous devez savoir
+
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+            Tout ce que vous devez <span className="text-[#fe6117]">savoir</span>
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-gray-600 leading-relaxed">
             Les réponses aux questions les plus fréquentes sur notre accompagnement.
           </p>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           ref={ref}
           className="max-w-4xl mx-auto"
           initial="hidden"
@@ -105,31 +109,31 @@ const FAQ = () => {
           variants={containerVariants}
         >
           {faqs.map((faq, index) => (
-            <motion.div 
+            <motion.div
               key={index}
               className="mb-4"
               variants={itemVariants}
             >
-              <div className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-[#ff7f50]/30 transition-all">
+              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:border-[#fe6117]/30 transition-all duration-300">
                 <button
                   className="w-full px-6 md:px-8 py-6 text-left hover:bg-gray-50 flex justify-between items-center transition-all group"
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
                   aria-expanded={openIndex === index}
                 >
-                  <span className="font-bold text-[#0f4c81] text-base md:text-lg pr-4 group-hover:text-[#ff7f50] transition-colors">
+                  <span className="font-bold text-gray-900 text-base md:text-lg pr-4 group-hover:text-[#fe6117] transition-colors">
                     {faq.question}
                   </span>
                   <div className={`flex-shrink-0 p-2 rounded-full transition-all ${
-                    openIndex === index 
-                      ? 'bg-[#ff7f50]/10 rotate-180' 
-                      : 'bg-gray-100 group-hover:bg-gray-200'
+                    openIndex === index
+                      ? 'bg-[#fe6117]/10 rotate-180'
+                      : 'bg-gray-100 group-hover:bg-[#fe6117]/10'
                   }`}>
                     <ChevronDown className={`w-5 h-5 transition-colors ${
-                      openIndex === index ? 'text-[#ff7f50]' : 'text-gray-500'
+                      openIndex === index ? 'text-[#fe6117]' : 'text-gray-500'
                     }`} />
                   </div>
                 </button>
-                
+
                 <AnimatePresence>
                   {openIndex === index && (
                     <motion.div
@@ -138,7 +142,7 @@ const FAQ = () => {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3, ease: "easeInOut" }}
                     >
-                      <div className="px-6 md:px-8 py-6 bg-gray-50 text-gray-700 leading-relaxed border-t-2 border-gray-200">
+                      <div className="px-6 md:px-8 py-6 bg-gray-50 text-gray-700 text-lg leading-relaxed border-t border-gray-200">
                         {faq.answer}
                       </div>
                     </motion.div>
@@ -150,58 +154,64 @@ const FAQ = () => {
         </motion.div>
 
         {/* CTA bottom */}
-        <motion.div 
-          className="mt-16 text-center"
+        <motion.div
+          className="mt-16 max-w-4xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ delay: 0.5, duration: 0.6 }}
         >
-          <div className="inline-block bg-gradient-to-r from-gray-50 to-white rounded-3xl p-8 md:p-12 shadow-2xl border-2 border-gray-200 max-w-3xl">
-            <div className="w-16 h-16 bg-gradient-to-br from-[#ff7f50] to-[#ff6b3d] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <MessageCircle className="w-8 h-8 text-white" />
-            </div>
-            
-            <h3 className="text-2xl md:text-3xl font-bold text-[#0f4c81] mb-4">
-              Vous avez d'autres questions ?
-            </h3>
-            <p className="text-gray-600 mb-8 text-lg leading-relaxed">
-              Notre équipe est disponible pour répondre à toutes vos questions 
-              et vous aider à choisir la formule adaptée à votre marque.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <a 
-                  href={whatsappUrl}
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center py-4 px-8 rounded-xl bg-[#25D366] text-white font-bold hover:bg-[#20BD5C] transition-colors shadow-lg hover:shadow-xl text-lg"
-                >
-                  <FaWhatsapp className="mr-3 text-xl" /> 
-                  WhatsApp
-                </a>
-              </motion.div>
-              
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <a
-                  href="mailto:rose@tekkistudio.com"
-                  className="inline-flex items-center justify-center py-4 px-8 rounded-xl bg-white border-2 border-[#0f4c81] text-[#0f4c81] font-bold hover:bg-gray-50 transition-colors text-lg"
-                >
-                  Email
-                </a>
-              </motion.div>
-            </div>
+          <div className="bg-gradient-to-br from-gray-900 via-[#0f4c81] to-gray-900 rounded-3xl p-10 md:p-12 text-white shadow-2xl relative overflow-hidden">
+            {/* Décoration */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#fe6117]/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
 
-            {/* Trust badge */}
-            <div className="mt-8 flex items-center justify-center gap-2 text-sm text-gray-600">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-              <span>Réponse sous 24h garantie</span>
+            <div className="relative z-10 text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#fe6117] mb-6">
+                <MessageCircle className="w-8 h-8 text-white" />
+              </div>
+
+              <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                Vous avez d'autres questions ?
+              </h3>
+              <p className="text-white/90 mb-8 text-lg leading-relaxed max-w-2xl mx-auto">
+                Notre équipe est disponible pour répondre à toutes vos questions
+                et vous aider à choisir la formule adaptée à votre marque.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center py-4 px-8 rounded-full bg-[#25D366] text-white font-bold hover:bg-[#20BD5C] transition-colors shadow-lg hover:shadow-xl text-lg"
+                  >
+                    <FaWhatsapp className="mr-3 text-xl" />
+                    Contactez-nous sur WhatsApp
+                  </a>
+                </motion.div>
+
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <a
+                    href="mailto:hello@tekkistudio.com"
+                    className="inline-flex items-center justify-center py-4 px-8 rounded-full bg-white/10 backdrop-blur-sm border-2 border-white/30 hover:border-white/50 text-white font-bold hover:bg-white/20 transition-colors text-lg"
+                  >
+                    Envoyer un email
+                  </a>
+                </motion.div>
+              </div>
+
+              {/* Trust badge */}
+              <div className="mt-8 flex items-center justify-center gap-2 text-sm text-white/80">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                <span>Réponse sous 24h garantie</span>
+              </div>
             </div>
           </div>
         </motion.div>

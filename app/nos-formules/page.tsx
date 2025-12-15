@@ -33,16 +33,16 @@ const NosFormulesPage = () => {
       id: 'audit-depart',
       icon: <Search className="w-8 h-8" />,
       name: 'Audit de Départ',
-      tagline: 'Comprenez votre potentiel',
-      description: 'Un diagnostic complet de votre présence digitale pour savoir exactement quoi faire ensuite.',
+      tagline: 'Identifiez vos opportunités cachées',
+      description: 'Un diagnostic complet de votre présence digitale pour identifier ce qui bloque vos ventes et construire un plan d\'action concret.',
       price: '245 000F CFA',
-      priceNote: 'Remboursable si formule souscrite',
+      priceNote: 'Remboursé si vous choisissez une autre formule',
       duration: '1 semaine',
       bestFor: "Vous ne savez pas par où commencer",
       idealFor: [
-        'Vous ne savez pas par où commencer',
+        'Vous vendez déjà mais sentez que vous pourriez faire mieux',
         'Vous voulez un plan clair avant d\'investir',
-        'Vous avez besoin d\'un regard expert'
+        'Vous avez besoin d\'un regard expert sur votre marque'
       ],
       includes: [
         'Audit complet de votre présence digitale',
@@ -59,22 +59,22 @@ const NosFormulesPage = () => {
       id: 'demarrage',
       icon: <Zap className="w-8 h-8" />,
       name: 'Formule Démarrage',
-      tagline: 'Lancez votre présence en ligne',
-      description: 'Créez votre boutique en ligne professionnelle et accueillez vos premiers clients digitaux.',
+      tagline: 'Automatisez vos ventes, libérez votre temps',
+      description: 'Passez de la vente manuelle via WhatsApp à une boutique professionnelle qui vend pour vous, même quand vous dormez.',
       price: 'À partir de 500 000F CFA',
       priceNote: 'Devis personnalisé selon vos besoins',
       duration: '4-6 semaines',
-      bestFor: "Vous n'avez pas encore de site e-commerce",
+      bestFor: "Vous gérez vos commandes via WhatsApp/Instagram",
       idealFor: [
+        'Vous gérez vos commandes via WhatsApp/Instagram',
         'Vous n\'avez pas encore de site e-commerce',
-        'Votre site actuel ne vend pas',
-        'Vous vendez uniquement via WhatsApp/Instagram'
+        'Votre site actuel ne génère pas de ventes'
       ],
       includes: [
         'Boutique en ligne moderne et professionnelle',
-        'Design adapté aux téléphones (80% du trafic)',
-        'Optimisation pour les conversions (ventes)',
-        'Référencement sur Google et ChatGPT',
+        'Paiements automatisés (Wave, Orange Money, CB)',
+        'Design optimisé mobile (80% du trafic)',
+        'Référencement Google et ChatGPT',
         'Formation prise en main complète'
       ],
       color: 'from-blue-500 to-cyan-500',
@@ -85,10 +85,10 @@ const NosFormulesPage = () => {
       id: 'croissance',
       icon: <Rocket className="w-8 h-8" />,
       name: 'Formule Croissance',
-      tagline: 'Multipliez vos ventes',
+      tagline: 'Transformez votre trafic en clients',
       badge: 'POPULAIRE',
-      description: 'Transformez les visiteurs de votre site en clients fidèles et faites croître vos ventes de manière systématique.',
-      price: 'À partir de 1,5M FCFA',
+      description: 'Vous avez de la visibilité mais pas assez de ventes ? Nous mettons en place le système complet pour convertir vos visiteurs en clients fidèles.',
+      price: 'À partir de 900 000F CFA',
       priceNote: 'Devis personnalisé selon vos besoins',
       duration: '3 mois',
       bestFor: "Vous avez un site mais peu de ventes",
@@ -98,7 +98,7 @@ const NosFormulesPage = () => {
         'Vous voulez automatiser votre acquisition clients'
       ],
       includes: [
-        'Tout de la Formule Démarrage (si besoin)',
+        'Création ou refonte de votre boutique (si nécessaire)',
         'Diagnostic conversion complet',
         'Stratégie publicités Meta/TikTok/Google Ads',
         'Système email/WhatsApp marketing automatisé',
@@ -113,15 +113,15 @@ const NosFormulesPage = () => {
       id: 'expansion',
       icon: <Globe className="w-8 h-8" />,
       name: 'Formule Expansion',
-      tagline: 'Rayonnez à l\'international',
-      description: 'Devenez une référence dans votre secteur et vendez au-delà des frontières africaines.',
-      price: 'À partir de 2,5M FCFA',
+      tagline: 'Vendez en Afrique, en Europe et au-delà',
+      description: 'Vous avez prouvé votre modèle localement. Il est temps de devenir une référence et de conquérir de nouveaux marchés.',
+      price: 'À partir de 1,5M FCFA',
       priceNote: 'Devis personnalisé selon vos besoins',
       duration: '6-12 mois',
-      bestFor: "Vous générez déjà +5M FCFA/mois",
+      bestFor: "Vous avez une base clients établie et des ventes régulières",
       idealFor: [
-        'Vous générez déjà +5M FCFA/mois',
-        'Vous voulez conquérir l\'international',
+        'Vous avez une base clients établie et des ventes régulières',
+        'Vous voulez conquérir de nouveaux marchés',
         'Vous visez le statut de marque premium'
       ],
       includes: [
@@ -192,8 +192,9 @@ const NosFormulesPage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-br from-[#042b65] via-[#0f4c81] to-[#1a5a8f] relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#ff7f50]/20 via-transparent to-transparent opacity-40"></div>
+      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-br from-gray-900 via-[#0f4c81] to-gray-900 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#fe6117]/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl"></div>
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -203,7 +204,7 @@ const NosFormulesPage = () => {
             className="max-w-4xl mx-auto text-center"
           >
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-5 py-2.5 mb-8">
-              <Sparkles className="w-4 h-4 text-[#ff7f50]" />
+              <Sparkles className="w-4 h-4 text-[#fe6117]" />
               <span className="text-white/95 text-sm font-semibold">
                 Nos offres d'accompagnement
               </span>
@@ -249,10 +250,10 @@ const NosFormulesPage = () => {
                 initial={{ opacity: 0, y: 40 }}
                 animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className={`bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all overflow-hidden relative ${formula.featured ? 'md:scale-105 border-4 border-[#ff7f50]' : 'border border-gray-100'}`}
+                className={`bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all overflow-hidden relative ${formula.featured ? 'md:scale-105 border-4 border-[#fe6117]' : 'border border-gray-100'}`}
               >
                 {formula.badge && (
-                  <div className="absolute -right-12 top-8 bg-[#ff7f50] text-white px-12 py-1.5 text-xs font-bold rotate-45 shadow-lg z-20">
+                  <div className="absolute -right-12 top-8 bg-[#fe6117] text-white px-12 py-1.5 text-xs font-bold rotate-45 shadow-lg z-20">
                     {formula.badge}
                   </div>
                 )}
@@ -304,7 +305,7 @@ const NosFormulesPage = () => {
 
                   <Link
                     href={`/nos-formules/${formula.id}`}
-                    className={`block w-full text-center bg-gradient-to-r ${formula.color} hover:opacity-90 text-white py-4 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg group`}
+                    className={`block w-full text-center bg-gradient-to-r ${formula.color} hover:opacity-90 text-white py-4 rounded-full font-semibold transition-all shadow-md hover:shadow-lg hover:scale-105 group`}
                   >
                     <span className="flex items-center justify-center">
                       En savoir plus
@@ -344,7 +345,7 @@ const NosFormulesPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-[#ff7f50]/30 transition-all"
+                className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-[#fe6117]/30 transition-all"
               >
                 <button
                   className="w-full px-6 md:px-8 py-6 text-left hover:bg-gray-50 flex justify-between items-center transition-all group"
@@ -354,7 +355,7 @@ const NosFormulesPage = () => {
                     {faq.question}
                   </span>
                   <ChevronDown
-                    className={`w-5 h-5 text-[#ff7f50] flex-shrink-0 transition-transform ${
+                    className={`w-5 h-5 text-[#fe6117] flex-shrink-0 transition-transform ${
                       openFaq === index ? 'rotate-180' : ''
                     }`}
                   />
@@ -372,9 +373,9 @@ const NosFormulesPage = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-20 md:py-28 bg-gradient-to-br from-[#0f4c81] to-[#1a5a8f] relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-gradient-to-br from-gray-900 via-[#0f4c81] to-gray-900 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#ff7f50]/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#fe6117]/10 rounded-full blur-3xl"></div>
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -397,14 +398,14 @@ const NosFormulesPage = () => {
                 href="https://calendly.com/tekki-studio/consultation-gratuite"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl hover:shadow-2xl"
+                className="inline-flex items-center justify-center bg-[#fe6117] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-xl hover:shadow-2xl hover:scale-105"
               >
                 Réserver un appel gratuit
                 <ArrowRight className="w-5 h-5 ml-2" />
               </a>
               <Link
                 href="/nos-formules/audit-depart"
-                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all"
+                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105"
               >
                 Commencer par un audit
               </Link>

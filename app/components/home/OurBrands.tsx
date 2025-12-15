@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, TrendingUp, Users, Star, Sparkles } from 'lucide-react';
+import { ArrowRight, TrendingUp, Users, Star, Sparkles, Award, Target, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
@@ -16,43 +16,57 @@ const OurBrandsSection = () => {
   const brands = [
     {
       name: "VIENS ON S'CONNAÎT",
+      shortName: "VOSC",
       tagline: "Jeux de conversation",
-      description: "Des jeux de cartes avec des questions significatives qui transforment les relations grâce à des conversations authentiques et profondes.",
-      image: "/images/brands/vosc.png", 
+      description: "Une gamme de jeux de société conversationnels conçus pour favoriser des conversations profondes et significatives entre couples, amis, familles et collègues.",
+      image: "/images/brands/vosc.png",
       gradient: "from-purple-500 to-pink-500",
       bgGradient: "from-purple-50 to-pink-50",
+      year: "2022",
       stats: [
-        { value: "8 000", label: "Jeux vendus", icon: <TrendingUp className="w-4 h-4" /> },
-        { value: "98%", label: "taux de satisfaction", icon: <Star className="w-4 h-4" /> },
-        { value: "+5 000", label: "clients", icon: <Users className="w-4 h-4" /> },
-        { value: "7", label: "Pays d'export", icon: <Sparkles className="w-4 h-4" /> }
+        { value: "+8 000", label: "Jeux vendus", icon: <ShoppingBag className="w-5 h-5" />, color: "text-purple-600" },
+        { value: "98%", label: "Satisfaction client", icon: <Star className="w-5 h-5" />, color: "text-purple-600" },
+        { value: "+5 000", label: "Clients conquis", icon: <Users className="w-5 h-5" />, color: "text-purple-600" },
+        { value: "7", label: "Pays d'export", icon: <Sparkles className="w-5 h-5" />, color: "text-purple-600" }
+      ],
+      mainMetrics: [
+        { label: "Croissance annuelle", value: "250%", progress: 100 },
+        { label: "Taux de réachat", value: "45%", progress: 45 },
+        { label: "Engagement social", value: "12K", progress: 80 }
       ],
       learnings: [
-        "Comment utiliser le storytelling pour générer 60% des ventes",
-        "La stratégie des micro-influenceurs pour booster la notoriété",
-        "Comment optimiser les publicités Meta pour le marché africain",
-        "Le programme des revendeurs qui a triplé nos ventes en 6 mois"
+        "Storytelling pour générer 60% des ventes organiques",
+        "Stratégie micro-influenceurs qui a boosté la notoriété de 300%",
+        "Optimisation des publicités Meta pour le marché africain",
+        "Programme revendeurs qui a triplé les ventes en 6 mois"
       ],
       link: "/nos-marques/viens-on-sconnait"
     },
     {
       name: "AMANI",
+      shortName: "AMANI",
       tagline: "Bien-être féminin",
-      description: "Une ceinture chauffante innovante qui soulage les douleurs menstruelles grâce à la thermothérapie et la massothérapie.",
-      image: "/images/brands/amani.png", 
+      description: "Une marque de produits de bien-être et de soins personnels dédiée aux femmes africaines, offrant des solutions naturelles et efficaces pour répondre à leurs besoins spécifiques.",
+      image: "/images/brands/amani.png",
       gradient: "from-rose-500 to-orange-500",
       bgGradient: "from-rose-50 to-orange-50",
+      year: "2025",
       stats: [
-        { value: "250", label: "Unités vendues", icon: <TrendingUp className="w-4 h-4" /> },
-        { value: "4.7/5", label: "Note moyenne", icon: <Star className="w-4 h-4" /> },
-        { value: "95%", label: "Satisfaction", icon: <Users className="w-4 h-4" /> },
-        { value: "2", label: "Pays présents", icon: <Sparkles className="w-4 h-4" /> }
+        { value: "+250", label: "Unités vendues", icon: <ShoppingBag className="w-5 h-5" />, color: "text-rose-600" },
+        { value: "4.7/5", label: "Note moyenne", icon: <Star className="w-5 h-5" />, color: "text-rose-600" },
+        { value: "95%", label: "Taux satisfaction", icon: <Award className="w-5 h-5" />, color: "text-rose-600" },
+        { value: "2", label: "Marchés actifs", icon: <Target className="w-5 h-5" />, color: "text-rose-600" }
+      ],
+      mainMetrics: [
+        { label: "Croissance mensuelle", value: "35%", progress: 35 },
+        { label: "Taux de conversion", value: "8.2%", progress: 82 },
+        { label: "Communauté engagée", value: "2.5K", progress: 60 }
       ],
       learnings: [
-        "Comment créer une communauté engagée autour d'un produit bien-être",
-        "Les stratégies de contenu éducatif qui convertissent en ventes",
-        "Comment optimiser les campagnes de pub pour un produit de niche",
-        "Comment gérer la logistique et les retours clients efficacement"
+        "Création d'une communauté engagée de +2500 femmes",
+        "Stratégie de contenu éducatif qui convertit à +8%",
+        "Optimisation des campagnes pub pour produit de niche",
+        "Gestion logistique et SAV qui fidélise 95% des clientes"
       ],
       link: "/nos-marques/amani"
     }
@@ -79,37 +93,37 @@ const OurBrandsSection = () => {
   };
 
   return (
-    <section className="py-20 md:py-28 bg-[#fff5f0] overflow-hidden relative">
+    <section className="py-20 md:py-32 bg-gradient-to-b from-white via-gray-50 to-white overflow-hidden relative">
       {/* Décoration de fond */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#ff7f50]/5 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#0f4c81]/5 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#fe6117]/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#0f4c81]/5 rounded-full blur-3xl"></div>
 
-      <div className="container mx-auto px-4">
+      <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20 relative z-10">
         {/* Header de section */}
-        <motion.div 
+        <motion.div
           className="text-center mb-16 max-w-4xl mx-auto"
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center gap-2 bg-[#ff7f50]/10 border border-[#ff7f50]/20 rounded-full px-4 py-2 mb-6">
-            <Sparkles className="w-4 h-4 text-[#ff7f50]" />
-            <span className="text-[#ff7f50] text-xs font-bold tracking-wider uppercase">
+          <div className="inline-flex items-center gap-2 bg-[#fe6117]/10 border border-[#fe6117]/20 rounded-full px-5 py-2.5 mb-6">
+            <Sparkles className="w-4 h-4 text-[#fe6117]" />
+            <span className="text-[#fe6117] text-sm font-bold tracking-wide uppercase">
               La preuve que ça marche
             </span>
           </div>
-          
-          <h2 className="text-3xl md:text-5xl font-bold text-[#0f4c81] mb-4">
+
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
             Nous pratiquons ce que nous prêchons
           </h2>
-          <p className="text-xl text-gray-600">
-            Avant d'accompagner votre marque, nous avons créé et fait grandir les nôtres. 
-            Voici la preuve concrète que nos stratégies fonctionnent.
+          <p className="text-xl text-gray-600 leading-relaxed">
+            Avant d'accompagner votre marque, nous avons créé et fait grandir les nôtres, ici, en Afrique.
+            Nos marques sont la preuve concrète et ultime que <span className="font-semibold text-gray-900"> nos stratégies fonctionnent.</span>
           </p>
         </motion.div>
 
         {/* Les deux marques */}
-        <motion.div 
+        <motion.div
           ref={ref}
           className="grid lg:grid-cols-2 gap-8 mb-16 max-w-7xl mx-auto"
           initial="hidden"
@@ -117,152 +131,171 @@ const OurBrandsSection = () => {
           variants={containerVariants}
         >
           {brands.map((brand, index) => (
-            <motion.div 
+            <motion.div
               key={index}
-              className="group bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-500"
+              className="group bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200 hover:shadow-2xl hover:border-[#fe6117]/30 transition-all duration-500"
               variants={itemVariants}
-              whileHover={{ y: -10 }}
             >
-              {/* Image de la marque avec overlay */}
-              <div className={`relative h-72 bg-gradient-to-br ${brand.gradient} overflow-hidden`}>
-                {/* Placeholder pour l'image 
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-white text-center p-8">
-                    <div className="text-6xl font-bold mb-4 opacity-20">{brand.name.substring(0, 1)}</div>
-                    <p className="text-xl font-bold mb-2">{brand.name}</p>
-                    <p className="text-sm opacity-90">Image du produit   intégrer ici</p>
+              {/* Image en haut - Format paysage */}
+              <div className="relative h-72 overflow-hidden">
+                <div className={`absolute inset-0 bg-gradient-to-br ${brand.gradient}`}>
+                  <img
+                    src={brand.image}
+                    alt={brand.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+
+                  {/* Overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+
+                  {/* Info en overlay */}
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <div className="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full text-xs font-bold text-gray-700 inline-block mb-3">
+                      {brand.tagline} • Lancée en {brand.year}
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                      {brand.name}
+                    </h3>
                   </div>
-                </div>
-                */}
-                
-                <img 
-                  src={brand.image} 
-                  alt={brand.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-                
-                
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                
-                {/* Badge */}
-                <div className="absolute top-6 left-6 z-10">
-                  <span className="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-bold text-[#0f4c81] shadow-lg">
-                    {brand.tagline}
-                  </span>
                 </div>
               </div>
 
-              <div className="p-8">
-                {/* Nom et description */}
-                <h3 className="text-2xl font-bold text-[#0f4c81] mb-3 group-hover:text-[#ff7f50] transition-colors">
-                  {brand.name}
-                </h3>
-                <p className="text-gray-600 mb-6 leading-relaxed">
-                  {brand.description}
-                </p>
+              {/* Contenu en dessous */}
+              <div className="p-8 md:p-10">
+                  {/* Description */}
+                  <p className="text-gray-700 text-lg leading-relaxed mb-8">
+                    {brand.description}
+                  </p>
 
-                {/* Statistiques en grille 2x2 */}
-                <div className="grid grid-cols-2 gap-3 mb-6">
-                  {brand.stats.map((stat, idx) => (
-                    <div 
-                      key={idx} 
-                      className={`bg-gradient-to-br ${brand.bgGradient} rounded-xl p-4 text-center border border-gray-100 hover:scale-105 transition-transform`}
-                    >
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <div className="text-[#ff7f50]">{stat.icon}</div>
-                        <div className="text-2xl font-bold text-[#0f4c81]">{stat.value}</div>
-                      </div>
-                      <div className="text-xs text-gray-600 font-medium">{stat.label}</div>
+                  {/* Section Performances clés */}
+                  <div className="mb-8">
+                    <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4 flex items-center">
+                      <TrendingUp className="w-4 h-4 mr-2 text-[#fe6117]" />
+                      Performances clés
+                    </h4>
+
+                    <div className="space-y-4">
+                      {brand.mainMetrics.map((metric, idx) => (
+                        <div key={idx} className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="font-medium text-gray-700">{metric.label}</span>
+                            <span className="font-bold text-[#fe6117] text-lg">{metric.value}</span>
+                          </div>
+                          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <motion.div
+                              className={`h-full bg-gradient-to-r ${brand.gradient} rounded-full`}
+                              initial={{ width: 0 }}
+                              animate={inView ? { width: `${metric.progress}%` } : { width: 0 }}
+                              transition={{ delay: 0.5 + idx * 0.1, duration: 1, ease: "easeOut" }}
+                            />
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
 
-                {/* Ce qu'on a appris */}
-                <div className="bg-gray-50 rounded-xl p-5 mb-6">
-                  <h4 className="font-semibold text-[#0f4c81] mb-3 flex items-center text-sm">
-                    <TrendingUp className="w-4 h-4 mr-2 text-[#ff7f50]" />
-                    Ce que nous avons appris
-                  </h4>
-                  <ul className="space-y-2.5">
-                    {brand.learnings.map((learning, idx) => (
-                      <li key={idx} className="flex items-start text-sm text-gray-700">
-                        <span className="text-[#ff7f50] mr-2 font-bold flex-shrink-0">•</span>
-                        <span className="leading-relaxed">{learning}</span>
-                      </li>
+                  {/* Statistiques en grille 2x2 compactes */}
+                  <div className="grid grid-cols-2 gap-3 mb-8">
+                    {brand.stats.map((stat, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-gray-50 rounded-xl p-4 border border-gray-100 hover:border-[#fe6117]/30 hover:bg-white transition-all"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`${stat.color}`}>{stat.icon}</div>
+                          <div>
+                            <div className="text-xl font-bold text-gray-900">{stat.value}</div>
+                            <div className="text-xs text-gray-600">{stat.label}</div>
+                          </div>
+                        </div>
+                      </div>
                     ))}
-                  </ul>
-                </div>
+                  </div>
 
-                {/* CTA */}
-                <Link
-                  href={brand.link}
-                  className={`block w-full text-center bg-gradient-to-r ${brand.gradient} hover:opacity-90 text-white py-3.5 rounded-xl font-semibold transition-all shadow-md hover:shadow-xl group/btn`}
-                >
-                  <span className="flex items-center justify-center">
-                    Découvrir l'histoire complète
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                  </span>
-                </Link>
+                  {/* Ce qu'on a appris - Version condensée */}
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-100 mb-6">
+                    <h4 className="font-bold text-gray-900 mb-4 flex items-center">
+                      <Award className="w-5 h-5 mr-2 text-[#fe6117]" />
+                      Apprentissages clés appliqués à nos clients
+                    </h4>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      {brand.learnings.map((learning, idx) => (
+                        <div key={idx} className="flex items-start text-sm text-gray-700">
+                          <span className="text-[#fe6117] mr-2 font-bold flex-shrink-0 mt-1">✓</span>
+                          <span className="leading-relaxed">{learning}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* CTA */}
+                  <Link
+                    href={brand.link}
+                    className={`block w-full text-center bg-gradient-to-r ${brand.gradient} hover:opacity-90 text-white py-4 rounded-full font-bold text-base transition-all shadow-lg hover:shadow-xl group/btn`}
+                  >
+                    <span className="flex items-center justify-center">
+                      Découvrir l'histoire complète de {brand.shortName}
+                      <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                    </span>
+                  </Link>
+              </div>
+
+              {/* Barre décorative en bas */}
+              <div className="h-1.5 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100">
+                <motion.div
+                  className={`h-full bg-gradient-to-r ${brand.gradient}`}
+                  initial={{ width: "0%" }}
+                  animate={inView ? { width: "100%" } : { width: "0%" }}
+                  transition={{ delay: 0.8 + index * 0.3, duration: 1.5, ease: "easeInOut" }}
+                />
               </div>
             </motion.div>
           ))}
         </motion.div>
 
-        {/* Section bottom avec CTA vers formules */}
-        <motion.div 
-          className="max-w-5xl mx-auto"
+        {/* Bloc de chiffres globaux */}
+        <motion.div
+          className="bg-gradient-to-br from-gray-900 via-[#0f4c81] to-gray-900 rounded-3xl p-10 md:p-14 text-white shadow-2xl relative overflow-hidden mb-16 max-w-5xl mx-auto"
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
         >
-          <div className="bg-gradient-to-r from-[#0f4c81] to-[#1a5a8f] rounded-3xl p-8 md:p-12 text-white shadow-2xl relative overflow-hidden">
-            {/* Décoration */}
-            <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#ff7f50]/10 rounded-full blur-3xl"></div>
-            
-            <div className="relative z-10 text-center">
-              <h3 className="text-2xl md:text-4xl font-bold mb-4">
-                Prêt à appliquer ces stratégies à votre marque ?
+          {/* Décoration */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-[#fe6117]/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+
+          <div className="relative z-10">
+            <div className="text-center mb-10">
+              <h3 className="text-2xl md:text-3xl font-bold mb-3">
+                Résultats cumulés de nos 2 marques
               </h3>
-              <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
-                Chaque offre que nous proposons intègre les apprentissages concrets 
-                des succès de nos propres marques et de celles de nos clients.
+              <p className="text-white/80 text-lg">
+                En moins de 3 ans, nos marques ont généré des résultats concrets
               </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Link
-                    href="/nos-formules"
-                    className="inline-flex items-center justify-center bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl hover:shadow-2xl"
-                  >
-                    Découvrir nos offres
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Link>
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <a
-                    href="https://calendly.com/tekki-studio/consultation-gratuite"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center bg-white/10 backdrop-blur-sm hover:bg-white/20 border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all"
-                  >
-                    Réserver un appel gratuit
-                  </a>
-                </motion.div>
+            </div>
+
+            <div className="grid md:grid-cols-4 gap-6">
+              <div className="text-center bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="text-5xl font-bold text-[#fe6117] mb-2">+8K</div>
+                <p className="text-white/80">Produits vendus</p>
+              </div>
+              <div className="text-center bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="text-5xl font-bold text-[#fe6117] mb-2">+5K</div>
+                <p className="text-white/80">Clients satisfaits</p>
+              </div>
+              <div className="text-center bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="text-5xl font-bold text-[#fe6117] mb-2">9</div>
+                <p className="text-white/80">Pays atteints</p>
+              </div>
+              <div className="text-center bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                <div className="text-5xl font-bold text-[#fe6117] mb-2">96%</div>
+                <p className="text-white/80">Satisfaction moyenne</p>
               </div>
             </div>
           </div>
         </motion.div>
-      </div>
 
-      
+      </div>
     </section>
   );
 };

@@ -24,34 +24,34 @@ const ExpansionPage = () => {
   const [isQuoteFormOpen, setIsQuoteFormOpen] = useState(false);
   const deliverables = [
     {
+      icon: <Rocket className="w-6 h-6" />,
+      title: "Tout de la formule Croissance",
+      description: "Création/refonte boutique, diagnostic conversion, publicités, email/WhatsApp marketing"
+    },
+    {
       icon: <Globe className="w-6 h-6" />,
       title: "Stratégie expansion régionale/internationale",
       description: "Plan détaillé pour conquérir de nouveaux marchés africains et internationaux"
     },
     {
       icon: <Crown className="w-6 h-6" />,
-      title: "Direction artistique marque premium",
-      description: "Repositionnement haut de gamme avec identité visuelle raffinée"
-    },
-    {
-      icon: <Rocket className="w-6 h-6" />,
-      title: "Solutions techniques sur-mesure",
-      description: "Développements personnalisés pour vos besoins spécifiques"
+      title: "Direction artistique de marque premium",
+      description: "Repositionnement haut de gamme avec identité visuelle raffinée et cohérente"
     },
     {
       icon: <Target className="w-6 h-6" />,
-      title: "Stratégie de distribution multi-canal",
-      description: "Marketplaces, revendeurs, partenariats stratégiques"
-    },
-    {
-      icon: <Users className="w-6 h-6" />,
-      title: "Programme ambassadeurs international",
-      description: "Réseau de représentants dans chaque marché cible"
+      title: "Développement de solutions sur-mesure",
+      description: "Fonctionnalités personnalisées adaptées à vos besoins spécifiques"
     },
     {
       icon: <BarChart className="w-6 h-6" />,
-      title: "Accompagnement intensif 6 mois",
-      description: "1 session stratégique par semaine + support prioritaire 24/7"
+      title: "Accompagnement de 6 mois (1 session/semaine)",
+      description: "Sessions stratégiques hebdomadaires + support prioritaire 24/7"
+    },
+    {
+      icon: <Users className="w-6 h-6" />,
+      title: "Stratégie distribution & partenariats",
+      description: "Marketplaces, revendeurs, ambassadeurs et partenariats stratégiques"
     }
   ];
 
@@ -139,7 +139,7 @@ const ExpansionPage = () => {
             <div className="flex flex-wrap gap-6 text-white/90 mb-8">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5" />
-                <span className="font-semibold">À partir de 2,5M FCFA</span>
+                <span className="font-semibold">À partir de 1,5M FCFA</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5" />
@@ -153,7 +153,7 @@ const ExpansionPage = () => {
 
             <button
               onClick={() => setIsQuoteFormOpen(true)}
-              className="inline-flex items-center justify-center bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
+              className="inline-flex items-center justify-center bg-white text-purple-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all shadow-xl hover:scale-105"
             >
               Obtenir un devis gratuit
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -330,7 +330,7 @@ const ExpansionPage = () => {
 
             <button
               onClick={() => setIsQuoteFormOpen(true)}
-              className="inline-flex items-center justify-center bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
+              className="inline-flex items-center justify-center bg-white text-purple-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all shadow-xl hover:scale-105"
             >
               Réserver un appel stratégique
               <ArrowRight className="w-5 h-5 ml-2" />

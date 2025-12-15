@@ -104,8 +104,9 @@ const CasClientsPage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-br from-[#042b65] via-[#0f4c81] to-[#1a5a8f] relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#ff7f50]/20 via-transparent to-transparent opacity-40"></div>
+      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-br from-gray-900 via-[#0f4c81] to-gray-900 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#fe6117]/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl"></div>
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -160,7 +161,7 @@ const CasClientsPage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="text-center"
               >
-                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#ff7f50] to-[#ff6b3d] flex items-center justify-center text-white mx-auto mb-3">
+                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#fe6117] to-[#ff6b3d] flex items-center justify-center text-white mx-auto mb-3">
                   {item.icon}
                 </div>
                 <div className="text-3xl font-bold text-[#0f4c81] mb-1">{item.stat}</div>
@@ -246,7 +247,7 @@ const CasClientsPage = () => {
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Link
                         href={`/cas-clients/${caseStudy.slug}`}
-                        className={`inline-flex items-center justify-center bg-gradient-to-r ${caseStudy.gradient} text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg hover:shadow-xl group`}
+                        className={`inline-flex items-center justify-center bg-gradient-to-r ${caseStudy.gradient} text-white px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:scale-105 group`}
                       >
                         Lire le cas complet
                         <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -255,7 +256,7 @@ const CasClientsPage = () => {
                         href={caseStudy.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center bg-white border-2 border-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:border-gray-300 hover:bg-gray-50 transition-all"
+                        className="inline-flex items-center justify-center bg-white border-2 border-gray-200 text-gray-700 px-6 py-3 rounded-full font-semibold hover:border-gray-300 hover:bg-gray-50 transition-all hover:scale-105"
                       >
                         Voir le site
                         <ExternalLink className="w-4 h-4 ml-2" />
@@ -270,9 +271,9 @@ const CasClientsPage = () => {
       </section>
 
       {/* CTA Final */}
-      <section className="py-20 md:py-28 bg-gradient-to-br from-[#0f4c81] to-[#1a5a8f] relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-gradient-to-br from-gray-900 via-[#0f4c81] to-gray-900 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#ff7f50]/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#fe6117]/10 rounded-full blur-3xl"></div>
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -292,7 +293,7 @@ const CasClientsPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/nos-formules"
-                className="inline-flex items-center justify-center bg-[#ff7f50] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl hover:shadow-2xl"
+                className="inline-flex items-center justify-center bg-[#fe6117] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-xl hover:shadow-2xl hover:scale-105"
               >
                 Découvrir nos offres
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -301,7 +302,7 @@ const CasClientsPage = () => {
                 href="https://calendly.com/tekki-studio/consultation-gratuite"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all"
+                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105"
               >
                 Réserver un appel gratuit
               </a>

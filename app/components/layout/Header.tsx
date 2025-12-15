@@ -31,23 +31,23 @@ const Header = () => {
   // Structure des éléments de navigation - NOUVELLE VERSION
   const navItems = [
     { label: 'Nos Marques', href: '/nos-marques' },
-    { label: 'Nos Offres', href: '/nos-formules' },
+    { label: 'Nos Formules', href: '/nos-formules' },
     { label: 'Cas Clients', href: '/cas-clients' },
     { label: 'A Propos', href: '/a-propos' },
   ];
 
   return (
-    <header 
-        className={`fixed w-full top-0 z-50 transition-all duration-300 
-          ${isScrolled || isOpen ? 'bg-[#0f4c81] shadow-lg' : 'lg:bg-transparent bg-[#0f4c81]'}`}>
+    <header
+        className={`fixed w-full top-0 z-50 transition-all duration-300
+          ${isScrolled || isOpen ? 'bg-gradient-to-br from-gray-900 via-[#0f4c81] to-gray-900 shadow-2xl backdrop-blur-sm' : 'lg:bg-transparent bg-gradient-to-br from-gray-900/95 via-[#0f4c81]/95 to-gray-900/95 backdrop-blur-sm'}`}>
 
-      <div className="container mx-auto px-4">
+      <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20">
         <div className="flex justify-between items-center h-20 py-6">
-          <Link href="/" className="flex items-center space-x-2">
-            <img 
-                src="/images/tekkistudio/logo.svg" 
-                alt="TEKKI Studio" 
-                className="w-150 h-10"
+          <Link href="/" className="flex items-center space-x-2 group">
+            <img
+                src="/images/tekkistudio/logo.svg"
+                alt="TEKKI Studio"
+                className="w-150 h-10 transition-transform duration-300 group-hover:scale-105"
             />
           </Link>
 
@@ -57,9 +57,14 @@ const Header = () => {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-white hover:text-[#ff7f50] transition-colors font-medium"
+                className={`text-white hover:text-[#fe6117] transition-all font-medium relative group ${
+                  pathname === item.href ? 'text-[#fe6117]' : ''
+                }`}
               >
                 {item.label}
+                <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-[#fe6117] transition-transform origin-left ${
+                  pathname === item.href ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                }`}></span>
               </Link>
             ))}
           </nav>
@@ -68,14 +73,14 @@ const Header = () => {
             {/* Bouton CTA Principal - visible sur tablette et desktop */}
             <Link
               href="https://calendly.com/tekki-studio/consultation-gratuite"
-              className="hidden sm:block bg-[#ff7f50] text-white px-6 py-3 rounded-lg hover:bg-[#ff6b3d] transition-colors font-medium whitespace-nowrap shadow-lg hover:shadow-xl"
+              className="hidden sm:inline-flex items-center bg-[#fe6117] text-white px-6 py-3 rounded-full hover:bg-[#e55710] transition-all font-bold whitespace-nowrap shadow-lg hover:shadow-xl hover:scale-105"
             >
               Réserver un appel
             </Link>
 
             {/* Bouton hamburger - visible sur mobile et tablette */}
-            <button 
-              className="lg:hidden text-white"
+            <button
+              className="lg:hidden text-white p-2 hover:bg-white/10 rounded-full transition-all"
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Toggle menu"
             >
@@ -83,7 +88,7 @@ const Header = () => {
             </button>
           </div>
         </div>
-        
+
         {/* Menu mobile */}
         {isOpen && (
           <div className="lg:hidden py-4 border-t border-white/10">
@@ -91,18 +96,20 @@ const Header = () => {
               <Link
                 key={item.href}
                 href={item.href}
-                className="block py-3 text-white hover:text-[#ff7f50] font-medium transition-colors"
+                className={`block py-3 text-white hover:text-[#fe6117] font-medium transition-colors ${
+                  pathname === item.href ? 'text-[#fe6117]' : ''
+                }`}
                 onClick={() => setIsOpen(false)}
               >
                 {item.label}
               </Link>
             ))}
-            
+
             {/* Version mobile du CTA */}
             <div className="sm:hidden mt-4 pt-4 border-t border-white/10">
               <Link
                 href="https://calendly.com/tekki-studio/consultation-gratuite"
-                className="block bg-[#ff7f50] text-white px-6 py-3 rounded-lg text-center font-medium hover:bg-[#ff6b3d] transition-colors"
+                className="block bg-[#fe6117] text-white px-6 py-3 rounded-full text-center font-bold hover:bg-[#e55710] transition-all shadow-lg"
                 onClick={() => setIsOpen(false)}
               >
                 Réserver un appel

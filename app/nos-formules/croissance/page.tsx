@@ -12,7 +12,6 @@ import {
   TrendingUp,
   Target,
   Zap,
-  Users,
   BarChart,
   Mail,
   MessageCircle
@@ -24,34 +23,34 @@ const CroissancePage = () => {
   const [isQuoteFormOpen, setIsQuoteFormOpen] = useState(false);
   const deliverables = [
     {
+      icon: <Rocket className="w-6 h-6" />,
+      title: "Création ou refonte de votre boutique (si nécessaire)",
+      description: "Optimisation complète de votre site pour maximiser les conversions"
+    },
+    {
       icon: <Target className="w-6 h-6" />,
       title: "Diagnostic conversion complet",
       description: "Analyse approfondie de votre tunnel de vente et identification des points de friction"
     },
     {
       icon: <Zap className="w-6 h-6" />,
-      title: "Stratégie publicités Meta/TikTok/Google",
-      description: "Campagnes optimisées pour le marché africain avec ciblage précis"
+      title: "Stratégie publicités Meta/TikTok/Google Ads",
+      description: "Campagnes optimisées pour le marché africain avec ciblage précis et ROI maximisé"
     },
     {
       icon: <Mail className="w-6 h-6" />,
-      title: "Email & WhatsApp marketing automatisé",
+      title: "Système email/WhatsApp marketing automatisé",
       description: "Séquences automatisées pour convertir et fidéliser vos clients"
     },
     {
-      icon: <Users className="w-6 h-6" />,
-      title: "Programme d'influence & ambassadeurs",
-      description: "Stratégie micro-influenceurs et système d'affiliation rentable"
+      icon: <MessageCircle className="w-6 h-6" />,
+      title: "Accompagnement de 3 mois (2 sessions/mois)",
+      description: "Sessions stratégiques bi-mensuelles + support prioritaire par WhatsApp"
     },
     {
       icon: <BarChart className="w-6 h-6" />,
       title: "Analytics & optimisation continue",
-      description: "Dashboards personnalisés et optimisation basée sur les données"
-    },
-    {
-      icon: <MessageCircle className="w-6 h-6" />,
-      title: "Accompagnement 3 mois",
-      description: "2 sessions stratégiques par mois + support illimité par WhatsApp"
+      description: "Dashboards personnalisés et optimisation basée sur les données réelles"
     }
   ];
 
@@ -127,16 +126,16 @@ const CroissancePage = () => {
             </div>
 
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              Multipliez vos ventes de manière systématique
+              Transformez votre trafic en clients
             </h1>
             <p className="text-2xl text-white/90 mb-8">
-              Transformez les visiteurs de votre site en clients fidèles
+              Vous avez de la visibilité mais pas assez de ventes ? Nous mettons en place le système complet pour convertir vos visiteurs en clients fidèles
             </p>
 
             <div className="flex flex-wrap gap-6 text-white/90 mb-8">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5" />
-                <span className="font-semibold">À partir de 1,5M FCFA</span>
+                <span className="font-semibold">À partir de 900 000F CFA</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5" />
@@ -150,7 +149,7 @@ const CroissancePage = () => {
 
             <button
               onClick={() => setIsQuoteFormOpen(true)}
-              className="inline-flex items-center justify-center bg-white text-orange-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
+              className="inline-flex items-center justify-center bg-white text-orange-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all shadow-xl hover:scale-105"
             >
               Obtenir un devis gratuit
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -297,7 +296,7 @@ const CroissancePage = () => {
 
             <button
               onClick={() => setIsQuoteFormOpen(true)}
-              className="inline-flex items-center justify-center bg-white text-orange-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
+              className="inline-flex items-center justify-center bg-white text-orange-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all shadow-xl hover:scale-105"
             >
               Obtenir mon devis gratuit
               <ArrowRight className="w-5 h-5 ml-2" />

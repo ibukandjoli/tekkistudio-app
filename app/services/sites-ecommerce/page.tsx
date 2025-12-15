@@ -188,12 +188,12 @@ const SitesEcommercePage = () => {
       <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500 relative overflow-hidden w-full">
         <div className="absolute inset-0 bg-black/20"></div>
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="max-w-5xl mx-auto text-center text-white"
+            className="w-full mx-auto text-center text-white"
           >
             {/* Badge urgence */}
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-6 py-3 mb-6">
@@ -263,8 +263,8 @@ const SitesEcommercePage = () => {
       </section>
 
       {/* Problèmes que vous rencontrez */}
-      <section className="py-20 md:py-28 bg-gray-50">
-        <div className="container mx-auto px-4">
+      <section className="py-20 md:py-28 bg-gray-50 w-full">
+        <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -274,12 +274,12 @@ const SitesEcommercePage = () => {
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
               Le dernier mois de l'année est là !
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600">
               Et pour beaucoup de marques africaines, c'est le stress
             </p>
           </motion.div>
 
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
+          <div className="w-full grid md:grid-cols-2 gap-8">
             {problems.map((problem, index) => (
               <motion.div
                 key={index}
@@ -305,8 +305,8 @@ const SitesEcommercePage = () => {
       </section>
 
       {/* Ce que vous recevez */}
-      <section className="py-20 md:py-28 bg-white">
-        <div className="container mx-auto px-4">
+      <section className="py-20 md:py-28 bg-white w-full">
+        <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -316,12 +316,12 @@ const SitesEcommercePage = () => {
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
               Ce que vous allez recevoir
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600">
               Pas de théorie, que du chiffre. Tout ce dont vous avez besoin pour vendre en ligne.
             </p>
           </motion.div>
 
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
+          <div className="w-full grid md:grid-cols-2 gap-12">
             {offerIncludes.map((item, index) => (
               <motion.div
                 key={index}
@@ -348,7 +348,7 @@ const SitesEcommercePage = () => {
             ))}
           </div>
 
-          <div className="mt-12 max-w-4xl mx-auto bg-blue-50 rounded-2xl p-8 border-2 border-blue-200">
+          <div className="mt-12 w-full bg-blue-50 rounded-2xl p-8 border-2 border-blue-200">
             <div className="flex items-start gap-4">
               <AlertCircle className="w-8 h-8 text-blue-600 flex-shrink-0 mt-1" />
               <div>
@@ -365,8 +365,8 @@ const SitesEcommercePage = () => {
       </section>
 
       {/* Pourquoi Shopify */}
-      <section className="py-20 md:py-28 bg-gradient-to-br from-green-50 to-emerald-50">
-        <div className="container mx-auto px-4">
+      <section className="py-20 md:py-28 bg-gradient-to-br from-green-50 to-emerald-50 w-full">
+        <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -379,12 +379,12 @@ const SitesEcommercePage = () => {
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
               Pourquoi Shopify ?
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600">
               Shopify est LA meilleure solution e-commerce pour les marques qui souhaitent vendre de manière efficace sans se soucier des aspects techniques.
             </p>
           </motion.div>
 
-          <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
+          <div className="w-full grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {whyShopify.map((reason, index) => (
               <motion.div
                 key={index}
@@ -405,8 +405,8 @@ const SitesEcommercePage = () => {
       </section>
 
       {/* Nos Réalisations */}
-      <section className="py-20 md:py-28 bg-[#f5f3ed]">
-        <div className="container mx-auto px-4">
+      <section className="py-20 md:py-28 bg-[#f5f3ed] w-full">
+        <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -414,7 +414,7 @@ const SitesEcommercePage = () => {
             transition={{ duration: 0.6 }}
             className="mb-16"
           >
-            <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <div className="w-full flex flex-col md:flex-row md:items-end md:justify-between gap-6">
               <div>
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
                   Nos réalisations
@@ -437,7 +437,7 @@ const SitesEcommercePage = () => {
             </div>
           </motion.div>
 
-          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {portfolio.map((site, index) => (
               <motion.a
                 key={index}
@@ -483,8 +483,8 @@ const SitesEcommercePage = () => {
       </section>
 
       {/* Processus */}
-      <section className="py-20 md:py-28 bg-white">
-        <div className="container mx-auto px-4">
+      <section className="py-20 md:py-28 bg-white w-full">
+        <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -494,12 +494,12 @@ const SitesEcommercePage = () => {
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
               Comment ça marche ?
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600">
               Un processus simple et rapide pour être en ligne avant la fin de l'année
             </p>
           </motion.div>
 
-          <div className="max-w-4xl mx-auto">
+          <div className="w-full max-w-5xl mx-auto">
             {process.map((item, index) => (
               <motion.div
                 key={index}
@@ -530,8 +530,8 @@ const SitesEcommercePage = () => {
       </section>
 
       {/* FAQ */}
-      <section className="py-20 md:py-28 bg-gray-50">
-        <div className="container mx-auto px-4">
+      <section className="py-20 md:py-28 bg-gray-50 w-full">
+        <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -543,7 +543,7 @@ const SitesEcommercePage = () => {
             </h2>
           </motion.div>
 
-          <div className="max-w-4xl mx-auto space-y-6">
+          <div className="w-full max-w-5xl mx-auto space-y-6">
             {faqs.map((faq, index) => (
               <motion.div
                 key={index}
@@ -566,15 +566,15 @@ const SitesEcommercePage = () => {
       </section>
 
       {/* CTA Final */}
-      <section className="py-20 md:py-28 bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 relative overflow-hidden w-full">
         <div className="absolute inset-0 bg-black/20"></div>
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="max-w-4xl mx-auto text-center text-white"
+            className="w-full mx-auto text-center text-white"
           >
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-6 py-3 mb-6">
               <Trophy className="w-5 h-5 text-white" />

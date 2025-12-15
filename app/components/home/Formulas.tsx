@@ -38,15 +38,15 @@ const FormulasSection = () => {
       id: 'audit-depart',
       icon: <Search className="w-7 h-7" />,
       name: 'Audit de Départ',
-      tagline: 'Comprenez votre potentiel',
-      description: 'Un diagnostic complet de votre présence digitale pour savoir exactement quoi faire ensuite.',
+      tagline: 'Identifiez vos opportunités cachées',
+      description: 'Un diagnostic complet de votre présence digitale pour identifier ce qui bloque vos ventes et construire un plan d\'action concret.',
       price: '245 000F CFA',
-      priceNote: 'Remboursable si formule souscrite',
+      priceNote: 'Remboursé si vous choisissez une autre formule',
       duration: '1 semaine',
       idealFor: [
-        'Vous ne savez pas par oà¹ commencer',
+        'Vous vendez déjà mais sentez que vous pourriez faire mieux',
         'Vous voulez un plan clair avant d\'investir',
-        'Vous avez besoin d\'un regard expert'
+        'Vous avez besoin d\'un regard expert sur votre marque'
       ],
       includes: [
         'Audit complet de votre présence digitale',
@@ -64,21 +64,22 @@ const FormulasSection = () => {
       id: 'demarrage',
       icon: <Zap className="w-7 h-7" />,
       name: 'Formule Démarrage',
-      tagline: 'Lancez votre présence en ligne',
-      description: 'Créez votre boutique en ligne professionnelle et accueillez vos premiers clients digitaux.',
+      tagline: 'Automatisez vos ventes, libérez votre temps',
+      problemSolved: 'Fini les commandes dans les DM',
+      description: 'Passez de la vente manuelle via WhatsApp à une boutique professionnelle qui vend pour vous, même quand vous dormez.',
       price: 'À partir de 500 000F CFA',
       priceNote: 'Devis personnalisé selon vos besoins',
       duration: '4-6 semaines',
       idealFor: [
+        'Vous gérez vos commandes via WhatsApp/Instagram',
         'Vous n\'avez pas encore de site e-commerce',
-        'Votre site actuel ne vend pas',
-        'Vous vendez uniquement via WhatsApp/Instagram'
+        'Votre site actuel ne génère pas de ventes'
       ],
       includes: [
         'Boutique en ligne moderne et professionnelle',
-        'Design adapté aux téléphones (80% du trafic)',
-        'Optimisation pour les conversions (ventes)',
-        'Référencement sur Google et ChatGPT',
+        'Paiements automatisés (Wave, Orange Money, CB)',
+        'Design optimisé mobile (80% du trafic)',
+        'Référencement Google et ChatGPT',
         'Formation prise en main complète'
       ],
       color: 'from-blue-500 to-cyan-500',
@@ -90,10 +91,11 @@ const FormulasSection = () => {
       id: 'croissance',
       icon: <Rocket className="w-7 h-7" />,
       name: 'Formule Croissance',
-      tagline: 'Multipliez vos ventes',
+      tagline: 'Transformez votre trafic en clients',
       badge: 'POPULAIRE',
-      description: 'Transformez les visiteurs de votre site en clients fidèles et faites croître vos ventes de manière systématique.',
-      price: 'À partir de 1,5M FCFA',
+      problemSolved: 'Convertissez enfin vos visiteurs',
+      description: 'Vous avez de la visibilité mais pas assez de ventes ? Nous mettons en place le système complet pour convertir vos visiteurs en clients fidèles.',
+      price: 'À partir de 900 000F CFA',
       priceNote: 'Devis personnalisé selon vos besoins',
       duration: '3 mois',
       idealFor: [
@@ -102,7 +104,7 @@ const FormulasSection = () => {
         'Vous voulez automatiser votre acquisition clients'
       ],
       includes: [
-        'Tout de la Formule Démarrage (si besoin)',
+        'Création ou refonte de votre boutique (si nécessaire)',
         'Diagnostic conversion complet',
         'Stratégie publicités Meta/TikTok/Google Ads',
         'Système email/WhatsApp marketing automatisé',
@@ -118,14 +120,15 @@ const FormulasSection = () => {
       id: 'expansion',
       icon: <Globe className="w-7 h-7" />,
       name: 'Formule Expansion',
-      tagline: 'Rayonnez à l\'international',
-      description: 'Devenez une référence dans votre secteur et vendez au-delà des frontières africaines.',
-      price: 'À partir de 2,5M FCFA',
+      tagline: 'Vendez en Afrique, en Europe et au-delà',
+      problemSolved: 'Passez au niveau supérieur',
+      description: 'Vous avez prouvé votre modèle localement. Il est temps de devenir une référence et de conquérir de nouveaux marchés.',
+      price: 'À partir de 1,5M FCFA',
       priceNote: 'Devis personnalisé selon vos besoins',
       duration: '6-12 mois',
       idealFor: [
-        'Vous générez déjà +5M FCFA/mois',
-        'Vous voulez conquérir l\'international',
+        'Vous avez une base clients établie et des ventes régulières',
+        'Vous voulez conquérir de nouveaux marchés',
         'Vous visez le statut de marque premium'
       ],
       includes: [
@@ -153,7 +156,7 @@ const FormulasSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <motion.div 
-          className="text-center mb-16 max-w-4xl mx-auto"
+          className="text-center mb-16 w-full"
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
@@ -161,23 +164,23 @@ const FormulasSection = () => {
           <div className="inline-flex items-center gap-2 bg-[#ff7f50]/10 border border-[#ff7f50]/20 rounded-full px-4 py-2 mb-6">
             <Sparkles className="w-4 h-4 text-[#ff7f50]" />
             <span className="text-[#ff7f50] text-xs font-bold tracking-wider uppercase">
-              Nos Offres
+              Nos Formules
             </span>
           </div>
           
           <h2 className="text-3xl md:text-5xl font-bold text-[#0f4c81] mb-4">
-            Choisissez votre niveau d'ambition
+            Une formule pour chaque étape de votre croissance
           </h2>
-          <p className="text-xl text-gray-600">
-            Du diagnostic initial à l'expansion internationale, une offre adaptée 
-            à chaque étape
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Que vous vendiez encore via WhatsApp ou que vous visiez l'international, 
+            nous avons la solution pour débloquer votre prochain niveau.
           </p>
         </motion.div>
 
         {/* Grille des formules */}
         <motion.div 
           ref={ref}
-          className="grid md:grid-cols-2 gap-8 max-w-7xl mx-auto mb-12"
+          className="grid md:grid-cols-2 gap-8 w-full mb-12"
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
           variants={containerVariants}
@@ -209,7 +212,7 @@ const FormulasSection = () => {
                     <p className="text-3xl font-bold">{formula.price}</p>
                     <p className="text-sm text-white/80">{formula.priceNote}</p>
                     <p className="text-sm text-white/80 flex items-center gap-1">
-                      <span>â±</span> {formula.duration}
+                      <span>⏱</span> {formula.duration}
                     </p>
                   </div>
                 </div>
@@ -269,19 +272,18 @@ const FormulasSection = () => {
 
         {/* Bottom CTA */}
         <motion.div 
-          className="text-center max-w-4xl mx-auto"
+          className="text-center w-full"
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ delay: 0.6, duration: 0.6 }}
         >
           <div className="bg-gradient-to-r from-gray-50 to-white rounded-3xl p-8 md:p-12 border-2 border-gray-200 shadow-lg">
             <h3 className="text-2xl md:text-3xl font-bold text-[#0f4c81] mb-4">
-              Pas sûr de votre choix ?
+              Pas sûr de la formule qu'il vous faut ?
             </h3>
-            <p className="text-gray-600 mb-8 text-lg leading-relaxed">
-              Réservez un appel gratuit de 30 minutes avec notre équipe. Nous analyserons 
-              votre situation et vous conseillerons la formule la plus adaptée à vos objectifs 
-              et votre budget.
+            <p className="text-gray-600 mb-8 text-lg leading-relaxed max-w-2xl mx-auto">
+              Réservez un appel gratuit de 30 minutes. Nous analyserons votre situation 
+              et vous conseillerons la formule la plus adaptée à vos objectifs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <motion.div

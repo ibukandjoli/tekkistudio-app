@@ -27,7 +27,7 @@ const LogosClients = () => {
 
   return (
     <section className="py-16 md:py-24 bg-white overflow-hidden">
-      <div className="container mx-auto px-4">
+      <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20">
         {/* Titre principal */}
         <motion.div
           ref={ref}

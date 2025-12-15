@@ -28,33 +28,33 @@ const DemarragePage = () => {
   const deliverables = [
     {
       icon: <ShoppingCart className="w-6 h-6" />,
-      title: "Boutique en ligne complète",
-      description: "Nous concevons un site e-commerce moderne avec toutes les fonctionnalités essentielles : catalogue produits, gestion des commandes, etc."
+      title: "Boutique en ligne moderne et professionnelle",
+      description: "Site e-commerce complet avec toutes les fonctionnalités essentielles pour vendre en ligne"
     },
     {
       icon: <Smartphone className="w-6 h-6" />,
-      title: "Design responsive (adapté aux mobiles)",
-      description: "Votre site est optimisé pour les tablettes et Smartphones car 80% de vos clients navigueront depuis leur téléphone"
+      title: "Paiements automatisés (Wave, Orange Money, CB)",
+      description: "Intégration complète des moyens de paiement adaptés à vos clients africains et internationaux"
     },
     {
       icon: <Paintbrush className="w-6 h-6" />,
-      title: "Design sur-mesure",
-      description: "Nous créons une interface unique qui reflète l'identité et le positionnement de votre marque"
+      title: "Design optimisé mobile (80% du trafic)",
+      description: "Interface parfaitement adaptée aux smartphones, car la majorité de vos clients achètent sur mobile"
     },
     {
       icon: <Target className="w-6 h-6" />,
-      title: "Optimisation des conversions",
-      description: "Nous concevons des pages produits qui incitent à l'achat pour maximiser vos ventes"
+      title: "Référencement Google et ChatGPT",
+      description: "Optimisation SEO complète pour être trouvé sur Google et recommandé par les IA"
     },
     {
       icon: <Rocket className="w-6 h-6" />,
-      title: "Référencement SEO & ChatGPT",
-      description: "Votre site sera trouvé sur Google et recommandé par ChatGPT"
+      title: "Formation prise en main complète",
+      description: "Nous vous formons à gérer votre boutique en totale autonomie"
     },
     {
       icon: <Clock className="w-6 h-6" />,
-      title: "Accompagnement continu",
-      description: "Nous restons à vos côtés après le lancement pour vous former et optimiser votre boutique"
+      title: "Support et accompagnement",
+      description: "Assistance technique pour assurer le succès de votre lancement"
     }
   ];
 
@@ -179,10 +179,10 @@ const DemarragePage = () => {
             </div>
 
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              Lancez votre boutique en ligne professionnelle
+              Automatisez vos ventes, libérez votre temps
             </h1>
             <p className="text-2xl text-white/90 mb-8">
-              Créez votre présence e-commerce et accueillez vos premiers clients digitaux
+              Passez de la vente manuelle via WhatsApp à une boutique professionnelle qui vend pour vous, même quand vous dormez
             </p>
 
             <div className="flex flex-wrap gap-6 text-white/90 mb-8">
@@ -196,7 +196,7 @@ const DemarragePage = () => {
                 <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                   <Clock className="w-5 h-5" />
                 </div>
-                <span className="font-semibold">7 à 15 jours ouvrés</span>
+                <span className="font-semibold">4-6 semaines</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
@@ -209,14 +209,14 @@ const DemarragePage = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => setIsQuoteFormOpen(true)}
-                className="inline-flex items-center justify-center bg-white text-blue-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
+                className="inline-flex items-center justify-center bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all shadow-xl hover:scale-105"
               >
                 Obtenir un devis gratuit
                 <ArrowRight className="w-5 h-5 ml-2" />
               </button>
               <Link
                 href="/nos-formules/audit-depart"
-                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all"
+                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105"
               >
                 Commencer par un audit
               </Link>
@@ -234,9 +234,9 @@ const DemarragePage = () => {
             </h2>
             <div className="grid md:grid-cols-3 gap-6">
               {[
+                "Vous gérez vos commandes via WhatsApp/Instagram",
                 "Vous n'avez pas encore de site e-commerce",
-                "Votre site actuel ne vend pas",
-                "Vous vendez uniquement via WhatsApp/Instagram"
+                "Votre site actuel ne génère pas de ventes"
               ].map((text, index) => (
                 <div key={index} className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border-2 border-blue-100">
                   <CheckCircle className="w-8 h-8 text-blue-600 mb-3" />
@@ -464,14 +464,14 @@ const DemarragePage = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => setIsQuoteFormOpen(true)}
-                className="inline-flex items-center justify-center bg-white text-blue-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-xl"
+                className="inline-flex items-center justify-center bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all shadow-xl hover:scale-105"
               >
                 Obtenir mon devis gratuit
                 <ArrowRight className="w-5 h-5 ml-2" />
               </button>
               <Link
                 href="/nos-formules"
-                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all"
+                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105"
               >
                 Voir toutes les formules
               </Link>
