@@ -173,10 +173,6 @@ const Testimonials = () => {
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
 
             <div className="relative z-10 text-center">
-              <div className="inline-flex items-center gap-3 bg-[#fe6117] px-6 py-3 rounded-full font-bold text-lg mb-6">
-                <Star className="w-6 h-6 fill-white" />
-                <span>100% de satisfaction client</span>
-              </div>
               <p className="text-white/90 text-xl leading-relaxed max-w-2xl mx-auto">
                 Toutes les marques que nous accompagnons continuent de grandir
                 et <span className="font-bold text-white">recommandent nos services</span> à d'autres entrepreneurs africains.

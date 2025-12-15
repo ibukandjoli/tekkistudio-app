@@ -129,7 +129,7 @@ const NosMarquesContent = () => {
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-5 py-2.5 mb-8">
               <Sparkles className="w-4 h-4 text-[#fe6117]" />
               <span className="text-white/95 text-sm font-bold tracking-wide uppercase">
-                Nos marques propriétaires
+                Les Marques de TEKKI Studio
               </span>
             </div>
 
@@ -307,7 +307,7 @@ const NosMarquesContent = () => {
                     className={`block w-full text-center bg-gradient-to-r ${brand.gradient} hover:opacity-90 text-white py-4 rounded-full font-bold text-base transition-all shadow-lg hover:shadow-xl group/btn`}
                   >
                     <span className="flex items-center justify-center">
-                      Découvrir l'histoire complète de {brand.shortName}
+                      Découvrir l'histoire complète
                       <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-1 transition-transform" />
                     </span>
                   </Link>

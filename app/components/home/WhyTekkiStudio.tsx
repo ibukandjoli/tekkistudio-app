@@ -250,7 +250,7 @@ const WhyTekkiStudio = () => {
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center bg-[#fe6117] hover:bg-[#e55710] text-white px-10 py-5 rounded-full font-bold text-lg transition-all shadow-xl hover:shadow-2xl"
                   >
-                    Discutons de votre marque
+                    Réserver un appel
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </a>
                 </motion.div>

@@ -234,7 +234,7 @@ const OurBrandsSection = () => {
                     className={`block w-full text-center bg-gradient-to-r ${brand.gradient} hover:opacity-90 text-white py-4 rounded-full font-bold text-base transition-all shadow-lg hover:shadow-xl group/btn`}
                   >
                     <span className="flex items-center justify-center">
-                      Découvrir l'histoire complète de {brand.shortName}
+                      Découvrir l'histoire complète
                       <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-1 transition-transform" />
                     </span>
                   </Link>

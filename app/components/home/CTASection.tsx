@@ -159,7 +159,7 @@ const CTASection = () => {
                 className="inline-flex items-center justify-center bg-[#fe6117] hover:bg-[#e55710] text-white px-10 py-5 rounded-full font-bold text-lg transition-all shadow-2xl hover:shadow-[#fe6117]/50"
               >
                 <Calendar className="w-6 h-6 mr-3" />
-                Réserver mon diagnostic gratuit
+                Mon diagnostic gratuit
               </a>
             </motion.div>
 

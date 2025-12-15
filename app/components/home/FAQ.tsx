@@ -190,7 +190,7 @@ const FAQ = () => {
                     className="inline-flex items-center justify-center py-4 px-8 rounded-full bg-[#25D366] text-white font-bold hover:bg-[#20BD5C] transition-colors shadow-lg hover:shadow-xl text-lg"
                   >
                     <FaWhatsapp className="mr-3 text-xl" />
-                    Contactez-nous sur WhatsApp
+                    Discuter sur WhatsApp
                   </a>
                 </motion.div>
 
