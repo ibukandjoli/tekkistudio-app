@@ -1,8 +1,9 @@
-// app/components/layout/Footer.tsx 
+// app/components/layout/Footer.tsx
 'use client';
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Smartphone } from 'lucide-react';
 
@@ -34,8 +35,20 @@ const Footer = () => {
             </div>
             <p className="text-white/80 mb-6 leading-relaxed">
               La Fabrique de marques africaines.
-              Nous créons nos propres marques et transformons les marques locales en success stories e-commerce.
+              Nous créons nos propres marques et transformons les marques africaines en success stories e-commerce.
             </p>
+
+            {/* Logo Shopify Partner */}
+            <div className="mb-6">
+              <Image
+                src="/images/tekkistudio/partner-shopify.png"
+                alt="Shopify Partner"
+                width={150}
+                height={50}
+                className="opacity-80 hover:opacity-100 transition-opacity"
+              />
+            </div>
+
             <div className="flex space-x-4">
               <a href="https://facebook.com/tekkistudio" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 hover:bg-[#fe6117] rounded-full flex items-center justify-center transition-all duration-300 group">
                 <Facebook className="w-5 h-5 text-white/80 group-hover:text-white" />

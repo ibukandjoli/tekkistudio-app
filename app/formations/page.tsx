@@ -3,52 +3,41 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { 
-  ShoppingBag, 
-  Monitor, 
-  TrendingUp, 
-  BarChart, 
-  Users, 
-  Calendar, 
-  Clock, 
-  Star, 
-  Loader2, 
-  ArrowRight, 
-  ExternalLink 
+import Image from 'next/image';
+import {
+  ArrowRight,
+  Sparkles,
+  CheckCircle,
+  BookOpen,
+  PlayCircle,
+  Users,
+  Trophy,
+  Target,
+  Zap,
+  Loader2,
+  Clock,
+  BarChart
 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
 import { getFormations } from '../lib/db/formations';
 import type { Formation } from '../types/database';
-import Container from '@/app/components/ui/Container';
-import { Badge } from '@/app/components/ui/badge';
-
-// Map des icônes par nom
-const iconMap: Record<string, React.ReactNode> = {
-  ShoppingBag: <ShoppingBag className="w-8 h-8" />,
-  Monitor: <Monitor className="w-8 h-8" />,
-  TrendingUp: <TrendingUp className="w-8 h-8" />,
-  BarChart: <BarChart className="w-8 h-8" />,
-  Users: <Users className="w-8 h-8" />
-};
 
 const FormationsPage = () => {
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1
+  });
+
   const [formations, setFormations] = useState<Formation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchFormations = async () => {
       try {
         const data = await getFormations();
         setFormations(data);
-        
-        // Extraire les catégories uniques
-        if (data.length > 0) {
-          const uniqueCategories = [...new Set(data.map(formation => formation.category))];
-          if (uniqueCategories.length > 0) {
-            setActiveCategory(uniqueCategories[0]);
-          }
-        }
       } catch (err) {
         console.error('Erreur lors du chargement des formations:', err);
         setError('Une erreur est survenue lors du chargement des formations.');
@@ -60,235 +49,347 @@ const FormationsPage = () => {
     fetchFormations();
   }, []);
 
+  const benefits = [
+    {
+      icon: <BookOpen className="w-8 h-8" />,
+      title: "Formations 100% pratiques",
+      description: "Pas de théorie, que du concret basé sur +8 000 produits vendus et +10 marques accompagnées"
+    },
+    {
+      icon: <PlayCircle className="w-8 h-8" />,
+      title: "Accessible 24/7",
+      description: "Apprenez à votre rythme, depuis n'importe où en Afrique"
+    },
+    {
+      icon: <Users className="w-8 h-8" />,
+      title: "Communauté active",
+      description: "Échangez avec d'autres entrepreneurs africains et notre équipe"
+    },
+    {
+      icon: <Trophy className="w-8 h-8" />,
+      title: "Certificat de réussite",
+      description: "Prouvez vos compétences avec un certificat reconnu"
+    }
+  ];
+
+  const stats = [
+    { value: "+500", label: "Étudiants formés" },
+    { value: "4.8/5", label: "Note moyenne" },
+    { value: "100%", label: "Satisfaits ou remboursés" },
+    { value: "24/7", label: "Support disponible" }
+  ];
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-tekki-coral" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#fe6117]" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <Container className="py-20 text-center">
-        <p className="text-red-600">{error}</p>
-      </Container>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <Link href="/" className="text-[#0f4c81] hover:text-[#fe6117] font-semibold">
+            Retour à l'accueil
+          </Link>
+        </div>
+      </div>
     );
   }
 
-  // Extraire toutes les catégories uniques
-  const categories = [...new Set(formations.map(formation => formation.category))];
-
-  // Filtrer les formations par catégorie active
-  const filteredFormations = activeCategory 
-    ? formations.filter(formation => formation.category === activeCategory)
-    : formations;
-
   return (
-    <main className="pb-0">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-tekki-blue to-tekki-coral relative pt-28 pb-20">
-        <div className="absolute inset-0 opacity-10">
-          <div className="grid grid-cols-12 h-full">
-            {[...Array(48)].map((_, i) => (
-              <div key={i} className="border border-white/20" />
+    <div className="min-h-screen">
+      {/* Hero */}
+      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-br from-gray-900 via-[#0f4c81] to-gray-900 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#fe6117]/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl"></div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-4xl mx-auto text-center"
+          >
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-5 py-2.5 mb-8">
+              <Sparkles className="w-4 h-4 text-[#fe6117]" />
+              <span className="text-white/95 text-sm font-semibold">
+                L'Académie TEKKI
+              </span>
+            </div>
+
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+              Apprenez ce que nous avons appris en vendant +8 000 produits
+            </h1>
+
+            <p className="text-xl text-white/90 mb-8 leading-relaxed">
+              Des formations e-learning conçues pour les entrepreneurs africains qui veulent maîtriser l'e-commerce sans se ruiner
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-6 text-white/90 mb-8">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <span>Formations 100% pratiques</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <span>Contexte africain</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <span>Prix accessibles</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="#formations"
+                className="inline-flex items-center justify-center bg-[#fe6117] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-xl hover:shadow-2xl hover:scale-105"
+              >
+                Découvrir les formations
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </a>
+              <Link
+                href="/nos-formules"
+                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105"
+              >
+                Nos offres Done-for-You
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <section className="py-12 bg-white border-b border-gray-100">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="text-center"
+              >
+                <div className="text-3xl md:text-4xl font-bold text-[#0f4c81] mb-1">{stat.value}</div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
+              </motion.div>
             ))}
           </div>
         </div>
-
-        <Container className="relative z-10">
-          <div className="max-w-3xl mx-auto text-center text-white">
-            <h1 className="text-4xl lg:text-5xl font-bold mb-6">
-              Nos Formations E-commerce
-            </h1>
-            <p className="text-xl opacity-90">
-              Des formations pratiques et complètes pour réussir dans l'e-commerce
-            </p>
-          </div>
-        </Container>
       </section>
 
-      {/* Introduction */}
-      <section className="py-16 bg-white">
-        <Container>
-          <div className="max-w-3xl mx-auto text-center">
-            <p className="text-lg text-gray-600">
-              Que vous soyez débutant ou expert, nos formations vous aideront à développer les compétences nécessaires pour réussir dans l'e-commerce. Dispensées par des experts du domaine, elles combinent théorie et pratique pour une application immédiate.
+      {/* Pourquoi l'Académie TEKKI */}
+      <section className="py-20 md:py-28 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold text-[#0f4c81] mb-4">
+              Pourquoi l'Académie TEKKI ?
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Parce que vous n'avez pas besoin de théories américaines. Vous avez besoin de stratégies qui marchent en Afrique.
             </p>
-          </div>
-        </Container>
-      </section>
+          </motion.div>
 
-      {/* Filtres par catégorie */}
-      {categories.length > 1 && (
-        <section className="pb-8 pt-4 bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
-          <Container>
-            <div className="flex flex-wrap gap-2">
-              {categories.map(category => (
-                <button
-                  key={category}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    activeCategory === category 
-                      ? 'bg-tekki-coral text-white' 
-                      : 'bg-white text-gray-700 hover:bg-gray-100'
-                  }`}
-                  onClick={() => setActiveCategory(category)}
-                >
-                  {category}
-                </button>
-              ))}
-              {activeCategory && (
-                <button
-                  className="px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
-                  onClick={() => setActiveCategory(null)}
-                >
-                  Tout voir
-                </button>
-              )}
-            </div>
-          </Container>
-        </section>
-      )}
-
-      {/* Liste des Formations */}
-      <section className="py-16 bg-gray-50">
-        <Container>
-          <div className="grid md:grid-cols-2 gap-8">
-            {filteredFormations.map((formation) => (
-              <div 
-                key={formation.id}
-                className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all overflow-hidden border border-gray-100"
+          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
+            {benefits.map((benefit, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all"
               >
-                <div className="p-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-tekki-coral/10 flex items-center justify-center text-tekki-coral">
-                        {iconMap[formation.icon] || <ShoppingBag className="w-8 h-8" />}
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-tekki-blue">
-                          {formation.title}
-                        </h3>
-                        <Badge variant="digital" className="mt-1">
-                          {formation.category}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-tekki-blue font-bold">
-                        {formation.price}
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-gray-600 mb-6">
-                    {formation.description}
-                  </p>
-
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Clock className="w-5 h-5 text-tekki-coral" />
-                      <span>{formation.duration}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Calendar className="w-5 h-5 text-tekki-coral" />
-                      <span>{formation.sessions}</span>
-                    </div>
-                  </div>
-
-                  <div className="mb-6">
-                    <div className="font-medium text-tekki-blue mb-2">Ce que vous apprendrez :</div>
-                    <ul className="space-y-2">
-                      {(formation.benefits && Array.isArray(formation.benefits) ? formation.benefits : []).slice(0, 4).map((benefit, index) => (
-                        <li key={index} className="flex items-start">
-                          <Star className="w-4 h-4 text-tekki-coral mt-1 mr-2 flex-shrink-0" />
-                          <span className="text-gray-600">{benefit}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <Link
-                    href={`/formations/${formation.slug}`}
-                    className="block w-full bg-tekki-blue text-white text-center py-3 rounded-lg hover:bg-tekki-blue/90 transition-colors flex items-center justify-center"
-                  >
-                    En savoir plus
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </Link>
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#fe6117] to-[#ff6b3d] flex items-center justify-center text-white mb-4">
+                  {benefit.icon}
                 </div>
-              </div>
+                <h3 className="text-xl font-bold text-[#0f4c81] mb-3">
+                  {benefit.title}
+                </h3>
+                <p className="text-gray-600">{benefit.description}</p>
+              </motion.div>
             ))}
           </div>
-        </Container>
+        </div>
       </section>
 
-      {/* Pourquoi choisir nos formations */}
-      <section className="py-16 bg-white">
-        <Container>
-          <h2 className="text-3xl font-bold text-tekki-blue text-center mb-12">
-            Pourquoi choisir nos formations
-          </h2>
-          
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-md transition-all">
-              <div className="w-12 h-12 bg-tekki-coral/10 rounded-full flex items-center justify-center text-tekki-coral mb-4">
-                <Users className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold text-tekki-blue mb-3">
-                Formateurs expérimentés
-              </h3>
-              <p className="text-gray-600">
-                Nos formateurs sont des professionnels actifs dans l'e-commerce, avec une expérience concrète et des résultats prouvés.
-              </p>
-            </div>
-            
-            <div className="bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-md transition-all">
-              <div className="w-12 h-12 bg-tekki-coral/10 rounded-full flex items-center justify-center text-tekki-coral mb-4">
-                <Monitor className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold text-tekki-blue mb-3">
-                Formation pratique
-              </h3>
-              <p className="text-gray-600">
-                Focus sur l'application immédiate des connaissances avec des exercices pratiques et des études de cas réels.
-              </p>
-            </div>
-            
-            <div className="bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-md transition-all">
-              <div className="w-12 h-12 bg-tekki-coral/10 rounded-full flex items-center justify-center text-tekki-coral mb-4">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold text-tekki-blue mb-3">
-                Suivi personnalisé
-              </h3>
-              <p className="text-gray-600">
-                Accompagnement post-formation pour vous aider à mettre en œuvre les stratégies apprises et maximiser vos résultats.
-              </p>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* Call-to-Action */}
-      <section className="py-16 bg-gradient-to-r from-tekki-blue to-tekki-coral text-white">
-        <Container className="text-center">
-          <h2 className="text-3xl font-bold mb-6">
-            Prêt à développer vos compétences ?
-          </h2>
-          <p className="text-xl opacity-90 max-w-3xl mx-auto mb-8">
-            Nos experts sont là pour vous accompagner dans votre réussite e-commerce.
-          </p>
-          <Link
-            href="https://wa.me/221781362728?text=Bonjour ! j'aimerais en savoir plus sur vos formations e-commerce."
-            className="inline-flex items-center justify-center bg-white text-tekki-blue hover:bg-white/90 px-8 py-4 rounded-lg font-medium text-lg transition-colors"
-            target="_blank"
+      {/* Liste des Formations */}
+      <section id="formations" className="py-20 md:py-28 bg-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            ref={ref}
+            initial={{ opacity: 0, y: 30 }}
+            animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
           >
-            Contactez-nous
-            <ExternalLink className="ml-2 h-5 w-5" />
-          </Link>
-        </Container>
+            <h2 className="text-3xl md:text-5xl font-bold text-[#0f4c81] mb-4">
+              Nos formations disponibles
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Des compétences concrètes pour développer votre business e-commerce en Afrique
+            </p>
+          </motion.div>
+
+          {formations.length === 0 ? (
+            <div className="text-center py-12">
+              <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-600 text-lg mb-6">
+                Nos formations arrivent bientôt ! Soyez les premiers informés.
+              </p>
+              <a
+                href="https://wa.me/221781362728?text=Bonjour ! J'aimerais être informé du lancement de l'Académie TEKKI."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center bg-[#fe6117] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-xl hover:shadow-2xl hover:scale-105"
+              >
+                Me tenir informé
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </a>
+            </div>
+          ) : (
+            <div className="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {formations.map((formation, index) => (
+                <motion.div
+                  key={formation.id}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all border border-gray-100 flex flex-col"
+                >
+                  {/* Header avec gradient */}
+                  <div className="bg-gradient-to-br from-[#0f4c81] to-[#1a5a8f] p-8 text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#fe6117]/20 rounded-full blur-2xl"></div>
+                    <div className="relative z-10">
+                      <div className="inline-block bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-semibold mb-4">
+                        {formation.category}
+                      </div>
+                      <h3 className="text-2xl font-bold mb-2">{formation.title}</h3>
+                      <p className="text-white/90 text-sm">{formation.description}</p>
+                    </div>
+                  </div>
+
+                  {/* Contenu */}
+                  <div className="p-8 flex-1 flex flex-col">
+                    {/* Infos */}
+                    <div className="flex items-center gap-4 mb-6 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-[#fe6117]" />
+                        <span>{formation.duration}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <BarChart className="w-4 h-4 text-[#fe6117]" />
+                        <span>{formation.level || 'Tous niveaux'}</span>
+                      </div>
+                    </div>
+
+                    {/* Prix */}
+                    <div className="mb-6">
+                      <div className="text-3xl font-bold text-[#0f4c81]">{formation.price}</div>
+                      <div className="text-sm text-gray-600">Paiement unique</div>
+                    </div>
+
+                    {/* Bénéfices */}
+                    {formation.benefits && Array.isArray(formation.benefits) && formation.benefits.length > 0 && (
+                      <div className="mb-6 flex-1">
+                        <div className="font-semibold text-[#0f4c81] mb-3">Ce que vous apprendrez :</div>
+                        <ul className="space-y-2">
+                          {formation.benefits.slice(0, 4).map((benefit, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-sm">
+                              <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span className="text-gray-600">{benefit}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* CTA */}
+                    <Link
+                      href={`/formations/${formation.slug}`}
+                      className="block w-full text-center bg-gradient-to-r from-[#fe6117] to-[#ff6b3d] hover:opacity-90 text-white py-4 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl hover:scale-105 group"
+                    >
+                      <span className="flex items-center justify-center">
+                        En savoir plus
+                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                      </span>
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
       </section>
-    </main>
+
+      {/* CTA Final */}
+      <section className="py-20 md:py-28 bg-gradient-to-br from-gray-900 via-[#0f4c81] to-gray-900 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#fe6117]/10 rounded-full blur-3xl"></div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-4xl mx-auto text-center"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+              Pas encore prêt pour une formation ?
+            </h2>
+            <p className="text-xl text-white/90 mb-8 leading-relaxed">
+              Découvrez nos offres Done-for-You où nous gérons tout pour vous
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/nos-formules"
+                className="inline-flex items-center justify-center bg-[#fe6117] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-xl hover:shadow-2xl hover:scale-105"
+              >
+                Voir nos offres
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Link>
+              <a
+                href="https://calendly.com/tekki-studio/consultation-gratuite"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105"
+              >
+                Réserver un appel gratuit
+              </a>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-white/80">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <span>Garanties résultats</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <span>Accompagnement personnalisé</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <span>Paiement flexible</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+    </div>
   );
 };
 
