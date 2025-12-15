@@ -3,6 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowRight,
   TrendingUp,
@@ -31,7 +32,8 @@ const CasClientsPage = () => {
       industry: "Bijoux artisanaux",
       challenge: "Gestion manuelle des commandes Instagram/WhatsApp, surtout à l'international",
       result: "Automatisation complète",
-      image: "/images/cases/abarings.jpg",
+      image: "/images/portfolio/abarings.png",
+      logo: "/images/clients/abarings.avif",
       gradient: "from-purple-500 to-pink-500",
       website: "https://abarings.com",
       stats: [
@@ -48,7 +50,8 @@ const CasClientsPage = () => {
       industry: "Chaussures artisanales",
       challenge: "2 boutiques physiques à Dakar, mais gestion manuelle complexe des commandes",
       result: "Ventes globales automatisées",
-      image: "/images/cases/momo.jpg",
+      image: "/images/portfolio/momolebottier.png",
+      logo: "/images/clients/momo-le-bottier.png",
       gradient: "from-blue-500 to-cyan-500",
       website: "https://momolebottier.com",
       stats: [
@@ -65,7 +68,8 @@ const CasClientsPage = () => {
       industry: "Cosmétiques naturels",
       challenge: "Jeune marque limitée à Instagram/TikTok, plafond de ventes difficile à briser",
       result: "Site = 1er canal de vente",
-      image: "/images/cases/6c.jpg",
+      image: "/images/portfolio/6cnofilter.png",
+      logo: "/images/clients/6c-no-filter.webp",
       gradient: "from-emerald-500 to-teal-500",
       website: "https://6cnofilter.com",
       stats: [
@@ -75,6 +79,42 @@ const CasClientsPage = () => {
       ],
       testimonial: "L'équipe est extrêmement professionnelle et disponible. J'avais besoin d'un site professionnel pour ma marque de cosmétiques, ils ont livré un travail magnifique en moins de 10 jours. Je recommande à 100% !",
       author: "Fatou C., Fondatrice"
+    },
+    {
+      slug: "ahovi-cosmetics",
+      client: "Ahovi Cosmetics",
+      industry: "Cosmétiques",
+      challenge: "Besoin d'un site e-commerce moderne pour automatiser les ventes et élargir le marché au-delà de Dakar",
+      result: "Ventes automatisées et expansion géographique",
+      image: "/images/portfolio/ahovi.png",
+      logo: "/images/clients/ahovi-beauty.png",
+      gradient: "from-pink-500 to-rose-500",
+      website: "https://ahovicosmetics.com",
+      stats: [
+        { label: "Automatisation", value: "100%" },
+        { label: "Nouveaux marchés", value: "+5 villes" },
+        { label: "Croissance CA", value: "+180%" }
+      ],
+      testimonial: "J'avais besoin d'un site e-commerce moderne et professionnel pour automatiser mes ventes et toucher plus de clientes. TEKKI Studio a dépassé mes attentes avec une solution qui me permet de vendre partout au Sénégal.",
+      author: "Katia K., Fondatrice"
+    },
+    {
+      slug: "racines-precieuses",
+      client: "Racines Précieuses",
+      industry: "Produits capillaires naturels",
+      challenge: "Vente manuelle chronophage, dépendance aux distributeurs, besoin d'autonomie et automatisation",
+      result: "Autonomie totale et gain de temps",
+      image: "/images/portfolio/racines.png",
+      logo: "/images/clients/racines-precieuses.avif",
+      gradient: "from-amber-500 to-orange-500",
+      website: "https://racinesprecieuses.com",
+      stats: [
+        { label: "Gain de temps", value: "+80%" },
+        { label: "Indépendance", value: "100%" },
+        { label: "Portée nationale", value: "Sénégal" }
+      ],
+      testimonial: "Gérer mes commandes manuellement me prenait énormément de temps. Avec le site créé par TEKKI Studio, je peux vendre en toute autonomie partout au Sénégal et me concentrer sur le développement de mes produits.",
+      author: "Anta F., Fondatrice"
     }
   ];
 
@@ -116,7 +156,7 @@ const CasClientsPage = () => {
             className="max-w-4xl mx-auto text-center"
           >
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-5 py-2.5 mb-8">
-              <Sparkles className="w-4 h-4 text-[#ff7f50]" />
+              <Sparkles className="w-4 h-4 text-[#fe6117]" />
               <span className="text-white/95 text-sm font-semibold">
                 Nos success stories
               </span>
@@ -203,12 +243,30 @@ const CasClientsPage = () => {
               >
                 <div className={`grid md:grid-cols-2 gap-8 ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
                   {/* Image/Visuel */}
-                  <div className={`bg-gradient-to-br ${caseStudy.gradient} p-12 flex items-center justify-center relative overflow-hidden ${index % 2 === 1 ? 'md:order-2' : ''}`}>
-                    <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+                  <div className={`relative p-12 flex items-center justify-center overflow-hidden ${index % 2 === 1 ? 'md:order-2' : ''}`}>
+                    {/* Image de fond */}
+                    <Image
+                      src={caseStudy.image}
+                      alt={caseStudy.client}
+                      fill
+                      className="object-cover"
+                    />
+
+                    {/* Overlay noir */}
+                    <div className="absolute inset-0 bg-black/60"></div>
+
+                    {/* Contenu */}
                     <div className="relative z-10 text-center">
-                      <div className="text-6xl font-bold text-white mb-4">
-                        {caseStudy.client.charAt(0)}
+                      {/* Logo blanc */}
+                      <div className="w-32 h-32 mx-auto mb-6 relative">
+                        <Image
+                          src={caseStudy.logo}
+                          alt={`${caseStudy.client} logo`}
+                          fill
+                          className="object-contain brightness-0 invert"
+                        />
                       </div>
+
                       <h3 className="text-3xl font-bold text-white mb-2">{caseStudy.client}</h3>
                       <p className="text-white/90 text-lg mb-6">{caseStudy.industry}</p>
                       <div className="inline-block bg-white/20 backdrop-blur-sm border-2 border-white/30 rounded-xl px-6 py-3">
