@@ -38,17 +38,6 @@ const Footer = () => {
               Nous créons nos propres marques et transformons les marques africaines en success stories e-commerce.
             </p>
 
-            {/* Logo Shopify Partner */}
-            <div className="mb-6">
-              <Image
-                src="/images/tekkistudio/partner-shopify.png"
-                alt="Shopify Partner"
-                width={150}
-                height={50}
-                className="opacity-80 hover:opacity-100 transition-opacity"
-              />
-            </div>
-
             <div className="flex space-x-4">
               <a href="https://facebook.com/tekkistudio" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 hover:bg-[#fe6117] rounded-full flex items-center justify-center transition-all duration-300 group">
                 <Facebook className="w-5 h-5 text-white/80 group-hover:text-white" />
@@ -59,6 +48,17 @@ const Footer = () => {
               <a href="https://linkedin.com/company/tekkistudio" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 hover:bg-[#fe6117] rounded-full flex items-center justify-center transition-all duration-300 group">
                 <Linkedin className="w-5 h-5 text-white/80 group-hover:text-white" />
               </a>
+            </div>
+
+            {/* Logo Shopify Partner */}
+            <div className="mb-2">
+              <Image
+                src="/images/tekkistudio/partner-shopify.png"
+                alt="Shopify Partner"
+                width={170}
+                height={70}
+                className="opacity-80 hover:opacity-100 transition-opacity"
+              />
             </div>
           </div>
 
