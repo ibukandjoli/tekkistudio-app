@@ -9,14 +9,14 @@ Créer une application web single-page (intégrée au projet Next.js existant de
 - **Structure de la page** :
   - **Header fixe** : Logo centré + sous-titre "Assistant Stratégique" ou "Diagnostic Beauté".
   - **Zone de Chat** : Prend ~80% de l'écran, scrollable, avec les bulles de messages fluides (IA à gauche, Utilisateur à droite).
-  - **Zone de Saisie (Input)** : Fixée en bas + bouton d'envoi.
-  - **Mention "Easter Egg"** : Texte cliquable très discret sous l'input : *"Propulsé par FastBrief"*, ouvrant vers un lien externe.
+  - **Zone de Saisie (Input)** : Fixée en bas + bouton d'envoi + bouton micro (Web Speech API).
+  - **Mention "Easter Egg"** : Texte cliquable très discret sous l'input : *"Propulsé par FastBrief"*, ouvrant vers le lien `fastbrief.site`.
 
 ## 3. Fonctionnalités Essentielles
 - **Onboarding Automatique** : Au chargement, l'IA envoie instantanément le premier message (sans action de l'utilisateur).
 - **Indicateur de Frappe** : Animation "... " pendant le temps de réponse de l'API Anthropic.
 - **Gestion d'Erreur API** : Message de graceful fallback en cas d'échec API ("Un instant, je rassemble mes notes...").
-- **Collecte de Leads** : À la fin du flow, l'historique complet (et les données extraites comme Email/WhatsApp) doit être formaté en JSON et envoyé vers le système de TEKKI Studio (via Webhook, email, ou base de données Supabase existante).
+- **Collecte de Leads (Webhook)** : À la fin du flow, l'API appel le modèle Claude pour extraire proprement Email/WhatsApp (formaté international) et résumer la douleur du client. Le payload JSON est envoyé vers le Webhook Make de TEKKI Studio. L'UI est figée avec un message de succès (✅).
 
 ## 4. Comportement de l'IA (System Prompt)
 L'agent IA suit un **Flow** strict en 6 étapes, défini par le System Prompt :

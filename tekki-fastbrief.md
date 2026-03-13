@@ -10,14 +10,14 @@ L'interface doit ressembler à une application de messagerie premium (type iMess
 * **Composants principaux :**
     * Un *Header* fixe en haut, très simple : Logo de TEKKI Studio centré, avec la mention "Assistant Stratégique" ou "Diagnostic Beauté" en sous-titre.
     * Une *Zone de Chat* qui prend 80% de l'écran, scrollable, affichant les bulles de messages (IA à gauche, Utilisateur à droite).
-    * Une *Zone de Saisie* (Input) fixée en bas avec un bouton d'envoi.
-* **Le "Easter Egg" B2B :** Juste en dessous de la zone de saisie (input), ajouter un texte centré, de petite taille, gris clair : *"Propulsé par FastBrief"*. Ce texte doit être un lien cliquable vers le site de FastBrief, s'ouvrant dans un nouvel onglet.
+    * Une *Zone de Saisie* (Input) fixée en bas avec un bouton d'envoi et un bouton microphone permettant la saisie vocale gratuite (Web Speech API).
+* **Le "Easter Egg" B2B :** Juste en dessous de la zone de saisie (input), ajouter un texte centré, de petite taille, gris clair : *"Propulsé par FastBrief"*. Ce texte doit être un lien cliquable vers le site `fastbrief.site`, s'ouvrant dans un nouvel onglet.
 
 ## 3. Comportement Technique de l'Interface
 * **Onboarding immédiat :** Dès le chargement de la page, l'IA envoie automatiquement le premier message (voir System Prompt). L'utilisateur n'a pas à cliquer sur "Démarrer".
 * **Indicateur de frappe :** Pendant que l'API d'Anthropic génère la réponse, afficher une animation "... " fluide pour simuler qu'une personne est en train d'écrire.
 * **Gestion des erreurs :** Si l'API échoue, afficher un message gracieux : "Un instant, je rassemble mes notes..." et réessayer.
-* **Collecte finale :** Une fois l'interview terminée, l'application web doit capturer l'historique de la conversation, le structurer au format JSON, et l'envoyer via un Webhook (ou API) vers le CRM de TEKKI Studio ou une adresse email.
+* **Collecte finale :** Une fois l'interview terminée, l'application web doit capturer l'historique de la conversation. Un webservice dédié (`/api/assistant/save-lead`) analyse le contenu via l'IA pour résumer le problème et nettoyer le numéro WhatsApp. Le tout est formaté en JSON structuré puis envoyé vers un Webhook Make (`NEXT_PUBLIC_MAKE_WEBHOOK_URL`). L'UI affiche alors fièrement "Dossier transmis en toute sécurité ✅".
 
 ## 4. Intégration API Anthropic (System Prompt)
 Voici le prompt exact que tu dois passer à l'API d'Anthropic pour initialiser le comportement de l'Agent. Il est crucial de le maintenir exactement ainsi.

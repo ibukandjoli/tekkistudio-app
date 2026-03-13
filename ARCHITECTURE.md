@@ -9,7 +9,7 @@
 - **Base de données & Auth** : Supabase (`@supabase/auth-helpers-nextjs`, `@supabase/supabase-js`).
 - **Paiements** : Stripe SDK.
 - **Médias** : Cloudinary.
-- **IA** : `@anthropic-ai/sdk` (Claude), `openai` (potentiellement ChatGPT ou Whisper/TTS).
+- **IA** : `@anthropic-ai/sdk` (Claude 4.6), Web Speech API (pour la reconnaissance vocale native et gratuite).
 
 ## Structure du Dossier `app/`
 Le répertoire principal `app/` est structuré par routes et domaines fonctionnels :
@@ -21,11 +21,11 @@ Le répertoire principal `app/` est structuré par routes et domaines fonctionne
 - **Logique Globale** : `/lib/` (clients API pour Supabase, Cloudinary, utils), `/hooks/`, `/contexts/`.
 - **Routage API (`/api`)** :
   - `/api/ecommerce`, `/api/transactions`, `/api/create-payment-link` (liens Stripe).
-  - `/api/chatbot` (Logique IA intégrée).
+  - `/api/assistant` et `/api/assistant/save-lead` (Logique IA FastBrief, extraction LLM et Webhook).
   - `/api/track-conversion`.
 
 ## Intégration de la fonctionnalité "FastBrief"
 Pour l'application "FastBrief", la nouvelle architecture impliquera :
 1. **Route Frontend** : Une page dédiée (ex: `/fastbrief` ou `/diagnostic-beaute`) avec un `layout.tsx` spécifique (pour omettre le header/footer de l'agence principale et forcer l'affichage plein écran mobile).
 2. **Route API** : Une Edge Function ou route `app/api/fastbrief/route.ts` pour communiquer de manière sécurisée avec l'API Anthropic (sans exposer la clé client-side).
-3. **Persistance/Webhook** : Enregistrement du lead converti dans Supabase ou intégration vers un Webhook externe via une route API.
+3. **Persistance/Webhook** : Enregistrement et structuration du lead via un appel LLM (`/api/assistant/save-lead`), nettoyage des numéros WhatsApp, et envoi vers un Webhook externe (ex: Make/Integromat) avec verrouillage de l'UI.
