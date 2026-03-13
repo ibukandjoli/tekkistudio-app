@@ -4,9 +4,9 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, CheckCircle } from 'lucide-react';
-import { getAvailableBusinesses } from '../../lib/db';
-import type { Business } from '../../types/database';
-import { formatPrice } from '../../lib/utils/price-utils';
+import { getAvailableBusinesses } from '@/app/lib/db';
+import type { Business } from '@/app/types/database';
+import { formatPrice } from '@/app/lib/utils/price-utils';
 
 const AvailableBusinesses = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -36,7 +36,7 @@ const AvailableBusinesses = () => {
   };
 
   // Filtrer les business selon l'onglet actif
-  const filteredBusinesses = activeTab === 'all' 
+  const filteredBusinesses = activeTab === 'all'
     ? businesses.slice(0, 6) // Limiter à 6 pour la page d'accueil
     : businesses.filter(business => business.type === activeTab).slice(0, 6);
 
@@ -69,7 +69,7 @@ const AvailableBusinesses = () => {
       </section>
     );
   }
-  
+
   return (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -81,54 +81,51 @@ const AvailableBusinesses = () => {
             Choisissez parmi notre sélection de business prêts à générer des revenus dès le premier mois.
           </p>
         </div>
-        
+
         {/* Onglets de filtrage */}
         <div className="flex justify-center mb-10">
           <div className="inline-flex bg-white rounded-full shadow-md p-1">
-            <button 
+            <button
               onClick={() => setActiveTab('all')}
-              className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
-                activeTab === 'all' 
-                  ? 'bg-[#0f4c81] text-white' 
+              className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${activeTab === 'all'
+                  ? 'bg-[#0f4c81] text-white'
                   : 'text-gray-600 hover:bg-gray-100'
-              }`}
+                }`}
             >
               Tous les business
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('physical')}
-              className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
-                activeTab === 'physical' 
-                  ? 'bg-[#0f4c81] text-white' 
+              className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${activeTab === 'physical'
+                  ? 'bg-[#0f4c81] text-white'
                   : 'text-gray-600 hover:bg-gray-100'
-              }`}
+                }`}
             >
               E-commerce
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('digital')}
-              className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
-                activeTab === 'digital' 
-                  ? 'bg-[#0f4c81] text-white' 
+              className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${activeTab === 'digital'
+                  ? 'bg-[#0f4c81] text-white'
                   : 'text-gray-600 hover:bg-gray-100'
-              }`}
+                }`}
             >
               Digitaux
             </button>
           </div>
         </div>
-        
+
         {/* Grille des business */}
         {filteredBusinesses.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredBusinesses.map((business) => (
-              <div 
-                key={business.id} 
+              <div
+                key={business.id}
                 className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow"
               >
                 <div className="aspect-video relative">
-                  <img 
-                    src={business.images[0]?.src || '/placeholder-business.jpg'} 
+                  <img
+                    src={business.images[0]?.src || '/placeholder-business.jpg'}
                     alt={business.images[0]?.alt || business.name}
                     className="object-cover w-full h-full"
                   />
@@ -136,9 +133,8 @@ const AvailableBusinesses = () => {
                     <span className="px-3 py-1 rounded-full text-xs text-white font-medium bg-green-500">
                       En vente
                     </span>
-                    <span className={`px-3 py-1 rounded-full text-xs text-white font-medium ${
-                      business.type === 'digital' ? 'bg-blue-500' : 'bg-[#ff7f50]'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-xs text-white font-medium ${business.type === 'digital' ? 'bg-blue-500' : 'bg-[#ff7f50]'
+                      }`}>
                       {business.type === 'digital' ? 'Digital' : 'E-commerce'}
                     </span>
                   </div>
@@ -172,7 +168,7 @@ const AvailableBusinesses = () => {
                     </div>
                   </div>
 
-                  <Link 
+                  <Link
                     href={`/business/${business.slug}`}
                     className="w-full bg-[#ff7f50] text-white py-3 rounded-lg hover:bg-[#ff6b3d] transition-colors flex items-center justify-center font-medium"
                   >
@@ -189,10 +185,10 @@ const AvailableBusinesses = () => {
             <p className="text-[#0f4c81]">Nous travaillons constamment sur de nouveaux business. Revenez bientôt !</p>
           </div>
         )}
-        
+
         {/* CTA pour voir plus */}
         <div className="mt-12 text-center">
-          <Link 
+          <Link
             href="/business"
             className="inline-flex items-center bg-[#0f4c81] text-white px-8 py-4 rounded-lg hover:bg-[#0a3c67] transition-colors font-medium"
           >

@@ -4,9 +4,9 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
-import { getAvailableBusinesses } from '../../lib/db';
-import type { Business } from '../../types/database';
-import { formatPrice } from '../../lib/utils/price-utils';
+import { getAvailableBusinesses } from '@/app/lib/db';
+import type { Business } from '@/app/types/database';
+import { formatPrice } from '@/app/lib/utils/price-utils';
 import * as framerMotion from 'framer-motion';
 const { motion, useAnimation } = framerMotion;
 import { useInView } from 'react-intersection-observer';
@@ -18,7 +18,7 @@ const FeaturedBusinesses = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [currentPage, setCurrentPage] = useState(0);
   const businessesPerPage = 3;
-  
+
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1
@@ -46,7 +46,7 @@ const FeaturedBusinesses = () => {
   };
 
   // Filtrer les business selon l'onglet actif
-  const filteredBusinesses = activeTab === 'all' 
+  const filteredBusinesses = activeTab === 'all'
     ? businesses
     : businesses.filter(business => business.type === activeTab);
 
@@ -71,25 +71,25 @@ const FeaturedBusinesses = () => {
       setCurrentPage(currentPage - 1);
     }
   };
-  
+
   const titleVariants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       transition: { duration: 0.7, ease: "easeOut" }
     }
   };
-  
+
   const tabsVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       transition: { duration: 0.5, delay: 0.3 }
     }
   };
-  
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -100,7 +100,7 @@ const FeaturedBusinesses = () => {
       }
     }
   };
-  
+
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
@@ -109,11 +109,11 @@ const FeaturedBusinesses = () => {
       transition: { duration: 0.6, ease: "easeOut" }
     }
   };
-  
+
   const ctaVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       transition: { duration: 0.5, delay: 0.6 }
     }
@@ -132,7 +132,7 @@ const FeaturedBusinesses = () => {
             </p>
           </div>
           <div className="flex justify-center">
-            <motion.div 
+            <motion.div
               className="w-12 h-12 rounded-full border-4 border-[#ff7f50] border-t-transparent"
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -152,11 +152,11 @@ const FeaturedBusinesses = () => {
       </section>
     );
   }
-  
+
   return (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
-        <motion.div 
+        <motion.div
           className="text-center mb-10"
           initial="hidden"
           animate="visible"
@@ -169,52 +169,49 @@ const FeaturedBusinesses = () => {
             Découvrez nos meilleures opportunités prêtes à être reprises et développées
           </p>
         </motion.div>
-        
+
         {/* Onglets de filtrage */}
-        <motion.div 
+        <motion.div
           className="flex justify-center mb-10"
           initial="hidden"
           animate="visible"
           variants={tabsVariants}
         >
           <div className="inline-flex bg-white rounded-full shadow-md p-1.5">
-            <button 
-              onClick={() => {setActiveTab('all'); setCurrentPage(0);}}
-              className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
-                activeTab === 'all' 
-                  ? 'bg-[#0f4c81] text-white' 
+            <button
+              onClick={() => { setActiveTab('all'); setCurrentPage(0); }}
+              className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${activeTab === 'all'
+                  ? 'bg-[#0f4c81] text-white'
                   : 'text-gray-600 hover:bg-gray-100'
-              }`}
+                }`}
             >
               Tous les business
             </button>
-            <button 
-              onClick={() => {setActiveTab('physical'); setCurrentPage(0);}}
-              className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
-                activeTab === 'physical' 
-                  ? 'bg-[#0f4c81] text-white' 
+            <button
+              onClick={() => { setActiveTab('physical'); setCurrentPage(0); }}
+              className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${activeTab === 'physical'
+                  ? 'bg-[#0f4c81] text-white'
                   : 'text-gray-600 hover:bg-gray-100'
-              }`}
+                }`}
             >
               E-commerce
             </button>
-            <button 
-              onClick={() => {setActiveTab('digital'); setCurrentPage(0);}}
-              className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
-                activeTab === 'digital' 
-                  ? 'bg-[#0f4c81] text-white' 
+            <button
+              onClick={() => { setActiveTab('digital'); setCurrentPage(0); }}
+              className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${activeTab === 'digital'
+                  ? 'bg-[#0f4c81] text-white'
                   : 'text-gray-600 hover:bg-gray-100'
-              }`}
+                }`}
             >
               100% Digitaux
             </button>
           </div>
         </motion.div>
-        
+
         {/* Grille des business */}
         {getCurrentPageBusinesses().length > 0 ? (
           <>
-            <motion.div 
+            <motion.div
               ref={ref}
               className="grid md:grid-cols-3 gap-8"
               initial="hidden"
@@ -222,15 +219,15 @@ const FeaturedBusinesses = () => {
               variants={containerVariants}
             >
               {getCurrentPageBusinesses().map((business, index) => (
-                <motion.div 
-                  key={business.id} 
+                <motion.div
+                  key={business.id}
                   className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl hover:border-gray-200 transition-all group"
                   variants={itemVariants}
                   whileHover={{ y: -5, transition: { duration: 0.2 } }}
                 >
                   <div className="aspect-video relative overflow-hidden">
-                    <img 
-                      src={business.images[0]?.src || '/placeholder-business.jpg'} 
+                    <img
+                      src={business.images[0]?.src || '/placeholder-business.jpg'}
                       alt={business.images[0]?.alt || business.name}
                       className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                     />
@@ -238,9 +235,8 @@ const FeaturedBusinesses = () => {
                       <span className="px-3 py-1 rounded-full text-xs text-white font-medium bg-green-500">
                         Disponible
                       </span>
-                      <span className={`px-3 py-1 rounded-full text-xs text-white font-medium ${
-                        business.type === 'digital' ? 'bg-blue-500' : 'bg-[#ff7f50]'
-                      }`}>
+                      <span className={`px-3 py-1 rounded-full text-xs text-white font-medium ${business.type === 'digital' ? 'bg-blue-500' : 'bg-[#ff7f50]'
+                        }`}>
                         {business.type === 'digital' ? 'Digital' : 'E-commerce'}
                       </span>
                     </div>
@@ -274,7 +270,7 @@ const FeaturedBusinesses = () => {
                       </div>
                     </div>
 
-                    <Link 
+                    <Link
                       href={`/business/${business.slug}`}
                       className="w-full bg-[#ff7f50] text-white py-3 rounded-lg hover:bg-[#ff6b3d] transition-colors flex items-center justify-center font-medium"
                     >
@@ -288,37 +284,35 @@ const FeaturedBusinesses = () => {
 
             {/* Pagination */}
             {pageCount > 1 && (
-              <motion.div 
+              <motion.div
                 className="flex justify-center items-center mt-12 space-x-4"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.8, duration: 0.5 }}
               >
-                <button 
+                <button
                   onClick={goToPrevPage}
                   disabled={currentPage === 0}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    currentPage === 0 
-                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${currentPage === 0
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                       : 'bg-white text-[#0f4c81] shadow-md hover:bg-gray-50'
-                  }`}
+                    }`}
                   aria-label="Page précédente"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                
+
                 <div className="text-gray-600">
                   Page {currentPage + 1} sur {pageCount}
                 </div>
-                
-                <button 
+
+                <button
                   onClick={goToNextPage}
                   disabled={currentPage >= pageCount - 1}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    currentPage >= pageCount - 1 
-                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${currentPage >= pageCount - 1
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                       : 'bg-white text-[#0f4c81] shadow-md hover:bg-gray-50'
-                  }`}
+                    }`}
                   aria-label="Page suivante"
                 >
                   <ChevronRight className="w-5 h-5" />
@@ -327,7 +321,7 @@ const FeaturedBusinesses = () => {
             )}
           </>
         ) : (
-          <motion.div 
+          <motion.div
             className="text-center py-10 bg-white rounded-xl shadow-sm"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -337,15 +331,15 @@ const FeaturedBusinesses = () => {
             <p className="text-[#0f4c81]">Nous travaillons constamment sur de nouveaux business. Revenez bientôt !</p>
           </motion.div>
         )}
-        
+
         {/* CTA pour voir plus */}
-        <motion.div 
+        <motion.div
           className="mt-12 text-center"
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
           variants={ctaVariants}
         >
-          <Link 
+          <Link
             href="/business"
             className="inline-flex items-center bg-[#0f4c81] text-white px-8 py-4 rounded-lg hover:bg-[#0a3c67] transition-colors font-medium"
           >
