@@ -21,6 +21,17 @@ interface MessageBubbleProps {
 export function MessageBubble({ message }: MessageBubbleProps) {
     const isAssistant = message.role === 'assistant';
 
+    // Basic markdown parser for bold text (**text**)
+    const renderContent = (text: string) => {
+        const parts = text.split(/(\*\*.*?\*\*)/g);
+        return parts.map((part, index) => {
+            if (part.startsWith('**') && part.endsWith('**')) {
+                return <strong key={index} className="font-semibold">{part.slice(2, -2)}</strong>;
+            }
+            return <React.Fragment key={index}>{part}</React.Fragment>;
+        });
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -50,10 +61,12 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                         : 'bg-[#0f4c81] text-white rounded-br-sm'
                         }`}
                 >
-                    {message.content}
-                    {message.isStreaming && (
-                        <span className="inline-block w-1.5 h-4 ml-1 align-middle bg-[#0f4c81] animate-pulse" />
-                    )}
+                    <div className="whitespace-pre-wrap">
+                        {renderContent(message.content)}
+                        {message.isStreaming && (
+                            <span className="inline-block w-1.5 h-4 ml-1 align-middle bg-[#0f4c81] animate-pulse" />
+                        )}
+                    </div>
                 </div>
             </div>
         </motion.div>

@@ -36,6 +36,12 @@ export function ChatContainer() {
         }
     }, [hasStarted]);
 
+    const handleReset = () => {
+        setMessages([INITIAL_MESSAGE]);
+        setIsSuccess(false);
+        sessionStartTime.current = Date.now();
+    };
+
     const handleSendMessage = async (content: string) => {
         const userMessage: ChatMessage = {
             id: `msg-user-${Date.now()}`,
@@ -131,7 +137,11 @@ export function ChatContainer() {
                             <p className="text-[12px] text-gray-500 font-medium">Assistant Stratégique</p>
                         </div>
                     </div>
-                    <button className="h-8 w-8 flex items-center justify-center text-gray-400 hover:bg-gray-50 hover:text-gray-600 rounded-full transition-colors flex-shrink-0">
+                    <button
+                        onClick={handleReset}
+                        title="Recommencer la discussion"
+                        className="h-8 w-8 flex items-center justify-center text-gray-400 hover:bg-gray-50 hover:text-gray-600 rounded-full transition-colors flex-shrink-0"
+                    >
                         <Sparkles size={18} className="text-[#0f4c81]" />
                     </button>
                 </div>
