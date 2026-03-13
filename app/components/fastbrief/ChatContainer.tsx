@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { MessageList } from './MessageList';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './MessageBubble';
-import { Sparkles } from 'lucide-react';
+import { X } from 'lucide-react';
 import Image from 'next/image';
 
 const INITIAL_MESSAGE: ChatMessage = {
@@ -35,12 +35,6 @@ export function ChatContainer() {
             initChat();
         }
     }, [hasStarted]);
-
-    const handleReset = () => {
-        setMessages([INITIAL_MESSAGE]);
-        setIsSuccess(false);
-        sessionStartTime.current = Date.now();
-    };
 
     const handleSendMessage = async (content: string) => {
         const userMessage: ChatMessage = {
@@ -137,13 +131,13 @@ export function ChatContainer() {
                             <p className="text-[12px] text-gray-500 font-medium">Assistant Stratégique</p>
                         </div>
                     </div>
-                    <button
-                        onClick={handleReset}
-                        title="Recommencer la discussion"
+                    <a
+                        href="https://tekkistudio.com"
+                        title="Quitter et retourner à l'accueil"
                         className="h-8 w-8 flex items-center justify-center text-gray-400 hover:bg-gray-50 hover:text-gray-600 rounded-full transition-colors flex-shrink-0"
                     >
-                        <Sparkles size={18} className="text-[#0f4c81]" />
-                    </button>
+                        <X size={18} className="text-gray-400 hover:text-gray-600" />
+                    </a>
                 </div>
             </div>
 
