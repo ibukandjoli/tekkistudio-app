@@ -36,9 +36,9 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                         <Image
                             src="/images/logos/tekki-large.png"
                             alt="TEKKI"
-                            width={20}
-                            height={20}
-                            className="object-contain"
+                            width={32}
+                            height={32}
+                            className="object-cover w-full h-full"
                         />
                     ) : <User size={16} />}
                 </div>

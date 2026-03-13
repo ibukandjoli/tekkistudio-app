@@ -116,9 +116,9 @@ export function ChatContainer() {
                         <Image
                             src="/images/logos/tekki-large.png"
                             alt="TEKKI Studio"
-                            width={32}
-                            height={32}
-                            className="object-contain"
+                            width={40}
+                            height={40}
+                            className="object-cover w-full h-full"
                         />
                     </div>
                     <div className="flex-1">
