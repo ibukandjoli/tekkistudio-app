@@ -421,34 +421,45 @@ function Step2Saas({ d, u, tog, onNext, onBack }: any) {
 function Step3({ d, u, tog, onNext, onBack }: any) {
   const { t } = useTheme();
   const inputCls = `w-full border rounded-xl px-4 py-3 text-sm focus:outline-none transition-all ${t.input}`;
-  const objectives = ['Présenter notre structure', 'Générer des contacts / leads', 'Attirer des partenaires', 'Asseoir la crédibilité', 'Vendre en ligne', 'Publier des actualités', 'Référencement SEO', 'Recrutement'];
-  const actions = ['Nous contacter', 'Demander un devis', 'Acheter un produit', 'S\'inscrire à une newsletter', 'Prendre rendez-vous', 'Télécharger un document', 'Faire un don'];
-  const presences = ['Non, création from scratch', 'Oui, un site à refondre', 'Oui, des réseaux sociaux actifs'];
+  const isApp = d.project_type === 'webapp' || d.project_type === 'saas';
+
+  const objectives = isApp
+    ? ['Automatiser un processus métier', 'Connecter plusieurs types d\'acteurs', 'Centraliser et gérer des données', 'Digitaliser des opérations terrain', 'Créer un espace client / portail', 'Remplacer ou moderniser un outil existant', 'Monétiser un service en ligne', 'Gérer des équipes et des accès']
+    : ['Présenter notre structure', 'Générer des contacts / leads', 'Attirer des partenaires', 'Asseoir la crédibilité', 'Vendre en ligne', 'Publier des actualités', 'Référencement SEO', 'Recrutement'];
+
+  const actions = isApp
+    ? ['S\'inscrire / créer un compte', 'Demander une démo', 'Souscrire un abonnement', 'Inviter des collaborateurs', 'Soumettre une demande', 'Utiliser une fonctionnalité clé']
+    : ['Nous contacter', 'Demander un devis', 'Acheter un produit', 'S\'inscrire à une newsletter', 'Prendre rendez-vous', 'Télécharger un document', 'Faire un don'];
+
+  const presences = ['Non, projet from scratch', 'Oui, un outil / processus à remplacer', 'Oui, une version existante à refondre', 'Oui, des outils à centraliser'];
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className={`text-2xl font-bold ${t.title}`}>Objectifs du projet</h2>
-        <p className={`text-sm ${t.desc}`}>Qu'attendez-vous de votre futur site ou application ?</p>
+        <p className={`text-sm ${t.desc}`}>Qu'attendez-vous de votre futur {isApp ? 'application' : 'site'} ?</p>
       </div>
       <Field label="Objectifs prioritaires">
         <div className="flex flex-wrap gap-2">
           {objectives.map(o => <Chip key={o} label={o} active={d.objectives.includes(o)} onClick={() => tog('objectives', o)} />)}
         </div>
       </Field>
-      <Field label="Action visiteur prioritaire" hint="Que doit faire en premier un visiteur sur votre site ?">
+      <Field label={isApp ? 'Action principale attendue de vos utilisateurs' : 'Action visiteur prioritaire'} hint={isApp ? 'Quelle est la première action d\'un nouvel utilisateur ?' : 'Que doit faire en premier un visiteur sur votre site ?'}>
         <div className="flex flex-col gap-2">
           {actions.map(a => <Radio key={a} value={a} current={d.primary_action} onChange={v => u('primary_action', v)}>{a}</Radio>)}
         </div>
       </Field>
-      <Field label="Présence en ligne actuelle">
+      <Field label={isApp ? 'Existant à remplacer ou améliorer ?' : 'Présence en ligne actuelle'}>
         <div className="flex flex-col gap-2">
-          {presences.map(p => <Radio key={p} value={p} current={d.existing_presence} onChange={v => u('existing_presence', v)}>{p}</Radio>)}
+          {(isApp ? presences : ['Non, création from scratch', 'Oui, un site à refondre', 'Oui, des réseaux sociaux actifs']).map(p => (
+            <Radio key={p} value={p} current={d.existing_presence} onChange={v => u('existing_presence', v)}>{p}</Radio>
+          ))}
         </div>
       </Field>
-      {d.existing_presence && d.existing_presence !== 'Non, création from scratch' && (
-        <Field label="Lien(s) vers votre présence actuelle">
+      {d.existing_presence && d.existing_presence !== 'Non, projet from scratch' && d.existing_presence !== 'Non, création from scratch' && (
+        <Field label={isApp ? 'Lien ou description de l\'outil existant' : 'Lien(s) vers votre présence actuelle'}>
           <input value={d.existing_links} onChange={(e: any) => u('existing_links', e.target.value)}
-            placeholder="https://..." className={inputCls} />
+            placeholder={isApp ? 'URL ou description de l\'outil actuel...' : 'https://...'} className={inputCls} />
         </Field>
       )}
       <NavButtons step={3} onBack={onBack} onNext={onNext} canNext={true} />
@@ -491,12 +502,17 @@ function Step4({ d, u, tog, onNext, onBack }: any) {
 function Step5({ d, u, tog, onNext, onBack }: any) {
   const { t } = useTheme();
   const inputCls = `w-full border rounded-xl px-4 py-3 text-sm focus:outline-none transition-all ${t.input}`;
-  const features = ['Formulaire de contact', 'Prise de rendez-vous', 'Newsletter', 'Intégration réseaux sociaux', 'Espace membres', 'Galerie photos / vidéos', 'Téléchargement de documents', 'Carte / Google Maps', 'Chatbot', 'Paiement en ligne', 'Statistiques de visite'];
+  const isApp = d.project_type === 'webapp' || d.project_type === 'saas';
+
+  const features = isApp
+    ? ['Gestion des utilisateurs et des rôles', 'Tableau de bord / Analytics', 'Notifications (email / SMS / push)', 'Paiement en ligne', 'API / intégration d\'outils tiers', 'Messagerie interne', 'Gestion des commandes / tâches', 'Export / import de données', 'Accès multi-tenant', 'Application mobile compagnon']
+    : ['Formulaire de contact', 'Prise de rendez-vous', 'Newsletter', 'Intégration réseaux sociaux', 'Espace membres', 'Galerie photos / vidéos', 'Téléchargement de documents', 'Carte / Google Maps', 'Chatbot', 'Paiement en ligne', 'Statistiques de visite'];
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className={`text-2xl font-bold ${t.title}`}>Aspects techniques</h2>
-        <p className={`text-sm ${t.desc}`}>Fonctionnalités, domaine et contraintes.</p>
+        <p className={`text-sm ${t.desc}`}>{isApp ? 'Fonctionnalités, contraintes et environnement technique.' : 'Fonctionnalités, domaine et contraintes.'}</p>
       </div>
       <Field label="Avez-vous un nom de domaine ?">
         <div className="flex flex-col gap-2">
@@ -508,35 +524,47 @@ function Step5({ d, u, tog, onNext, onBack }: any) {
       {d.has_domain === 'Oui' && (
         <Field label="Votre nom de domaine">
           <input value={d.domain_name} onChange={(e: any) => u('domain_name', e.target.value)}
-            placeholder="Ex. mastructure.com" className={inputCls} />
+            placeholder="Ex. maplateforme.com" className={inputCls} />
         </Field>
       )}
-      <Field label="Fonctionnalités souhaitées">
+      <Field label={isApp ? 'Fonctionnalités techniques souhaitées' : 'Fonctionnalités souhaitées'}>
         <div className="flex flex-wrap gap-2">
           {features.map(f => <Chip key={f} label={f} active={d.desired_features.includes(f)} onClick={() => tog('desired_features', f)} />)}
         </div>
       </Field>
-      <Field label="Site multilingue ?">
+      <Field label={isApp ? 'Application multilingue ?' : 'Site multilingue ?'}>
         <div className="flex flex-wrap gap-2">
           {['Français uniquement', 'Français + Anglais', 'Autre combinaison'].map(v => (
             <Chip key={v} label={v} active={d.multilingual === v} onClick={() => u('multilingual', d.multilingual === v ? '' : v)} />
           ))}
         </div>
       </Field>
-      <Field label="Souhaitez-vous gérer le contenu vous-même (CMS) ?">
-        <div className="flex flex-col gap-2">
-          {['Oui, de manière autonome', 'Oui, avec une formation incluse', 'Non, TEKKI Studio s\'en charge'].map(v => (
-            <Radio key={v} value={v} current={d.needs_cms} onChange={val => u('needs_cms', val)}>{v}</Radio>
-          ))}
-        </div>
-      </Field>
-      <Field label="SEO (référencement naturel) — priorité ?">
-        <div className="flex flex-wrap gap-2">
-          {['Oui, prioritaire', 'Oui, pas urgent', 'Je ne sais pas', 'Non'].map(v => (
-            <Chip key={v} label={v} active={d.seo_priority === v} onClick={() => u('seo_priority', d.seo_priority === v ? '' : v)} />
-          ))}
-        </div>
-      </Field>
+      {isApp ? (
+        <Field label="Souhaitez-vous pouvoir gérer les données vous-même ?" hint="Via un back-office ou tableau d'administration.">
+          <div className="flex flex-col gap-2">
+            {['Oui, avec un back-office complet', 'Oui, pour les opérations courantes', 'Non, TEKKI Studio s\'en charge'].map(v => (
+              <Radio key={v} value={v} current={d.needs_cms} onChange={val => u('needs_cms', val)}>{v}</Radio>
+            ))}
+          </div>
+        </Field>
+      ) : (
+        <>
+          <Field label="Souhaitez-vous gérer le contenu vous-même (CMS) ?">
+            <div className="flex flex-col gap-2">
+              {['Oui, de manière autonome', 'Oui, avec une formation incluse', 'Non, TEKKI Studio s\'en charge'].map(v => (
+                <Radio key={v} value={v} current={d.needs_cms} onChange={val => u('needs_cms', val)}>{v}</Radio>
+              ))}
+            </div>
+          </Field>
+          <Field label="SEO (référencement naturel) — priorité ?">
+            <div className="flex flex-wrap gap-2">
+              {['Oui, prioritaire', 'Oui, pas urgent', 'Je ne sais pas', 'Non'].map(v => (
+                <Chip key={v} label={v} active={d.seo_priority === v} onClick={() => u('seo_priority', d.seo_priority === v ? '' : v)} />
+              ))}
+            </div>
+          </Field>
+        </>
+      )}
       <NavButtons step={5} onBack={onBack} onNext={onNext} canNext={true} />
     </div>
   );
