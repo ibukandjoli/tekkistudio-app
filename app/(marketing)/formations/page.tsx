@@ -82,7 +82,7 @@ const FormationsPage = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-[#fe6117]" />
+        <Loader2 className="h-8 w-8 animate-spin text-tekki-orange" />
       </div>
     );
   }
@@ -92,7 +92,7 @@ const FormationsPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
-          <Link href="/" className="text-[#0f4c81] hover:text-[#fe6117] font-semibold">
+          <Link href="/" className="text-tekki-blue hover:text-tekki-orange font-semibold">
             Retour à l'accueil
           </Link>
         </div>
@@ -103,9 +103,8 @@ const FormationsPage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-br from-gray-900 via-[#0f4c81] to-gray-900 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#fe6117]/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl"></div>
+      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-tekki-blue relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -114,9 +113,9 @@ const FormationsPage = () => {
             transition={{ duration: 0.6 }}
             className="max-w-4xl mx-auto text-center"
           >
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-5 py-2.5 mb-8">
-              <Sparkles className="w-4 h-4 text-[#fe6117]" />
-              <span className="text-white/95 text-sm font-semibold">
+            <div className="inline-flex items-center gap-2 bg-tekki-orange/15 border border-tekki-orange/30 rounded-full px-5 py-2.5 mb-8">
+              <Sparkles className="w-4 h-4 text-tekki-orange" />
+              <span className="text-tekki-orange text-sm font-semibold">
                 L'Académie TEKKI
               </span>
             </div>
@@ -125,21 +124,21 @@ const FormationsPage = () => {
               Apprenez ce que nous avons appris en vendant +8 000 produits
             </h1>
 
-            <p className="text-xl text-white/90 mb-8 leading-relaxed">
+            <p className="text-xl text-white/70 mb-8 leading-relaxed">
               Des formations e-learning conçues pour les entrepreneurs africains qui veulent maîtriser l'e-commerce sans se ruiner
             </p>
 
-            <div className="flex flex-wrap justify-center gap-6 text-white/90 mb-8">
+            <div className="flex flex-wrap justify-center gap-6 text-white/70 mb-8">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <CheckCircle className="w-5 h-5 text-tekki-orange" />
                 <span>Formations 100% pratiques</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <CheckCircle className="w-5 h-5 text-tekki-orange" />
                 <span>Contexte africain</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <CheckCircle className="w-5 h-5 text-tekki-orange" />
                 <span>Prix accessibles</span>
               </div>
             </div>
@@ -147,14 +146,14 @@ const FormationsPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="#formations"
-                className="inline-flex items-center justify-center bg-[#fe6117] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-xl hover:shadow-2xl hover:scale-105"
+                className="inline-flex items-center justify-center bg-tekki-orange hover:bg-tekki-orange/90 text-white px-8 py-4 rounded-full font-bold text-lg transition-all"
               >
                 Découvrir les formations
                 <ArrowRight className="w-5 h-5 ml-2" />
               </a>
               <Link
                 href="/nos-formules"
-                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105"
+                className="inline-flex items-center justify-center border border-white/30 hover:border-white/50 text-white px-8 py-4 rounded-full font-bold text-lg transition-all"
               >
                 Nos offres Done-for-You
               </Link>
@@ -175,7 +174,7 @@ const FormationsPage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="text-center"
               >
-                <div className="text-3xl md:text-4xl font-bold text-[#0f4c81] mb-1">{stat.value}</div>
+                <div className="text-3xl md:text-4xl font-bold text-tekki-blue mb-1">{stat.value}</div>
                 <div className="text-sm text-gray-600">{stat.label}</div>
               </motion.div>
             ))}
@@ -184,7 +183,7 @@ const FormationsPage = () => {
       </section>
 
       {/* Pourquoi l'Académie TEKKI */}
-      <section className="py-20 md:py-28 bg-gray-50">
+      <section className="py-20 md:py-28 bg-tekki-cream">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -193,7 +192,7 @@ const FormationsPage = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-5xl font-bold text-[#0f4c81] mb-4">
+            <h2 className="text-3xl md:text-5xl font-bold text-tekki-blue mb-4">
               Pourquoi l'Académie TEKKI ?
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -209,12 +208,12 @@ const FormationsPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all"
+                className="bg-white rounded-2xl p-8 border border-tekki-blue/8 hover:shadow-md transition-all"
               >
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#fe6117] to-[#ff6b3d] flex items-center justify-center text-white mb-4">
+                <div className="w-14 h-14 rounded-xl bg-tekki-orange flex items-center justify-center text-white mb-4">
                   {benefit.icon}
                 </div>
-                <h3 className="text-xl font-bold text-[#0f4c81] mb-3">
+                <h3 className="text-xl font-bold text-tekki-blue mb-3">
                   {benefit.title}
                 </h3>
                 <p className="text-gray-600">{benefit.description}</p>
@@ -234,7 +233,7 @@ const FormationsPage = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-5xl font-bold text-[#0f4c81] mb-4">
+            <h2 className="text-3xl md:text-5xl font-bold text-tekki-blue mb-4">
               Nos formations disponibles
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -252,7 +251,7 @@ const FormationsPage = () => {
                 href="https://wa.me/221781362728?text=Bonjour ! J'aimerais être informé du lancement de l'Académie TEKKI."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center bg-[#fe6117] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-xl hover:shadow-2xl hover:scale-105"
+                className="inline-flex items-center justify-center bg-tekki-orange hover:bg-tekki-orange/90 text-white px-8 py-4 rounded-full font-bold text-lg transition-all"
               >
                 Me tenir informé
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -267,11 +266,11 @@ const FormationsPage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all border border-gray-100 flex flex-col"
+                  className="bg-white rounded-3xl overflow-hidden border border-tekki-blue/8 hover:shadow-md transition-all flex flex-col"
                 >
-                  {/* Header avec gradient */}
-                  <div className="bg-gradient-to-br from-[#0f4c81] to-[#1a5a8f] p-8 text-white relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#fe6117]/20 rounded-full blur-2xl"></div>
+                  {/* Header */}
+                  <div className="bg-tekki-blue p-8 text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-tekki-orange/20 rounded-full blur-2xl"></div>
                     <div className="relative z-10">
                       <div className="inline-block bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-semibold mb-4">
                         {formation.category}
@@ -286,25 +285,25 @@ const FormationsPage = () => {
                     {/* Infos */}
                     <div className="flex items-center gap-4 mb-6 text-sm text-gray-600">
                       <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-[#fe6117]" />
+                        <Clock className="w-4 h-4 text-tekki-orange" />
                         <span>{formation.duration}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <BarChart className="w-4 h-4 text-[#fe6117]" />
+                        <BarChart className="w-4 h-4 text-tekki-orange" />
                         <span>{formation.level || 'Tous niveaux'}</span>
                       </div>
                     </div>
 
                     {/* Prix */}
                     <div className="mb-6">
-                      <div className="text-3xl font-bold text-[#0f4c81]">{formation.price}</div>
+                      <div className="text-3xl font-bold text-tekki-blue">{formation.price}</div>
                       <div className="text-sm text-gray-600">Paiement unique</div>
                     </div>
 
                     {/* Bénéfices */}
                     {formation.benefits && Array.isArray(formation.benefits) && formation.benefits.length > 0 && (
                       <div className="mb-6 flex-1">
-                        <div className="font-semibold text-[#0f4c81] mb-3">Ce que vous apprendrez :</div>
+                        <div className="font-semibold text-tekki-blue mb-3">Ce que vous apprendrez :</div>
                         <ul className="space-y-2">
                           {formation.benefits.slice(0, 4).map((benefit, idx) => (
                             <li key={idx} className="flex items-start gap-2 text-sm">
@@ -319,7 +318,7 @@ const FormationsPage = () => {
                     {/* CTA */}
                     <Link
                       href={`/formations/${formation.slug}`}
-                      className="block w-full text-center bg-gradient-to-r from-[#fe6117] to-[#ff6b3d] hover:opacity-90 text-white py-4 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl hover:scale-105 group"
+                      className="block w-full text-center bg-tekki-orange hover:bg-tekki-orange/90 text-white py-4 rounded-full font-semibold transition-all group"
                     >
                       <span className="flex items-center justify-center">
                         En savoir plus
@@ -335,9 +334,8 @@ const FormationsPage = () => {
       </section>
 
       {/* CTA Final */}
-      <section className="py-20 md:py-28 bg-gradient-to-br from-gray-900 via-[#0f4c81] to-gray-900 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#fe6117]/10 rounded-full blur-3xl"></div>
+      <section className="py-20 md:py-28 bg-tekki-blue relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-white/5 rounded-full pointer-events-none" />
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -350,14 +348,14 @@ const FormationsPage = () => {
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
               Pas encore prêt pour une formation ?
             </h2>
-            <p className="text-xl text-white/90 mb-8 leading-relaxed">
+            <p className="text-xl text-white/70 mb-8 leading-relaxed">
               Découvrez nos offres Done-for-You où nous gérons tout pour vous
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/nos-formules"
-                className="inline-flex items-center justify-center bg-[#fe6117] hover:bg-[#ff6b3d] text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-xl hover:shadow-2xl hover:scale-105"
+                className="inline-flex items-center justify-center bg-tekki-orange hover:bg-tekki-orange/90 text-white px-8 py-4 rounded-full font-bold text-lg transition-all"
               >
                 Voir nos offres
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -366,23 +364,23 @@ const FormationsPage = () => {
                 href="https://calendly.com/tekki-studio/consultation-gratuite"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105"
+                className="inline-flex items-center justify-center border border-white/30 hover:border-white/50 text-white px-8 py-4 rounded-full font-bold text-lg transition-all"
               >
                 Réserver un appel gratuit
               </a>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-white/80">
+            <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-white/60">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <CheckCircle className="w-4 h-4 text-tekki-orange" />
                 <span>Garanties résultats</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <CheckCircle className="w-4 h-4 text-tekki-orange" />
                 <span>Accompagnement personnalisé</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <CheckCircle className="w-4 h-4 text-tekki-orange" />
                 <span>Paiement flexible</span>
               </div>
             </div>

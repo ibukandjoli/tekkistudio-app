@@ -34,7 +34,7 @@ const BrandsPage = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-tekki-coral" />
+        <Loader2 className="h-8 w-8 animate-spin text-tekki-orange" />
       </div>
     );
   }
@@ -55,21 +55,14 @@ const BrandsPage = () => {
   return (
     <main>
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-tekki-blue to-tekki-coral relative pt-28 pb-20">
-        <div className="absolute inset-0 opacity-10">
-          <div className="grid grid-cols-12 h-full">
-            {[...Array(48)].map((_, i) => (
-              <div key={i} className="border border-white/20" />
-            ))}
-          </div>
-        </div>
-
+      <section className="bg-tekki-blue relative pt-28 pb-20 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
         <Container className="relative z-10">
           <div className="max-w-3xl mx-auto text-center text-white">
             <h1 className="text-4xl lg:text-5xl font-bold mb-6">
               Nos Marques de Produits
             </h1>
-            <p className="text-xl opacity-90">
+            <p className="text-xl text-white/70">
               Découvrez les marques que nous avons créées et développées avec succès
             </p>
           </div>
@@ -80,18 +73,18 @@ const BrandsPage = () => {
       <section className="py-12 bg-white">
         <Container>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-gray-50 rounded-xl p-8 text-center shadow-sm hover:shadow-md transition-all">
-              <TrendingUp className="w-10 h-10 text-tekki-coral mx-auto mb-4" />
+            <div className="bg-tekki-cream rounded-xl p-8 text-center border border-tekki-blue/8 hover:shadow-md transition-all">
+              <TrendingUp className="w-10 h-10 text-tekki-orange mx-auto mb-4" />
               <div className="text-3xl font-bold text-tekki-blue mb-2">+{totalSales.toLocaleString()}</div>
               <div className="text-gray-600">Ventes totales</div>
             </div>
-            <div className="bg-gray-50 rounded-xl p-8 text-center shadow-sm hover:shadow-md transition-all">
-              <Star className="w-10 h-10 text-tekki-coral mx-auto mb-4" />
+            <div className="bg-tekki-cream rounded-xl p-8 text-center border border-tekki-blue/8 hover:shadow-md transition-all">
+              <Star className="w-10 h-10 text-tekki-orange mx-auto mb-4" />
               <div className="text-3xl font-bold text-tekki-blue mb-2">{averageRating.toFixed(1)}/5</div>
               <div className="text-gray-600">Note moyenne</div>
             </div>
-            <div className="bg-gray-50 rounded-xl p-8 text-center shadow-sm hover:shadow-md transition-all">
-              <Users className="w-10 h-10 text-tekki-coral mx-auto mb-4" />
+            <div className="bg-tekki-cream rounded-xl p-8 text-center border border-tekki-blue/8 hover:shadow-md transition-all">
+              <Users className="w-10 h-10 text-tekki-orange mx-auto mb-4" />
               <div className="text-3xl font-bold text-tekki-blue mb-2">+{totalCustomers.toLocaleString()}</div>
               <div className="text-gray-600">Clients satisfaits</div>
             </div>
@@ -100,13 +93,13 @@ const BrandsPage = () => {
       </section>
 
       {/* Liste des Marques */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-tekki-cream">
         <Container>
           <div className="space-y-8">
             {brands.map((brand) => (
               <div 
                 key={brand.id}
-                className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all overflow-hidden border border-gray-100"
+                className="bg-white rounded-xl hover:shadow-md transition-all overflow-hidden border border-tekki-blue/8"
               >
                 <div className="flex flex-col md:flex-row">
                   <div className="md:w-2/5 lg:w-1/3 relative">
@@ -123,7 +116,7 @@ const BrandsPage = () => {
                   
                   <div className="md:w-3/5 lg:w-2/3 p-6 md:p-8">
                     <div className="mb-4">
-                      <span className="bg-tekki-coral text-white px-3 py-1 rounded-full text-sm font-medium">
+                      <span className="bg-tekki-orange text-white px-3 py-1 rounded-full text-sm font-medium">
                         {brand.category}
                       </span>
                     </div>
@@ -137,20 +130,20 @@ const BrandsPage = () => {
                     </p>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                      <div className="text-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <div className="text-tekki-coral font-bold">{brand.metrics.sales}</div>
+                      <div className="text-center p-3 bg-tekki-cream rounded-lg hover:bg-tekki-blue/5 transition-colors">
+                        <div className="text-tekki-orange font-bold">{brand.metrics.sales}</div>
                         <div className="text-sm text-gray-600">Ventes</div>
                       </div>
-                      <div className="text-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <div className="text-tekki-coral font-bold">{brand.metrics.revenue}</div>
+                      <div className="text-center p-3 bg-tekki-cream rounded-lg hover:bg-tekki-blue/5 transition-colors">
+                        <div className="text-tekki-orange font-bold">{brand.metrics.revenue}</div>
                         <div className="text-sm text-gray-600">Revenus</div>
                       </div>
-                      <div className="text-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <div className="text-tekki-coral font-bold">{brand.metrics.growth}</div>
+                      <div className="text-center p-3 bg-tekki-cream rounded-lg hover:bg-tekki-blue/5 transition-colors">
+                        <div className="text-tekki-orange font-bold">{brand.metrics.growth}</div>
                         <div className="text-sm text-gray-600">Croissance</div>
                       </div>
-                      <div className="text-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <div className="text-tekki-coral font-bold">{brand.metrics.rating}</div>
+                      <div className="text-center p-3 bg-tekki-cream rounded-lg hover:bg-tekki-blue/5 transition-colors">
+                        <div className="text-tekki-orange font-bold">{brand.metrics.rating}</div>
                         <div className="text-sm text-gray-600">Satisfaction</div>
                       </div>
                     </div>
@@ -171,22 +164,23 @@ const BrandsPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-tekki-blue to-tekki-coral text-white">
-        <Container className="text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Prêt à lancer votre business?</h2>
-          <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
+      <section className="py-16 bg-tekki-blue relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-white/5 rounded-full pointer-events-none" />
+        <Container className="text-center relative z-10">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Prêt à lancer votre business?</h2>
+          <p className="text-xl text-white/70 mb-8 max-w-2xl mx-auto">
             Nous avons le business clé en main qui correspond à vos objectifs et votre style de vie.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link 
-              href="/business" 
-              className="bg-white text-tekki-blue hover:bg-white/90 px-6 py-3 rounded-lg font-medium transition-colors"
+            <Link
+              href="/business"
+              className="bg-tekki-orange hover:bg-tekki-orange/90 text-white px-8 py-4 rounded-full font-bold transition-colors"
             >
               Découvrir tous nos business
             </Link>
-            <Link 
-              href="https://wa.me/221781362728" 
-              className="bg-white/10 border border-white/20 text-white hover:bg-white/20 px-6 py-3 rounded-lg font-medium transition-colors"
+            <Link
+              href="https://wa.me/221781362728"
+              className="border border-white/30 hover:border-white/50 text-white px-8 py-4 rounded-full font-medium transition-colors"
               target="_blank"
             >
               Prendre rendez-vous

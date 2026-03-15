@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TEKKI Studio - La Fabrique de Marques Africaines
 
-## Getting Started
+TEKKI Studio est une plateforme Next.js d'acquisition et de gestion pour une agence e-commerce spécialisée dans les marques africaines ambitieuses.
 
-First, run the development server:
+## 🚀 Vision Actuelle (V2)
 
+Le projet a pivoté vers un tunnel de conversion ultra-simplifié :
+- **Homepage V2** : Une structure en 4 sections majeures (Hero, Empathy, Skin in the Game, Arsenal) complétée par une forte preuve sociale (Logos, Cas Études, Témoignages, FAQ).
+- **Focalisation Diagnostic** : Tous les chemins d'acquisition mènent vers l'Agent IA de qualification situé sur `/diagnostic`.
+- **Dark Premium Aesthetic** : Une identité visuelle unifiée (`#0a0f16`) pour asseoir l'autorité et le professionnalisme.
+
+## 🛠 Stack Technique
+
+- **Framework** : Next.js 14+ (App Router)
+- **Styling** : Tailwind CSS + Vanilla CSS (globals)
+- **Animations** : Framer Motion
+- **IA** : Anthropic Claude API (Qualification de leads)
+- **Backend** : Supabase (Auth/DB)
+- **Tracking** : Meta Pixel (Conversion Leads)
+
+## 📂 Organisation du Code
+
+- `app/(marketing)/` : Pages vitrines et cas clients (thème sombre).
+- `app/(chat)/diagnostic/` : Interface du chatbot de qualification généraliste.
+- `app/components/home/v2/` : Nouveaux composants de la homepage pivotée.
+- `app/api/diagnostic-assistant/` : Logique IA et extraction de leads vers Webhook Make.
+
+## 🏁 Démarrage Rapide
+
+1. **Installation** :
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Environnement** :
+Configurez votre `.env.local` avec les clés Anthropic et Supabase.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **Lancement** :
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📝 Documentation Interne
 
-## Learn More
+Pour plus de détails, consultez :
+- `PROJECT_CONTEXT.md` : Vision et objectifs.
+- `ARCHITECTURE.md` : Structure technique détaillée.
+- `PRD.md` : Spécifications du produit de diagnostic.
+- `bot-diagnostic-general.md` : Instructions et prompt système de l'IA.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

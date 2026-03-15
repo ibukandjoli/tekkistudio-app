@@ -2,30 +2,37 @@
 
 ## Stack Technique Globale
 - **Framework** : Next.js 14+ (App Router).
-- **Langage** : TypeScript.
-- **Styling** : Tailwind CSS, `globals.css` pour les variables CSS.
-- **UI Components** : Radix UI, Lucide React (icônes), Framer Motion (animations).
-- **State Management** : React Context, Zustand (si applicable pour états globaux), ou React Hooks natifs.
-- **Base de données & Auth** : Supabase (`@supabase/auth-helpers-nextjs`, `@supabase/supabase-js`).
-- **Paiements** : Stripe SDK.
-- **Médias** : Cloudinary.
-- **IA** : `@anthropic-ai/sdk` (Claude 4.6), Web Speech API (pour la reconnaissance vocale native et gratuite).
+- **Langages** : TypeScript / JavaScript.
+- **Styling** : Tailwind CSS, Vanilla CSS (`globals.css`).
+- **UI Components** : Lucide React, Framer Motion (animations).
+- **Backend** : Supabase.
+- **IA** : Anthropic SDK (Claude).
+- **Tracking** : Meta Pixel (Lead Events).
 
 ## Structure du Dossier `app/`
-Le répertoire principal `app/` est structuré par routes et domaines fonctionnels :
-- **`/ (Root)`** : Landing page principale agence (Hero, Realisations, etc.).
-- **Pages Publiques** : `/services`, `/expertise`, `/formations`, `/cas-clients`, `/equipe`, `/nos-formules`, `/marques`, `/cgv`, `/mentions-legales`.
-- **Acquisition** : `/acquisition-options`, `/comparatif-acquisition`, `/ramadan-promo`.
-- **Espace Administratif** : `/admin` (Protégé par `withAdminAuth`).
-- **Composants Partagés** : `/components/` (Home, UI commune, Forms, etc.).
-- **Logique Globale** : `/lib/` (clients API pour Supabase, Cloudinary, utils), `/hooks/`, `/contexts/`.
-- **Routage API (`/api`)** :
-  - `/api/ecommerce`, `/api/transactions`, `/api/create-payment-link` (liens Stripe).
-  - `/api/assistant` et `/api/assistant/save-lead` (Logique IA FastBrief, extraction LLM et Webhook).
-  - `/api/track-conversion`.
+- **`/ (Root)`** : Emploie les composants de `app/components/home/v2/`.
+- **`/diagnostic`** : Interface de diagnostic généraliste (Anciennement `/diagnostic-beaute`).
+- **`/cas-clients`** : Showcase des réalisations (Thème sombre).
+- **`/admin`** : Dashboard de gestion.
+- **`/api`** :
+  - `/api/diagnostic-assistant/route.ts` : Streaming chat avec Claude.
+  - `/api/diagnostic-assistant/save-lead/route.ts` : Extraction JSON et Webhook Make.
 
-## Intégration de la fonctionnalité "FastBrief"
-Pour l'application "FastBrief", la nouvelle architecture impliquera :
-1. **Route Frontend** : Une page dédiée (ex: `/fastbrief` ou `/diagnostic-beaute`) avec un `layout.tsx` spécifique (pour omettre le header/footer de l'agence principale et forcer l'affichage plein écran mobile).
-2. **Route API** : Une Edge Function ou route `app/api/fastbrief/route.ts` pour communiquer de manière sécurisée avec l'API Anthropic (sans exposer la clé client-side).
-3. **Persistance/Webhook** : Enregistrement et structuration du lead via un appel LLM (`/api/assistant/save-lead`), nettoyage des numéros WhatsApp, et envoi vers un Webhook externe (ex: Make/Integromat) avec verrouillage de l'UI.
+## Nouveaux Composants V2 (`app/components/home/v2/`)
+Pour la refonte, une architecture modulaire a été adoptée :
+1. **`HeroV2.tsx`** : Entrée fracassante, CTA unique.
+2. **`LogosV2.tsx`** : Bandeau infini de réassurance.
+3. **`EmpathySection.tsx`** : Identification aux problèmes clients.
+4. **`CaseStudiesV2.tsx`** : Galerie de succès.
+5. **`TestimonialsV2.tsx`** : Preuve sociale directe.
+6. **`SkinInTheGameSection.tsx`** : Focus sur nos marques propres.
+7. **`FAQV2.tsx`** : Levée d'objections.
+8. **`ArsenalSection.tsx`** : Stack technique et CTA final.
+
+## Flux de Données - Diagnostic
+1. L'utilisateur interagit avec le `ChatContainer`.
+2. L'API `diagnostic-assistant` gère l'intelligence conversationnelle.
+3. En fin de flow, une extraction structurée est réalisée.
+4. Les données (WhatsApp normalisé, nom brand, douleur) sont envoyées au Webhook Make.
+5. Un événement standard `Lead` est envoyé au Meta Pixel via `window.fbq`.
+

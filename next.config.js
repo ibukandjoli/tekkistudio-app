@@ -5,6 +5,21 @@ const nextConfig = {
     // serverActions est maintenant activé par défaut dans Next.js 16
   },
 
+  // Pages masquées — redirigées vers l'accueil
+  async redirects() {
+    return [
+      { source: '/acquisition-options', destination: '/', permanent: false },
+      { source: '/business', destination: '/', permanent: false },
+      { source: '/business/:path*', destination: '/', permanent: false },
+      { source: '/comparatif-acquisition', destination: '/', permanent: false },
+      { source: '/expertise', destination: '/', permanent: false },
+      { source: '/nos-formules', destination: '/', permanent: false },
+      { source: '/nos-formules/:path*', destination: '/', permanent: false },
+      { source: '/marques', destination: '/', permanent: false },
+      { source: '/marques/:path*', destination: '/', permanent: false },
+    ];
+  },
+
   // Configuration Turbopack (vide pour Next.js 16)
   turbopack: {},
 

@@ -9,22 +9,15 @@ const CGVPage = () => {
   return (
     <main className="pb-0">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-tekki-blue to-tekki-coral relative pt-28 pb-20">
-        <div className="absolute inset-0 opacity-10">
-          <div className="grid grid-cols-12 h-full">
-            {[...Array(48)].map((_, i) => (
-              <div key={i} className="border border-white/20" />
-            ))}
-          </div>
-        </div>
-
+      <section className="bg-tekki-blue relative pt-28 pb-20 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
         <Container className="relative z-10">
           <div className="max-w-3xl mx-auto text-center text-white">
-            <FileText className="w-16 h-16 mx-auto mb-6" />
+            <FileText className="w-16 h-16 mx-auto mb-6 text-tekki-orange" />
             <h1 className="text-4xl lg:text-5xl font-bold mb-6">
               Conditions Générales de Vente
             </h1>
-            <p className="text-xl opacity-90">
+            <p className="text-xl text-white/70">
               Dernière mise à jour : {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
           </div>
@@ -109,11 +102,11 @@ const CGVPage = () => {
               </p>
               <ul className="space-y-2 mb-4">
                 <li className="flex items-start">
-                  <span className="text-tekki-coral mr-2">•</span>
+                  <span className="text-tekki-orange mr-2">•</span>
                   <span className="text-gray-700">Signature du devis par le Client</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-tekki-coral mr-2">•</span>
+                  <span className="text-tekki-orange mr-2">•</span>
                   <span className="text-gray-700">Réception du paiement selon les modalités convenues</span>
                 </li>
               </ul>
@@ -161,19 +154,19 @@ const CGVPage = () => {
               </p>
               <ul className="space-y-2 mb-4">
                 <li className="flex items-start">
-                  <span className="text-tekki-coral mr-2">•</span>
+                  <span className="text-tekki-orange mr-2">•</span>
                   <span className="text-gray-700"><strong>Audit de Départ :</strong> 7 jours ouvrés</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-tekki-coral mr-2">•</span>
+                  <span className="text-tekki-orange mr-2">•</span>
                   <span className="text-gray-700"><strong>Démarrage :</strong> 7 à 15 jours ouvrés</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-tekki-coral mr-2">•</span>
+                  <span className="text-tekki-orange mr-2">•</span>
                   <span className="text-gray-700"><strong>Croissance :</strong> 3 mois</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-tekki-coral mr-2">•</span>
+                  <span className="text-tekki-orange mr-2">•</span>
                   <span className="text-gray-700"><strong>Expansion :</strong> 6 à 12 mois</span>
                 </li>
               </ul>
@@ -193,19 +186,19 @@ const CGVPage = () => {
               </p>
               <ul className="space-y-3 mb-4">
                 <li className="flex items-start">
-                  <AlertCircle className="w-5 h-5 text-tekki-coral flex-shrink-0 mt-0.5 mr-2" />
+                  <AlertCircle className="w-5 h-5 text-tekki-orange flex-shrink-0 mt-0.5 mr-2" />
                   <span className="text-gray-700">Fournir tous les éléments nécessaires à la réalisation de la prestation dans les délais convenus</span>
                 </li>
                 <li className="flex items-start">
-                  <AlertCircle className="w-5 h-5 text-tekki-coral flex-shrink-0 mt-0.5 mr-2" />
+                  <AlertCircle className="w-5 h-5 text-tekki-orange flex-shrink-0 mt-0.5 mr-2" />
                   <span className="text-gray-700">Répondre aux sollicitations du Prestataire dans un délai de 48 heures ouvrées</span>
                 </li>
                 <li className="flex items-start">
-                  <AlertCircle className="w-5 h-5 text-tekki-coral flex-shrink-0 mt-0.5 mr-2" />
+                  <AlertCircle className="w-5 h-5 text-tekki-orange flex-shrink-0 mt-0.5 mr-2" />
                   <span className="text-gray-700">Garantir qu'il dispose des droits nécessaires sur tous les contenus fournis</span>
                 </li>
                 <li className="flex items-start">
-                  <AlertCircle className="w-5 h-5 text-tekki-coral flex-shrink-0 mt-0.5 mr-2" />
+                  <AlertCircle className="w-5 h-5 text-tekki-orange flex-shrink-0 mt-0.5 mr-2" />
                   <span className="text-gray-700">Effectuer les paiements selon l'échéancier convenu</span>
                 </li>
               </ul>
@@ -285,7 +278,7 @@ const CGVPage = () => {
             </div>
 
             {/* Contact */}
-            <div className="bg-gray-50 rounded-xl p-8 mt-12">
+            <div className="bg-tekki-cream rounded-xl p-8 mt-12 border border-tekki-blue/8">
               <h3 className="text-xl font-bold text-tekki-blue mb-4">Contact</h3>
               <p className="text-gray-700 mb-2">
                 Pour toute question concernant nos CGV, vous pouvez nous contacter :

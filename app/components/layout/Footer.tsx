@@ -5,186 +5,166 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Smartphone } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Smartphone, ArrowRight } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const pathname = usePathname();
 
-  // Ne pas afficher le footer sur les pages admin
-  if (pathname.startsWith('/admin')) {
-    return null;
-  }
+  if (pathname.startsWith('/admin')) return null;
 
   return (
-    <footer className="bg-gradient-to-br from-gray-900 via-[#0f4c81] to-gray-900 text-white pt-16 pb-8 relative overflow-hidden">
-      {/* Décoration */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#fe6117]/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-white/5 rounded-full blur-3xl"></div>
+    <footer className="bg-tekki-blue text-white pt-16 pb-8 relative overflow-hidden">
+      {/* Subtle decoration */}
+      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-tekki-orange/5 rounded-full blur-[120px]" />
 
-      <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20 relative z-10">
-        <div className="grid md:grid-cols-4 gap-8 mb-12">
-          {/* À propos */}
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-14">
+          {/* Col 1 : Logo + Tagline */}
           <div>
-            <div className="flex items-center mb-4">
-              <img
-                src="/images/tekkistudio/logo.svg"
-                alt="TEKKI Studio"
-                className="w-120 h-12 mr-3"
-              />
-            </div>
-            <p className="text-white/80 mb-6 leading-relaxed">
-              La Fabrique de marques africaines.
-              Nous créons nos propres marques et transformons les marques africaines en success stories e-commerce.
+            <img
+              src="/images/tekkistudio/logo.svg"
+              alt="TEKKI Studio"
+              className="h-10 w-auto mb-4"
+            />
+            <p className="text-white/70 mb-6 leading-relaxed text-sm">
+              La Fabrique de Marques Africaines.
             </p>
 
-            <div className="flex space-x-4">
-              <a href="https://facebook.com/tekkistudio" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 hover:bg-[#fe6117] rounded-full flex items-center justify-center transition-all duration-300 group">
-                <Facebook className="w-5 h-5 text-white/80 group-hover:text-white" />
-              </a>
-              <a href="https://instagram.com/tekkistudio" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 hover:bg-[#fe6117] rounded-full flex items-center justify-center transition-all duration-300 group">
-                <Instagram className="w-5 h-5 text-white/80 group-hover:text-white" />
-              </a>
-              <a href="https://linkedin.com/company/tekkistudio" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 hover:bg-[#fe6117] rounded-full flex items-center justify-center transition-all duration-300 group">
-                <Linkedin className="w-5 h-5 text-white/80 group-hover:text-white" />
-              </a>
+            <div className="flex gap-3 mb-6">
+              {[
+                { icon: Facebook, href: 'https://facebook.com/tekkistudio' },
+                { icon: Instagram, href: 'https://instagram.com/tekkistudio' },
+                { icon: Linkedin, href: 'https://linkedin.com/company/tekkistudio' },
+              ].map(({ icon: Icon, href }) => (
+                <a
+                  key={href}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 bg-white/10 hover:bg-tekki-orange rounded-full flex items-center justify-center transition-all duration-300"
+                >
+                  <Icon className="w-4 h-4 text-white/80" />
+                </a>
+              ))}
             </div>
 
-            {/* Logo Shopify Partner */}
-            <div className="mb-2">
-              <Image
-                src="/images/tekkistudio/partner-shopify.png"
-                alt="Shopify Partner"
-                width={170}
-                height={70}
-                className="opacity-80 hover:opacity-100 transition-opacity"
-              />
-            </div>
+            <Image
+              src="/images/tekkistudio/partner-shopify.png"
+              alt="Shopify Partner"
+              width={140}
+              height={56}
+              className="opacity-70 hover:opacity-100 transition-opacity"
+            />
           </div>
 
-          {/* Nos Formules */}
+          {/* Col 2 : L'Entreprise */}
           <div>
-            <h3 className="text-xl font-bold mb-6">Nos Offres</h3>
+            <h3 className="font-heading text-lg font-bold mb-5">L'Entreprise</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/nos-formules/audit-depart" className="text-white/80 hover:text-[#fe6117] transition-colors inline-block">
-                  Audit de Départ
-                </Link>
-              </li>
-              <li>
-                <Link href="/nos-formules/demarrage" className="text-white/80 hover:text-[#fe6117] transition-colors inline-block">
-                  Formule Démarrage
-                </Link>
-              </li>
-              <li>
-                <Link href="/nos-formules/croissance" className="text-white/80 hover:text-[#fe6117] transition-colors inline-block">
-                  Formule Croissance
-                </Link>
-              </li>
-              <li>
-                <Link href="/nos-formules/expansion" className="text-white/80 hover:text-[#fe6117] transition-colors inline-block">
-                  Formule Expansion
-                </Link>
-              </li>
-              <li className="pt-2">
-                <Link href="/nos-formules" className="text-[#fe6117] hover:text-white font-semibold transition-colors inline-block">
-                  Comparer les Offres →
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Découvrir */}
-          <div>
-            <h3 className="text-xl font-bold mb-6">Découvrir</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link href="/nos-marques" className="text-white/80 hover:text-[#fe6117] transition-colors inline-block">
-                  Nos marques
-                </Link>
-              </li>
-              <li>
-                <Link href="/cas-clients" className="text-white/80 hover:text-[#fe6117] transition-colors inline-block">
-                  Cas clients
-                </Link>
-              </li>
-              <li>
-                <Link href="/equipe" className="text-white/80 hover:text-[#fe6117] transition-colors inline-block">
-                  Notre équipe
-                </Link>
-              </li>
-              <li>
-                <Link href="/careers" className="text-white/80 hover:text-[#fe6117] transition-colors inline-block">
-                  Recrutement
-                </Link>
-              </li>
-              <li>
-                <Link href="/a-propos" className="text-white/80 hover:text-[#fe6117] transition-colors inline-block">
+                <Link href="/a-propos" className="text-white/60 hover:text-tekki-orange transition-colors text-sm">
                   À propos
                 </Link>
               </li>
+              <li>
+                <Link href="/cas-clients" className="text-white/60 hover:text-tekki-orange transition-colors text-sm">
+                  Cas Clients
+                </Link>
+              </li>
+              <li>
+                <Link href="/nos-marques" className="text-white/60 hover:text-tekki-orange transition-colors text-sm">
+                  Nos Marques
+                </Link>
+              </li>
+              <li>
+                <Link href="/careers" className="text-white/60 hover:text-tekki-orange transition-colors text-sm">
+                  Carrières
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Col 3 : Nos Marques */}
           <div>
-            <h3 className="text-xl font-bold mb-6">Contact</h3>
+            <h3 className="font-heading text-lg font-bold mb-5">Nos Marques</h3>
             <ul className="space-y-3">
-              <li className="flex items-start">
-                <Mail className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0 text-[#fe6117]" />
-                <a href="mailto:hello@tekkistudio.com" className="text-white/80 hover:text-[#fe6117] transition-colors">
+              <li>
+                <a href="https://viensonsconnait.com" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-tekki-orange transition-colors text-sm">
+                  Viens on s'connaît
+                </a>
+              </li>
+              <li>
+                <a href="https://amani-femme.myshopify.com/" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-tekki-orange transition-colors text-sm">
+                  Amani
+                </a>
+              </li>
+              <li>
+                <a href="https://kusomakids.com" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-tekki-orange transition-colors text-sm">
+                  KusomaKids
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Col 4 : Contact */}
+          <div>
+            <h3 className="font-heading text-lg font-bold mb-5">Contact</h3>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <Mail className="w-4 h-4 mt-0.5 flex-shrink-0 text-tekki-orange" />
+                <a href="mailto:hello@tekkistudio.com" className="text-white/60 hover:text-tekki-orange transition-colors text-sm">
                   hello@tekkistudio.com
                 </a>
               </li>
-              <li className="flex items-start">
-                <Phone className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0 text-[#fe6117]" />
-                <a href="tel:+221338205422" className="text-white/80 hover:text-[#fe6117] transition-colors">
+              <li className="flex items-start gap-3">
+                <Phone className="w-4 h-4 mt-0.5 flex-shrink-0 text-tekki-orange" />
+                <a href="tel:+221338205422" className="text-white/60 hover:text-tekki-orange transition-colors text-sm">
                   +221 33 820 54 22
                 </a>
               </li>
-              <li className="flex items-start">
-                <Smartphone className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0 text-[#fe6117]" />
+              <li className="flex items-start gap-3">
+                <Smartphone className="w-4 h-4 mt-0.5 flex-shrink-0 text-tekki-orange" />
                 <a
-                  href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20en%20savoir%20plus%20sur%20vos%20formules%20d%27accompagnement."
+                  href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white/80 hover:text-[#fe6117] transition-colors"
+                  className="text-white/60 hover:text-tekki-orange transition-colors text-sm"
                 >
                   +221 78 136 27 28 (WhatsApp)
                 </a>
               </li>
-              <li className="flex items-start">
-                <MapPin className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0 text-[#fe6117]" />
-                <span className="text-white/80">
-                  Dakar, Sénégal
-                </span>
+              <li className="flex items-start gap-3">
+                <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-tekki-orange" />
+                <span className="text-white/60 text-sm">Dakar, Sénégal</span>
               </li>
             </ul>
 
             <div className="mt-6">
               <Link
-                href="https://calendly.com/tekki-studio/consultation-gratuite"
-                className="inline-block bg-[#fe6117] hover:bg-[#e55710] text-white px-6 py-3 rounded-full font-bold transition-all shadow-lg hover:shadow-xl text-center w-full"
+                href="/diagnostic"
+                className="flex items-center justify-center gap-2 w-full bg-tekki-orange hover:bg-tekki-orange-hover text-white py-3 rounded-full font-semibold text-sm transition-all"
               >
-                Réserver un appel gratuit
+                Faire le diagnostic
+                <ArrowRight size={14} />
               </Link>
             </div>
           </div>
         </div>
 
         {/* Copyright */}
-        <div className="border-t border-white/10 pt-8 text-center text-white/80 text-sm">
-          <p className="font-medium">© {currentYear} TEKKI Studio. Tous droits réservés.</p>
-          <div className="mt-3 flex flex-wrap justify-center gap-2">
-            <Link href="/mentions-legales" className="hover:text-[#fe6117] transition-colors">
+        <div className="border-t border-white/10 pt-8 text-center text-white/50 text-sm">
+          <p>&copy; {currentYear} TEKKI Studio. Tous droits réservés.</p>
+          <div className="mt-3 flex flex-wrap justify-center gap-2 text-xs">
+            <Link href="/mentions-legales" className="hover:text-tekki-orange transition-colors">
               Mentions légales
             </Link>
-            <span className="text-white/30">•</span>
-            <Link href="/politique-confidentialite" className="hover:text-[#fe6117] transition-colors">
+            <span className="text-white/20">&middot;</span>
+            <Link href="/politique-confidentialite" className="hover:text-tekki-orange transition-colors">
               Politique de confidentialité
             </Link>
-            <span className="text-white/30">•</span>
-            <Link href="/cgv" className="hover:text-[#fe6117] transition-colors">
+            <span className="text-white/20">&middot;</span>
+            <Link href="/cgv" className="hover:text-tekki-orange transition-colors">
               CGV
             </Link>
           </div>

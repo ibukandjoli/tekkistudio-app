@@ -1,34 +1,28 @@
-# PRD (Product Requirements Document) - FastBrief TEKKI Studio
+# PRD (Product Requirements Document) - Diagnostic Stratégique TEKKI Studio
 
 ## 1. Objectif du Produit
-Créer une application web single-page (intégrée au projet Next.js existant de TEKKI Studio) agissant comme une Landing Page de qualification sous forme de chat conversationnel, pilotée par l'IA (Anthropic Claude).
+Fournir une interface de qualification conversationnelle pilotée par l'IA pour transformer les visiteurs curieux en leads qualifiés. L'outil doit auditer la maturité e-commerce de n'importe quelle marque africaine et proposer un diagnostic immédiat.
 
-## 2. Spécifications UI/UX
-- **Mobile-First Absolu** : L'interface doit être conçue pour mobile en priorité, ressemblant à une application de messagerie native et premium (iMessage / WhatsApp épuré).
-- **Design System** : Utilisation des couleurs et de la typographie de TEKKI Studio (Tailwind CSS).
-- **Structure de la page** :
-  - **Header fixe** : Logo centré + sous-titre "Assistant Stratégique" ou "Diagnostic Beauté".
-  - **Zone de Chat** : Prend ~80% de l'écran, scrollable, avec les bulles de messages fluides (IA à gauche, Utilisateur à droite).
-  - **Zone de Saisie (Input)** : Fixée en bas + bouton d'envoi + bouton micro (Web Speech API).
-  - **Mention "Easter Egg"** : Texte cliquable très discret sous l'input : *"Propulsé par FastBrief"*, ouvrant vers le lien `fastbrief.site`.
+## 2. Spécification de l'Infrastructure
+- **Emplacement principal** : `/diagnostic`.
+- **Intégration** : Tous les CTAs de la Homepage V2 et des pages Cas Clients pointent vers cette interface.
+- **Design High-End** : Mode plein écran, mobile-first, esthétique sombre (`#0a0f16`) pour une immersion totale.
 
-## 3. Fonctionnalités Essentielles
-- **Onboarding Automatique** : Au chargement, l'IA envoie instantanément le premier message (sans action de l'utilisateur).
-- **Indicateur de Frappe** : Animation "... " pendant le temps de réponse de l'API Anthropic.
-- **Gestion d'Erreur API** : Message de graceful fallback en cas d'échec API ("Un instant, je rassemble mes notes...").
-- **Collecte de Leads (Webhook)** : À la fin du flow, l'API appel le modèle Claude pour extraire proprement Email/WhatsApp (formaté international) et résumer la douleur du client. Le payload JSON est envoyé vers le Webhook Make de TEKKI Studio. L'UI est figée avec un message de succès (✅).
+## 3. Fonctionnalités Clés
+- **Conversationnel Fluide** : Utilisation de Claude (Anthropic) pour un dialogue naturel.
+- **Qualification Multiniveau** : Extraction automatique du nom de marque, secteur, volume de ventes et points de friction.
+- **Capture de Leads Sécurisée** : Extraction et normalisation des numéros WhatsApp et emails.
+- **Reporting Externe** : Envoi instantané du payload au CRM via Webhook Make.
+- **Tracking Meta** : Déclenchement automatique de l'événement `Lead` pour l'optimisation publicitaire.
 
-## 4. Comportement de l'IA (System Prompt)
-L'agent IA suit un **Flow** strict en 6 étapes, défini par le System Prompt :
-1. **Accueil** : Demande du nom de la marque et spécialité.
-2. **Traction** : Évaluation du volume de commandes.
-3. **La Douleur** : Question sur le temps passé sur WhatsApp/DM.
-4. **L'Inception** : Présentation du concept de "Vendeuse IA".
-5. **Collecte des leads** : Demande de l'Email et du numéro WhatsApp.
-6. **Conclusion** : Remerciements et clôture.
+## 4. Comportement de l'Agent IA
+L'IA doit agir comme un consultant senior chez TEKKI Studio :
+- **Empathie** : Comprendre les difficultés liées à la gestion manuelle (WhatsApp/Instagram).
+- **Expertise** : Expliquer comment une infrastructure automatisée (Shopify + Vendeuse IA) résout ces problèmes.
+- **Concision** : Poser une seule question à la fois pour maintenir l'engagement mobile.
+- **Professionnalisme** : Vouvoiement et ton encourageant.
 
-**Règles de l'IA** :
-- Une seule question à la fois.
-- Pas de gros blocs de texte (conversationnel).
-- Vouvoiement, empathie, professionnalisme.
-- Pas de promesse de prix exact.
+## 5. Mesure du Succès
+- Taux de complétion du dialogue de diagnostic.
+- Qualité des données extraites (JSON valide).
+- Nombre de leads qualifiés transmis au CRM.

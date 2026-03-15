@@ -9,16 +9,17 @@ const MentionsLegalesPage = () => {
   return (
     <main className="pb-0">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-tekki-blue to-tekki-coral relative pt-28 pb-20">
+      <section className="bg-tekki-blue relative pt-28 pb-20 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
         <Container>
-          <div className="max-w-4xl mx-auto text-center text-white">
+          <div className="max-w-4xl mx-auto text-center text-white relative z-10">
             <div className="flex justify-center mb-6">
-              <Scale className="w-16 h-16" />
+              <Scale className="w-16 h-16 text-tekki-orange" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Mentions Légales
             </h1>
-            <p className="text-xl opacity-90">
+            <p className="text-xl text-white/70">
               Informations légales et réglementaires
             </p>
           </div>
@@ -40,7 +41,7 @@ const MentionsLegalesPage = () => {
                 <p className="mb-4">
                   Le site web <strong>tekkistudio.com</strong> est édité par :
                 </p>
-                <div className="bg-gray-50 p-6 rounded-lg mb-4">
+                <div className="bg-tekki-cream p-6 rounded-lg mb-4 border border-tekki-blue/8">
                   <p className="mb-2"><strong>Raison sociale : </strong>SHEFA BUSINESS GROUP</p>
                   <p className="mb-2"><strong>Forme juridique :</strong> SARL</p>
                   <p className="mb-2"><strong>Capital social :</strong> 1 000 000 FCFA</p>
@@ -50,11 +51,11 @@ const MentionsLegalesPage = () => {
                 </div>
                 <div className="flex flex-col gap-2 mt-4">
                   <p className="flex items-center">
-                    <Mail className="w-5 h-5 mr-2 text-tekki-coral" />
+                    <Mail className="w-5 h-5 mr-2 text-tekki-orange" />
                     <strong>Email :</strong>&nbsp;<a href="mailto:hello@tekkistudio.com" className="text-tekki-blue hover:underline">hello@tekkistudio.com</a>
                   </p>
                   <p className="flex items-center">
-                    <Phone className="w-5 h-5 mr-2 text-tekki-coral" />
+                    <Phone className="w-5 h-5 mr-2 text-tekki-orange" />
                     <strong>Téléphone :</strong>&nbsp;+221 78136 27 28
                   </p>
                 </div>
@@ -84,7 +85,7 @@ const MentionsLegalesPage = () => {
                 <p className="mb-4">
                   Le site web tekkistudio.com est hébergé par :
                 </p>
-                <div className="bg-gray-50 p-6 rounded-lg mb-4">
+                <div className="bg-tekki-cream p-6 rounded-lg mb-4 border border-tekki-blue/8">
                   <p className="mb-2"><strong>Hébergeur :</strong> Vercel Inc.</p>
                   <p className="mb-2"><strong>Adresse :</strong> 340 S Lemon Ave #4133, Walnut, CA 91789, USA</p>
                   <p className="mb-2"><strong>Site web :</strong> <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="text-tekki-blue hover:underline">https://vercel.com</a></p>
@@ -219,7 +220,7 @@ const MentionsLegalesPage = () => {
             </div>
 
             {/* Contact */}
-            <div className="mt-16 p-8 bg-gradient-to-r from-tekki-blue/5 to-tekki-coral/5 rounded-xl border border-tekki-blue/10">
+            <div className="mt-16 p-8 bg-tekki-cream rounded-xl border border-tekki-blue/8">
               <div className="flex items-start gap-4">
                 <Building2 className="w-6 h-6 text-tekki-blue flex-shrink-0 mt-1" />
                 <div>
@@ -229,7 +230,7 @@ const MentionsLegalesPage = () => {
                   </p>
                   <div className="flex flex-col gap-2">
                     <p className="flex items-center text-gray-700">
-                      <Mail className="w-5 h-5 mr-2 text-tekki-coral" />
+                      <Mail className="w-5 h-5 mr-2 text-tekki-orange" />
                       <a href="mailto:hello@tekkistudio.com" className="text-tekki-blue hover:underline">
                         hello@tekkistudio.com
                       </a>

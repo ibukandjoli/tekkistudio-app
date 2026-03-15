@@ -9,16 +9,17 @@ const PolitiqueConfidentialitePage = () => {
   return (
     <main className="pb-0">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-tekki-blue to-tekki-coral relative pt-28 pb-20">
+      <section className="bg-tekki-blue relative pt-28 pb-20 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
         <Container>
-          <div className="max-w-4xl mx-auto text-center text-white">
+          <div className="max-w-4xl mx-auto text-center text-white relative z-10">
             <div className="flex justify-center mb-6">
-              <Shield className="w-16 h-16" />
+              <Shield className="w-16 h-16 text-tekki-orange" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Politique de Confidentialité
             </h1>
-            <p className="text-xl opacity-90">
+            <p className="text-xl text-white/70">
               Protection et utilisation de vos données personnelles
             </p>
           </div>
@@ -31,7 +32,7 @@ const PolitiqueConfidentialitePage = () => {
           <div className="max-w-4xl mx-auto">
 
             {/* Introduction */}
-            <div className="mb-12 p-6 bg-blue-50 rounded-xl border border-blue-100">
+            <div className="mb-12 p-6 bg-tekki-blue/5 rounded-xl border border-tekki-blue/10">
               <p className="text-gray-700 leading-relaxed">
                 TEKKI Studio s'engage à protéger la vie privée de ses utilisateurs et à respecter la confidentialité de leurs données personnelles. Cette politique de confidentialité décrit comment nous collectons, utilisons, stockons et protégeons vos informations personnelles conformément au Règlement Général sur la Protection des Données (RGPD) et aux lois sénégalaises en vigueur.
               </p>
@@ -47,7 +48,7 @@ const PolitiqueConfidentialitePage = () => {
                 <p className="mb-4">
                   Le responsable du traitement des données personnelles collectées sur le site tekkistudio.com est :
                 </p>
-                <div className="bg-gray-50 p-6 rounded-lg mb-4">
+                <div className="bg-tekki-cream p-6 rounded-lg mb-4 border border-tekki-blue/8">
                   <p className="mb-2"><strong>TEKKI Studio</strong></p>
                   <p className="mb-2">Adresse : Ouest-foire, Dakar, Sénégal</p>
                   <p className="mb-2">Email : <a href="mailto:hello@tekkistudio.com" className="text-tekki-blue hover:underline">hello@tekkistudio.com</a></p>
@@ -190,7 +191,7 @@ const PolitiqueConfidentialitePage = () => {
                 <p className="mb-4">
                   Vos données personnelles sont conservées pendant des durées variables selon leur nature et leur finalité :
                 </p>
-                <div className="bg-gray-50 p-6 rounded-lg space-y-3">
+                <div className="bg-tekki-cream p-6 rounded-lg space-y-3 border border-tekki-blue/8">
                   <p><strong>Données de contact et prospects :</strong> 3 ans à compter du dernier contact</p>
                   <p><strong>Données clients :</strong> Durée de la relation contractuelle + 5 ans (obligations comptables)</p>
                   <p><strong>Données de navigation (cookies) :</strong> Maximum 13 mois</p>
@@ -262,26 +263,26 @@ const PolitiqueConfidentialitePage = () => {
                   TEKKI Studio met en œuvre des mesures techniques et organisationnelles appropriées pour protéger vos données personnelles contre :
                 </p>
                 <div className="grid md:grid-cols-2 gap-4 mb-4">
-                  <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-lg">
-                    <Lock className="w-5 h-5 text-tekki-coral flex-shrink-0 mt-1" />
+                  <div className="flex items-start gap-3 bg-tekki-cream p-4 rounded-lg border border-tekki-blue/8">
+                    <Lock className="w-5 h-5 text-tekki-orange flex-shrink-0 mt-1" />
                     <div>
                       <strong>Chiffrement :</strong> Protocole HTTPS pour toutes les communications
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-lg">
-                    <Shield className="w-5 h-5 text-tekki-coral flex-shrink-0 mt-1" />
+                  <div className="flex items-start gap-3 bg-tekki-cream p-4 rounded-lg border border-tekki-blue/8">
+                    <Shield className="w-5 h-5 text-tekki-orange flex-shrink-0 mt-1" />
                     <div>
                       <strong>Accès restreint :</strong> Limitation de l'accès aux données aux personnes autorisées
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-lg">
-                    <Database className="w-5 h-5 text-tekki-coral flex-shrink-0 mt-1" />
+                  <div className="flex items-start gap-3 bg-tekki-cream p-4 rounded-lg border border-tekki-blue/8">
+                    <Database className="w-5 h-5 text-tekki-orange flex-shrink-0 mt-1" />
                     <div>
                       <strong>Sauvegardes :</strong> Copies de sécurité régulières et sécurisées
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-lg">
-                    <AlertTriangle className="w-5 h-5 text-tekki-coral flex-shrink-0 mt-1" />
+                  <div className="flex items-start gap-3 bg-tekki-cream p-4 rounded-lg border border-tekki-blue/8">
+                    <AlertTriangle className="w-5 h-5 text-tekki-orange flex-shrink-0 mt-1" />
                     <div>
                       <strong>Surveillance :</strong> Détection et prévention des incidents de sécurité
                     </div>
@@ -301,33 +302,33 @@ const PolitiqueConfidentialitePage = () => {
                   Conformément au RGPD et aux lois en vigueur, vous disposez des droits suivants concernant vos données personnelles :
                 </p>
                 <div className="space-y-4">
-                  <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="bg-tekki-blue/5 p-4 rounded-lg border border-tekki-blue/10">
                     <strong className="text-tekki-blue">Droit d'accès :</strong> Obtenir la confirmation que vos données sont traitées et accéder à ces données
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="bg-tekki-blue/5 p-4 rounded-lg border border-tekki-blue/10">
                     <strong className="text-tekki-blue">Droit de rectification :</strong> Faire corriger des données inexactes ou incomplètes
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="bg-tekki-blue/5 p-4 rounded-lg border border-tekki-blue/10">
                     <strong className="text-tekki-blue">Droit à l'effacement :</strong> Demander la suppression de vos données dans certains cas
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="bg-tekki-blue/5 p-4 rounded-lg border border-tekki-blue/10">
                     <strong className="text-tekki-blue">Droit à la limitation :</strong> Limiter le traitement de vos données dans certaines situations
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="bg-tekki-blue/5 p-4 rounded-lg border border-tekki-blue/10">
                     <strong className="text-tekki-blue">Droit à la portabilité :</strong> Recevoir vos données dans un format structuré et les transmettre à un autre responsable
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="bg-tekki-blue/5 p-4 rounded-lg border border-tekki-blue/10">
                     <strong className="text-tekki-blue">Droit d'opposition :</strong> Vous opposer au traitement de vos données pour des raisons tenant à votre situation
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="bg-tekki-blue/5 p-4 rounded-lg border border-tekki-blue/10">
                     <strong className="text-tekki-blue">Droit de retirer votre consentement :</strong> Retirer à tout moment votre consentement pour les traitements basés sur celui-ci
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="bg-tekki-blue/5 p-4 rounded-lg border border-tekki-blue/10">
                     <strong className="text-tekki-blue">Droit de définir des directives post-mortem :</strong> Définir le sort de vos données après votre décès
                   </div>
                 </div>
 
-                <div className="mt-6 p-6 bg-gradient-to-r from-tekki-blue/5 to-tekki-coral/5 rounded-xl border border-tekki-blue/10">
+                <div className="mt-6 p-6 bg-tekki-cream rounded-xl border border-tekki-blue/8">
                   <h3 className="font-bold text-tekki-blue mb-3">Comment exercer vos droits ?</h3>
                   <p className="mb-3">
                     Pour exercer l'un de ces droits, vous pouvez nous contacter :
@@ -360,7 +361,7 @@ const PolitiqueConfidentialitePage = () => {
                   <div className="border-l-4 border-tekki-blue pl-4">
                     <strong>Cookies essentiels :</strong> Nécessaires au fonctionnement du site (session, sécurité)
                   </div>
-                  <div className="border-l-4 border-tekki-coral pl-4">
+                  <div className="border-l-4 border-tekki-orange pl-4">
                     <strong>Cookies analytiques :</strong> Google Analytics pour mesurer l'audience et les performances
                   </div>
                   <div className="border-l-4 border-tekki-blue pl-4">
@@ -417,7 +418,7 @@ const PolitiqueConfidentialitePage = () => {
             </div>
 
             {/* Contact */}
-            <div className="mt-16 p-8 bg-gradient-to-r from-tekki-blue/5 to-tekki-coral/5 rounded-xl border border-tekki-blue/10">
+            <div className="mt-16 p-8 bg-tekki-cream rounded-xl border border-tekki-blue/8">
               <div className="flex items-start gap-4">
                 <Shield className="w-6 h-6 text-tekki-blue flex-shrink-0 mt-1" />
                 <div>

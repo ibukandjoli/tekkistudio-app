@@ -1,34 +1,16 @@
-// app/layout.tsx
+// app/(marketing)/layout.tsx
 
-import '../globals.css';
 import type { Metadata } from 'next';
-import { Inter, Fraunces } from 'next/font/google';
 import { Suspense } from 'react';
 import Header from '@/app/components/layout/Header';
 import Footer from '@/app/components/layout/Footer';
 import MetaPixel from '@/app/components/analytics/MetaPixel';
 import { Toaster } from 'sonner';
 
-// Configuration de Fraunces pour les titres (police élégante et professionnelle)
-const fraunces = Fraunces({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-fraunces',
-  weight: ['400', '500', '600', '700', '800', '900']
-});
-
-// Configuration d'Inter pour le corps de texte
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-  weight: ['400', '500', '600', '700']
-});
-
 export const metadata: Metadata = {
   title: 'TEKKI Studio - Fabrique de Marques E-commerce Africaines',
-  description: 'Nous avons vendu +8 000 produits en ligne en 2 ans avec nos propres marques. A présent, nous appliquons ces stratégies aux marques africaines qui veulent exploser leurs ventes en ligne.',
-  keywords: 'e-commerce afrique, agence digitale afrique, marque africaine, boutique en ligne sénégal, vendre en ligne afrique, agence e-commerce dakar, croissance digitale, marques africaines, TEKKI Studio',
+  description: 'Nous avons vendu +8 000 produits en ligne en 2 ans avec nos propres marques. A present, nous appliquons ces strategies aux marques africaines qui veulent exploser leurs ventes en ligne.',
+  keywords: 'e-commerce afrique, agence digitale afrique, marque africaine, boutique en ligne senegal, vendre en ligne afrique, agence e-commerce dakar, croissance digitale, marques africaines, TEKKI Studio',
   authors: [{ name: 'TEKKI Studio' }],
   creator: 'TEKKI Studio',
   publisher: 'TEKKI Studio',
@@ -37,7 +19,7 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     url: 'https://tekkistudio.com',
     title: 'TEKKI Studio - Fabrique de Marques E-commerce Africaines',
-    description: 'Nous avons vendu +8 000 produits en 2 ans avec nos propres marques. A présent, nous appliquons ces stratégies aux marques africaines qui veulent exploser leurs ventes en ligne.',
+    description: 'Nous avons vendu +8 000 produits en ligne en 2 ans avec nos propres marques.',
     siteName: 'TEKKI Studio',
     images: [
       {
@@ -51,7 +33,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'TEKKI Studio - Fabrique de Marques E-commerce Africaines',
-    description: 'Nous avons vendu +8 000 produits en 2 ans avec nos propres marques. A présent, nous appliquons ces stratégies aux marques africaines qui veulent exploser leurs ventes en ligne.',
+    description: 'Nous avons vendu +8 000 produits en ligne en 2 ans avec nos propres marques.',
     creator: '@tekkistudio',
     images: ['/images/tekkistudio-og.jpg'],
   },
@@ -66,100 +48,34 @@ export const metadata: Metadata = {
     ],
     shortcut: '/images/tekkistudio/fav.png'
   },
-  manifest: '/site.webmanifest',
 };
 
-export default function RootLayout({
+export default function MarketingLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="fr"
-      className={`${fraunces.variable} ${inter.variable}`}
-      suppressHydrationWarning={true}
-    >
-      <head>
-        {/* Balises meta supplémentaires pour SEO et performance */}
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-        />
-        <meta name="robots" content="index, follow" />
-        <meta name="theme-color" content="#0f4c81" />
+    <div className="bg-tekki-cream text-tekki-blue min-h-screen flex flex-col">
+      <Suspense fallback={null}>
+        <MetaPixel />
+      </Suspense>
 
-        {/* Favicons et icônes */}
-        <link rel="icon" href="/images/tekkistudio/fav.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/images/tekkistudio/fav.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/images/tekkistudio/fav.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/images/tekkistudio/fav.png" />
-        <link rel="shortcut icon" href="/images/tekkistudio/fav.png" />
-        <meta name="msapplication-TileColor" content="#0f4c81" />
+      <Header />
+      <main className="flex-grow">
+        {children}
+      </main>
+      <Footer />
 
-        {/* Ajout d'attributs pour éviter les erreurs d'hydratation */}
-        <meta data-lt-installed="true" />
-
-        {/* Préchargement des ressources critiques pour les polices */}
-        <link
-          rel="preconnect"
-          href="https://fonts.googleapis.com"
-          crossOrigin="anonymous"
-        />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
-      <body className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col">
-        {/* Composant Pixel Meta pour le suivi - avec Suspense */}
-        <Suspense fallback={null}>
-          <MetaPixel />
-        </Suspense>
-
-        {/* Structure principale du site avec animations */}
-        <div className="flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-grow">
-            {children}
-          </main>
-          <Footer />
-        </div>
-
-        {/* Système de notifications amélioré */}
-        <Toaster
-          position="top-right"
-          richColors
-          closeButton
-          toastOptions={{
-            className: 'shadow-medium rounded-lg',
-            duration: 5000,
-          }}
-        />
-
-        {/* Script pour les animations au scroll - Utiliser un client-side effect avec useEffect serait préférable */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              document.addEventListener('DOMContentLoaded', function() {
-                const animatedElements = document.querySelectorAll('.animate-on-scroll');
-                
-                const observer = new IntersectionObserver((entries) => {
-                  entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                      entry.target.classList.add('animate-fade-in');
-                      observer.unobserve(entry.target);
-                    }
-                  });
-                }, {
-                  threshold: 0.1
-                });
-                
-                animatedElements.forEach(el => {
-                  observer.observe(el);
-                });
-              });
-            `,
-          }}
-        />
-      </body>
-    </html>
+      <Toaster
+        position="top-right"
+        richColors
+        closeButton
+        toastOptions={{
+          className: 'shadow-medium rounded-lg',
+          duration: 5000,
+        }}
+      />
+    </div>
   );
 }

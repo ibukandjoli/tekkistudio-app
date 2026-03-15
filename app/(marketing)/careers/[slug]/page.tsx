@@ -118,7 +118,7 @@ const JobOpeningDetail = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-tekki-coral" />
+        <Loader2 className="h-8 w-8 animate-spin text-tekki-orange" />
       </div>
     );
   }
@@ -141,7 +141,7 @@ const JobOpeningDetail = () => {
             </div>
           </div>
           
-          <Link href="/careers" className="inline-flex items-center text-tekki-blue hover:text-tekki-coral transition-colors">
+          <Link href="/careers" className="inline-flex items-center text-tekki-blue hover:text-tekki-orange transition-colors">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour aux offres d'emploi
           </Link>
@@ -168,7 +168,7 @@ const JobOpeningDetail = () => {
             </div>
           </div>
           
-          <Link href="/careers" className="inline-flex items-center text-tekki-blue hover:text-tekki-coral transition-colors">
+          <Link href="/careers" className="inline-flex items-center text-tekki-blue hover:text-tekki-orange transition-colors">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voir les offres d'emploi disponibles
           </Link>
@@ -180,7 +180,8 @@ const JobOpeningDetail = () => {
   return (
     <main className="pb-20">
       {/* Hero section minimaliste pour garantir la visibilité des éléments du header */}
-      <div className="bg-gradient-to-r from-tekki-blue to-tekki-coral py-12 pt-28 text-white">
+      <div className="bg-tekki-blue py-12 pt-28 text-white relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
         <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="flex items-center">
             <Link href="/careers" className="inline-flex items-center text-white hover:text-white/80 transition-colors">
@@ -210,22 +211,22 @@ const JobOpeningDetail = () => {
             
             <div className="flex flex-wrap gap-6 text-gray-600 mb-8">
               <div className="flex items-center">
-                <Briefcase className="h-5 w-5 mr-2 text-tekki-coral" />
+                <Briefcase className="h-5 w-5 mr-2 text-tekki-orange" />
                 <span>{job.department}</span>
               </div>
               
               <div className="flex items-center">
-                <MapPin className="h-5 w-5 mr-2 text-tekki-coral" />
+                <MapPin className="h-5 w-5 mr-2 text-tekki-orange" />
                 <span>{job.location}</span>
               </div>
               
               <div className="flex items-center">
-                <Clock className="h-5 w-5 mr-2 text-tekki-coral" />
+                <Clock className="h-5 w-5 mr-2 text-tekki-orange" />
                 <span>{job.type}</span>
               </div>
               
               <div className="flex items-center">
-                <Calendar className="h-5 w-5 mr-2 text-tekki-coral" />
+                <Calendar className="h-5 w-5 mr-2 text-tekki-orange" />
                 <span>Publié {formatRelativeDate(job.created_at)}</span>
               </div>
             </div>
@@ -282,7 +283,7 @@ const JobOpeningDetail = () => {
                 <ul className="space-y-3">
                   {job.responsibilities.map((responsibility, index) => (
                     <li key={index} className="flex items-start">
-                      <CheckCircle2 className="h-5 w-5 text-tekki-coral mt-0.5 mr-3 flex-shrink-0" />
+                      <CheckCircle2 className="h-5 w-5 text-tekki-orange mt-0.5 mr-3 flex-shrink-0" />
                       <span className="text-gray-700">{responsibility}</span>
                     </li>
                   ))}
@@ -297,7 +298,7 @@ const JobOpeningDetail = () => {
                 <ul className="space-y-3">
                   {job.requirements.map((requirement, index) => (
                     <li key={index} className="flex items-start">
-                      <CheckCircle2 className="h-5 w-5 text-tekki-coral mt-0.5 mr-3 flex-shrink-0" />
+                      <CheckCircle2 className="h-5 w-5 text-tekki-orange mt-0.5 mr-3 flex-shrink-0" />
                       <span className="text-gray-700">{requirement}</span>
                     </li>
                   ))}
@@ -368,7 +369,7 @@ const JobOpeningDetail = () => {
                 </p>
                 <Link
                   href="/"
-                  className="text-tekki-coral hover:text-tekki-coral/80 font-medium inline-flex items-center"
+                  className="text-tekki-orange hover:text-tekki-orange/80 font-medium inline-flex items-center"
                 >
                   En savoir plus sur nous
                   <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
@@ -383,7 +384,7 @@ const JobOpeningDetail = () => {
                 <div className="space-y-4">
                   <div>
                     <div className="flex items-center text-gray-600 mb-1">
-                      <Briefcase className="h-4 w-4 mr-2 text-tekki-coral" />
+                      <Briefcase className="h-4 w-4 mr-2 text-tekki-orange" />
                       <span className="text-sm font-medium">Département</span>
                     </div>
                     <p>{job.department}</p>
@@ -391,7 +392,7 @@ const JobOpeningDetail = () => {
                   
                   <div>
                     <div className="flex items-center text-gray-600 mb-1">
-                      <MapPin className="h-4 w-4 mr-2 text-tekki-coral" />
+                      <MapPin className="h-4 w-4 mr-2 text-tekki-orange" />
                       <span className="text-sm font-medium">Localisation</span>
                     </div>
                     <p>{job.location}</p>
@@ -399,7 +400,7 @@ const JobOpeningDetail = () => {
                   
                   <div>
                     <div className="flex items-center text-gray-600 mb-1">
-                      <Clock className="h-4 w-4 mr-2 text-tekki-coral" />
+                      <Clock className="h-4 w-4 mr-2 text-tekki-orange" />
                       <span className="text-sm font-medium">Type de poste</span>
                     </div>
                     <p>{job.type}</p>
@@ -407,7 +408,7 @@ const JobOpeningDetail = () => {
                   
                   <div>
                     <div className="flex items-center text-gray-600 mb-1">
-                      <Calendar className="h-4 w-4 mr-2 text-tekki-coral" />
+                      <Calendar className="h-4 w-4 mr-2 text-tekki-orange" />
                       <span className="text-sm font-medium">Date de publication</span>
                     </div>
                     <p>{new Date(job.created_at).toLocaleDateString('fr-FR')}</p>
@@ -416,7 +417,7 @@ const JobOpeningDetail = () => {
               </div>
               
               {/* Call-to-action */}
-              <div className="bg-gradient-to-r from-tekki-blue to-tekki-coral p-4 sm:p-6 rounded-xl shadow-sm text-white">
+              <div className="bg-tekki-blue p-4 sm:p-6 rounded-xl text-white">
                 <h3 className="text-xl font-bold mb-4">
                   Rejoignez notre équipe
                 </h3>

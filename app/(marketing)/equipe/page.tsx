@@ -100,17 +100,17 @@ const TeamPage = () => {
   // Valeurs de l'équipe
   const teamValues = [
     {
-      icon: <Target className="w-8 h-8 text-tekki-coral" />,
+      icon: <Target className="w-8 h-8 text-tekki-orange" />,
       title: "Orientation résultats",
       description: "Nous mesurons notre succès à vos ventes, pas à nos promesses. Chaque action est orientée vers un résultat concret et mesurable."
     },
     {
-      icon: <Zap className="w-8 h-8 text-tekki-coral" />,
+      icon: <Zap className="w-8 h-8 text-tekki-orange" />,
       title: "Expérience terrain",
       description: "Nous testons d'abord sur nos marques avant de vous le recommander. Vous bénéficiez uniquement de stratégies qui ont fait leurs preuves."
     },
     {
-      icon: <Heart className="w-8 h-8 text-tekki-coral" />,
+      icon: <Heart className="w-8 h-8 text-tekki-orange" />,
       title: "Accompagnement authentique",
       description: "Nous sommes entrepreneurs comme vous. Nous comprenons vos défis parce que nous les vivons quotidiennement sur nos propres marques."
     }
@@ -119,40 +119,33 @@ const TeamPage = () => {
   return (
     <main className="pb-0">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-tekki-blue to-tekki-coral relative pt-28 pb-20">
-        <div className="absolute inset-0 opacity-10">
-          <div className="grid grid-cols-12 h-full">
-            {[...Array(48)].map((_, i) => (
-              <div key={i} className="border border-white/20" />
-            ))}
-          </div>
-        </div>
-
+      <section className="bg-tekki-blue relative pt-28 pb-20 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
         <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px] relative z-10">
-          <div className="max-w-3xl mx-auto text-center text-white">
-            <h1 className="text-4xl lg:text-5xl font-bold mb-6">
-              L'Équipe TEKKI Studio
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="font-heading text-4xl lg:text-5xl font-bold text-white mb-6">
+              L'Équipe <span className="text-tekki-orange">TEKKI Studio</span>
             </h1>
-            <p className="text-xl opacity-90">
-              Des entrepreneurs qui créent leurs propres marques et accompagnent les vôtres vers le succès e-commerce
+            <p className="text-lg text-white/60">
+              Des entrepreneurs qui créent leurs propres marques et accompagnent les vôtres vers le succès e-commerce.
             </p>
           </div>
         </div>
       </section>
 
       {/* Notre différence */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white border-b border-tekki-blue/8">
         <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-3xl font-bold text-tekki-blue mb-6">
+            <h2 className="font-heading text-3xl font-bold text-tekki-blue mb-6">
               Ce qui nous rend différents
             </h2>
-            <div className="bg-gray-50 p-8 rounded-xl shadow-sm">
-              <p className="text-lg text-gray-600 mb-4">
+            <div className="bg-tekki-cream p-8 rounded-2xl border border-tekki-blue/8">
+              <p className="text-tekki-blue/70 text-lg mb-4 leading-relaxed">
                 Nous ne sommes pas des consultants qui donnent des conseils depuis un bureau. Nous sommes des entrepreneurs qui créent et développent activement leurs propres marques e-commerce.
               </p>
-              <p className="text-lg text-gray-600">
-                <span className="font-bold text-tekki-blue">VIENS ON S'CONNAÎT</span> (8 000+ produits vendus) et <span className="font-bold text-tekki-blue">AMANI</span> sont nos terrains de test. Chaque stratégie que nous vous recommandons a d'abord été validée sur nos marques. Vous ne payez pas pour de la théorie, mais pour ce qui fonctionne réellement.
+              <p className="text-tekki-blue/70 text-lg leading-relaxed">
+                <strong className="text-tekki-blue">VIENS ON S'CONNAÎT</strong> (8 000+ produits vendus) et <strong className="text-tekki-blue">AMANI</strong> sont nos terrains de test. Chaque stratégie que nous vous recommandons a d'abord été validée sur nos marques. Vous ne payez pas pour de la théorie, mais pour ce qui fonctionne réellement.
               </p>
             </div>
           </div>
@@ -160,9 +153,9 @@ const TeamPage = () => {
       </section>
 
       {/* Présentation de l'équipe */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-tekki-cream">
         <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
-          <h3 className="text-2xl font-bold text-tekki-blue text-center mb-12">
+          <h3 className="font-heading text-2xl font-bold text-tekki-blue text-center mb-12">
             Rencontrez l'équipe
           </h3>
           <div className="grid md:grid-cols-3 gap-4 sm:gap-8 max-w-5xl mx-auto mb-16 sm:mb-20">
@@ -170,7 +163,7 @@ const TeamPage = () => {
               <div
                 key={member.id}
                 id={`member-${member.id}`}
-                className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-gray-100 hover:border-tekki-coral/20 group"
+                className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-tekki-blue/8 hover:border-tekki-orange/20 group"
               >
                 <div className="w-full h-72 relative">
                   <Image
@@ -183,13 +176,13 @@ const TeamPage = () => {
                   />
                 </div>
                 <div className="p-4 sm:p-6">
-                  <h3 className="text-xl font-bold text-tekki-blue mb-1">
+                  <h3 className="font-heading text-xl font-bold text-tekki-blue mb-1">
                     {member.name}
                   </h3>
-                  <div className="text-tekki-coral font-medium mb-4">{member.role}</div>
+                  <div className="text-tekki-orange font-medium text-sm mb-4">{member.role}</div>
 
                   <div className="mb-5">
-                    <div className="flex items-center text-gray-500 text-sm mb-2">
+                    <div className="flex items-center text-tekki-blue/40 text-sm mb-3">
                       <MapPin className="w-4 h-4 mr-1" />
                       {member.location}
                     </div>
@@ -199,7 +192,7 @@ const TeamPage = () => {
                       {member.expertise.map((skill, idx) => (
                         <span
                           key={idx}
-                          className="bg-tekki-blue/10 text-tekki-blue text-xs px-3 py-1 rounded-full"
+                          className="bg-tekki-blue/8 text-tekki-blue text-xs px-3 py-1 rounded-full"
                         >
                           {skill}
                         </span>
@@ -207,14 +200,14 @@ const TeamPage = () => {
                     </div>
                   </div>
 
-                  <p className="text-gray-600 mb-6">
+                  <p className="text-tekki-blue/60 text-sm leading-relaxed mb-6">
                     {expandedMember === member.id ? member.fullBio : member.bio}
                   </p>
 
                   <div className="flex justify-between items-center">
                     <button
                       onClick={() => toggleBio(member.id)}
-                      className="text-tekki-blue hover:text-tekki-coral text-sm flex items-center transition-colors"
+                      className="text-tekki-blue/60 hover:text-tekki-orange text-sm flex items-center transition-colors"
                     >
                       {expandedMember === member.id ? 'Voir moins' : 'En savoir plus'}
                       <ChevronDown
@@ -276,24 +269,24 @@ const TeamPage = () => {
       </section>
 
       {/* Valeurs de l'équipe */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white border-y border-tekki-blue/8">
         <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
-          <h2 className="text-3xl font-bold text-tekki-blue text-center mb-12">
+          <h2 className="font-heading text-3xl font-bold text-tekki-blue text-center mb-12">
             Notre Philosophie de Travail
           </h2>
           <div className="grid md:grid-cols-3 gap-4 sm:gap-8 max-w-4xl mx-auto">
             {teamValues.map((value, index) => (
               <div
                 key={index}
-                className="text-center p-4 sm:p-8 bg-gray-50 rounded-xl shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300 border border-gray-100 hover:border-tekki-coral/20"
+                className="text-center p-6 sm:p-8 bg-tekki-cream rounded-2xl hover:border-tekki-orange/20 transition-all border border-tekki-blue/8 hover:-translate-y-1 duration-300 group"
               >
-                <div className="w-16 h-16 bg-tekki-coral/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-tekki-coral/20 transition-all">
+                <div className="w-16 h-16 bg-tekki-orange/8 rounded-full flex items-center justify-center mx-auto mb-5 group-hover:bg-tekki-orange group-hover:text-white transition-all text-tekki-orange">
                   {value.icon}
                 </div>
-                <h3 className="text-xl font-bold text-tekki-blue mb-4">
+                <h3 className="font-heading text-lg font-bold text-tekki-blue mb-3">
                   {value.title}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-tekki-blue/60 text-sm leading-relaxed">
                   {value.description}
                 </p>
               </div>
@@ -303,30 +296,30 @@ const TeamPage = () => {
       </section>
 
       {/* Nos marques comme preuve */}
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-blue-50">
+      <section className="py-16 bg-tekki-cream border-b border-tekki-blue/8">
         <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-tekki-blue mb-6">
+            <h2 className="font-heading text-3xl font-bold text-tekki-blue mb-4">
               Nos marques sont notre meilleure preuve
             </h2>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-tekki-blue/60 text-lg mb-8 leading-relaxed">
               Avant de vous accompagner, nous avons créé et développé nos propres marques à succès. Chaque conseil que nous donnons est basé sur notre expérience réelle.
             </p>
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100">
-                <div className="text-3xl font-bold text-purple-600 mb-2">8 000+</div>
-                <div className="text-gray-600 font-medium mb-1">Produits vendus</div>
-                <div className="text-sm text-gray-500">VIENS ON S'CONNAÎT</div>
+            <div className="grid md:grid-cols-2 gap-5 mb-8">
+              <div className="bg-white p-6 rounded-2xl border border-tekki-blue/8 shadow-sm">
+                <div className="font-heading text-3xl font-bold text-tekki-orange mb-2">8 000+</div>
+                <div className="text-tekki-blue font-medium mb-1">Produits vendus</div>
+                <div className="text-sm text-tekki-blue/40">VIENS ON S'CONNAÎT</div>
               </div>
-              <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100">
-                <div className="text-3xl font-bold text-pink-600 mb-2">7 pays</div>
-                <div className="text-gray-600 font-medium mb-1">Distribution</div>
-                <div className="text-sm text-gray-500">Afrique de l'Ouest + Diaspora</div>
+              <div className="bg-white p-6 rounded-2xl border border-tekki-blue/8 shadow-sm">
+                <div className="font-heading text-3xl font-bold text-tekki-orange mb-2">7 pays</div>
+                <div className="text-tekki-blue font-medium mb-1">Distribution</div>
+                <div className="text-sm text-tekki-blue/40">Afrique de l'Ouest + Diaspora</div>
               </div>
             </div>
             <Link
               href="/nos-marques"
-              className="inline-flex items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl"
+              className="inline-flex items-center justify-center bg-tekki-blue hover:bg-tekki-blue/90 text-white px-8 py-4 rounded-full font-bold transition-all group"
             >
               Découvrir nos marques
               <Award className="w-5 h-5 ml-2" />
@@ -336,27 +329,28 @@ const TeamPage = () => {
       </section>
 
       {/* Call to Action */}
-      <section className="py-16 bg-gradient-to-r from-tekki-blue to-tekki-coral text-white">
-        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px] text-center">
-          <h2 className="text-3xl font-bold mb-6">
+      <section className="py-16 bg-tekki-blue relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-white/5 rounded-full pointer-events-none" />
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px] text-center relative z-10">
+          <h2 className="font-heading text-3xl font-bold text-white mb-6">
             Prêt à transformer votre marque en success story ?
           </h2>
-          <p className="text-xl opacity-90 max-w-3xl mx-auto mb-8">
-            Bénéficiez de l'expérience d'une équipe qui a déjà créé et développé ses propres marques à succès
+          <p className="text-lg text-white/60 max-w-3xl mx-auto mb-8 leading-relaxed">
+            Bénéficiez de l'expérience d'une équipe qui a déjà créé et développé ses propres marques à succès.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/nos-formules"
-              className="bg-white text-tekki-blue hover:bg-white/90 px-8 py-4 rounded-lg font-bold text-lg transition-all hover:shadow-lg flex items-center justify-center"
+              href="/diagnostic"
+              className="bg-tekki-orange hover:bg-tekki-orange/90 text-white px-8 py-4 rounded-full font-bold transition-all hover:shadow-lg flex items-center justify-center group"
             >
-              Découvrir nos formules
+              Faire le diagnostic gratuit
               <Briefcase className="ml-2 h-5 w-5" />
             </Link>
             <a
               href="https://wa.me/221781362728?text=Bonjour%20TEKKI%20Studio%20!%20J%27aimerais%20discuter%20de%20ma%20marque%20avec%20votre%20équipe."
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white/10 border border-white/20 text-white hover:bg-white/20 px-8 py-4 rounded-lg font-bold text-lg transition-all flex items-center justify-center"
+              className="border border-white/15 text-white hover:bg-white/8 px-8 py-4 rounded-full font-bold transition-all flex items-center justify-center"
             >
               Réserver un appel gratuit
               <FaWhatsapp className="ml-2 h-5 w-5" />

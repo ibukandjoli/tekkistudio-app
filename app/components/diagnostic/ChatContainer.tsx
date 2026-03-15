@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { MessageList } from './MessageList';
-import { ChatInput } from './ChatInput';
-import { ChatMessage } from './MessageBubble';
+import { MessageList } from '../fastbrief/MessageList';
+import { ChatInput } from '../fastbrief/ChatInput';
+import { ChatMessage } from '../fastbrief/MessageBubble';
 import { X } from 'lucide-react';
 import Image from 'next/image';
 
@@ -17,7 +17,7 @@ declare global {
 const INITIAL_MESSAGE: ChatMessage = {
     id: 'msg-init-1',
     role: 'assistant',
-    content: "Bonjour ! Je suis l'assistant IA de TEKKI Studio. Notre but est de transformer votre marque en une machine de vente autonome. Mais avant ça, j'ai besoin d'en savoir un peu plus sur votre activité. Cela prend 3 minutes. Pour commencer, quel est le nom de votre marque et votre spécialité (skincare, capillaire, etc.) ?"
+    content: "Bonjour ! Je suis l'assistant IA de TEKKI Studio. Notre but est de transformer votre marque en une machine de vente autonome. Mais avant ça, j'ai besoin d'auditer votre modèle. Cela prend 3 minutes. Pour commencer, quel est le nom de votre marque et que vendez-vous exactement (chaussures, jeux, accessoires...) ?"
 };
 
 export function ChatContainer() {
@@ -55,7 +55,7 @@ export function ChatContainer() {
         setIsLoading(true);
 
         try {
-            const response = await fetch('/api/assistant', {
+            const response = await fetch('/api/diagnostic-assistant', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -81,10 +81,10 @@ export function ChatContainer() {
 
             // Vérification de la fin de l'interview (Étape 6)
             const contentStr = data.content.toLowerCase();
-            if (contentStr.includes("le dossier est transmis") || contentStr.includes("sous 24h")) {
+            if (contentStr.includes("notre équipe vous contacte")) {
                 const session_duration_seconds = Math.floor((Date.now() - sessionStartTime.current) / 1000);
 
-                fetch('/api/assistant/save-lead', {
+                fetch('/api/diagnostic-assistant/save-lead', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

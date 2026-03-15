@@ -4,7 +4,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Metadata } from 'next';
 import {
   ArrowLeft,
   ArrowRight,
@@ -20,11 +19,18 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import FormulaQuoteForm from '@/app/components/FormulaQuoteForm';
-import { Badge } from '@/app/components/ui/badge';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1, y: 0,
+    transition: { duration: 0.6, delay: i * 0.1 }
+  })
+};
 
 const DemarragePage = () => {
   const [isQuoteFormOpen, setIsQuoteFormOpen] = useState(false);
-  
+
   const deliverables = [
     {
       icon: <ShoppingCart className="w-6 h-6" />,
@@ -151,15 +157,15 @@ const DemarragePage = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen font-body">
       {/* Hero */}
-      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-gradient-to-br from-blue-500 to-cyan-500 relative overflow-hidden">
-        <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-tekki-blue relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px] relative z-10">
           <Link
             href="/nos-formules"
-            className="inline-flex items-center text-white/90 hover:text-white mb-8 transition-colors"
+            className="inline-flex items-center text-white/70 hover:text-white mb-8 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Retour aux formules
@@ -171,37 +177,31 @@ const DemarragePage = () => {
             transition={{ duration: 0.6 }}
             className="max-w-4xl"
           >
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-4 py-2 mb-6">
-              <Zap className="w-4 h-4 text-white" />
-              <span className="text-white text-sm font-semibold">
+            <div className="inline-flex items-center gap-2 bg-tekki-orange/15 border border-tekki-orange/30 rounded-full px-4 py-2 mb-6">
+              <Zap className="w-4 h-4 text-tekki-orange" />
+              <span className="text-tekki-orange text-sm font-semibold">
                 Formule Démarrage
               </span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+            <h1 className="font-heading text-4xl md:text-6xl font-bold text-white mb-6">
               Automatisez vos ventes, libérez votre temps
             </h1>
-            <p className="text-2xl text-white/90 mb-8">
+            <p className="text-xl text-white/70 mb-8">
               Passez de la vente manuelle via WhatsApp à une boutique professionnelle qui vend pour vous, même quand vous dormez
             </p>
 
-            <div className="flex flex-wrap gap-6 text-white/90 mb-8">
+            <div className="flex flex-wrap gap-6 text-white/80 mb-8">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5" />
-                </div>
+                <CheckCircle className="w-5 h-5 text-tekki-orange" />
                 <span className="font-semibold">À partir de 500 000F CFA</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                  <Clock className="w-5 h-5" />
-                </div>
+                <Clock className="w-5 h-5 text-tekki-orange" />
                 <span className="font-semibold">4-6 semaines</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5" />
-                </div>
+                <TrendingUp className="w-5 h-5 text-tekki-orange" />
                 <span className="font-semibold">Garantie résultats</span>
               </div>
             </div>
@@ -209,14 +209,14 @@ const DemarragePage = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => setIsQuoteFormOpen(true)}
-                className="inline-flex items-center justify-center bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all shadow-xl hover:scale-105"
+                className="inline-flex items-center justify-center bg-tekki-orange hover:bg-tekki-orange/90 text-white px-8 py-4 rounded-full font-bold text-lg transition-all"
               >
                 Obtenir un devis gratuit
                 <ArrowRight className="w-5 h-5 ml-2" />
               </button>
               <Link
                 href="/nos-formules/audit-depart"
-                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105"
+                className="inline-flex items-center justify-center border border-white/30 hover:border-white/50 text-white px-8 py-4 rounded-full font-bold text-lg transition-all"
               >
                 Commencer par un audit
               </Link>
@@ -226,10 +226,10 @@ const DemarragePage = () => {
       </section>
 
       {/* Idéal pour */}
-      <section className="py-12 bg-white border-b border-gray-100">
-        <div className="container mx-auto px-4">
+      <section className="py-12 bg-white border-b border-tekki-blue/8">
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold text-[#0f4c81] mb-6 text-center">
+            <h2 className="font-heading text-2xl font-bold text-tekki-blue mb-6 text-center">
               Cette formule est idéale pour votre marque si :
             </h2>
             <div className="grid md:grid-cols-3 gap-6">
@@ -238,9 +238,9 @@ const DemarragePage = () => {
                 "Vous n'avez pas encore de site e-commerce",
                 "Votre site actuel ne génère pas de ventes"
               ].map((text, index) => (
-                <div key={index} className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border-2 border-blue-100">
-                  <CheckCircle className="w-8 h-8 text-blue-600 mb-3" />
-                  <p className="text-gray-700 font-medium">{text}</p>
+                <div key={index} className="bg-tekki-cream rounded-xl p-6 border border-tekki-blue/8">
+                  <CheckCircle className="w-8 h-8 text-tekki-orange mb-3" />
+                  <p className="text-tekki-blue/70 font-medium">{text}</p>
                 </div>
               ))}
             </div>
@@ -249,9 +249,9 @@ const DemarragePage = () => {
       </section>
 
       {/* Ce qui est inclus */}
-      <section className="py-20 md:py-28 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#0f4c81] mb-12 text-center">
+      <section className="py-20 md:py-28 bg-tekki-cream">
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
+          <h2 className="font-heading text-3xl md:text-4xl font-bold text-tekki-blue mb-12 text-center">
             Ce qui est inclus dans la formule
           </h2>
 
@@ -259,19 +259,20 @@ const DemarragePage = () => {
             {deliverables.map((item, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                custom={index}
+                initial="hidden"
+                whileInView="visible"
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all"
+                variants={fadeUp}
+                className="bg-white rounded-2xl p-8 border border-tekki-blue/8"
               >
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white mb-4">
+                <div className="w-14 h-14 rounded-xl bg-tekki-orange flex items-center justify-center text-white mb-4">
                   {item.icon}
                 </div>
-                <h3 className="text-lg font-bold text-[#0f4c81] mb-3">
+                <h3 className="font-heading text-lg font-bold text-tekki-blue mb-3">
                   {item.title}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-tekki-blue/60">
                   {item.description}
                 </p>
               </motion.div>
@@ -279,15 +280,15 @@ const DemarragePage = () => {
           </div>
 
           {/* Fonctionnalités complètes */}
-          <div className="max-w-4xl mx-auto bg-white rounded-2xl p-8 shadow-lg">
-            <h3 className="text-2xl font-bold text-[#0f4c81] mb-6 text-center">
+          <div className="max-w-4xl mx-auto bg-white rounded-2xl p-8 border border-tekki-blue/8">
+            <h3 className="font-heading text-2xl font-bold text-tekki-blue mb-6 text-center">
               Toutes les fonctionnalités essentielles
             </h3>
             <div className="grid md:grid-cols-2 gap-4">
               {features.map((feature, index) => (
                 <div key={index} className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">{feature}</span>
+                  <CheckCircle className="w-5 h-5 text-tekki-orange flex-shrink-0 mt-0.5" />
+                  <span className="text-tekki-blue/70">{feature}</span>
                 </div>
               ))}
             </div>
@@ -297,8 +298,8 @@ const DemarragePage = () => {
 
       {/* Processus */}
       <section className="py-20 md:py-28 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#0f4c81] mb-12 text-center">
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
+          <h2 className="font-heading text-3xl md:text-4xl font-bold text-tekki-blue mb-12 text-center">
             Comment nous créons votre boutique
           </h2>
 
@@ -306,25 +307,26 @@ const DemarragePage = () => {
             {process.map((item, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                custom={index}
+                initial="hidden"
+                whileInView="visible"
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
+                variants={fadeUp}
                 className="flex gap-6 mb-8 last:mb-0"
               >
                 <div className="flex-shrink-0">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold">
+                  <div className="w-16 h-16 rounded-full bg-tekki-orange flex items-center justify-center text-white text-2xl font-bold">
                     {item.step}
                   </div>
                 </div>
-                <div className="flex-1 bg-gray-50 rounded-2xl p-6">
+                <div className="flex-1 bg-tekki-cream rounded-2xl p-6 border border-tekki-blue/8">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-bold text-[#0f4c81]">{item.title}</h3>
-                    <span className="text-sm text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-full">
+                    <h3 className="font-heading text-xl font-bold text-tekki-blue">{item.title}</h3>
+                    <span className="text-sm text-tekki-orange font-semibold bg-tekki-orange/10 px-3 py-1 rounded-full">
                       {item.duration}
                     </span>
                   </div>
-                  <p className="text-gray-600">{item.description}</p>
+                  <p className="text-tekki-blue/60">{item.description}</p>
                 </div>
               </motion.div>
             ))}
@@ -333,9 +335,8 @@ const DemarragePage = () => {
       </section>
 
       {/* Nos Réalisations */}
-      <section className="py-20 md:py-28 bg-[#f5f3ed]">
-        <div className="container mx-auto px-4">
-          {/* En-tête */}
+      <section className="py-20 md:py-28 bg-tekki-cream">
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -345,29 +346,26 @@ const DemarragePage = () => {
           >
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-end md:justify-between gap-6">
               <div>
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
+                <h2 className="font-heading text-4xl md:text-5xl font-bold text-tekki-blue mb-4">
                   Nos réalisations
                 </h2>
-                <p className="text-lg md:text-xl text-gray-600 max-w-xl">
+                <p className="text-lg text-tekki-blue/60 max-w-xl">
                   Découvrez les sites e-commerce que nous avons créés pour les marques africaines
                 </p>
               </div>
-              
-              {/* Statistiques */}
               <div className="flex flex-wrap gap-6 md:gap-8">
                 <div>
-                  <div className="text-3xl md:text-4xl font-bold text-gray-900">+7</div>
-                  <div className="text-sm text-gray-600">Marques accompagnées</div>
+                  <div className="text-3xl md:text-4xl font-bold text-tekki-orange">+7</div>
+                  <div className="text-sm text-tekki-blue/60">Marques accompagnées</div>
                 </div>
                 <div>
-                  <div className="text-3xl md:text-4xl font-bold text-gray-900">+3</div>
-                  <div className="text-sm text-gray-600">Pays ciblés</div>
+                  <div className="text-3xl md:text-4xl font-bold text-tekki-orange">+3</div>
+                  <div className="text-sm text-tekki-blue/60">Pays ciblés</div>
                 </div>
               </div>
             </div>
           </motion.div>
 
-          {/* Grille de projets */}
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {portfolio.map((site, index) => (
               <motion.a
@@ -375,13 +373,13 @@ const DemarragePage = () => {
                 href={site.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                custom={index}
+                initial="hidden"
+                whileInView="visible"
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
+                variants={fadeUp}
                 className="group relative aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer"
               >
-                {/* Image de fond */}
                 <div className="absolute inset-0 overflow-hidden">
                   <Image
                     src={site.image}
@@ -390,28 +388,20 @@ const DemarragePage = () => {
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
-                  {/* Overlay sombre pour meilleure lisibilité */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
                 </div>
-
-                {/* Contenu en overlay */}
                 <div className="absolute inset-0 p-6 flex flex-col justify-between">
-                  {/* Nom du projet en haut */}
                   <div>
                     <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
                       {site.name}
                     </h3>
                   </div>
-
-                  {/* Badge catégorie en bas */}
                   <div>
                     <span className="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm text-white text-sm font-medium rounded-full">
                       {site.category}
                     </span>
                   </div>
                 </div>
-
-                {/* Effet hover - overlay subtil */}
                 <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300"></div>
               </motion.a>
             ))}
@@ -420,21 +410,21 @@ const DemarragePage = () => {
       </section>
 
       {/* Garanties */}
-      <section className="py-20 md:py-28 bg-gradient-to-br from-blue-50 to-cyan-50">
-        <div className="container mx-auto px-4">
+      <section className="py-20 md:py-28 bg-white">
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0f4c81] mb-6 text-center">
+            <h2 className="font-heading text-3xl md:text-4xl font-bold text-tekki-blue mb-6 text-center">
               Nos garanties
             </h2>
-            <p className="text-xl text-gray-600 text-center mb-12">
+            <p className="text-xl text-tekki-blue/60 text-center mb-12">
               Nous croyons tellement en notre méthode que nous vous garantissons :
             </p>
 
             <div className="grid md:grid-cols-2 gap-6">
               {guarantee.map((item, index) => (
-                <div key={index} className="bg-white rounded-xl p-6 shadow-lg">
-                  <CheckCircle className="w-8 h-8 text-emerald-500 mb-4" />
-                  <p className="text-gray-700 leading-relaxed">{item}</p>
+                <div key={index} className="bg-tekki-cream rounded-xl p-6 border border-tekki-blue/8">
+                  <CheckCircle className="w-8 h-8 text-tekki-orange mb-4" />
+                  <p className="text-tekki-blue/70 leading-relaxed">{item}</p>
                 </div>
               ))}
             </div>
@@ -443,10 +433,10 @@ const DemarragePage = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-20 md:py-28 bg-gradient-to-br from-blue-500 to-cyan-500 relative overflow-hidden">
-        <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+      <section className="py-20 md:py-28 bg-tekki-blue relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-white/5 rounded-full pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px] relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -454,40 +444,40 @@ const DemarragePage = () => {
             transition={{ duration: 0.6 }}
             className="max-w-4xl mx-auto text-center"
           >
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+            <h2 className="font-heading text-3xl md:text-5xl font-bold text-white mb-6">
               Prêt à lancer votre boutique en ligne ?
             </h2>
-            <p className="text-xl text-white/90 mb-8">
+            <p className="text-xl text-white/70 mb-8">
               Obtenez un devis personnalisé gratuit sous 24h
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => setIsQuoteFormOpen(true)}
-                className="inline-flex items-center justify-center bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all shadow-xl hover:scale-105"
+                className="inline-flex items-center justify-center bg-tekki-orange hover:bg-tekki-orange/90 text-white px-8 py-4 rounded-full font-bold text-lg transition-all"
               >
                 Obtenir mon devis gratuit
                 <ArrowRight className="w-5 h-5 ml-2" />
               </button>
               <Link
                 href="/nos-formules"
-                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105"
+                className="inline-flex items-center justify-center border border-white/30 hover:border-white/50 text-white px-8 py-4 rounded-full font-bold text-lg transition-all"
               >
                 Voir toutes les formules
               </Link>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-white/80">
+            <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-white/60">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" />
+                <CheckCircle className="w-4 h-4 text-tekki-orange" />
                 <span>Devis gratuit sous 24h</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" />
+                <CheckCircle className="w-4 h-4 text-tekki-orange" />
                 <span>Paiement en 3 fois possible</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" />
+                <CheckCircle className="w-4 h-4 text-tekki-orange" />
                 <span>Garantie satisfaction</span>
               </div>
             </div>
@@ -495,7 +485,6 @@ const DemarragePage = () => {
         </div>
       </section>
 
-      {/* Formulaire de devis */}
       <FormulaQuoteForm
         isOpen={isQuoteFormOpen}
         onClose={() => setIsQuoteFormOpen(false)}

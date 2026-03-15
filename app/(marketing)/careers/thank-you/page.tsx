@@ -54,7 +54,7 @@ const ThankYouPage = () => {
   return (
     <main className="pb-20">
       {/* Hero section minimaliste pour garantir la visibilité des éléments du header */}
-      <div className="bg-gradient-to-r from-tekki-blue to-tekki-coral py-12 pt-28 text-white">
+      <div className="bg-tekki-blue py-12 pt-28 text-white">
         <Container>
           <div className="flex justify-center mb-2">
             <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
@@ -81,8 +81,8 @@ const ThankYouPage = () => {
               
               <ul className="space-y-3 text-left max-w-md mx-auto">
                 <li className="flex items-start">
-                  <div className="bg-tekki-coral/10 rounded-full p-1 mr-3 mt-0.5">
-                    <span className="flex items-center justify-center w-5 h-5 text-tekki-coral font-bold">1</span>
+                  <div className="bg-tekki-orange/10 rounded-full p-1 mr-3 mt-0.5">
+                    <span className="flex items-center justify-center w-5 h-5 text-tekki-orange font-bold">1</span>
                   </div>
                   <span className="text-gray-700">
                     Notre équipe de recrutement passera en revue votre dossier dans les prochains jours.
@@ -90,8 +90,8 @@ const ThankYouPage = () => {
                 </li>
                 
                 <li className="flex items-start">
-                  <div className="bg-tekki-coral/10 rounded-full p-1 mr-3 mt-0.5">
-                    <span className="flex items-center justify-center w-5 h-5 text-tekki-coral font-bold">2</span>
+                  <div className="bg-tekki-orange/10 rounded-full p-1 mr-3 mt-0.5">
+                    <span className="flex items-center justify-center w-5 h-5 text-tekki-orange font-bold">2</span>
                   </div>
                   <span className="text-gray-700">
                     Si votre profil correspond à nos besoins, nous vous contacterons pour un premier entretien.
@@ -99,8 +99,8 @@ const ThankYouPage = () => {
                 </li>
                 
                 <li className="flex items-start">
-                  <div className="bg-tekki-coral/10 rounded-full p-1 mr-3 mt-0.5">
-                    <span className="flex items-center justify-center w-5 h-5 text-tekki-coral font-bold">3</span>
+                  <div className="bg-tekki-orange/10 rounded-full p-1 mr-3 mt-0.5">
+                    <span className="flex items-center justify-center w-5 h-5 text-tekki-orange font-bold">3</span>
                   </div>
                   <span className="text-gray-700">
                     Vous recevrez dans tous les cas une réponse de notre part, généralement sous 10 jours ouvrés.

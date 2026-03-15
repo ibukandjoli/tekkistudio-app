@@ -208,7 +208,7 @@ const SpontaneousApplicationPage = () => {
   return (
     <main className="pb-20">
       {/* Hero section minimaliste pour garantir la visibilité des éléments du header */}
-      <div className="bg-gradient-to-r from-tekki-blue to-tekki-coral py-12 pt-28 text-white">
+      <div className="bg-tekki-blue py-12 pt-28 text-white">
         <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="flex items-center">
             <Link href="/careers" className="inline-flex items-center text-white hover:text-white/80 transition-colors">
@@ -234,7 +234,7 @@ const SpontaneousApplicationPage = () => {
       </section>
       
       {/* Formulaire de candidature */}
-      <section className="py-10 bg-gray-50">
+      <section className="py-10 bg-tekki-cream">
         <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="max-w-3xl mx-auto">
             <div className="bg-white p-4 sm:p-8 rounded-xl shadow-sm border border-gray-200">
@@ -262,7 +262,7 @@ const SpontaneousApplicationPage = () => {
                         value={formData.full_name}
                         onChange={handleChange}
                         placeholder="Votre nom complet"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-coral focus:border-tekki-coral"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-orange focus:border-tekki-orange"
                         required
                       />
                     </div>
@@ -279,7 +279,7 @@ const SpontaneousApplicationPage = () => {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="votre.email@exemple.com"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-coral focus:border-tekki-coral"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-orange focus:border-tekki-orange"
                         required
                       />
                     </div>
@@ -296,7 +296,7 @@ const SpontaneousApplicationPage = () => {
                         value={formData.phone}
                         onChange={handleChange}
                         placeholder="+221 XX XXX XX XX"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-coral focus:border-tekki-coral"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-orange focus:border-tekki-orange"
                         required
                       />
                     </div>
@@ -313,7 +313,7 @@ const SpontaneousApplicationPage = () => {
                         value={formData.location}
                         onChange={handleChange}
                         placeholder="Ville, Pays"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-coral focus:border-tekki-coral"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-orange focus:border-tekki-orange"
                         required
                       />
                     </div>
@@ -333,7 +333,7 @@ const SpontaneousApplicationPage = () => {
                       name="department"
                       value={formData.department}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-coral focus:border-tekki-coral"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-orange focus:border-tekki-orange"
                       required
                     >
                       <option value="general">Général / Plusieurs départements</option>
@@ -392,7 +392,7 @@ const SpontaneousApplicationPage = () => {
                         value={formData.portfolio_url}
                         onChange={handleChange}
                         placeholder="https://votreportfolio.com"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-coral focus:border-tekki-coral"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-orange focus:border-tekki-orange"
                       />
                     </div>
                     
@@ -408,7 +408,7 @@ const SpontaneousApplicationPage = () => {
                         value={formData.linkedin_url}
                         onChange={handleChange}
                         placeholder="https://linkedin.com/in/votrenom"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-coral focus:border-tekki-coral"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-orange focus:border-tekki-orange"
                       />
                     </div>
                   </div>
@@ -428,7 +428,7 @@ const SpontaneousApplicationPage = () => {
                       onChange={handleChange}
                       rows={7}
                       placeholder="Parlez-nous de vous, de votre expérience, de vos compétences et de ce qui vous motive à rejoindre notre équipe..."
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-coral focus:border-tekki-coral"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-tekki-orange focus:border-tekki-orange"
                       required
                     ></textarea>
                   </div>

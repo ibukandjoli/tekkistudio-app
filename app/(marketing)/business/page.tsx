@@ -180,10 +180,9 @@ export default function BusinessesPage() {
   return (
     <main>
       {/* Hero Section avec fond dégradé */}
-      <section className="bg-gradient-to-r from-tekki-blue to-tekki-orange relative min-h-[300px] flex items-center">
-        <div className="absolute inset-0 bg-grid-white/10 bg-grid opacity-10"></div>
-        <Container className="px-4 md:px-6 lg:px-8"> 
-          {/* Ajout de classes pour augmenter le padding supérieur sur mobile */}
+      <section className="bg-tekki-blue relative min-h-[300px] flex items-center overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
+        <Container className="px-4 md:px-6 lg:px-8">
           <div className="pt-24 pb-16 md:py-24 relative z-10">
             <div className="max-w-3xl mx-auto text-center text-white">
               <h1 className="text-3xl md:text-5xl font-bold mb-6">
@@ -242,11 +241,11 @@ export default function BusinessesPage() {
               className={cn(
                 "px-4 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors flex items-center",
                 activeTab === 'digital'
-                  ? "border-tekki-coral text-tekki-coral"
-                  : "border-transparent text-gray-600 hover:text-tekki-coral hover:border-tekki-coral/30"
+                  ? "border-tekki-orange text-tekki-orange"
+                  : "border-transparent text-gray-600 hover:text-tekki-orange hover:border-tekki-orange/30"
               )}
             >
-              <div className="w-2 h-2 rounded-full bg-tekki-coral mr-2"></div>
+              <div className="w-2 h-2 rounded-full bg-tekki-orange mr-2"></div>
               <span className="whitespace-nowrap">Business Digital</span>
             </button>
           </div>
@@ -254,7 +253,7 @@ export default function BusinessesPage() {
       </section>
 
       {/* Barre de filtres */}
-      <section className="py-6 bg-gray-50 border-b">
+      <section className="py-6 bg-tekki-cream border-b">
         <Container className="px-2 md:px-4 lg:px-8"> {/* Marges réduites sur mobile uniquement */}
           <div className="flex flex-col md:flex-row gap-4 items-start justify-between">
             {/* Bouton pour afficher/masquer les filtres sur mobile */}
@@ -275,7 +274,7 @@ export default function BusinessesPage() {
               <select
                 value={filters.status}
                 onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value as any }))}
-                className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-tekki-coral bg-white w-full md:w-auto"
+                className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-tekki-orange bg-white w-full md:w-auto"
               >
                 <option value="all">Tous les statuts</option>
                 <option value="available">Disponibles</option>
@@ -286,7 +285,7 @@ export default function BusinessesPage() {
               <select
                 value={filters.category}
                 onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
-                className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-tekki-coral bg-white w-full md:w-auto"
+                className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-tekki-orange bg-white w-full md:w-auto"
               >
                 <option value="all">Toutes les catégories</option>
                 {categories.map(category => (
@@ -300,7 +299,7 @@ export default function BusinessesPage() {
               <select
                 value={filters.priceRange}
                 onChange={(e) => setFilters(prev => ({ ...prev, priceRange: e.target.value as any }))}
-                className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-tekki-coral bg-white w-full md:w-auto"
+                className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-tekki-orange bg-white w-full md:w-auto"
               >
                 <option value="all">Tous les prix</option>
                 <option value="low">Moins de {formatPrice(500000)}</option>
@@ -312,7 +311,7 @@ export default function BusinessesPage() {
               <select
                 value={filters.sortBy}
                 onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value as any }))}
-                className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-tekki-coral bg-white w-full md:w-auto"
+                className="px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-tekki-orange bg-white w-full md:w-auto"
               >
                 <option value="newest">Plus récents</option>
                 <option value="price-asc">Prix croissant</option>
@@ -329,7 +328,7 @@ export default function BusinessesPage() {
                 placeholder="Rechercher un business..."
                 value={filters.search}
                 onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-tekki-coral bg-white"
+                className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-tekki-orange bg-white"
               />
             </div>
           </div>
@@ -341,7 +340,7 @@ export default function BusinessesPage() {
         <Container className="px-2 md:px-4 lg:px-8"> {/* Marges réduites sur mobile uniquement */}
           {loading ? (
             <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-tekki-coral"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-tekki-orange"></div>
             </div>
           ) : error ? (
             <div className="bg-red-100 text-red-700 p-4 rounded-lg">
@@ -363,12 +362,12 @@ export default function BusinessesPage() {
                 
                 {/* Statistiques sur les types de business - Optimisé pour mobile */}
                 <div className="flex flex-wrap items-center gap-4 text-sm">
-                  <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full">
+                  <div className="flex items-center gap-2 bg-tekki-cream px-3 py-1.5 rounded-full">
                     <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                     <span className="whitespace-nowrap">{physicalBusinesses.length} business physiques</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full">
-                    <div className="w-2 h-2 rounded-full bg-tekki-coral"></div>
+                  <div className="flex items-center gap-2 bg-tekki-cream px-3 py-1.5 rounded-full">
+                    <div className="w-2 h-2 rounded-full bg-tekki-orange"></div>
                     <span className="whitespace-nowrap">{digitalBusinesses.length} business digitaux</span>
                   </div>
                 </div>
@@ -438,7 +437,7 @@ export default function BusinessesPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-gray-50 py-16 border-t">
+      <section className="bg-tekki-cream py-16 border-t">
         <Container className="px-2 md:px-4 lg:px-8"> {/* Marges réduites sur mobile uniquement */}
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">Vous ne trouvez pas ce que vous cherchez?</h2>
@@ -482,7 +481,7 @@ function BusinessCard({
 }) {
   const typeColor = {
     physical: 'bg-blue-100 text-blue-800',
-    digital: 'bg-tekki-coral/10 text-tekki-coral'
+    digital: 'bg-tekki-orange/10 text-tekki-orange'
   };
 
   const typeText = {
@@ -505,7 +504,7 @@ function BusinessCard({
   return (
     <div 
       className={cn(
-        "bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-all hover:shadow-lg h-full flex flex-col",
+        "bg-white rounded-xl overflow-hidden border border-tekki-blue/8 transition-all hover:shadow-lg h-full flex flex-col",
         business.status === 'sold' ? 'opacity-80' : ''
       )}
     >
@@ -566,7 +565,7 @@ function BusinessCard({
               )}
               <span className={cn(
                 "font-bold block",
-                business.type === 'physical' ? 'text-tekki-blue' : 'text-tekki-coral'
+                business.type === 'physical' ? 'text-tekki-blue' : 'text-tekki-orange'
               )}>
                 {business.status === 'available' && business.progressive_option_enabled
                   ? `À partir de ${formatPrice(calculateEntryPrice(business))}`
@@ -613,7 +612,7 @@ function BusinessCard({
               "w-full py-3 rounded-lg flex items-center justify-center group",
               business.type === 'physical' 
                 ? "bg-tekki-blue text-white hover:bg-tekki-blue/90" 
-                : "bg-tekki-coral text-white hover:bg-tekki-coral/90"
+                : "bg-tekki-orange text-white hover:bg-tekki-orange/90"
             )}
           >
             Voir les détails

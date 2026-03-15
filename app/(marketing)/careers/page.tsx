@@ -155,7 +155,7 @@ const CareersPage = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-tekki-coral" />
+        <Loader2 className="h-8 w-8 animate-spin text-tekki-orange" />
       </div>
     );
   }
@@ -163,25 +163,26 @@ const CareersPage = () => {
   return (
     <main className="pb-20">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-tekki-blue to-tekki-coral py-16 pt-32 text-white">
-        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
+      <section className="bg-tekki-blue py-16 pt-32 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
+        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px] relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Rejoignez l'équipe TEKKI Studio
+            <h1 className="font-heading text-4xl md:text-5xl font-bold text-white mb-6">
+              Rejoignez l'équipe <span className="text-tekki-orange">TEKKI Studio</span>
             </h1>
-            <p className="text-xl opacity-90 mb-8">
+            <p className="text-lg text-white/60 mb-8">
               Participez à notre mission de permettre à toute personne de lancer son business en ligne facilement et sans partir de zéro.
             </p>
-            
+
             {/* Barre de recherche */}
             <div className="relative max-w-2xl mx-auto">
-              <Search className="absolute left-4 top-3.5 h-5 w-5 text-white/70" />
+              <Search className="absolute left-4 top-3.5 h-5 w-5 text-white/40" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Rechercher un poste, un département..."
-                className="w-full bg-white/10 backdrop-blur-sm text-white placeholder-white/70 py-3 pl-12 pr-4 rounded-full border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                className="w-full bg-white/8 text-white placeholder-white/40 py-3 pl-12 pr-4 rounded-full border border-white/15 focus:outline-none focus:ring-2 focus:ring-tekki-orange/40 font-body"
               />
             </div>
           </div>
@@ -200,7 +201,7 @@ const CareersPage = () => {
                   {countActiveFilters() > 0 && (
                     <button
                       onClick={clearFilters}
-                      className="text-sm text-tekki-coral hover:text-tekki-coral/80 flex items-center"
+                      className="text-sm text-tekki-orange hover:text-tekki-orange/80 flex items-center"
                     >
                       <X className="h-4 w-4 mr-1" />
                       Effacer
@@ -211,7 +212,7 @@ const CareersPage = () => {
                 {/* Départements */}
                 <div className="mb-6">
                   <h3 className="font-medium text-gray-700 mb-2 flex items-center">
-                    <Briefcase className="h-4 w-4 mr-2 text-tekki-coral" />
+                    <Briefcase className="h-4 w-4 mr-2 text-tekki-orange" />
                     Département
                   </h3>
                   <div className="space-y-2">
@@ -222,7 +223,7 @@ const CareersPage = () => {
                           name="department"
                           checked={activeFilters.department === dept}
                           onChange={() => setActiveFilters({...activeFilters, department: dept})}
-                          className="form-radio h-4 w-4 text-tekki-coral focus:ring-tekki-coral"
+                          className="form-radio h-4 w-4 text-tekki-orange focus:ring-tekki-orange"
                         />
                         <span className="ml-2 text-gray-600">{dept}</span>
                       </label>
@@ -233,7 +234,7 @@ const CareersPage = () => {
                 {/* Localisations */}
                 <div className="mb-6">
                   <h3 className="font-medium text-gray-700 mb-2 flex items-center">
-                    <MapPin className="h-4 w-4 mr-2 text-tekki-coral" />
+                    <MapPin className="h-4 w-4 mr-2 text-tekki-orange" />
                     Localisation
                   </h3>
                   <div className="space-y-2">
@@ -244,7 +245,7 @@ const CareersPage = () => {
                           name="location"
                           checked={activeFilters.location === loc}
                           onChange={() => setActiveFilters({...activeFilters, location: loc})}
-                          className="form-radio h-4 w-4 text-tekki-coral focus:ring-tekki-coral"
+                          className="form-radio h-4 w-4 text-tekki-orange focus:ring-tekki-orange"
                         />
                         <span className="ml-2 text-gray-600">{loc}</span>
                       </label>
@@ -255,7 +256,7 @@ const CareersPage = () => {
                 {/* Types de poste */}
                 <div className="mb-6">
                   <h3 className="font-medium text-gray-700 mb-2 flex items-center">
-                    <Filter className="h-4 w-4 mr-2 text-tekki-coral" />
+                    <Filter className="h-4 w-4 mr-2 text-tekki-orange" />
                     Type de poste
                   </h3>
                   <div className="space-y-2">
@@ -266,7 +267,7 @@ const CareersPage = () => {
                           name="type"
                           checked={activeFilters.type === type}
                           onChange={() => setActiveFilters({...activeFilters, type: type})}
-                          className="form-radio h-4 w-4 text-tekki-coral focus:ring-tekki-coral"
+                          className="form-radio h-4 w-4 text-tekki-orange focus:ring-tekki-orange"
                         />
                         <span className="ml-2 text-gray-600">{type}</span>
                       </label>
@@ -295,7 +296,7 @@ const CareersPage = () => {
                 {countActiveFilters() > 0 && (
                   <button
                     onClick={clearFilters}
-                    className="text-sm flex items-center text-tekki-blue hover:text-tekki-coral"
+                    className="text-sm flex items-center text-tekki-blue hover:text-tekki-orange"
                   >
                     <X className="h-4 w-4 mr-1" />
                     Effacer les filtres
@@ -337,7 +338,7 @@ const CareersPage = () => {
                   </p>
                   <button
                     onClick={clearFilters}
-                    className="text-tekki-coral hover:text-tekki-coral/80"
+                    className="text-tekki-orange hover:text-tekki-orange/80"
                   >
                     Effacer les filtres
                   </button>
@@ -349,18 +350,18 @@ const CareersPage = () => {
       </section>
       
       {/* Call to Action */}
-      <section className="py-12 bg-gray-50 border-t border-gray-200">
+      <section className="py-12 bg-tekki-cream border-t border-tekki-blue/8">
         <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-tekki-blue mb-4">
+            <h2 className="font-heading text-3xl font-bold text-tekki-blue mb-4">
               Vous ne trouvez pas le poste idéal ?
             </h2>
-            <p className="text-gray-600 mb-8">
+            <p className="text-tekki-blue/60 mb-8">
               Si vous êtes passionné par notre mission et que vous pensez pouvoir apporter une valeur ajoutée à notre équipe, n'hésitez pas à nous envoyer une candidature spontanée.
             </p>
             <Link
               href="/careers/spontaneous"
-              className="inline-flex items-center bg-tekki-coral hover:bg-tekki-coral/90 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              className="inline-flex items-center bg-tekki-orange hover:bg-tekki-orange/90 text-white px-6 py-3 rounded-full font-semibold transition-colors"
             >
               Candidature spontanée
             </Link>
