@@ -12,6 +12,20 @@ export async function middleware(req: NextRequest) {
   res.headers.set('X-Content-Type-Options', 'nosniff');
   res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.headers.set(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://connect.facebook.net",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https://res.cloudinary.com https://ythxumuniqxvfrwapfft.supabase.co",
+      "font-src 'self'",
+      "connect-src 'self' https://*.supabase.co https://api.anthropic.com https://hook.eu1.make.com",
+      "frame-src 'none'",
+      "object-src 'none'",
+      "base-uri 'self'",
+    ].join('; ')
+  );
   
   // Initialiser le client Supabase pour l'authentification
   const supabase = createMiddlewareClient({ req, res });

@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
   try {
     console.log("API /transactions: Début de la requête");
     const body = await request.json();
-    console.log("API /transactions: Corps de la requête reçu", JSON.stringify(body));
     
     const { 
       amount, 
@@ -57,7 +56,6 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString()
     };
 
-    console.log("API /transactions: Données de transaction prêtes", JSON.stringify(transactionData));
 
     try {
       // Enregistrement dans la table payment_transactions avec le client admin
@@ -89,10 +87,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("API /transactions: Erreur critique", error);
-    return NextResponse.json({ 
-      success: false, 
-      error: "Erreur interne du serveur",
-      details: error.message
+    return NextResponse.json({
+      success: false,
+      error: "Erreur interne du serveur"
     }, { status: 500 });
   }
 }

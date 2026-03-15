@@ -43,7 +43,6 @@ export async function POST(request: NextRequest) {
     
     // Extraire les données de la requête
     const body = await request.json();
-    console.log("📋 Données reçues", JSON.stringify(body));
 
     if (!body.leadData) {
       console.error("❌ Données manquantes dans la requête");
@@ -63,11 +62,9 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error("❌ Erreur d'insertion:", error);
-      return NextResponse.json({ 
-        success: false, 
-        error: "Erreur lors de l'enregistrement", 
-        details: error.message,
-        code: error.code
+      return NextResponse.json({
+        success: false,
+        error: "Erreur lors de l'enregistrement"
       }, { status: 500 });
     }
 
@@ -79,11 +76,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("❌ Erreur serveur:", error);
-    return NextResponse.json({ 
-      success: false, 
-      error: "Erreur serveur", 
-      details: error.message,
-      stack: error.stack
+    return NextResponse.json({
+      success: false,
+      error: "Erreur serveur"
     }, { status: 500 });
   }
 }

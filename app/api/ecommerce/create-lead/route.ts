@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
     let body;
     try {
       body = await request.json();
-      console.log("API create-lead: Corps de la requête", JSON.stringify(body));
     } catch (parseError) {
       console.error("API create-lead: Erreur de parsing JSON", parseError);
       return NextResponse.json({ 
@@ -35,10 +34,25 @@ export async function POST(request: NextRequest) {
     const { leadData } = body;
 
     if (!leadData || !leadData.full_name || !leadData.email || !leadData.phone) {
-      console.error("API create-lead: Données incomplètes", leadData);
-      return NextResponse.json({ 
-        success: false, 
-        error: "Données incomplètes" 
+      return NextResponse.json({
+        success: false,
+        error: "Données incomplètes"
+      }, { status: 400 });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(leadData.email)) {
+      return NextResponse.json({
+        success: false,
+        error: "Adresse email invalide"
+      }, { status: 400 });
+    }
+
+    const phoneRegex = /^[+\d][\d\s\-().]{6,20}$/;
+    if (!phoneRegex.test(leadData.phone)) {
+      return NextResponse.json({
+        success: false,
+        error: "Numéro de téléphone invalide"
       }, { status: 400 });
     }
 
@@ -234,10 +248,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("API create-lead: Erreur serveur", error);
-    return NextResponse.json({ 
-      success: false, 
-      error: "Erreur lors de l'enregistrement de la demande",
-      details: error.message || "Erreur inconnue"
+    return NextResponse.json({
+      success: false,
+      error: "Erreur lors de l'enregistrement de la demande"
     }, { status: 500 });
   }
 }

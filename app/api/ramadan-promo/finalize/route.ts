@@ -34,7 +34,6 @@ export async function POST(request: NextRequest) {
     let body: RequestBody;
     try {
       body = await request.json();
-      console.log("API finalize: Données reçues", JSON.stringify(body));
     } catch (parseError) {
       console.error("API finalize: Erreur de parsing JSON", parseError);
       return NextResponse.json({ 
@@ -75,7 +74,6 @@ export async function POST(request: NextRequest) {
       contact_method: contactMethod || 'contact_later'
     };
     
-    console.log("API finalize: Tentative d'insertion avec données:", JSON.stringify(insertData));
 
     // Tentative d'insertion avec le client normal
     try {
@@ -200,10 +198,9 @@ export async function POST(request: NextRequest) {
     
     // Formatage clair de l'erreur pour le client
     const errorDetails = error.message || "Erreur inconnue";
-    return NextResponse.json({ 
-      success: false, 
-      error: "Erreur lors de la finalisation de l'inscription",
-      details: errorDetails
+    return NextResponse.json({
+      success: false,
+      error: "Erreur lors de la finalisation de l'inscription"
     }, { status: 500 });
   }
 }

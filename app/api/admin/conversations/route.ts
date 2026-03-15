@@ -1,6 +1,7 @@
 // app/api/admin/conversations/route.ts
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { checkAdminAuth } from '@/app/lib/auth-utils';
 
 // Client Supabase avec clé de service (contourne les RLS)
 const supabaseAdmin = createClient(
@@ -64,6 +65,11 @@ async function getTotalCount(filter: string, timeRange: string, search: string) 
 }
 
 export async function GET(request: Request) {
+  const auth = await checkAdminAuth();
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
@@ -154,6 +160,11 @@ export async function GET(request: Request) {
 
 // Endpoint pour créer une conversation de test
 export async function POST(request: Request) {
+  const auth = await checkAdminAuth();
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const testData = body.data || {

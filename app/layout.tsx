@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   description: 'Fabrique de Marques E-commerce Africaines'
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -34,6 +39,12 @@ export default function RootLayout({
       className={`${outfit.variable} ${plusJakarta.variable}`}
       suppressHydrationWarning={true}
     >
+      <head>
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://ythxumuniqxvfrwapfft.supabase.co" />
+        <link rel="dns-prefetch" href="https://ythxumuniqxvfrwapfft.supabase.co" />
+      </head>
       <body className="font-body antialiased">
         {children}
       </body>

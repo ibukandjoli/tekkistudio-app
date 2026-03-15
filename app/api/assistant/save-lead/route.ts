@@ -82,10 +82,8 @@ Exemple de structure:
             }
         };
 
-        console.log("Payload généré :", JSON.stringify(payload, null, 2));
-
         // 3. Envoi au Webhook Make
-        const webhookUrl = process.env.NEXT_PUBLIC_MAKE_WEBHOOK_URL;
+        const webhookUrl = process.env.MAKE_WEBHOOK_URL;
         if (webhookUrl) {
             const webhookRes = await fetch(webhookUrl, {
                 method: 'POST',
@@ -102,7 +100,7 @@ Exemple de structure:
                 console.log("=== LEAD ENVOYÉ AU WEBHOOK AVEC SUCCÈS ===");
             }
         } else {
-            console.warn("ATTENTION: NEXT_PUBLIC_MAKE_WEBHOOK_URL n'est pas défini dans .env.local");
+            console.warn("ATTENTION: MAKE_WEBHOOK_URL n'est pas défini dans .env.local");
         }
 
         return NextResponse.json({
