@@ -4,6 +4,7 @@
 import { Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import Image from 'next/image';
 
 const TestimonialsV2 = () => {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
@@ -13,6 +14,7 @@ const TestimonialsV2 = () => {
       name: 'Fatou D.',
       role: 'Fondatrice',
       brand: 'Abarings',
+      image: '/images/testimonials/fatou.jpg',
       text: "Avant TEKKI Studio, j'avais beaucoup de mal à gérer les commandes de mes bijoux, surtout celles venant de l'international. Grâce au site créé pour ma marque, tout est automatisé et je peux me concentrer sur la création.",
       rating: 5,
     },
@@ -20,6 +22,7 @@ const TestimonialsV2 = () => {
       name: 'Maguette D.',
       role: 'Fondateur',
       brand: 'Momo Le Bottier',
+      image: '/images/testimonials/maguette.jpg',
       text: "TEKKI Studio a transformé notre marque avec un site professionnel qui dépasse nos attentes. Nos clients partout dans le monde peuvent désormais commander en ligne 24h/24 et être livrés. C'était notre objectif.",
       rating: 5,
     },
@@ -27,6 +30,7 @@ const TestimonialsV2 = () => {
       name: 'Fatou C.',
       role: 'Fondatrice',
       brand: '6C No Filter',
+      image: '/images/testimonials/cisse.jpg',
       text: "L'équipe est extrêmement professionnelle et disponible. J'avais besoin d'un site professionnel pour ma marque de cosmétiques, ils ont livré un travail magnifique en moins de 10 jours. Je recommande à 100% !",
       rating: 5,
     },
@@ -76,8 +80,8 @@ const TestimonialsV2 = () => {
 
               {/* Author */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-tekki-orange to-tekki-orange-hover flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                  {t.name[0]}
+                <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 relative">
+                  <Image src={t.image} alt={t.name} fill className="object-cover" />
                 </div>
                 <div>
                   <p className="font-semibold text-tekki-blue text-sm">{t.name}</p>
