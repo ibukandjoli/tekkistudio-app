@@ -100,6 +100,11 @@ export default function Sidebar() {
           name: 'Prospects Formules',
           href: '/admin/formula-leads',
           icon: <Briefcase className="mr-3 h-5 w-5" />
+        },
+        {
+          name: 'Projets Web',
+          href: '/admin/site-projects',
+          icon: <Globe className="mr-3 h-5 w-5" />
         }
       ]
     },
