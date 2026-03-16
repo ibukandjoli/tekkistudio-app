@@ -1238,7 +1238,7 @@ function AnalyticsPage() {
                             <>
                               <path d={areaPath} fill="url(#trafficGradient)" />
                               <path d={linePath} fill="none" stroke="#3b82f6" strokeWidth="2" />
-                              {filtered.map(([x, y]: number[], i: number) => (
+                              {points.map(([x, y], i) => (
                                 <circle key={i} cx={x} cy={y} r="3" fill="#3b82f6" />
                               ))}
                               <line x1="20" y1="240" x2="580" y2="240" stroke="#e5e7eb" strokeWidth="1" />

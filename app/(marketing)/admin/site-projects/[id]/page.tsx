@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
-import { ArrowLeft, Mail, Phone, Calendar, Globe, Cpu, Cloud, ShoppingCart, Edit2, Check } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Calendar, Globe, Cpu, Cloud, ShoppingCart, Edit2, Check, Printer } from 'lucide-react';
 import { supabase } from '@/app/lib/supabase';
 import { toast } from 'sonner';
 import { withAdminAuth } from '@/app/lib/withAdminAuth';
@@ -106,12 +106,28 @@ function SiteProjectDetailPage() {
     day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
   }).format(new Date(d));
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="space-y-6 max-w-4xl">
+      {/* Print styles */}
+      <style>{`
+        @media print {
+          body * { visibility: hidden; }
+          .print-zone, .print-zone * { visibility: visible; }
+          .print-zone { position: absolute; inset: 0; padding: 24px; }
+          .no-print { display: none !important; }
+          .print-header { border-bottom: 2px solid #0f4c81; padding-bottom: 16px; margin-bottom: 24px; }
+          @page { margin: 20mm; }
+        }
+      `}</style>
+
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
-          <button onClick={() => router.push('/admin/site-projects')} className="mt-1 text-gray-400 hover:text-[#0f4c81] transition-colors">
+          <button onClick={() => router.push('/admin/site-projects')} className="mt-1 text-gray-400 hover:text-[#0f4c81] transition-colors no-print">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
@@ -127,10 +143,10 @@ function SiteProjectDetailPage() {
           </div>
         </div>
 
-        {/* Status */}
+        {/* Status + Print */}
         <div className="flex flex-col items-end gap-2">
           {editingStatus ? (
-            <div className="flex flex-col gap-1 bg-white shadow-lg rounded-xl border p-3 z-10">
+            <div className="flex flex-col gap-1 bg-white shadow-lg rounded-xl border p-3 z-10 no-print">
               {STATUS_OPTIONS.map(opt => (
                 <button key={opt.value} onClick={() => updateStatus(opt.value)} disabled={saving}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium text-left hover:opacity-80 ${opt.color} ${request.status === opt.value ? 'ring-2 ring-offset-1 ring-gray-400' : ''}`}>
@@ -141,10 +157,27 @@ function SiteProjectDetailPage() {
             </div>
           ) : (
             <button onClick={() => setEditingStatus(true)}
-              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${statusInfo.color} hover:opacity-80 transition-opacity`}>
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${statusInfo.color} hover:opacity-80 transition-opacity no-print`}>
               {statusInfo.label} <Edit2 className="w-3 h-3" />
             </button>
           )}
+          <button
+            onClick={handlePrint}
+            className="no-print inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+          >
+            <Printer className="w-3 h-3" /> Exporter PDF
+          </button>
+        </div>
+      </div>
+
+      {/* ── Contenu exportable en PDF ── */}
+      <div className="print-zone space-y-6">
+
+      {/* Print header (visible only in print) */}
+      <div className="print-header hidden print:block">
+        <div className="text-xl font-bold text-[#0f4c81]">TEKKI Studio — Demande de projet web</div>
+        <div className="text-sm text-gray-500 mt-1">
+          {request.full_name} · {typeInfo.label} · {formatDate(request.created_at)}
         </div>
       </div>
 
@@ -274,12 +307,14 @@ function SiteProjectDetailPage() {
         ) : (
           <div className="space-y-2">
             <p className="text-sm text-gray-600 whitespace-pre-line min-h-12">{request.notes || 'Aucune note pour l\'instant.'}</p>
-            <Button size="sm" variant="outline" onClick={() => setEditingNotes(true)} className="flex items-center gap-1">
+            <Button size="sm" variant="outline" onClick={() => setEditingNotes(true)} className="flex items-center gap-1 no-print">
               <Edit2 className="w-3 h-3" /> Modifier les notes
             </Button>
           </div>
         )}
       </Section>
+
+      </div>{/* end print-zone */}
     </div>
   );
 }
