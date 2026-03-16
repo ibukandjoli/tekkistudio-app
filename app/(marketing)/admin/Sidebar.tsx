@@ -20,7 +20,8 @@ import {
   BarChart2,
   Globe,
   Briefcase,
-  FileText
+  FileText,
+  Bot,
 } from 'lucide-react';
 import { useAuth } from '@/app/contexts/AuthContext';
 import Image from 'next/image';
@@ -74,6 +75,11 @@ export default function Sidebar() {
     {
       title: 'Prospects',
       items: [
+        {
+          name: 'Diagnostics IA',
+          href: '/admin/diagnostic-leads',
+          icon: <Bot className="h-5 w-5" />
+        },
         {
           name: 'Prospects Sites Ecom',
           href: '/admin/ecommerce-leads',

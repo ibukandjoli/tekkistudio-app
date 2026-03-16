@@ -1,21 +1,24 @@
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { createClient } from '@supabase/supabase-js';
 
-const anthropic = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY || '',
-});
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY || '' });
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(req: Request) {
-    try {
-        const body = await req.json();
-        const { messages, session_duration_seconds } = body;
+  try {
+    const body = await req.json();
+    const { messages, session_duration_seconds } = body;
 
-        console.log("=== NOUVEAU LEAD FASTBRIEF : DEBUT EXTRACTION ===");
+    const transcript = messages
+      .map((m: any) => `${m.role.toUpperCase()}: ${m.content}`)
+      .join('\n\n');
 
-        // 1. Appel LLM caché pour extraire et nettoyer les données
-        const transcript = messages.map((m: any) => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
-
-        const systemPrompt = `
+    const systemPrompt = `
 Tu es un assistant d'extraction de données ultra-précis.
 Analyse la transcription d'une conversation entre un ASSISTANT et un USER, et extrais les informations sous format JSON strict.
 
@@ -41,77 +44,77 @@ Exemple de structure:
 }
 `;
 
-        const response = await anthropic.messages.create({
-            model: 'claude-sonnet-4-6',
-            max_tokens: 1024,
-            system: systemPrompt,
-            messages: [{ role: 'user', content: transcript }],
-            temperature: 0,
-        });
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: transcript }],
+      temperature: 0,
+    });
 
-        const replyContent = response.content[0].type === 'text' ? response.content[0].text : '{}';
+    const replyContent =
+      response.content[0].type === 'text' ? response.content[0].text : '{}';
 
-        let extractedData = {};
-        try {
-            const cleanedJsonStr = replyContent.replace(/```json/g, '').replace(/```/g, '').trim();
-            extractedData = JSON.parse(cleanedJsonStr);
-        } catch (parseError) {
-            console.error("Erreur parsing JSON Anthropic:", replyContent);
-            // On continue avec un objet vide s'il y a une erreur
-        }
-
-        const typedData = extractedData as any;
-
-        // 2. Construction du Payload Webhook
-        const payload = {
-            lead_info: {
-                brand_name: typedData.brand_name || "",
-                niche: typedData.niche || "",
-                contact_email: typedData.contact_email || "",
-                contact_whatsapp: typedData.contact_whatsapp || ""
-            },
-            business_context: {
-                traction_level: typedData.traction_level || "",
-                pain_point_hours: typedData.pain_point_hours || "",
-                pain_point_summary: typedData.pain_point_summary || ""
-            },
-            raw_data: {
-                full_transcript: messages,
-                session_duration_seconds: session_duration_seconds || 0,
-                timestamp: new Date().toISOString()
-            }
-        };
-
-        // 3. Envoi au Webhook Make
-        const webhookUrl = process.env.MAKE_WEBHOOK_URL;
-        if (webhookUrl) {
-            const webhookRes = await fetch(webhookUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!webhookRes.ok) {
-                console.error("Erreur du Webhook Make:", webhookRes.status, await webhookRes.text());
-                // On pourrait throw une erreur ici, mais on veut quand même retourner 200 au front 
-                // pour que l'UI affiche le message de succès (ou throw pour bloquer l'UI).
-                // On va throw pour que le frontend le capte si besoin, ou on le garde silencieux.
-            } else {
-                console.log("=== LEAD ENVOYÉ AU WEBHOOK AVEC SUCCÈS ===");
-            }
-        } else {
-            console.warn("ATTENTION: MAKE_WEBHOOK_URL n'est pas défini dans .env.local");
-        }
-
-        return NextResponse.json({
-            success: true,
-            message: 'Lead traité et webhook déclenché.'
-        });
-    } catch (error: any) {
-        console.error('Erreur lors du save-lead route:', error);
-        return NextResponse.json(
-            { error: error.message || 'Erreur lors de la capture' },
-            { status: 500 }
-        );
+    let extractedData: any = {};
+    try {
+      const cleaned = replyContent.replace(/```json/g, '').replace(/```/g, '').trim();
+      extractedData = JSON.parse(cleaned);
+    } catch {
+      // Continue with empty object if parsing fails
     }
+
+    // 1. Sauvegarde dans Supabase (source de vérité)
+    const { error: dbError } = await supabaseAdmin
+      .from('diagnostic_leads')
+      .insert({
+        source: 'diagnostic',
+        brand_name: extractedData.brand_name || null,
+        niche: extractedData.niche || null,
+        contact_email: extractedData.contact_email || null,
+        contact_whatsapp: extractedData.contact_whatsapp || null,
+        traction_level: extractedData.traction_level || null,
+        pain_point_hours: extractedData.pain_point_hours || null,
+        pain_point_summary: extractedData.pain_point_summary || null,
+        full_transcript: messages,
+        session_duration_seconds: session_duration_seconds || 0,
+        status: 'nouveau',
+      });
+
+    if (dbError) {
+      console.error('Erreur Supabase diagnostic_leads:', dbError.message);
+    }
+
+    // 2. Envoi au Webhook Make (non-bloquant)
+    const webhookUrl = process.env.MAKE_WEBHOOK_URL;
+    if (webhookUrl) {
+      const payload = {
+        lead_info: {
+          brand_name: extractedData.brand_name || '',
+          niche: extractedData.niche || '',
+          contact_email: extractedData.contact_email || '',
+          contact_whatsapp: extractedData.contact_whatsapp || '',
+        },
+        business_context: {
+          traction_level: extractedData.traction_level || '',
+          pain_point_hours: extractedData.pain_point_hours || '',
+          pain_point_summary: extractedData.pain_point_summary || '',
+        },
+        raw_data: {
+          full_transcript: messages,
+          session_duration_seconds: session_duration_seconds || 0,
+          timestamp: new Date().toISOString(),
+        },
+      };
+      fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }).catch(() => {});
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('Erreur save-lead:', error);
+    return NextResponse.json({ error: 'Erreur lors de la capture' }, { status: 500 });
+  }
 }
