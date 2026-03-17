@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { withAdminAuth } from '@/app/components/admin/withAdminAuth';
+import { withAdminAuth } from '@/app/lib/withAdminAuth';
 import Link from 'next/link';
 import {
   Search, Filter, ChevronLeft, ChevronRight,

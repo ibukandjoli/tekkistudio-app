@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { withAdminAuth } from '@/app/components/admin/withAdminAuth';
+import { withAdminAuth } from '@/app/lib/withAdminAuth';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
