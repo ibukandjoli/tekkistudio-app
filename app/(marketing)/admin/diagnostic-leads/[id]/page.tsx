@@ -7,9 +7,18 @@ import Link from 'next/link';
 import {
   ArrowLeft, Mail, Phone, Flame, Clock, User,
   MessageSquare, CheckCheck, Save, Printer,
+  MapPin, Target, Globe, Instagram, TrendingUp,
 } from 'lucide-react';
 
 type Message = { role: 'user' | 'assistant'; content: string };
+
+type ExtraData = {
+  location?: string | null;
+  target_market?: string | null;
+  social_media?: { platform: string; handle: string }[];
+  existing_website?: string | null;
+  monthly_revenue?: string | null;
+};
 
 type Lead = {
   id: string;
@@ -25,6 +34,7 @@ type Lead = {
   session_duration_seconds: number;
   status: string;
   notes: string | null;
+  extra_data: ExtraData | null;
   created_at: string;
   updated_at: string;
 };
@@ -175,6 +185,17 @@ function DiagnosticLeadDetailPage() {
                   </div>
                 </div>
               )}
+              {lead.extra_data?.location && (
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-4 h-4 text-purple-500" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400">Localisation</p>
+                    <p className="text-sm text-gray-700">{lead.extra_data.location}</p>
+                  </div>
+                </div>
+              )}
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
                   <Clock className="w-4 h-4 text-gray-400" />
@@ -191,10 +212,22 @@ function DiagnosticLeadDetailPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
             <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Contexte business</h2>
             <div className="space-y-3">
+              {lead.extra_data?.target_market && (
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Cible / marché</p>
+                  <p className="text-sm text-gray-700">{lead.extra_data.target_market}</p>
+                </div>
+              )}
               <div>
                 <p className="text-xs text-gray-400 mb-0.5">Traction actuelle</p>
                 <p className="text-sm text-gray-700">{lead.traction_level || '–'}</p>
               </div>
+              {lead.extra_data?.monthly_revenue && (
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">CA mensuel estimé</p>
+                  <p className="text-sm text-gray-700 font-medium">{lead.extra_data.monthly_revenue}</p>
+                </div>
+              )}
               <div>
                 <p className="text-xs text-gray-400 mb-0.5">Temps perdu / jour</p>
                 <p className="text-sm text-orange-600 font-medium">{lead.pain_point_hours || '–'}</p>
@@ -202,6 +235,33 @@ function DiagnosticLeadDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Présence digitale */}
+        {(lead.extra_data?.existing_website || (lead.extra_data?.social_media && lead.extra_data.social_media.length > 0)) && (
+          <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+            <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Présence digitale actuelle</h2>
+            <div className="flex flex-wrap gap-3">
+              {lead.extra_data?.existing_website && (
+                <a href={lead.extra_data.existing_website.startsWith('http') ? lead.extra_data.existing_website : `https://${lead.extra_data.existing_website}`}
+                  target="_blank" rel="noreferrer"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm hover:bg-blue-100 transition-colors">
+                  <Globe className="w-4 h-4" />
+                  {lead.extra_data.existing_website}
+                </a>
+              )}
+              {lead.extra_data?.social_media?.map((s, i) => (
+                <a key={i}
+                  href={s.platform.toLowerCase().includes('instagram') ? `https://instagram.com/${s.handle.replace('@', '')}` : '#'}
+                  target="_blank" rel="noreferrer"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-pink-50 text-pink-700 text-sm hover:bg-pink-100 transition-colors">
+                  <Instagram className="w-4 h-4" />
+                  <span className="font-medium">{s.platform}</span>
+                  <span>{s.handle}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Douleur identifiée */}
         {lead.pain_point_summary && (

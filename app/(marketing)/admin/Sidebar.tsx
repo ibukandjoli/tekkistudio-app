@@ -81,11 +81,6 @@ export default function Sidebar() {
           icon: <Bot className="h-5 w-5" />
         },
         {
-          name: 'Prospects Sites Ecom',
-          href: '/admin/ecommerce-leads',
-          icon: <Gift className="h-5 w-5" />
-        },
-        {
           name: 'Projets Web',
           href: '/admin/site-projects',
           icon: <Globe className="h-5 w-5" />

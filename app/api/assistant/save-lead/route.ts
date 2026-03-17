@@ -22,25 +22,35 @@ export async function POST(req: Request) {
 Tu es un assistant d'extraction de données ultra-précis.
 Analyse la transcription d'une conversation entre un ASSISTANT et un USER, et extrais les informations sous format JSON strict.
 
-Instructions cruciales :
+Champs à extraire :
 - brand_name: Le nom de la marque.
-- niche: La spécialité (skincare, capillaire, etc).
-- contact_email: L'adresse email.
-- contact_whatsapp: Le numéro de téléphone. ATTENTION MAXIMALE : S'il y a un numéro, tu dois OBLIGATOIREMENT le formater au format international strict (ex: +33612345678, +221771234567). Supprime tous les espaces, tirets ou parenthèses. Si le code pays manque, essaie de le deviner ou laisse les chiffres tels quels sans aucun espace.
-- traction_level: Le niveau de commandes actuel.
+- niche: La spécialité ou le secteur (beauté, mode, alimentation, bien-être, etc.).
+- location: La ville et/ou le pays mentionnés.
+- target_market: La cible / clientèle visée (ex : "Femmes 25-40 ans en Côte d'Ivoire").
+- social_media: Tableau des comptes réseaux sociaux mentionnés. Format : [{"platform": "Instagram", "handle": "@nom_du_compte"}]. Laisser [] si aucun.
+- existing_website: URL du site ou boutique en ligne existant(e). Null si aucun.
+- monthly_revenue: Chiffre d'affaires mensuel approximatif ou fourchette mentionnée. Null si non mentionné.
+- traction_level: Le niveau de commandes actuel (ex : "Quelques commandes par semaine", "Volume quotidien", "En démarrage").
 - pain_point_hours: Le temps estimé passé par jour sur WhatsApp/Instagram.
-- pain_point_summary: Rédige une synthèse de la douleur opérationnelle en UNE SEULE PHRASE claire.
+- pain_point_summary: Synthèse de la douleur opérationnelle en UNE SEULE PHRASE claire.
+- contact_email: L'adresse email.
+- contact_whatsapp: Le numéro WhatsApp. OBLIGATOIREMENT au format international strict (ex: +221771234567). Supprime espaces, tirets, parenthèses. Si le code pays manque, devine-le selon le contexte (pays mentionné) ou laisse les chiffres tels quels.
 
-Reponds UNIQUEMENT avec un objet JSON valide, sans balises GFM, sans texte avant ou après.
-Exemple de structure:
+Réponds UNIQUEMENT avec un objet JSON valide, sans balises GFM, sans texte avant ou après.
+Structure exacte attendue :
 {
   "brand_name": "",
   "niche": "",
-  "contact_email": "",
-  "contact_whatsapp": "",
+  "location": "",
+  "target_market": "",
+  "social_media": [],
+  "existing_website": null,
+  "monthly_revenue": null,
   "traction_level": "",
   "pain_point_hours": "",
-  "pain_point_summary": ""
+  "pain_point_summary": "",
+  "contact_email": "",
+  "contact_whatsapp": ""
 }
 `;
 
@@ -78,6 +88,13 @@ Exemple de structure:
         full_transcript: messages,
         session_duration_seconds: session_duration_seconds || 0,
         status: 'nouveau',
+        extra_data: {
+          location: extractedData.location || null,
+          target_market: extractedData.target_market || null,
+          social_media: extractedData.social_media || [],
+          existing_website: extractedData.existing_website || null,
+          monthly_revenue: extractedData.monthly_revenue || null,
+        },
       });
 
     if (dbError) {
