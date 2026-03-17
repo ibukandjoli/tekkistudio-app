@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { withAdminAuth } from '@/app/lib/withAdminAuth';
+import { supabase } from '@/app/lib/supabase';
 import Link from 'next/link';
 import {
-  Search, Filter, ChevronLeft, ChevronRight,
+  Search, ChevronLeft, ChevronRight,
   Flame, Clock, Mail, Phone, ExternalLink, RefreshCw,
 } from 'lucide-react';
 
@@ -25,11 +26,11 @@ type Lead = {
 };
 
 const STATUS_LABELS: Record<string, { label: string; classes: string }> = {
-  nouveau:        { label: 'Nouveau',        classes: 'bg-blue-50 text-blue-700 border-blue-200' },
-  contacté:       { label: 'Contacté',       classes: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
+  nouveau:          { label: 'Nouveau',        classes: 'bg-blue-50 text-blue-700 border-blue-200' },
+  contacté:         { label: 'Contacté',       classes: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
   'en_négociation': { label: 'En négociation', classes: 'bg-purple-50 text-purple-700 border-purple-200' },
-  converti:       { label: 'Converti',       classes: 'bg-green-50 text-green-700 border-green-200' },
-  perdu:          { label: 'Perdu',          classes: 'bg-gray-50 text-gray-500 border-gray-200' },
+  converti:         { label: 'Converti',       classes: 'bg-green-50 text-green-700 border-green-200' },
+  perdu:            { label: 'Perdu',          classes: 'bg-gray-50 text-gray-500 border-gray-200' },
 };
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -50,6 +51,8 @@ function formatDate(iso: string) {
   });
 }
 
+const PAGE_SIZE = 20;
+
 function DiagnosticLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [total, setTotal] = useState(0);
@@ -62,27 +65,35 @@ function DiagnosticLeadsPage() {
 
   const fetchLeads = useCallback(async () => {
     setLoading(true);
-    const params = new URLSearchParams({
-      page: String(page), limit: '20',
-      status: statusFilter, source: sourceFilter,
-      ...(search ? { search } : {}),
-    });
-    const res = await fetch(`/api/admin/diagnostic-leads?${params}`);
-    const json = await res.json();
-    setLeads(json.data || []);
-    setTotal(json.count || 0);
-    setTotalPages(json.totalPages || 1);
+    const offset = (page - 1) * PAGE_SIZE;
+
+    let query = supabase
+      .from('diagnostic_leads')
+      .select('id, source, brand_name, niche, contact_email, contact_whatsapp, traction_level, pain_point_hours, pain_point_summary, session_duration_seconds, status, notes, created_at', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + PAGE_SIZE - 1);
+
+    if (statusFilter !== 'all') query = query.eq('status', statusFilter);
+    if (sourceFilter !== 'all') query = query.eq('source', sourceFilter);
+    if (search) {
+      query = query.or(
+        `brand_name.ilike.%${search}%,niche.ilike.%${search}%,contact_email.ilike.%${search}%,contact_whatsapp.ilike.%${search}%`
+      );
+    }
+
+    const { data, count, error } = await query;
+    if (!error) {
+      setLeads(data || []);
+      setTotal(count || 0);
+      setTotalPages(Math.ceil((count || 0) / PAGE_SIZE));
+    }
     setLoading(false);
   }, [page, search, statusFilter, sourceFilter]);
 
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
 
   const updateStatus = async (id: string, status: string) => {
-    await fetch('/api/admin/diagnostic-leads', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status }),
-    });
+    await supabase.from('diagnostic_leads').update({ status }).eq('id', id);
     setLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l));
   };
 

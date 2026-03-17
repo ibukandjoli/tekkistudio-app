@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { withAdminAuth } from '@/app/lib/withAdminAuth';
-import { useParams, useRouter } from 'next/navigation';
+import { supabase } from '@/app/lib/supabase';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft, Mail, Phone, Flame, Clock, User,
   MessageSquare, CheckCheck, Save, Printer,
-  MapPin, Target, Globe, Instagram, TrendingUp,
+  MapPin, Globe, Instagram,
 } from 'lucide-react';
 
 type Message = { role: 'user' | 'assistant'; content: string };
@@ -67,7 +68,6 @@ function formatDate(iso: string) {
 
 function DiagnosticLeadDetailPage() {
   const { id } = useParams() as { id: string };
-  const router = useRouter();
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('');
@@ -76,23 +76,27 @@ function DiagnosticLeadDetailPage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/admin/diagnostic-leads/${id}`)
-      .then(r => r.json())
-      .then(data => {
-        setLead(data);
-        setStatus(data.status || 'nouveau');
-        setNotes(data.notes || '');
+    supabase
+      .from('diagnostic_leads')
+      .select('*')
+      .eq('id', id)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setLead(data);
+          setStatus(data.status || 'nouveau');
+          setNotes(data.notes || '');
+        }
         setLoading(false);
       });
   }, [id]);
 
   const save = async () => {
     setSaving(true);
-    await fetch('/api/admin/diagnostic-leads', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status, notes }),
-    });
+    await supabase
+      .from('diagnostic_leads')
+      .update({ status, notes })
+      .eq('id', id);
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
