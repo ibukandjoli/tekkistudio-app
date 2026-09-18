@@ -3,7 +3,7 @@
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { CheckCircle2, ArrowLeft, FileText } from 'lucide-react';
+import { CheckCircle2, ArrowLeft } from 'lucide-react';
 import Container from '@/app/components/ui/Container';
 
 const ThankYouPage = () => {
@@ -110,21 +110,13 @@ const ThankYouPage = () => {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex justify-center">
             <Link
               href="/careers"
               className="flex items-center justify-center bg-tekki-blue hover:bg-tekki-blue/90 text-white px-6 py-3 rounded-lg font-medium transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voir d'autres offres
-            </Link>
-            
-            <Link
-              href="/business"
-              className="flex items-center justify-center border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors"
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Explorer nos business
             </Link>
           </div>
         </div>

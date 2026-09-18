@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
-  BookOpen,
   Package,
   Users,
   Settings,
@@ -15,7 +14,6 @@ import {
   ChevronRight,
   Menu,
   X,
-  GraduationCap,
   Gift,
   BarChart2,
   Globe,
@@ -90,16 +88,6 @@ export default function Sidebar() {
     {
       title: 'Contenu',
       items: [
-        {
-          name: 'Nos Formations',
-          href: '/admin/formations',
-          icon: <BookOpen className="h-5 w-5" />
-        },
-        {
-          name: 'Inscriptions',
-          href: '/admin/enrollments',
-          icon: <GraduationCap className="h-5 w-5" />
-        },
         {
           name: 'Nos Marques',
           href: '/admin/marques',
