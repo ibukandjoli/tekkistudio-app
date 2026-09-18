@@ -1,7 +1,20 @@
 // app/api/ramadan-leads/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/app/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { checkAdminAuth } from '@/app/lib/auth-utils';
+
+// Client admin (service_role) : cette route lit/modifie des leads réels et doit
+// bypasser la RLS plutôt que d'utiliser la clé anon côté serveur.
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+);
 
 export async function GET(request: NextRequest) {
   // Vérifier l'authentification admin

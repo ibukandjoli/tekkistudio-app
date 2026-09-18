@@ -1,0 +1,11 @@
+-- formations : plus vendu sous ce format, tout est sur TEKKI Classes.
+-- Pages publiques (/formations, /formations/[slug]) et app/api/create-payment-link
+-- (qui ne servait qu'à ça, zéro autre appelant trouvé dans le code) déjà supprimés
+-- côté code.
+--
+-- formation_enrollments.formation_id référence probablement formations.id en FK
+-- (un insert avec un formation_id non-UUID a échoué avec "invalid input syntax for
+-- type uuid" lors des tests sur ramadan-promo/finalize). La table est vide (0 ligne)
+-- au moment de l'audit, donc CASCADE ne supprime aucune donnée : il retire juste la
+-- contrainte FK si elle existe. formation_enrollments elle-même n'est PAS supprimée.
+DROP TABLE IF EXISTS public.formations CASCADE;
