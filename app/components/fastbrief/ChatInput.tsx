@@ -154,18 +154,6 @@ export function ChatInput({ onSendMessage, isLoading, disabled }: ChatInputProps
                         <Send size={18} className={input.trim() ? "translate-x-0.5" : ""} />
                     </button>
                 </form>
-
-                {/* Easter Egg */}
-                <div className="mt-3 text-center">
-                    <a
-                        href="https://fastbrief.site"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[10px] text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                        Propulsé par FastBrief
-                    </a>
-                </div>
             </div>
         </div>
     );

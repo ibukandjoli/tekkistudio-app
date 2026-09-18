@@ -8,6 +8,9 @@ const nextConfig = {
   // Pages masquées — redirigées vers l'accueil
   async redirects() {
     return [
+      // /diagnostic-beaute retiré : flow beauté fusionné dans le diagnostic généraliste.
+      // Redirection permanente pour les liens externes encore en circulation (bios, pubs, messages).
+      { source: '/diagnostic-beaute', destination: '/diagnostic', permanent: true },
       { source: '/acquisition-options', destination: '/', permanent: false },
       { source: '/business', destination: '/', permanent: false },
       { source: '/business/:path*', destination: '/', permanent: false },

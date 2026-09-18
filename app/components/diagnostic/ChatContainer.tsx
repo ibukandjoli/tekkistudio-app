@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { MessageList } from '../fastbrief/MessageList';
 import { ChatInput } from '../fastbrief/ChatInput';
 import { ChatMessage } from '../fastbrief/MessageBubble';
 import { X } from 'lucide-react';
 import Image from 'next/image';
+import { trackCustomEvent } from '@/app/lib/meta-events';
 
 // Pour que TypeScript accepte window.fbq
 declare global {
@@ -14,13 +16,26 @@ declare global {
     }
 }
 
-const INITIAL_MESSAGE: ChatMessage = {
-    id: 'msg-init-1',
-    role: 'assistant',
-    content: "Bonjour ! Je suis l'assistant IA de TEKKI Studio. Notre but est de transformer votre marque en une machine de vente autonome. Mais avant ça, j'ai besoin d'auditer votre modèle. Cela prend 3 minutes. Pour commencer, quel est le nom de votre marque et que vendez-vous exactement (chaussures, jeux, accessoires...) ?"
+const DEFAULT_INITIAL_MESSAGE = "Bonjour ! Je suis l'assistant IA de TEKKI Studio. Notre but est de transformer votre marque en une machine de vente autonome. Mais avant ça, j'ai besoin d'auditer votre modèle. Cela prend 10 à 15 minutes. Pour commencer, quel est le nom de votre marque et que vendez-vous exactement (chaussures, jeux, accessoires...) ?";
+
+// Message d'accueil adapté selon l'offre cliquée sur la homepage (?offre=diagnostic|sprint|fabrique)
+const OFFRE_GREETINGS: Record<string, string> = {
+    sprint: "Bonjour ! Je vois que le Sprint Acquisition vous intéresse — dites-m'en plus sur votre marque. Quel est son nom et que vendez-vous exactement (chaussures, jeux, accessoires...) ?",
+    fabrique: "Bonjour ! Je vois que la Fabrique complète vous intéresse — dites-m'en plus sur votre marque. Quel est son nom et que vendez-vous exactement (chaussures, jeux, accessoires...) ?",
 };
 
+function getInitialMessage(offre: string | null): ChatMessage {
+    return {
+        id: 'msg-init-1',
+        role: 'assistant',
+        content: (offre && OFFRE_GREETINGS[offre]) || DEFAULT_INITIAL_MESSAGE,
+    };
+}
+
 export function ChatContainer() {
+    const searchParams = useSearchParams();
+    const offre = searchParams.get('offre');
+
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [hasStarted, setHasStarted] = useState(false);
@@ -32,16 +47,17 @@ export function ChatContainer() {
         const initChat = async () => {
             setIsLoading(true);
             await new Promise(resolve => setTimeout(resolve, 1500));
-            setMessages([INITIAL_MESSAGE]);
+            setMessages([getInitialMessage(offre)]);
             setIsLoading(false);
             setHasStarted(true);
             sessionStartTime.current = Date.now();
+            trackCustomEvent('diagnostic_start', { offre: offre || 'diagnostic' });
         };
 
         if (!hasStarted) {
             initChat();
         }
-    }, [hasStarted]);
+    }, [hasStarted, offre]);
 
     const handleSendMessage = async (content: string) => {
         const userMessage: ChatMessage = {
@@ -89,12 +105,17 @@ export function ChatContainer() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         messages: fullHistory,
-                        session_duration_seconds
+                        session_duration_seconds,
+                        offre: offre || 'diagnostic'
                     })
                 })
                     .then(async (res) => {
                         if (res.ok) {
                             setIsSuccess(true);
+                            trackCustomEvent('diagnostic_submit', {
+                                offre: offre || 'diagnostic',
+                                session_duration_seconds
+                            });
                             try {
                                 if (typeof window !== 'undefined' && window.fbq) {
                                     window.fbq('track', 'Lead');

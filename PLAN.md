@@ -7,7 +7,7 @@ Ce fichier définit les étapes d'intégration de la nouvelle fonctionnalité de
 - [x] 2. Créer un `layout.tsx` propre à cette route pour s'assurer qu'elle agit comme une SPA (Single Page Application) sans la navigation globale de l'agence, avec un `h-screen` strict pour mobile.
 - [x] 3. Créer le Head de la page (Logo + titre "Assistant Stratégique").
 - [x] 4. Mettre en place l'architecture du `ChatContainer` (MessageList, MessageBubble, ChatInput avec bouton Micro Voice Speech API).
-- [x] 5. Intégrer l'Easter Egg "Propulsé par FastBrief" sous le composant Input (redirection `fastbrief.site`).
+- [x] 5. ~~Intégrer l'Easter Egg "Propulsé par FastBrief" sous le composant Input (redirection `fastbrief.site`)~~ — retiré lors de la refonte homepage (2026-09-17), ce lien self-promo n'a pas sa place sur un produit client.
 
 ## Phase 2 : Logique d'État & Animations
 - [x] 1. Mettre en place la variable d'état globale des messages (`useState` ou `useReducer` pour gérer `{ role, content }`).

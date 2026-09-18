@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { ChatContainer } from '@/app/components/diagnostic/ChatContainer';
 
 export const metadata = {
@@ -9,7 +9,9 @@ export const metadata = {
 export default function DiagnosticPage() {
     return (
         <main className="min-h-screen bg-gray-50 flex flex-col">
-            <ChatContainer />
+            <Suspense fallback={null}>
+                <ChatContainer />
+            </Suspense>
         </main>
     );
 }
