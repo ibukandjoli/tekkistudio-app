@@ -9,7 +9,7 @@ export default function SkinInTheGameSection() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
-    <section id="differenciateur" className="py-16 md:py-24 bg-[#FFF8F5]">
+    <section id="differenciateur" className="py-16 md:py-24 bg-tekki-surface-warm border-y border-tekki-ink/8">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Text Column */}
@@ -19,38 +19,36 @@ export default function SkinInTheGameSection() {
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
           >
-            <span className="inline-block text-sm font-semibold text-tekki-orange uppercase tracking-widest mb-4">
+            <span className="inline-block font-home-body text-[12.5px] font-semibold text-tekki-orange-deep uppercase tracking-widest mb-4">
               Notre différence
             </span>
 
-            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-tekki-blue tracking-tight mb-6 leading-tight">
-              On ne vous conseille pas
-              <br className="hidden sm:block" />
-              depuis un bureau.
+            <h2 className="font-home-display text-[30px] font-semibold text-tekki-ink tracking-tight mb-5 leading-tight">
+              On ne vous conseille pas depuis un bureau.
             </h2>
 
-            <div className="space-y-5 mb-8">
-              <p className="text-tekki-blue/60 text-lg leading-relaxed">
+            <div className="space-y-4 mb-8">
+              <p className="font-home-body text-tekki-ink-soft text-[16px] leading-relaxed">
                 Avant d&apos;accompagner votre marque, on a lancé les nôtres.{' '}
-                <strong className="text-tekki-blue font-semibold">Viens On S&apos;Connaît</strong>,{' '}
-                <strong className="text-tekki-blue font-semibold">Amani</strong> : ce sont nos propres créations, qu&apos;on gère encore aujourd&apos;hui. On connaît la réalité des stocks à gérer, des clients exigeants, des livreurs peu fiables, et des paiements à la livraison incertains.
+                <strong className="text-tekki-ink font-semibold">Viens On S&apos;Connaît</strong>,{' '}
+                <strong className="text-tekki-ink font-semibold">Amani</strong> : ce sont nos propres créations, qu&apos;on gère encore aujourd&apos;hui. On connaît la réalité des stocks à gérer, des clients exigeants, des livreurs peu fiables, et des paiements à la livraison incertains.
               </p>
-              <p className="text-tekki-blue/60 text-lg leading-relaxed">
+              <p className="font-home-body text-tekki-ink-soft text-[16px] leading-relaxed">
                 Chaque stratégie qu&apos;on vous recommande, on l&apos;a d&apos;abord testée avec notre propre argent.{' '}
-                <span className="text-tekki-orange font-semibold">C&apos;est pour ça que ça marche.</span>
+                <span className="text-tekki-orange-deep font-semibold">C&apos;est pour ça que ça marche.</span>
               </p>
             </div>
 
             {/* Stats */}
             <div className="flex items-center gap-8">
               <div className="flex flex-col">
-                <span className="font-heading text-3xl md:text-4xl font-bold text-tekki-blue">100%</span>
-                <span className="text-sm text-tekki-blue/40 mt-1">Testé sur nos propres marques</span>
+                <span className="font-home-mono text-[28px] font-semibold text-tekki-ink tabular-nums">100%</span>
+                <span className="font-home-body text-[13px] text-tekki-ink-soft mt-1">Testé sur nos propres marques</span>
               </div>
-              <div className="w-px h-14 bg-tekki-blue/10 rounded-full" />
+              <div className="w-px h-14 bg-tekki-ink/10 rounded-full" />
               <div className="flex flex-col">
-                <span className="font-heading text-3xl md:text-4xl font-bold text-tekki-blue">3</span>
-                <span className="text-sm text-tekki-blue/40 mt-1">Marques créées en interne</span>
+                <span className="font-home-mono text-[28px] font-semibold text-tekki-ink tabular-nums">3</span>
+                <span className="font-home-body text-[13px] text-tekki-ink-soft mt-1">Marques créées en interne</span>
               </div>
             </div>
           </motion.div>
@@ -63,7 +61,7 @@ export default function SkinInTheGameSection() {
             className="relative h-[500px] md:h-[580px] w-full"
           >
             {/* VOSC Image */}
-            <div className="absolute top-0 right-0 w-[65%] h-[55%] rounded-2xl overflow-hidden shadow-xl shadow-tekki-blue/10 z-20 border border-white/50">
+            <div className="absolute top-0 right-0 w-[65%] h-[55%] rounded-2xl overflow-hidden shadow-xl shadow-tekki-ink/10 z-20 border border-white/50">
               <Image
                 src="/images/brands/vosc.png"
                 alt="Viens on s'connaît"
@@ -75,7 +73,7 @@ export default function SkinInTheGameSection() {
             </div>
 
             {/* AMANI Image */}
-            <div className="absolute bottom-0 left-0 w-[70%] h-[55%] rounded-2xl overflow-hidden shadow-xl shadow-tekki-blue/10 z-30 border border-white/50">
+            <div className="absolute bottom-0 left-0 w-[70%] h-[55%] rounded-2xl overflow-hidden shadow-xl shadow-tekki-ink/10 z-30 border border-white/50">
               <Image
                 src="/images/brands/amani-2.png"
                 alt="Amani Products"

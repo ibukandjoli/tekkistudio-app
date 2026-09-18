@@ -12,34 +12,34 @@ const FAQV2 = () => {
 
   const faqs = [
     {
-      question: "Pourquoi choisir TEKKI Studio plutôt qu'une agence classique ?",
+      question: 'Pourquoi ne pas juste faire mon site avec l\'IA (Lovable, etc.) ?',
       answer:
-        "La plupart des agences et freelances ne savent pas réellement ce que c'est que de vendre en ligne, surtout en Afrique. Ils vous livrent un joli site et vous laissent vous débrouiller pour attirer des ventes. Contrairement à eux, nous sommes sur le terrain comme vous, avec nos propres marques. Nous savons ce qui marche et ce qui ne marche pas. Nous savons ce qui amène un inconnu à acheter, et ce qui fait fuir un client. Chaque solution qu'on vous propose a d'abord été testée avec notre propre argent.",
-    },
-    {
-      question: 'Est-ce que vous travaillez avec tous les types de marques ?',
-      answer:
-        "On accompagne principalement les marques africaines dans la mode, la beauté, le lifestyle et l'alimentaire. Si vous vendez un produit physique et que vous voulez développer vos ventes en ligne, on peut très probablement vous aider.",
+        "Vous pouvez, et beaucoup de nos clientes commencent comme ça. Le problème n'est pas le site : c'est que ces pages affichent un catalogue mais ne vendent pas toutes seules — les commandes repartent sur WhatsApp, gérées à la main, sans automatisation ni acquisition derrière. Si vous avez déjà un site généré par IA, on peut souvent le connecter au reste du système (paiement, Vendeuse IA, publicité) plutôt que de tout recommencer.",
     },
     {
       question: 'Combien de temps avant de voir des résultats ?',
       answer:
-        "Les premiers résultats (trafic, premières commandes en ligne) apparaissent généralement dans les 4 à 8 semaines suivant le lancement de votre site et de la stratégie mise en place. Une croissance solide et durable se construit sur 3 à 6 mois.",
+        "Le Sprint Acquisition livre un premier rapport chiffré à 30 jours. Pour un accompagnement complet, comptez 4 à 6 semaines pour la mise en place, puis un suivi continu sur les résultats.",
     },
     {
       question: "Est-ce qu'on peut vous payer en plusieurs fois ?",
       answer:
-        "Oui. On propose des modalités de paiement adaptées selon la formule choisie. C'est un point qu'on discute lors du diagnostic, en fonction de votre situation.",
+        "Oui, sur le Sprint Acquisition comme sur la Fabrique complète. On en discute ensemble à l'issue du diagnostic, selon votre situation.",
+    },
+    {
+      question: 'Est-ce que vous travaillez avec tous les types de marques ?',
+      answer:
+        "Nous travaillons surtout avec des marques de produits (mode, beauté, bien-être, maison) qui ont déjà des produits à vendre — que vous ayez déjà un site ou que vous partiez de zéro.",
     },
     {
       question: "Par où est-ce qu'on commence ?",
       answer:
-        "Par le diagnostic gratuit. En 24 heures, on identifie ce qui bloque vos ventes et on vous dit honnêtement si on peut vous aider — et comment. Sans engagement de votre côté.",
+        "Par le diagnostic gratuit. Dix minutes suffisent pour qu'on identifie ensemble ce qui bloque vos ventes, et la meilleure porte d'entrée pour votre situation.",
     },
   ];
 
   return (
-    <section className="py-16 md:py-24 bg-tekki-cream">
+    <section id="faq" className="py-16 md:py-24 bg-tekki-cream">
       <div className="max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -49,13 +49,13 @@ const FAQV2 = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-tekki-blue tracking-tight">
+          <h2 className="font-home-display text-[30px] font-semibold text-tekki-ink tracking-tight">
             Vos questions, nos réponses.
           </h2>
         </motion.div>
 
         {/* Accordion */}
-        <div className="divide-y divide-tekki-blue/8">
+        <div className="divide-y divide-tekki-ink/8">
           {faqs.map((faq, index) => (
             <motion.div
               key={index}
@@ -68,15 +68,15 @@ const FAQV2 = () => {
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
                 <span
-                  className={`font-semibold text-lg transition-colors ${openIndex === index ? 'text-tekki-orange' : 'text-tekki-blue group-hover:text-tekki-orange'
+                  className={`font-home-display text-[17px] font-semibold transition-colors ${openIndex === index ? 'text-tekki-orange-deep' : 'text-tekki-ink group-hover:text-tekki-orange-deep'
                     }`}
                 >
                   {faq.question}
                 </span>
                 <div
                   className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all ${openIndex === index
-                    ? 'bg-tekki-orange/10 text-tekki-orange'
-                    : 'bg-tekki-surface text-tekki-blue/40'
+                    ? 'bg-tekki-orange/10 text-tekki-orange-deep'
+                    : 'bg-tekki-surface text-tekki-ink-soft'
                     }`}
                 >
                   {openIndex === index ? <Minus size={16} /> : <Plus size={16} />}
@@ -92,7 +92,7 @@ const FAQV2 = () => {
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                     className="overflow-hidden"
                   >
-                    <p className="pb-6 text-tekki-blue/55 leading-relaxed text-[16px]">
+                    <p className="font-home-body pb-6 text-tekki-ink-soft leading-relaxed text-[15px]">
                       {faq.answer}
                     </p>
                   </motion.div>

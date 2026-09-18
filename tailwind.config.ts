@@ -14,11 +14,15 @@ const config: Config = {
         tekki: {
           orange: '#FF5C00',
           'orange-hover': '#E55200',
+          'orange-deep': '#C94509',
           blue: '#0D1B2A',
           cream: '#FAF8F5',
           surface: '#F4F3F0',
           'surface-warm': '#FFF8F5',
           white: '#FFFFFF',
+          green: '#1E8E5A',
+          ink: '#241B14',
+          'ink-soft': '#6B5F53',
         },
       },
       fontFamily: {
@@ -26,6 +30,10 @@ const config: Config = {
         display: ['var(--font-outfit)', 'Outfit', 'sans-serif'],
         body: ['var(--font-jakarta)', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
         heading: ['var(--font-outfit)', 'Outfit', 'sans-serif'],
+        // Refonte homepage — tokens exacts du mockup tekkistudio-refonte.html
+        'home-display': ['var(--font-instrument)', 'Instrument Sans', 'sans-serif'],
+        'home-body': ['var(--font-inter)', 'Inter', 'sans-serif'],
+        'home-mono': ['var(--font-plex-mono)', 'IBM Plex Mono', 'monospace'],
       },
       maxWidth: {
         '8xl': '1440px',

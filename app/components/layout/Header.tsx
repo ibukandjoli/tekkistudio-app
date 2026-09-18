@@ -35,10 +35,11 @@ const Header = () => {
   if (isAdminPage) return null;
 
   const navItems = [
-    { label: 'Le Labo TEKKI', href: '/#differenciateur' },
-    { label: 'Nos Offres', href: '/#services' },
-    { label: 'Cas Clients', href: '/cas-clients' },
-    { label: 'A Propos', href: '/a-propos' },
+    { label: 'Le constat', href: '/#reframe' },
+    { label: 'Preuves', href: '/#cases' },
+    { label: 'Ce qu\'on fait', href: '/#build' },
+    { label: 'Offres', href: '/#offers' },
+    { label: 'FAQ', href: '/#faq' },
   ];
 
   return (

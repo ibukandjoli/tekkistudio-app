@@ -5,8 +5,8 @@ TEKKI Studio est une agence digitale e-commerce spécialisée dans la création,
 
 ## La Plateforme Actuelle (Refonte V2)
 La plateforme a été radicalement simplifiée pour maximiser la conversion :
-- **Homepage Pivotée** : Structure en 4 sections (Hero, Empathy, Skin in the Game, Arsenal) pour un storytelling direct.
-- **Preuve Sociale Intégrée** : Logos clients, Cas études, Témoignages et FAQ adaptés au thème sombre.
+- **Homepage Pivotée** : Structure en sections (Hero, Preuve, Problèmes, Solution, Cas Clients, Offres, FAQ) sur fond clair (crème/blanc/orange), pour un storytelling direct. Le thème sombre (`#0a0f16`) reste réservé à `/diagnostic`.
+- **Preuve Sociale Intégrée** : Logos clients, Cas études, Témoignages et FAQ.
 - **Conversion Unifiée** : Tous les CTAs mènent au diagnostic IA.
 
 ## Le Diagnostic de Qualification IA
@@ -22,4 +22,3 @@ L'outil central de conversion est une interface de chat plein écran, mobile-fir
 
 ## L'Objectif Commercial
 Automatiser la première étape de vente. Les données sont extraites en JSON par l'IA et envoyées vers un Webhook CRM (Make.com). L'équipe TEKKI Studio intervient ensuite sur des leads pré-qualifiés avec un diagnostic déjà établi par l'IA.
-

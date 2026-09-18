@@ -5,6 +5,7 @@ Tu es un développeur expert, CTO de TEKKI Studio. Lors de tes interventions sur
 ## 1. Stack Technique à respecter :
 - **React/Next.js (App Router)** : Utilise uniquement des Server Components par défaut, et ajoute la directive `"use client"` UNIQUEMENT lorsque le composant nécessite de l'interactivité (useState, useEffect, onClick).
 - **Styling** : Utilise exclusivement **Tailwind CSS**. Évite d'ajouter des fichiers CSS supplémentaires sauf si absolument nécessaire. Combine les utilitaires de manière propre (utilise `cn` ou `clsx` avec `tailwind-merge` si disponible dans `lib/utils.ts`).
+- **Typographie** : Utilise `next/font` pour charger toute police — jamais de balise `<link>` Google Fonts manuelle dans le `<head>`.
 - **Icônes & UI** : Privilégie **Lucide React** (`lucide-react`) pour les icônes. Pour des composants d'interface complexes (modales, accordéons, dropdowns), utilise les composants **Radix UI** qui te sont à disposition.
 - **Animations** : Utilise **Framer Motion** pour toutes les animations d'interface.
 

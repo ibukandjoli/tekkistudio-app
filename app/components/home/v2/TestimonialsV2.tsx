@@ -1,95 +1,135 @@
 // app/components/home/v2/TestimonialsV2.tsx
 'use client';
 
-import { Star } from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import Image from 'next/image';
+import { trackCustomEvent } from '@/app/lib/meta-events';
+
+const cases = [
+  {
+    slug: 'abarings',
+    tag: 'Bijouterie artisanale',
+    name: 'Abarings',
+    metrics: [
+      { value: '+150%', label: 'ventes internationales' },
+      { value: '100%', label: 'commandes automatisées' },
+    ],
+    quote:
+      "Avant, je gérais chaque commande à la main, surtout celles de l'international. Aujourd'hui c'est le système qui vend pendant que je crée.",
+    author: 'Fatou D.',
+    role: 'Fondatrice',
+    image: '/images/testimonials/fatou.jpg',
+    hasDetail: true,
+  },
+  {
+    slug: 'ahovi-cosmetics',
+    tag: 'Cosmétiques naturels',
+    name: 'Ahovi Cosmetics',
+    metrics: [
+      { value: '+180%', label: 'croissance CA' },
+      { value: '5', label: 'nouvelles villes touchées' },
+    ],
+    quote:
+      "Je ne cherchais pas juste un site. Je cherchais à vendre au-delà de mon quartier. C'est ce qui s'est passé en quelques mois.",
+    author: 'Katia K.',
+    role: 'Fondatrice',
+    image: null,
+    // Pas encore de page /cas-clients/ahovi-cosmetics rédigée — le lien retombe sur la liste.
+    hasDetail: false,
+  },
+  {
+    slug: 'momo-le-bottier',
+    tag: 'Maroquinerie',
+    name: 'Momo Le Bottier',
+    metrics: [
+      { value: '10', label: 'pays livrés' },
+      { value: '100%', label: 'ventes automatisées' },
+    ],
+    quote:
+      "Nos clients partout dans le monde commandent désormais 24h/24, sans qu'on doive être derrière chaque message.",
+    author: 'Maguette D.',
+    role: 'Co-fondateur',
+    image: '/images/testimonials/maguette.jpg',
+    hasDetail: true,
+  },
+];
 
 const TestimonialsV2 = () => {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
-  const testimonials = [
-    {
-      name: 'Fatou D.',
-      role: 'Fondatrice',
-      brand: 'Abarings',
-      image: '/images/testimonials/fatou.jpg',
-      text: "Avant TEKKI Studio, j'avais beaucoup de mal à gérer les commandes de mes bijoux, surtout celles venant de l'international. Grâce au site créé pour ma marque, tout est automatisé et je peux me concentrer sur la création.",
-      rating: 5,
-    },
-    {
-      name: 'Maguette D.',
-      role: 'Fondateur',
-      brand: 'Momo Le Bottier',
-      image: '/images/testimonials/maguette.jpg',
-      text: "TEKKI Studio a transformé notre marque avec un site professionnel qui dépasse nos attentes. Nos clients partout dans le monde peuvent désormais commander en ligne 24h/24 et être livrés. C'était notre objectif.",
-      rating: 5,
-    },
-    {
-      name: 'Fatou C.',
-      role: 'Fondatrice',
-      brand: '6C No Filter',
-      image: '/images/testimonials/cisse.jpg',
-      text: "L'équipe est extrêmement professionnelle et disponible. J'avais besoin d'un site professionnel pour ma marque de cosmétiques, ils ont livré un travail magnifique en moins de 10 jours. Je recommande à 100% !",
-      rating: 5,
-    },
-  ];
-
   return (
-    <section className="py-16 md:py-24 bg-tekki-cream">
+    <section id="cases" className="py-16 md:py-24 bg-white">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-14"
+          className="max-w-[600px] mb-12"
         >
-          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-tekki-blue tracking-tight mb-4">
-            Ce que disent les fondatrices
-            <br className="hidden md:block" /> qu&apos;on accompagne.
+          <h2 className="font-home-display text-[30px] font-semibold text-tekki-ink tracking-tight mb-3.5">
+            Ce que ça donne, concrètement.
           </h2>
+          <p className="font-home-body text-[16px] text-tekki-ink-soft">
+            Trois marques, trois points de départ différents — le même travail de fond : transformer la visibilité en ventes mesurables.
+          </p>
         </motion.div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((t, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-[22px]">
+          {cases.map((c, index) => (
             <motion.div
-              key={t.name}
+              key={c.slug}
               initial={{ opacity: 0, y: 25 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: index * 0.15 }}
-              className="bg-white border border-tekki-blue/8 rounded-2xl p-7 flex flex-col hover:shadow-lg hover:shadow-tekki-blue/5 transition-all duration-300"
+              className="bg-tekki-cream border border-tekki-ink/8 rounded-2xl p-[26px] flex flex-col gap-4 hover:shadow-lg hover:shadow-tekki-ink/5 transition-all duration-300"
             >
-              {/* Stars */}
-              <div className="flex gap-1 mb-5">
-                {[...Array(t.rating)].map((_, i) => (
-                  <Star key={i} size={16} className="fill-amber-400 text-amber-400" />
+              <div>
+                <span className="font-home-body text-[12.5px] font-semibold text-tekki-orange-deep">
+                  {c.tag}
+                </span>
+                <h3 className="font-home-display text-[19px] font-semibold text-tekki-ink mt-1">{c.name}</h3>
+              </div>
+
+              <div className="flex gap-[18px] py-3.5 border-y border-tekki-ink/10">
+                {c.metrics.map((m) => (
+                  <div key={m.label}>
+                    <span className="block font-home-mono text-[18px] font-semibold text-tekki-ink tabular-nums">
+                      {m.value}
+                    </span>
+                    <span className="font-home-body text-[11.5px] text-tekki-ink-soft">{m.label}</span>
+                  </div>
                 ))}
               </div>
 
-              {/* Quote */}
-              <blockquote className="text-tekki-blue/65 leading-relaxed mb-7 flex-grow italic">
-                &ldquo;{t.text}&rdquo;
+              <blockquote className="font-home-body text-[14.5px] text-tekki-ink-soft leading-relaxed flex-grow italic">
+                &ldquo;{c.quote}&rdquo;
               </blockquote>
 
-              {/* Separator */}
-              <div className="h-px bg-tekki-blue/8 mb-5" />
-
-              {/* Author */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 relative">
-                  <Image src={t.image} alt={t.name} fill className="object-cover" />
-                </div>
-                <div>
-                  <p className="font-semibold text-tekki-blue text-sm">{t.name}</p>
-                  <p className="text-tekki-blue/40 text-xs">
-                    {t.role}, {t.brand}
-                  </p>
-                </div>
+                {c.image ? (
+                  <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 relative">
+                    <Image src={c.image} alt={c.author} fill className="object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-tekki-orange/15 text-tekki-orange-deep flex items-center justify-center flex-shrink-0 font-home-display font-semibold text-sm">
+                    {c.author.charAt(0)}
+                  </div>
+                )}
+                <span className="font-home-body text-[13px] font-semibold text-tekki-ink">
+                  {c.author} — {c.role}
+                </span>
               </div>
+
+              <Link
+                href={c.hasDetail ? `/cas-clients/${c.slug}` : '/cas-clients'}
+                onClick={() => trackCustomEvent('case_study_click', { case_slug: c.slug })}
+                className="font-home-body text-sm font-semibold text-tekki-ink-soft hover:text-tekki-orange transition-colors"
+              >
+                Voir le cas complet →
+              </Link>
             </motion.div>
           ))}
         </div>

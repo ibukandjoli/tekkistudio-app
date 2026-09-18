@@ -23,7 +23,7 @@ const Footer = () => {
           {/* Col 1 : Logo + Tagline */}
           <div>
             <img
-              src="/images/tekkistudio/logo.svg"
+              src="/images/tekkistudio/logo_white.svg"
               alt="TEKKI Studio"
               className="h-10 w-auto mb-4"
             />

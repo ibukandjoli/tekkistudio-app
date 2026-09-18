@@ -1,87 +1,81 @@
 // app/components/home/v2/ServicesSection.tsx
 'use client';
 
-import { Store, Bot, Rocket } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+
+const buildSteps = [
+  {
+    idx: '01',
+    badge: 'Ce qui manque le plus aujourd\'hui',
+    title: 'Une stratégie qui vous amène les bons clients',
+    description:
+      "Publicités Meta et TikTok, campagnes email et SMS, collaborations avec des créateurs — pensées pour que des inconnus découvrent votre marque et passent commande, pas juste pour générer des vues.",
+  },
+  {
+    idx: '02',
+    badge: null,
+    title: 'Une assistante de vente qui ne dort jamais',
+    description:
+      "Une Vendeuse IA installée dans votre boutique, qui connaît vos produits, répond à vos clients et les guide jusqu'à l'achat — même à 3h du matin, même un dimanche.",
+  },
+  {
+    idx: '03',
+    badge: null,
+    title: 'Une boutique conçue pour convertir, pas juste pour exister',
+    description:
+      "Sur Shopify ou TEKKIShop, notre solution adaptée au mobile, avec les paiements locaux intégrés. Si vous avez déjà un site, qu'il ait été fait avec l'IA ou non, on peut souvent le brancher au reste du système plutôt que tout refaire.",
+  },
+];
 
 export default function ServicesSection() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
-  const services = [
-    {
-      icon: <Store className="w-6 h-6 text-tekki-orange" />,
-      title: 'Une boutique qui vend vraiment',
-      description:
-        'On crée ou refond votre boutique en ligne sur Shopify, optimisée pour que vos visiteurs passent à l\'achat. Adaptée au mobile, paiements locaux intégrés, et une expérience pensée pour vos clients africains.',
-      badge: null,
-    },
-    {
-      icon: <Bot className="w-6 h-6 text-tekki-orange" />,
-      title: 'Une assistante de vente qui ne dort jamais',
-      description:
-        'On installe dans votre site une Vendeuse IA experte de vos produits, qui répond à vos clients, les conseille, recommande vos produits et les guide jusqu\'à l\'achat — même à 3h du matin. Résultat : moins de messages WhatsApp, et plus de ventes.',
-      badge: 'Exclusif TEKKI',
-    },
-    {
-      icon: <Rocket className="w-6 h-6 text-tekki-orange" />,
-      title: 'Une stratégie pour attirer les bons clients',
-      description:
-        'On met en place vos publicités sur Meta et TikTok, vos campagnes d\'emails et SMS, vos collaborations avec des influenceurs, et votre stratégie de création de contenu, afin que vos futurs clients trouvent votre marque et passent à l\'achat.',
-      badge: null,
-    },
-  ];
-
   return (
-    <section id="services" className="py-16 md:py-24 bg-white">
+    <section id="build" className="py-16 md:py-24 bg-white border-y border-tekki-ink/8">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-14"
+          className="max-w-[600px] mb-12"
         >
-          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-tekki-blue tracking-tight mb-4">
+          <h2 className="font-home-display text-[30px] font-semibold text-tekki-ink tracking-tight mb-3.5">
             Ce qu&apos;on construit pour vous.
           </h2>
-          <p className="text-tekki-blue/50 text-lg max-w-2xl mx-auto">
-            Pas de pack standard. On part de votre situation et on construit ce dont votre marque a réellement besoin.
+          <p className="font-home-body text-[16px] text-tekki-ink-soft">
+            Pas de pack standard. On part de ce qui bloque réellement vos ventes — dans cet ordre de priorité.
           </p>
         </motion.div>
 
-        {/* Services */}
-        <div className="flex flex-col gap-5 max-w-3xl mx-auto">
-          {services.map((service, index) => (
+        <div className="flex flex-col border-t border-tekki-ink/10">
+          {buildSteps.map((step, index) => (
             <motion.div
-              key={index}
+              key={step.idx}
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: index * 0.15 }}
-              className={`relative p-7 rounded-2xl flex items-start gap-5 transition-all duration-300 hover:shadow-lg ${service.badge
-                ? 'bg-gradient-to-r from-tekki-orange/5 to-white border-2 border-tekki-orange/15 hover:shadow-tekki-orange/10'
-                : 'bg-tekki-cream border border-tekki-blue/8 hover:shadow-tekki-blue/5'
-                }`}
+              transition={{ duration: 0.5, delay: index * 0.12 }}
+              className="grid grid-cols-[auto_1fr] md:grid-cols-[90px_1fr_1fr] gap-x-6 md:gap-x-[30px] gap-y-2 py-[30px] border-b border-tekki-ink/10"
             >
-              {service.badge && (
-                <div className="absolute top-0 right-0 px-3 py-1.5 bg-tekki-orange text-white text-xs font-bold rounded-bl-xl rounded-tr-2xl">
-                  {service.badge}
-                </div>
-              )}
-
-              <div className="w-11 h-11 bg-tekki-orange/10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
-                {service.icon}
+              <div
+                className={`font-home-mono text-[14px] pt-1 tabular-nums ${
+                  index === 0 ? 'text-tekki-orange-deep font-semibold' : 'text-tekki-ink-soft'
+                }`}
+              >
+                {step.idx}
               </div>
-
-              <div>
-                <h3 className="font-heading text-lg font-bold text-tekki-blue mb-2">
-                  {service.title}
-                </h3>
-                <p className="text-tekki-blue/55 leading-relaxed">
-                  {service.description}
-                </p>
+              <div className="col-span-1 md:col-span-1">
+                {step.badge && (
+                  <span className="inline-block font-home-body text-[11.5px] font-semibold bg-tekki-orange text-white px-2.5 py-1 rounded-full mb-2.5">
+                    {step.badge}
+                  </span>
+                )}
+                <h3 className="font-home-display text-[20px] font-semibold text-tekki-ink">{step.title}</h3>
               </div>
+              <p className="col-span-2 md:col-span-1 font-home-body text-[15px] text-tekki-ink-soft leading-relaxed">
+                {step.description}
+              </p>
             </motion.div>
           ))}
         </div>
