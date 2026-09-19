@@ -3,8 +3,7 @@
 
 import Script from 'next/script';
 
-// Remplacer cette valeur par votre ID pixel Meta réel
-const META_PIXEL_ID = '601446776036363';
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '';
 
 /**
  * Composant principal pour l'intégration du Pixel Meta

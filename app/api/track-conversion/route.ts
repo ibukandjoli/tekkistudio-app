@@ -2,9 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 
-// Remplacer ces valeurs par vos identifiants Meta réels
-const ACCESS_TOKEN = process.env.META_API_ACCESS_TOKEN || 'votre_token_acces_meta';
-const PIXEL_ID = '601446776036363';
+const ACCESS_TOKEN = process.env.META_API_ACCESS_TOKEN || '';
+const PIXEL_ID = process.env.META_PIXEL_ID || '';
 const API_VERSION = 'v18.0'; // Utilisez la version la plus récente de l'API
 
 /**
