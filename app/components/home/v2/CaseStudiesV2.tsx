@@ -6,8 +6,8 @@ import { useInView } from 'react-intersection-observer';
 
 const stats = [
   { value: '+200%', label: 'de ventes en plus, en moyenne, après notre accompagnement' },
-  { value: '+12 000', label: 'produits vendus pour nos marques accompagnées' },
-  { value: '4.9/5', label: 'note moyenne donnée par nos clientes' },
+  { value: '24/7', label: 'Vendeuse IA active pour répondre et vendre, sans interruption' },
+  { value: '13 ans', label: "d'expérience dans l'e-commerce" },
 ];
 
 const CaseStudiesV2 = () => {
@@ -28,8 +28,15 @@ const CaseStudiesV2 = () => {
               transition={{ duration: 0.5, delay: i * 0.1 }}
               className="border-l-2 border-tekki-orange pl-4"
             >
-              <span className="block font-home-mono text-[24px] sm:text-[28px] font-semibold text-tekki-ink tabular-nums mb-1">
-                {stat.value}
+              <span className="block text-[24px] sm:text-[28px] font-semibold text-tekki-ink mb-1">
+                {stat.value.includes(' ') ? (
+                  <>
+                    <span className="font-home-mono tabular-nums">{stat.value.split(' ')[0]}</span>
+                    <span className="font-home-body"> {stat.value.split(' ').slice(1).join(' ')}</span>
+                  </>
+                ) : (
+                  <span className="font-home-mono tabular-nums">{stat.value}</span>
+                )}
               </span>
               <span className="font-home-body text-[13px] text-tekki-ink-soft leading-snug">
                 {stat.label}

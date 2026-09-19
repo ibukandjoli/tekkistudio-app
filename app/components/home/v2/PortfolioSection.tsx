@@ -68,7 +68,7 @@ const PortfolioSection = () => {
           className="max-w-[600px] mb-12"
         >
           <h2 className="font-home-display text-[30px] font-semibold text-tekki-ink tracking-tight mb-3.5">
-            Les marques qu&apos;on a aidées à décoller.
+            Les marques qu&apos;on a accompagnées.
           </h2>
           <p className="font-home-body text-[16px] text-tekki-ink-soft">
             De vraies boutiques en ligne, de vraies ventes, de vraies fondatrices.

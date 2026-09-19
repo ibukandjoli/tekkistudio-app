@@ -5,22 +5,24 @@ import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
 const aiSolves = [
-  'Générer une page qui affiche votre catalogue',
-  'Un design correct en quelques minutes',
-  'Un lien à partager sur WhatsApp ou Instagram',
+  'Générer un joli site qui affiche votre catalogue produit',
+  'Ajouter des boutons pour commander sur WhatsApp',
+  'Créer votre espace de gestion de vos commandes',
+  'Rédiger les contenus de vos pages',
 ];
 
 const tekkiBuilds = [
-  'Un système de publicité qui ramène de vrais acheteurs, chaque semaine',
-  'Une vendeuse IA qui répond, conseille et convertit 24h/24 — sans vous',
+  'Une machine d\'acquisition qui ramène de vrais acheteurs, chaque semaine',
+  'Une vendeuse IA, sur votre site, qui répond à vos clients et vend 24h/24',
   'Un tunnel de commande et de paiement qui ne repose pas sur des messages manuels',
+  'Un espace de gestion complet qui vous permet de gérer toute votre activité',
 ];
 
 export default function EmpathySection() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
-    <section id="reframe" className="py-16 md:py-24 bg-white border-y border-tekki-ink/8">
+    <section id="reframe" className="scroll-mt-24 py-16 md:py-24 bg-white border-y border-tekki-ink/8">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           ref={ref}
@@ -33,7 +35,7 @@ export default function EmpathySection() {
             Votre problème a changé. Notre offre aussi.
           </h2>
           <p className="font-home-body text-[16px] text-tekki-ink-soft">
-            Il y a deux ans, avoir un site professionnel était rare. Aujourd&apos;hui, un site se génère en une soirée avec un prompt. Ce qui bloque vraiment vos ventes a changé — et c&apos;est exactement là-dessus qu&apos;on travaille avec vous.
+            Il y a deux ans, notre service phare était la conception de sites e-commerce clé en main, car avoir un site professionnel nécessitait une expertise assez rare. Aujourd&apos;hui, un site se génère en une soirée avec un prompt, grâce à l&apos;IA. Ce qui bloque vraiment vos ventes a changé. Et c&apos;est exactement là-dessus qu&apos;on travaille désormais avec vous.
           </p>
         </motion.div>
 
@@ -45,7 +47,7 @@ export default function EmpathySection() {
             className="p-[30px] rounded-2xl border border-tekki-ink/10 bg-tekki-cream"
           >
             <p className="font-home-body text-[12.5px] font-semibold text-tekki-ink-soft mb-3.5">
-              Ce que l&apos;IA générative résout déjà
+              Ce que l&apos;IA résout déjà
             </p>
             <ul className="flex flex-col gap-3.5">
               {aiSolves.map((item) => (

@@ -20,7 +20,7 @@ const LogosV2 = () => {
     <section className="py-10 md:py-14 bg-tekki-surface overflow-hidden">
       <div className="w-full px-4 sm:px-6">
         <div className="text-center mb-8">
-          <p className="text-sm font-medium text-tekki-blue/40 uppercase tracking-widest">
+          <p className="text-sm font-medium text-tekki-blue/40 tracking-widest">
             Elles ont choisi TEKKI Studio
           </p>
         </div>

@@ -10,21 +10,21 @@ const buildSteps = [
     badge: 'Ce qui manque le plus aujourd\'hui',
     title: 'Une stratégie qui vous amène les bons clients',
     description:
-      "Publicités Meta et TikTok, campagnes email et SMS, collaborations avec des créateurs — pensées pour que des inconnus découvrent votre marque et passent commande, pas juste pour générer des vues.",
+      "Du contenu organique quotidien et des collaborations avec des créateurs UGC comme premier levier d'acquisition : c'est ce qui fait découvrir votre marque. La publicité Meta et TikTok vient ensuite, en reciblage des audiences déjà exposées à ce contenu, pour transformer l'intérêt en commande.",
   },
   {
     idx: '02',
     badge: null,
     title: 'Une assistante de vente qui ne dort jamais',
     description:
-      "Une Vendeuse IA installée dans votre boutique, qui connaît vos produits, répond à vos clients et les guide jusqu'à l'achat — même à 3h du matin, même un dimanche.",
+      "Une Vendeuse IA installée dans votre site, qui connaît vos produits, répond à vos clients et les guide jusqu'à l'achat — même à 3h du matin, même un dimanche.",
   },
   {
     idx: '03',
     badge: null,
-    title: 'Une boutique conçue pour convertir, pas juste pour exister',
+    title: 'Un site e-commerce conçu pour vendre, pas juste pour exister',
     description:
-      "Sur Shopify ou TEKKIShop, notre solution adaptée au mobile, avec les paiements locaux intégrés. Si vous avez déjà un site, qu'il ait été fait avec l'IA ou non, on peut souvent le brancher au reste du système plutôt que tout refaire.",
+      "Nous le créons sur TEKKIShop, notre solution adaptée au marché africain avec les paiements locaux intégrés, ou nous créons un site original spécialement pour votre marque. Si vous avez déjà un site Shopify ou autre, on peut souvent le brancher au reste du système plutôt que tout refaire.",
   },
 ];
 
@@ -32,7 +32,7 @@ export default function ServicesSection() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
-    <section id="build" className="py-16 md:py-24 bg-white border-y border-tekki-ink/8">
+    <section id="build" className="scroll-mt-24 py-16 md:py-24 bg-white border-y border-tekki-ink/8">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           ref={ref}

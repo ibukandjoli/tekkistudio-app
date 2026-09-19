@@ -19,7 +19,7 @@ const FAQV2 = () => {
     {
       question: 'Combien de temps avant de voir des résultats ?',
       answer:
-        "Le Sprint Acquisition livre un premier rapport chiffré à 30 jours. Pour un accompagnement complet, comptez 4 à 6 semaines pour la mise en place, puis un suivi continu sur les résultats.",
+        "Le Sprint Acquisition livre un premier rapport chiffré à 30 jours. Pour un accompagnement complet, comptez 2 à 6 semaines pour la mise en place, puis un suivi continu sur les résultats.",
     },
     {
       question: "Est-ce qu'on peut vous payer en plusieurs fois ?",
@@ -39,7 +39,7 @@ const FAQV2 = () => {
   ];
 
   return (
-    <section id="faq" className="py-16 md:py-24 bg-tekki-cream">
+    <section id="faq" className="scroll-mt-24 py-16 md:py-24 bg-tekki-cream">
       <div className="max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div

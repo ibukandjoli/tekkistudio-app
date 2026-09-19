@@ -30,10 +30,12 @@ const offers = [
     price: 'À partir de 195 000 FCFA',
     priceNote: '/ 30 jours',
     description:
-      "Pour tester le système avant d'investir plus : une campagne d'acquisition complète, avec des résultats mesurables à la fin.",
+      "Une stratégie contenu-first : contenu, collaborations et publicité ciblée pour vous ramener de vrais acheteurs, chaque mois.",
     features: [
-      'Campagnes Meta/TikTok gérées pendant 30 jours',
-      'Créas, ciblage et budget pris en charge',
+      'Contenu organique',
+      'Collaborations',
+      'Publicité Meta/TikTok',
+      'Conseil éditorial et suivi par notre équipe',
       'Rapport de résultats chiffré à J+30',
       'Paiement en 2 fois possible',
     ],
@@ -44,12 +46,12 @@ const offers = [
     step: 'Étape 3',
     name: 'Fabrique complète',
     offreParam: 'fabrique',
-    price: '695 000 FCFA',
+    price: 'À partir de 695 000 FCFA',
     priceNote: null,
     description:
       "L'accompagnement complet : boutique, Vendeuse IA et acquisition, construits ensemble comme un seul système.",
     features: [
-      'Boutique Shopify ou TEKKIShop optimisée pour la conversion',
+      'Boutique TEKKIShop (ou connexion de votre site existant) optimisée pour la conversion',
       'Vendeuse IA installée et entraînée sur vos produits',
       "Stratégie d'acquisition multi-canal",
       'Paiement en 2 ou 3 fois possible',
@@ -63,7 +65,7 @@ export default function ArsenalSection() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
-    <section id="offers" className="py-16 md:py-24 bg-tekki-cream">
+    <section id="offers" className="scroll-mt-24 py-16 md:py-24 bg-tekki-cream">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           ref={ref}

@@ -24,20 +24,19 @@ const cases = [
     hasDetail: true,
   },
   {
-    slug: 'ahovi-cosmetics',
+    slug: '6c-no-filter',
     tag: 'Cosmétiques naturels',
-    name: 'Ahovi Cosmetics',
+    name: '6C No Filter',
     metrics: [
-      { value: '+180%', label: 'croissance CA' },
-      { value: '5', label: 'nouvelles villes touchées' },
+      { value: '+200%', label: 'de ventes' },
+      { value: '0 FCFA', label: 'budget publicitaire' },
     ],
     quote:
-      "Je ne cherchais pas juste un site. Je cherchais à vendre au-delà de mon quartier. C'est ce qui s'est passé en quelques mois.",
-    author: 'Katia K.',
+      "On a fait +200% de ventes sans dépenser un centime en publicité — tout vient du contenu qu'on poste chaque jour. Le système derrière transforme ces vues en vraies commandes.",
+    author: 'Fatou',
     role: 'Fondatrice',
-    image: null,
-    // Pas encore de page /cas-clients/ahovi-cosmetics rédigée — le lien retombe sur la liste.
-    hasDetail: false,
+    image: '/images/testimonials/cisse.jpg',
+    hasDetail: true,
   },
   {
     slug: 'momo-le-bottier',
@@ -60,7 +59,7 @@ const TestimonialsV2 = () => {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
-    <section id="cases" className="py-16 md:py-24 bg-white">
+    <section id="cases" className="scroll-mt-24 py-16 md:py-24 bg-white">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           ref={ref}
@@ -70,7 +69,7 @@ const TestimonialsV2 = () => {
           className="max-w-[600px] mb-12"
         >
           <h2 className="font-home-display text-[30px] font-semibold text-tekki-ink tracking-tight mb-3.5">
-            Ce que ça donne, concrètement.
+            Ce que disent nos clients
           </h2>
           <p className="font-home-body text-[16px] text-tekki-ink-soft">
             Trois marques, trois points de départ différents — le même travail de fond : transformer la visibilité en ventes mesurables.
@@ -119,7 +118,7 @@ const TestimonialsV2 = () => {
                   </div>
                 )}
                 <span className="font-home-body text-[13px] font-semibold text-tekki-ink">
-                  {c.author} — {c.role}
+                  {c.role ? `${c.author} — ${c.role}` : c.author}
                 </span>
               </div>
 

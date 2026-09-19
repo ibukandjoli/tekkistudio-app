@@ -31,7 +31,8 @@ export default function SkinInTheGameSection() {
               <p className="font-home-body text-tekki-ink-soft text-[16px] leading-relaxed">
                 Avant d&apos;accompagner votre marque, on a lancé les nôtres.{' '}
                 <strong className="text-tekki-ink font-semibold">Viens On S&apos;Connaît</strong>,{' '}
-                <strong className="text-tekki-ink font-semibold">Amani</strong> : ce sont nos propres créations, qu&apos;on gère encore aujourd&apos;hui. On connaît la réalité des stocks à gérer, des clients exigeants, des livreurs peu fiables, et des paiements à la livraison incertains.
+                <strong className="text-tekki-ink font-semibold">Amani</strong> et{' '}
+                <strong className="text-tekki-ink font-semibold">Itoko Beauty</strong> : ce sont nos propres créations, qu&apos;on gère encore aujourd&apos;hui. On connaît la réalité des stocks à gérer, des clients exigeants, des livreurs peu fiables, et des paiements à la livraison incertains.
               </p>
               <p className="font-home-body text-tekki-ink-soft text-[16px] leading-relaxed">
                 Chaque stratégie qu&apos;on vous recommande, on l&apos;a d&apos;abord testée avec notre propre argent.{' '}
@@ -58,28 +59,40 @@ export default function SkinInTheGameSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="relative h-[500px] md:h-[580px] w-full"
+            className="relative h-[480px] md:h-[560px] w-full"
           >
             {/* VOSC Image */}
-            <div className="absolute top-0 right-0 w-[65%] h-[55%] rounded-2xl overflow-hidden shadow-xl shadow-tekki-ink/10 z-20 border border-white/50">
+            <div className="absolute top-0 left-0 w-[54%] h-[50%] rounded-2xl overflow-hidden shadow-xl shadow-tekki-ink/10 z-20 border border-white/50">
               <Image
                 src="/images/brands/vosc.png"
                 alt="Viens on s'connaît"
                 fill
                 className="object-cover"
-                sizes="(max-width: 1024px) 65vw, 35vw"
+                sizes="(max-width: 1024px) 54vw, 30vw"
                 loading="lazy"
               />
             </div>
 
             {/* AMANI Image */}
-            <div className="absolute bottom-0 left-0 w-[70%] h-[55%] rounded-2xl overflow-hidden shadow-xl shadow-tekki-ink/10 z-30 border border-white/50">
+            <div className="absolute top-[6%] right-0 w-[44%] h-[42%] rounded-2xl overflow-hidden shadow-xl shadow-tekki-ink/10 z-30 border border-white/50">
               <Image
                 src="/images/brands/amani-2.png"
                 alt="Amani Products"
                 fill
                 className="object-cover"
-                sizes="(max-width: 1024px) 70vw, 40vw"
+                sizes="(max-width: 1024px) 44vw, 25vw"
+                loading="lazy"
+              />
+            </div>
+
+            {/* Itoko Beauty Image */}
+            <div className="absolute top-[42%] left-[20%] w-[56%] h-[46%] rounded-2xl overflow-hidden shadow-xl shadow-tekki-ink/10 z-40 border border-white/50">
+              <Image
+                src="/images/portfolio/itoko.png"
+                alt="Itoko Beauty"
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 56vw, 32vw"
                 loading="lazy"
               />
             </div>
