@@ -100,8 +100,8 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="https://kusomakids.com" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-tekki-orange transition-colors text-sm">
-                  KusomaKids
+                <a href="https://itokobeauty.com" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-tekki-orange transition-colors text-sm">
+                  Itoko Beauty
                 </a>
               </li>
             </ul>
@@ -119,8 +119,8 @@ const Footer = () => {
               </li>
               <li className="flex items-start gap-3">
                 <Phone className="w-4 h-4 mt-0.5 flex-shrink-0 text-tekki-orange" />
-                <a href="tel:+221338205422" className="text-white/60 hover:text-tekki-orange transition-colors text-sm">
-                  +221 33 820 54 22
+                <a href="tel:+221767826804" className="text-white/60 hover:text-tekki-orange transition-colors text-sm">
+                  +221 76 782 68 04
                 </a>
               </li>
               <li className="flex items-start gap-3">

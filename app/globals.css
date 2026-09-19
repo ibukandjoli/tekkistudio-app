@@ -7,6 +7,11 @@
   --background-rgb: 250, 248, 245;
 }
 
+/* Défilement fluide vers les ancres (#reframe, #cases, #build, #offers, #faq...) */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
