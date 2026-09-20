@@ -8,8 +8,8 @@ import MetaPixel from '@/app/components/analytics/MetaPixel';
 import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
-  title: 'TEKKI Studio - Fabrique de Marques E-commerce Africaines',
-  description: 'Nous avons vendu +8 000 produits en ligne en 2 ans avec nos propres marques. A present, nous appliquons ces strategies aux marques africaines qui veulent exploser leurs ventes en ligne.',
+  title: 'TEKKI Studio — La Fabrique de Marques Africaines qui Vendent',
+  description: "Site e-commerce, Vendeuse IA et stratégie d'acquisition : on construit le système complet qui transforme votre visibilité en ventes. Stratégies testées sur nos propres marques avant d'être proposées aux vôtres.",
   keywords: 'e-commerce afrique, agence digitale afrique, marque africaine, boutique en ligne senegal, vendre en ligne afrique, agence e-commerce dakar, croissance digitale, marques africaines, TEKKI Studio',
   authors: [{ name: 'TEKKI Studio' }],
   creator: 'TEKKI Studio',
@@ -18,24 +18,24 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'fr_FR',
     url: 'https://tekkistudio.com',
-    title: 'TEKKI Studio - Fabrique de Marques E-commerce Africaines',
-    description: 'Nous avons vendu +8 000 produits en ligne en 2 ans avec nos propres marques.',
+    title: 'TEKKI Studio — La Fabrique de Marques Africaines qui Vendent',
+    description: "Site e-commerce, Vendeuse IA et stratégie d'acquisition : on construit le système complet qui transforme votre visibilité en ventes. Stratégies testées sur nos propres marques avant d'être proposées aux vôtres.",
     siteName: 'TEKKI Studio',
     images: [
       {
-        url: '/images/tekkistudio-og.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'TEKKI Studio - Fabrique de Marques E-commerce Africaines',
+        url: '/images/tekkistudio-og.png',
+        width: 1731,
+        height: 909,
+        alt: 'TEKKI Studio - Une jolie marque ne suffit pas, il faut des ventes',
       }
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TEKKI Studio - Fabrique de Marques E-commerce Africaines',
-    description: 'Nous avons vendu +8 000 produits en ligne en 2 ans avec nos propres marques.',
+    title: 'TEKKI Studio — La Fabrique de Marques Africaines qui Vendent',
+    description: "Site e-commerce, Vendeuse IA et stratégie d'acquisition : on construit le système complet qui transforme votre visibilité en ventes. Stratégies testées sur nos propres marques avant d'être proposées aux vôtres.",
     creator: '@tekkistudio',
-    images: ['/images/tekkistudio-og.jpg'],
+    images: ['/images/tekkistudio-og.png'],
   },
   icons: {
     icon: [
