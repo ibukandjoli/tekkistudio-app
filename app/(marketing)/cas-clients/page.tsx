@@ -130,8 +130,8 @@ const CasClientsPage = () => {
   const results = [
     { icon: <TrendingUp className="w-7 h-7" />, stat: '+200%', label: 'Croissance moyenne du CA' },
     { icon: <Star className="w-7 h-7" />, stat: '4.9/5', label: 'Note moyenne clients' },
-    { icon: <Users className="w-7 h-7" />, stat: '100%', label: 'Taux de satisfaction' },
-    { icon: <BarChart className="w-7 h-7" />, stat: '×3.5', label: 'ROI moyen' },
+    { icon: <Users className="w-7 h-7" />, stat: '+10', label: 'Marques accompagnées' },
+    { icon: <BarChart className="w-7 h-7" />, stat: '13 ans', label: "D'expérience dans l'e-commerce" },
   ];
 
   return (
@@ -350,10 +350,10 @@ const CasClientsPage = () => {
       </section>
 
       {/* ── CTA Final ───────────────────────────────────────── */}
-      <section className="py-24 bg-tekki-blue border-b border-white/10 relative overflow-hidden">
+      <section className="py-24 bg-tekki-orange relative overflow-hidden">
         {/* subtle circles */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] border border-white/5 rounded-full pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-white/5 rounded-full pointer-events-none" />
+        <div className="absolute top-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute bottom-[-15%] left-[-5%] w-[300px] h-[300px] rounded-full bg-white/5 pointer-events-none" />
 
         <div className="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
@@ -364,17 +364,16 @@ const CasClientsPage = () => {
             className="max-w-3xl mx-auto"
           >
             <h2 className="font-heading text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
-              Prêt à devenir la prochaine{' '}
-              <span className="text-tekki-orange">success story</span> de notre portfolio ?
+              Prêt à devenir la prochaine success story de notre portfolio ?
             </h2>
-            <p className="text-lg text-white/60 mb-10 max-w-xl mx-auto leading-relaxed">
+            <p className="text-lg text-white/[0.88] mb-10 max-w-xl mx-auto leading-relaxed">
               Construisons ensemble le moteur de votre croissance e-commerce.
             </p>
 
             <div className="flex justify-center">
               <Link
                 href="/diagnostic"
-                className="inline-flex items-center justify-center bg-tekki-orange hover:bg-tekki-orange/90 text-white px-8 py-4 rounded-full font-bold text-base transition-all shadow-[0_0_30px_rgba(234,88,12,0.3)] hover:shadow-[0_0_40px_rgba(234,88,12,0.4)] hover:-translate-y-0.5 group"
+                className="inline-flex items-center justify-center bg-white hover:shadow-xl hover:shadow-black/25 text-tekki-orange-deep px-8 py-4 rounded-full font-bold text-base transition-all hover:-translate-y-0.5 group"
               >
                 Faire le diagnostic gratuit
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />

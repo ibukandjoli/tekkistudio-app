@@ -76,6 +76,15 @@ const NosMarquesContent = () => {
     },
   ];
 
+  const itokoBeauty = {
+    name: 'ITOKO BEAUTY',
+    tagline: 'Produits capillaires et accessoires',
+    description: "Une marque de produits capillaires naturels et d'accessoires pensée pour sublimer les cheveux afro. Notre 3e marque maison, qui rejoint la famille TEKKI.",
+    image: '/images/portfolio/itoko.png',
+    year: '2026',
+    website: 'https://itokobeauty.com',
+  };
+
   const learnings = [
     { icon: <Target className="w-6 h-6" />, title: 'Stratégie de lancement', description: 'Comment créer du buzz et générer des pré-ventes avant le lancement officiel de la marque.' },
     { icon: <ShoppingBag className="w-6 h-6" />, title: 'E-commerce optimisé', description: 'Architecture de site et parcours client testés qui augmentent le taux de conversion.' },
@@ -110,8 +119,8 @@ const NosMarquesContent = () => {
 
             <div className="flex flex-wrap justify-center gap-6 text-tekki-blue/60">
               {[
-                { icon: <TrendingUp className="w-4 h-4" />, label: '+8 000 produits vendus' },
-                { icon: <Star className="w-4 h-4" />, label: '+95% de satisfaction' },
+                { icon: <TrendingUp className="w-4 h-4" />, label: '12 000+ produits vendus, toutes marques confondues' },
+                { icon: <Star className="w-4 h-4" />, label: '3 marques créées en interne' },
                 { icon: <Users className="w-4 h-4" />, label: "9 pays d'export" },
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
@@ -136,7 +145,7 @@ const NosMarquesContent = () => {
               <span className="text-sm font-medium text-tekki-orange">La preuve que ça marche</span>
             </div>
             <h2 className="font-heading text-3xl md:text-5xl font-bold text-tekki-blue mb-4">
-              Nos 2 marques <span className="text-tekki-orange">propriétaires</span>
+              Nos 3 marques <span className="text-tekki-orange">propriétaires</span>
             </h2>
             <p className="text-lg text-tekki-blue/60 max-w-2xl mx-auto leading-relaxed">
               Découvrez les marques que nous avons créées et que nous continuons à développer avec succès.
@@ -236,6 +245,45 @@ const NosMarquesContent = () => {
               </motion.div>
             ))}
           </div>
+
+          {/* Itoko Beauty — marque très récente, carte plus sobre en l'absence de données de performance */}
+          <motion.div
+            custom={brands.length} variants={fadeUp} initial="hidden"
+            animate={inView ? 'visible' : 'hidden'}
+            className="mt-8 bg-white rounded-3xl border border-tekki-blue/8 overflow-hidden hover:border-tekki-orange/20 hover:shadow-lg transition-all group"
+          >
+            <div className="grid sm:grid-cols-[minmax(0,280px)_1fr]">
+              <div className="relative h-56 sm:h-full overflow-hidden">
+                <img
+                  src={itokoBeauty.image} alt={itokoBeauty.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-tekki-blue/70 via-tekki-blue/10 to-transparent sm:bg-gradient-to-r" />
+                <div className="absolute bottom-5 left-5 right-5 sm:hidden">
+                  <span className="bg-white/90 text-tekki-blue/70 px-3 py-1 rounded-full text-xs font-bold inline-block mb-2">
+                    {itokoBeauty.tagline} · Lancée en {itokoBeauty.year}
+                  </span>
+                  <h3 className="font-heading text-2xl font-bold text-white">{itokoBeauty.name}</h3>
+                </div>
+              </div>
+              <div className="p-8 flex flex-col justify-center">
+                <span className="hidden sm:inline-block bg-tekki-orange/8 text-tekki-orange px-3 py-1 rounded-full text-xs font-bold mb-3 w-fit">
+                  {itokoBeauty.tagline} · Lancée en {itokoBeauty.year}
+                </span>
+                <h3 className="hidden sm:block font-heading text-2xl font-bold text-tekki-blue mb-3">{itokoBeauty.name}</h3>
+                <p className="text-tekki-blue/70 leading-relaxed mb-6">{itokoBeauty.description}</p>
+                <a
+                  href={itokoBeauty.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center w-fit px-6 py-3 rounded-full bg-tekki-blue text-white font-bold text-sm hover:bg-tekki-blue/90 transition-colors group/btn"
+                >
+                  Visiter Itoko Beauty
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                </a>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -244,16 +292,14 @@ const NosMarquesContent = () => {
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             variants={fadeUp} initial="hidden" animate={statsInView ? 'visible' : 'hidden'}
-            className="bg-tekki-blue rounded-3xl p-10 md:p-14 relative overflow-hidden"
+            className="bg-white rounded-3xl p-10 md:p-14 relative overflow-hidden border border-tekki-blue/8"
           >
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-white/5 rounded-full pointer-events-none" />
-
             <div className="relative z-10">
               <div className="text-center mb-10">
-                <h3 className="font-heading text-2xl md:text-3xl font-bold text-white mb-2">
-                  Résultats cumulés de nos 2 marques
+                <h3 className="font-heading text-2xl md:text-3xl font-bold text-tekki-blue mb-2">
+                  Résultats cumulés de nos 3 marques
                 </h3>
-                <p className="text-white/50">En moins de 3 ans</p>
+                <p className="text-tekki-blue/50">En moins de 3 ans</p>
               </div>
 
               <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
@@ -266,10 +312,10 @@ const NosMarquesContent = () => {
                   <motion.div
                     key={i} custom={i} variants={fadeUp}
                     initial="hidden" animate={statsInView ? 'visible' : 'hidden'}
-                    className="text-center bg-white/5 rounded-2xl p-6 border border-white/8"
+                    className="text-center bg-tekki-cream rounded-2xl p-6 border border-tekki-blue/8"
                   >
                     <div className="font-heading text-4xl font-bold text-tekki-orange mb-2">{item.value}</div>
-                    <p className="text-white/60 text-sm">{item.label}</p>
+                    <p className="text-tekki-blue/60 text-sm">{item.label}</p>
                   </motion.div>
                 ))}
               </div>
@@ -321,28 +367,29 @@ const NosMarquesContent = () => {
       </section>
 
       {/* ── CTA ─────────────────────────────────────────────── */}
-      <section className="py-20 bg-tekki-blue relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
+      <section className="py-20 bg-tekki-orange relative overflow-hidden">
+        <div className="absolute top-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute bottom-[-15%] left-[-5%] w-[300px] h-[300px] rounded-full bg-white/5 pointer-events-none" />
 
         <div className="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
             className="max-w-3xl mx-auto"
           >
-            <div className="w-14 h-14 rounded-2xl bg-tekki-orange flex items-center justify-center mx-auto mb-6">
+            <div className="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center mx-auto mb-6">
               <Zap className="w-7 h-7 text-white" />
             </div>
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
               Prêt à appliquer ces stratégies à votre marque ?
             </h2>
-            <p className="text-lg text-white/60 mb-10 max-w-xl mx-auto leading-relaxed">
+            <p className="text-lg text-white/[0.88] mb-10 max-w-xl mx-auto leading-relaxed">
               Découvrez nos offres d'accompagnement et commencez votre transformation dès aujourd'hui.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/diagnostic"
-                className="inline-flex items-center justify-center bg-tekki-orange hover:bg-tekki-orange/90 text-white px-8 py-4 rounded-full font-bold text-base transition-all shadow-[0_0_30px_rgba(234,88,12,0.3)] hover:-translate-y-0.5 group"
+                className="inline-flex items-center justify-center bg-white hover:shadow-xl hover:shadow-black/25 text-tekki-orange-deep px-8 py-4 rounded-full font-bold text-base transition-all hover:-translate-y-0.5 group"
               >
                 Faire le diagnostic gratuit
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -350,7 +397,7 @@ const NosMarquesContent = () => {
               <a
                 href="https://calendly.com/tekki-studio/consultation-gratuite"
                 target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center justify-center border border-white/15 text-white px-8 py-4 rounded-full font-bold text-base hover:bg-white/8 transition-colors"
+                className="inline-flex items-center justify-center border border-white/30 text-white px-8 py-4 rounded-full font-bold text-base hover:bg-white/10 transition-colors"
               >
                 Réserver un appel gratuit
               </a>
