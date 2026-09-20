@@ -41,31 +41,6 @@ const CareersPage = () => {
     type: '',
   });
   
-  // Effet pour configurer le header
-  useEffect(() => {
-    // Fonction pour mettre à jour la classe du header
-    const updateHeaderClass = () => {
-      const header = document.querySelector('header');
-      if (header) {
-        // Forcer le header à être toujours coloré (fond bleu)
-        header.classList.add('bg-tekki-blue', 'text-white');
-        header.classList.remove('bg-transparent');
-      }
-    };
-
-    // Appliquer immédiatement
-    updateHeaderClass();
-
-    // Nettoyer lors du démontage du composant
-    return () => {
-      const header = document.querySelector('header');
-      if (header) {
-        // Restaurer les classes d'origine si nécessaire
-        header.classList.remove('bg-tekki-blue', 'text-white');
-      }
-    };
-  }, []);
-  
   useEffect(() => {
     fetchJobs();
   }, []);
@@ -163,26 +138,27 @@ const CareersPage = () => {
   return (
     <main className="pb-20">
       {/* Hero Section */}
-      <section className="bg-tekki-blue py-16 pt-32 relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
+      <section className="relative pt-32 pb-16 overflow-hidden">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-tekki-orange/[0.04] rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-tekki-blue/[0.03] rounded-full blur-[100px] pointer-events-none" />
         <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px] relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="font-heading text-4xl md:text-5xl font-bold text-white mb-6">
+            <h1 className="font-heading text-4xl md:text-5xl font-bold text-tekki-blue mb-6">
               Rejoignez l'équipe <span className="text-tekki-orange">TEKKI Studio</span>
             </h1>
-            <p className="text-lg text-white/60 mb-8">
+            <p className="text-lg text-tekki-blue/60 mb-8">
               Participez à notre mission de permettre à toute personne de lancer son business en ligne facilement et sans partir de zéro.
             </p>
 
             {/* Barre de recherche */}
             <div className="relative max-w-2xl mx-auto">
-              <Search className="absolute left-4 top-3.5 h-5 w-5 text-white/40" />
+              <Search className="absolute left-4 top-3.5 h-5 w-5 text-tekki-blue/30" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Rechercher un poste, un département..."
-                className="w-full bg-white/8 text-white placeholder-white/40 py-3 pl-12 pr-4 rounded-full border border-white/15 focus:outline-none focus:ring-2 focus:ring-tekki-orange/40 font-body"
+                className="w-full bg-white text-tekki-blue placeholder-tekki-blue/40 py-3 pl-12 pr-4 rounded-full border border-tekki-blue/15 focus:outline-none focus:ring-2 focus:ring-tekki-orange/40 font-body"
               />
             </div>
           </div>

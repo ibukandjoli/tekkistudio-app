@@ -276,6 +276,162 @@ const CaseStudyDetailPage = () => {
         "Un bon site e-commerce vend même pendant que vous dormez",
       ],
     },
+
+    'ahovi-cosmetics': {
+      client: 'Ahovi Cosmetics',
+      industry: 'Cosmétiques',
+      location: 'Dakar, Sénégal',
+      color: '#EC4899',
+      website: 'https://ahovicosmetics.com',
+
+      challenge: {
+        description:
+          "Ahovi Cosmetics vendait principalement à Dakar lorsque Katia nous a contactés. La marque avait besoin d'un site e-commerce moderne et professionnel pour automatiser ses ventes et toucher des clientes au-delà de la capitale.",
+        problems: [
+          'Ventes concentrées sur Dakar, marché difficile à élargir',
+          "Aucun site e-commerce moderne pour automatiser les ventes",
+          'Gestion manuelle limitant la capacité à toucher de nouvelles clientes',
+          'Besoin de professionnaliser la présence en ligne de la marque',
+        ],
+      },
+
+      solution: {
+        description:
+          "Nous avons créé un site e-commerce moderne pour Ahovi Cosmetics, pensé pour automatiser la collecte des commandes et permettre à la marque de vendre bien au-delà de Dakar.",
+        actions: [
+          {
+            category: 'Création site e-commerce',
+            points: [
+              'Design moderne mettant en valeur les produits cosmétiques',
+              'Collecte automatisée des commandes',
+              "Optimisation pour toucher de nouveaux marchés",
+              'Paiement sécurisé intégré',
+            ],
+          },
+          {
+            category: 'Automatisation des ventes',
+            points: [
+              'Gestion automatique des commandes',
+              'Notifications instantanées pour chaque achat',
+              'Process de vente qui fonctionne sans intervention manuelle',
+              'Suivi des commandes simplifié',
+            ],
+          },
+          {
+            category: 'Expansion géographique',
+            points: [
+              'Navigation mobile-first pour toucher plus de clientes',
+              "Structure de site pensée pour vendre au-delà de Dakar",
+              'Descriptions produits optimisées pour la conversion',
+              'Process de commande simplifié',
+            ],
+          },
+        ],
+      },
+
+      results: {
+        highlight: 'Ventes automatisées et expansion géographique',
+        description:
+          "Ahovi Cosmetics dispose maintenant d'un site e-commerce professionnel qui automatise ses ventes et lui a permis d'élargir son marché à de nouvelles villes, avec une croissance de chiffre d'affaires significative.",
+        metrics: [
+          { label: 'Automatisation', value: '100%', icon: <CheckCircle className="w-6 h-6" /> },
+          { label: 'Nouveaux marchés', value: '+5 villes', icon: <Globe className="w-6 h-6" /> },
+          { label: 'Croissance CA', value: '+180%', icon: <TrendingUp className="w-6 h-6" /> },
+        ],
+      },
+
+      testimonial: {
+        quote:
+          "J'avais besoin d'un site e-commerce moderne et professionnel pour automatiser mes ventes et toucher plus de clientes. TEKKI Studio a dépassé mes attentes avec une solution qui me permet de vendre partout au Sénégal.",
+        author: 'Katia K.',
+        role: "Fondatrice d'Ahovi Cosmetics",
+      },
+
+      learnings: [
+        'Un site e-commerce professionnel ouvre de nouveaux marchés géographiques',
+        "L'automatisation des ventes libère du temps pour développer la marque",
+        'Le mobile-first est essentiel pour toucher plus de clientes',
+        'Une expansion géographique réussie passe par une plateforme fiable',
+      ],
+    },
+
+    'racines-precieuses': {
+      client: 'Racines Précieuses',
+      industry: 'Produits capillaires naturels',
+      location: 'Sénégal',
+      color: '#059669',
+      website: 'https://racinesprecieuses.com',
+
+      challenge: {
+        description:
+          "Racines Précieuses gérait ses commandes manuellement et dépendait de distributeurs lorsque Anta nous a contactés. Cette vente manuelle était chronophage, et la marque avait besoin d'autonomie pour vendre directement à ses clientes.",
+        problems: [
+          'Gestion manuelle chronophage des commandes',
+          'Dépendance vis-à-vis des distributeurs',
+          "Manque d'autonomie pour vendre directement aux clientes",
+          'Temps limité pour développer de nouveaux produits',
+        ],
+      },
+
+      solution: {
+        description:
+          "Nous avons créé un site e-commerce permettant à Racines Précieuses de vendre directement à ses clientes partout au Sénégal, en toute autonomie, sans dépendre des distributeurs.",
+        actions: [
+          {
+            category: 'Création site e-commerce',
+            points: [
+              'Design mettant en valeur les produits capillaires naturels',
+              'Collecte automatisée des commandes',
+              'Paiement sécurisé intégré',
+              'Vente directe aux clientes, sans intermédiaire',
+            ],
+          },
+          {
+            category: 'Autonomie commerciale',
+            points: [
+              'Gestion des commandes indépendante des distributeurs',
+              'Notifications instantanées pour chaque achat',
+              'Suivi des ventes centralisé',
+              'Process de vente qui fonctionne en continu',
+            ],
+          },
+          {
+            category: 'Portée nationale',
+            points: [
+              'Navigation mobile-first',
+              'Livraison pensée pour tout le territoire sénégalais',
+              'Descriptions détaillées des produits',
+              'Process de commande simplifié',
+            ],
+          },
+        ],
+      },
+
+      results: {
+        highlight: 'Autonomie totale et gain de temps',
+        description:
+          "Racines Précieuses vend maintenant en toute autonomie partout au Sénégal, sans dépendre de distributeurs, et Anta peut consacrer le temps gagné au développement de nouveaux produits.",
+        metrics: [
+          { label: 'Gain de temps', value: '+80%', icon: <Zap className="w-6 h-6" /> },
+          { label: 'Indépendance', value: '100%', icon: <CheckCircle className="w-6 h-6" /> },
+          { label: 'Portée nationale', value: 'Sénégal', icon: <Globe className="w-6 h-6" /> },
+        ],
+      },
+
+      testimonial: {
+        quote:
+          "Gérer mes commandes manuellement me prenait énormément de temps. Avec le site créé par TEKKI Studio, je peux vendre en toute autonomie partout au Sénégal et me concentrer sur le développement de mes produits.",
+        author: 'Anta F.',
+        role: 'Fondatrice de Racines Précieuses',
+      },
+
+      learnings: [
+        "L'autonomie commerciale libère du temps pour l'innovation produit",
+        "Un site e-commerce réduit la dépendance aux distributeurs",
+        'La vente directe renforce la relation avec les clientes',
+        'La couverture nationale ne demande pas de présence physique partout',
+      ],
+    },
   };
 
   const caseStudy = casesData[slug];
@@ -482,8 +638,9 @@ const CaseStudyDetailPage = () => {
       </section>
 
       {/* ── Témoignage ──────────────────────────────────────── */}
-      <section className="py-24 bg-tekki-blue relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
+      <section className="py-24 bg-tekki-orange relative overflow-hidden">
+        <div className="absolute top-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute bottom-[-15%] left-[-5%] w-[300px] h-[300px] rounded-full bg-white/5 pointer-events-none" />
 
         <div className="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -493,19 +650,19 @@ const CaseStudyDetailPage = () => {
             viewport={{ once: true }}
             className="max-w-4xl mx-auto text-center"
           >
-            <Quote className="w-14 h-14 text-tekki-orange/30 mx-auto mb-8" />
+            <Quote className="w-14 h-14 text-white/40 mx-auto mb-8" />
             <blockquote className="font-heading text-2xl md:text-4xl text-white font-light leading-relaxed mb-10 tracking-tight">
               &ldquo;{caseStudy.testimonial.quote}&rdquo;
             </blockquote>
             <div className="flex flex-col items-center gap-3">
-              <div className="w-14 h-14 rounded-full bg-tekki-orange flex items-center justify-center text-white text-xl font-heading font-bold uppercase">
+              <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center text-tekki-orange-deep text-xl font-heading font-bold uppercase">
                 {caseStudy.testimonial.author[0]}
               </div>
               <div>
                 <div className="font-heading font-bold text-xl text-white mb-0.5">
                   {caseStudy.testimonial.author}
                 </div>
-                <div className="text-white/50 text-sm">{caseStudy.testimonial.role}</div>
+                <div className="text-white/[0.7] text-sm">{caseStudy.testimonial.role}</div>
               </div>
             </div>
           </motion.div>
