@@ -88,7 +88,7 @@ export default function HeroV2() {
               transition={{ duration: 0.6, delay: 0.15 }}
               className="font-home-display text-[34px] sm:text-[42px] md:text-[50px] font-semibold text-tekki-ink tracking-tight mb-[18px] leading-[1.12]"
             >
-              Un joli site ne vous ramènera <span className="text-tekki-orange">pas de ventes</span>.
+              Votre site est beau. Mais est-ce qu&apos;il <span className="text-tekki-orange">vend</span>&nbsp;?
             </motion.h1>
 
             <motion.p
@@ -97,7 +97,7 @@ export default function HeroV2() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="font-home-body text-[17px] text-tekki-ink-soft mb-7 max-w-[430px] leading-relaxed"
             >
-              On construit le système complet qui transforme votre visibilité en ventes : boutique adaptée à votre marché, stratégie d&apos;acquisition ajustée à votre marque, et vendeuse IA formée sur vos produits.
+              Nous construisons le système complet pour attirer vos clients et les accompagner jusqu&apos;à l&apos;achat : boutique adaptée à votre marché, acquisition ajustée au stade de votre marque et vendeuse IA formée sur vos produits.
             </motion.p>
 
             <motion.div
