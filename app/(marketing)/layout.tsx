@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import Header from '@/app/components/layout/Header';
 import Footer from '@/app/components/layout/Footer';
+import HashScrollFix from '@/app/components/layout/HashScrollFix';
 import MetaPixel from '@/app/components/analytics/MetaPixel';
 import { Toaster } from 'sonner';
 
@@ -60,6 +61,7 @@ export default function MarketingLayout({
       <Suspense fallback={null}>
         <MetaPixel />
       </Suspense>
+      <HashScrollFix />
 
       <Header />
       <main className="flex-grow">
