@@ -1,17 +1,18 @@
 // app/components/home/v2/LogosV2.tsx
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 const LogosV2 = () => {
   const brands = [
-    { name: 'Momo Le Bottier', logo: '/images/clients/momo-le-bottier.png' },
-    { name: 'Abarings', logo: '/images/clients/abarings.avif' },
-    { name: '6C No Filter', logo: '/images/clients/6c-no-filter.webp' },
-    { name: 'Racines Précieuses', logo: '/images/clients/racines-precieuses.avif' },
-    { name: 'Ahovi Beauty Cosmetics', logo: '/images/clients/ahovi-beauty.png' },
-    { name: 'VIENS ON S\'CONNAÎT', logo: '/images/clients/viens-on-sconnait.png' },
-    { name: 'AMANI', logo: '/images/clients/amani.svg' },
+    { name: 'Momo Le Bottier', logo: '/images/clients/momo-le-bottier.png', width: 1074, height: 685 },
+    { name: 'Abarings', logo: '/images/clients/abarings.avif', width: 350, height: 63 },
+    { name: '6C No Filter', logo: '/images/clients/6c-no-filter.webp', width: 600, height: 184 },
+    { name: 'Racines Précieuses', logo: '/images/clients/racines-precieuses.avif', width: 300, height: 151 },
+    { name: 'Ahovi Beauty Cosmetics', logo: '/images/clients/ahovi-beauty.png', width: 1350, height: 763 },
+    { name: 'VIENS ON S\'CONNAÎT', logo: '/images/clients/viens-on-sconnait.png', width: 2844, height: 904 },
+    { name: 'AMANI', logo: '/images/clients/amani.svg', width: 200, height: 64 },
   ];
 
   const duplicatedBrands = [...brands, ...brands];
@@ -59,9 +60,11 @@ const LogosV2 = () => {
                     e.currentTarget.style.filter = 'grayscale(100%) contrast(0.3) brightness(0.5)';
                   }}
                 >
-                  <img
+                  <Image
                     src={brand.logo}
                     alt={brand.name}
+                    width={brand.width}
+                    height={brand.height}
                     className="h-8 w-auto object-contain"
                     loading="lazy"
                   />

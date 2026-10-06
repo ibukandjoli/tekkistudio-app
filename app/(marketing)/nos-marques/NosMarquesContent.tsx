@@ -3,6 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowRight, TrendingUp, Star, Users, Sparkles,
   ShoppingBag, Target, Zap, Award
@@ -163,9 +164,11 @@ const NosMarquesContent = () => {
                 {/* Image */}
                 <div className="relative h-64 overflow-hidden">
                   <div className={`absolute inset-0 bg-gradient-to-br ${brand.accentColor}`} />
-                  <img
+                  <Image
                     src={brand.image} alt={brand.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-tekki-blue/70 via-tekki-blue/20 to-transparent" />
                   <div className="absolute bottom-5 left-5 right-5">
@@ -254,9 +257,11 @@ const NosMarquesContent = () => {
           >
             <div className="grid sm:grid-cols-[minmax(0,280px)_1fr]">
               <div className="relative h-56 sm:h-full overflow-hidden">
-                <img
+                <Image
                   src={itokoBeauty.image} alt={itokoBeauty.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  fill
+                  sizes="(max-width: 640px) 100vw, 280px"
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-tekki-blue/70 via-tekki-blue/10 to-transparent sm:bg-gradient-to-r" />
                 <div className="absolute bottom-5 left-5 right-5 sm:hidden">
