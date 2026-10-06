@@ -20,6 +20,8 @@ const nextConfig = {
       { source: '/nos-formules/:path*', destination: '/', permanent: false },
       { source: '/marques', destination: '/', permanent: false },
       { source: '/marques/:path*', destination: '/', permanent: false },
+      { source: '/services/sites-ecommerce', destination: '/', permanent: false },
+      { source: '/services/vendeur-ia', destination: '/', permanent: false },
     ];
   },
 

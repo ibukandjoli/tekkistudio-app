@@ -22,11 +22,10 @@ import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
 import { 
-  Plus, 
-  MoreVertical, 
-  Pencil, 
-  Trash2, 
-  Eye, 
+  Plus,
+  MoreVertical,
+  Pencil,
+  Trash2,
   Search,
   ArrowUpDown,
   AlertCircle,
@@ -231,13 +230,6 @@ function MarquesPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => window.location.href = `/marques/${brand.slug}`}
-                            className="cursor-pointer"
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            Voir
-                          </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => window.location.href = `/admin/marques/${brand.id}/edit`}
                             className="cursor-pointer"

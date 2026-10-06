@@ -806,20 +806,8 @@ function LeadDetailPage() {
                       </div>
                     )}
                     
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 mb-1">URL publique</h3>
-                      <a 
-                        href={`/business/${business.slug}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-[#0f4c81] hover:underline flex items-center gap-1"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                        /business/{business.slug}
-                      </a>
-                    </div>
                   </div>
-                  
+
                   {business.description && (
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 mb-2">Description du business</h3>
@@ -851,14 +839,7 @@ function LeadDetailPage() {
                         Modifier le business
                       </Button>
                     </Link>
-                    
-                    <Link href={`/business/${business.slug}`} target="_blank" passHref>
-                      <Button variant="outline" className="w-full">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Voir la page publique
-                      </Button>
-                    </Link>
-                    
+
                     {business.status === 'available' && lead.status !== 'sold' && (
                       <Button 
                         className="w-full bg-green-600 hover:bg-green-700"
