@@ -9,16 +9,20 @@ import MetaPixel from '@/app/components/analytics/MetaPixel';
 import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.tekkistudio.com'),
   title: 'TEKKI Studio — La Fabrique de Marques Africaines qui Vendent',
   description: "Site e-commerce, Vendeuse IA et stratégie d'acquisition : on construit le système complet qui transforme votre visibilité en ventes. Stratégies testées sur nos propres marques avant d'être proposées aux vôtres.",
   keywords: 'e-commerce afrique, agence digitale afrique, marque africaine, boutique en ligne senegal, vendre en ligne afrique, agence e-commerce dakar, croissance digitale, marques africaines, TEKKI Studio',
   authors: [{ name: 'TEKKI Studio' }],
   creator: 'TEKKI Studio',
   publisher: 'TEKKI Studio',
+  alternates: {
+    canonical: 'https://www.tekkistudio.com',
+  },
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    url: 'https://tekkistudio.com',
+    url: 'https://www.tekkistudio.com',
     title: 'TEKKI Studio — La Fabrique de Marques Africaines qui Vendent',
     description: "Site e-commerce, Vendeuse IA et stratégie d'acquisition : on construit le système complet qui transforme votre visibilité en ventes. Stratégies testées sur nos propres marques avant d'être proposées aux vôtres.",
     siteName: 'TEKKI Studio',
@@ -51,6 +55,28 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'TEKKI Studio',
+  alternateName: 'La Fabrique de Marques Africaines',
+  url: 'https://www.tekkistudio.com',
+  logo: 'https://www.tekkistudio.com/images/tekkistudio/logo_black.svg',
+  description: "TEKKI Studio construit le système complet qui permet aux marques africaines de vendre : boutique e-commerce, stratégie d'acquisition et Vendeuse IA.",
+  email: 'hello@tekkistudio.com',
+  telephone: '+221767826804',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Dakar',
+    addressCountry: 'SN',
+  },
+  sameAs: [
+    'https://facebook.com/tekkistudio',
+    'https://instagram.com/tekkistudio',
+    'https://linkedin.com/company/tekkistudio',
+  ],
+};
+
 export default function MarketingLayout({
   children,
 }: {
@@ -58,6 +84,10 @@ export default function MarketingLayout({
 }) {
   return (
     <div className="bg-tekki-cream text-tekki-blue min-h-screen flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
       <Suspense fallback={null}>
         <MetaPixel />
       </Suspense>

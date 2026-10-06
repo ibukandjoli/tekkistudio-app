@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Les Marques de TEKKI Studio | Fabrique de Marques Africaines',
     description: 'Découvrez comment nous avons créé et développé VIENS ON S\'CONNAÎT (+8 000 jeux vendus) et AMANI (+250 produits vendus). Stratégies e-commerce testées et validées.',
-    url: 'https://tekkistudio.com/nos-marques',
+    url: 'https://www.tekkistudio.com/nos-marques',
     siteName: 'TEKKI Studio',
     locale: 'fr_FR',
     type: 'website',
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     images: ['/images/brands/vosc.png'],
   },
   alternates: {
-    canonical: 'https://tekkistudio.com/nos-marques',
+    canonical: 'https://www.tekkistudio.com/nos-marques',
   },
 };
 
