@@ -78,7 +78,7 @@ export default function HeroV2() {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-tekki-orange" />
               </span>
               <span className="text-sm font-medium text-tekki-orange tracking-wide">
-                La Fabrique de Marques Africaines
+                +10 marques accompagnées
               </span>
             </motion.div>
 
@@ -88,7 +88,7 @@ export default function HeroV2() {
               transition={{ duration: 0.6, delay: 0.15 }}
               className="font-home-display text-[34px] sm:text-[42px] md:text-[50px] font-semibold text-tekki-ink tracking-tight mb-[18px] leading-[1.12]"
             >
-              Votre site est beau. Mais est-ce qu&apos;il <span className="text-tekki-orange">vend</span>&nbsp;?
+              Votre site est beau.<br />Mais est-ce qu&apos;il <span className="text-tekki-orange">vend</span>&nbsp;?
             </motion.h1>
 
             <motion.p
