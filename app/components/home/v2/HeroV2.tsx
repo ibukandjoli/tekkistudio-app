@@ -97,7 +97,7 @@ export default function HeroV2() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="font-home-body text-[17px] text-tekki-ink-soft mb-7 max-w-[430px] leading-relaxed"
             >
-              Ni vos posts Instagram/TikTok viraux, sans le bon système derrière. Chez TEKKI Studio, on construit pour vous le système complet qui permet à votre marque de vendre réellement.
+              On construit le système complet qui transforme votre visibilité en ventes : boutique adaptée à votre marché, stratégie d&apos;acquisition ajustée à votre marque, et vendeuse IA formée sur vos produits.
             </motion.p>
 
             <motion.div

@@ -36,21 +36,14 @@ const projects = [
     category: 'Beauté',
     slug: 'ahovi-cosmetics',
     image: '/images/portfolio/ahovi.png',
-    hasDetail: false,
+    hasDetail: true,
   },
   {
-    name: 'Amani',
-    category: 'Santé & Bien-être',
-    slug: 'amani',
-    image: '/images/portfolio/amani.png',
-    hasDetail: false,
-  },
-  {
-    name: 'Viens On S\'Connaît',
-    category: 'Jeux & Divertissement',
-    slug: 'viens-on-sconnait',
-    image: '/images/portfolio/vosc.png',
-    hasDetail: false,
+    name: 'Racines Précieuses',
+    category: 'Produits capillaires',
+    slug: 'racines-precieuses',
+    image: '/images/portfolio/racines.png',
+    hasDetail: true,
   },
 ];
 
