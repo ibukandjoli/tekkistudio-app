@@ -110,14 +110,14 @@ export default function HeroV2() {
                 <Link
                   href="/diagnostic"
                   onClick={() => trackCustomEvent('hero_cta_click')}
-                  className="whitespace-nowrap inline-flex items-center justify-center gap-2 px-8 py-4 bg-tekki-orange hover:bg-tekki-orange-hover text-white rounded-full font-home-body font-semibold text-[15px] transition-all duration-300 group shadow-lg shadow-tekki-orange/20 hover:shadow-xl hover:shadow-tekki-orange/30 hover:-translate-y-0.5"
+                  className="whitespace-nowrap inline-flex items-center justify-center gap-2 px-8 py-4 bg-tekki-orange hover:bg-tekki-orange-hover active:scale-[0.98] text-white rounded-full font-home-body font-semibold text-[15px] transition-all duration-300 group shadow-lg shadow-tekki-orange/20 hover:shadow-xl hover:shadow-tekki-orange/30 hover:-translate-y-0.5 outline-none focus-visible:ring-2 focus-visible:ring-tekki-orange/50 focus-visible:ring-offset-2"
                 >
                   Faire le diagnostic de ma marque
                   <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   href="/#cases"
-                  className="whitespace-nowrap inline-flex items-center gap-1.5 font-home-body text-[15px] text-tekki-ink font-semibold hover:text-tekki-orange transition-colors"
+                  className="whitespace-nowrap inline-flex items-center gap-1.5 font-home-body text-[15px] text-tekki-ink font-semibold hover:text-tekki-orange transition-colors rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-tekki-orange/50 focus-visible:ring-offset-2"
                 >
                   Voir les résultats obtenus
                   <ArrowRight size={16} />
@@ -204,6 +204,7 @@ export default function HeroV2() {
                     src="/images/clients/logo-itoko.png"
                     alt="Itoko Beauty"
                     fill
+                    sizes="44px"
                     className="object-cover"
                   />
                 </div>

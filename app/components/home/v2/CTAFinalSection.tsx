@@ -34,7 +34,7 @@ export default function CTAFinalSection() {
           <Link
             href="/diagnostic?offre=diagnostic"
             onClick={() => trackCustomEvent('pricing_cta_click', { location: 'final_cta', offre: 'diagnostic' })}
-            className="inline-flex items-center justify-center gap-2 px-[28px] py-[14px] bg-white hover:shadow-xl hover:shadow-black/25 text-tekki-orange-deep rounded-full font-home-body font-semibold text-[15.5px] transition-all duration-300 group hover:-translate-y-0.5"
+            className="inline-flex items-center justify-center gap-2 px-[28px] py-[14px] bg-white hover:shadow-xl hover:shadow-black/25 active:scale-[0.98] text-tekki-orange-deep rounded-full font-home-body font-semibold text-[15.5px] transition-all duration-300 group hover:-translate-y-0.5 outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-tekki-orange"
           >
             Faire le diagnostic gratuitement
             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />

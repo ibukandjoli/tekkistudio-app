@@ -125,7 +125,7 @@ export default function ArsenalSection() {
               <Link
                 href={`/diagnostic?offre=${offer.offreParam}`}
                 onClick={() => trackCustomEvent('pricing_cta_click', { offer: offer.name, offre: offer.offreParam })}
-                className={`w-full text-center px-6 py-3 rounded-full font-home-body font-semibold text-sm transition-all ${
+                className={`w-full text-center px-6 py-3 rounded-full font-home-body font-semibold text-sm transition-all active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-tekki-orange/50 focus-visible:ring-offset-2 ${
                   offer.featured
                     ? 'bg-tekki-orange hover:bg-tekki-orange-hover text-white'
                     : 'border border-tekki-ink/15 text-tekki-ink hover:border-tekki-orange hover:text-tekki-orange'
