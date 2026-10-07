@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+const focusRing = 'outline-none focus-visible:ring-2 focus-visible:ring-tekki-orange/50 focus-visible:ring-offset-2';
+
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
@@ -37,11 +39,6 @@ const BrandDetailPage = () => {
       name: "VIENS ON S'CONNAÎT",
       tagline: "Jeux de conversation qui améliorent les relations",
       description: "VIENS ON S'CONNAÎT est notre première marque, lancée en 2022. C'est une gamme de jeux de cartes avec des questions significatives qui permettent de créer des liens authentiques et profonds entre les personnes.",
-      accentColor: "from-purple-500 to-pink-500",
-      accentBg: "bg-purple-500",
-      accentText: "text-purple-600",
-      accentLight: "bg-purple-50",
-      image: "/images/brands/vosc.png",
       website: "https://viensonsconnait.com",
 
       stats: [
@@ -133,11 +130,6 @@ const BrandDetailPage = () => {
       name: "AMANI",
       tagline: "La solution naturelle contre les douleurs menstruelles",
       description: "AMANI est marque de bien-être pour femmes qui propose une ceinture chauffante innovante qui combine thermothérapie et massothérapie pour soulager les douleurs menstruelles de manière naturelle et efficace.",
-      accentColor: "from-rose-500 to-orange-500",
-      accentBg: "bg-rose-500",
-      accentText: "text-rose-600",
-      accentLight: "bg-rose-50",
-      image: "/images/brands/amani.png",
       website: "https://amanifemme.com",
 
       stats: [
@@ -232,8 +224,8 @@ const BrandDetailPage = () => {
     return (
       <div className="min-h-screen bg-tekki-cream flex items-center justify-center">
         <div className="text-center">
-          <h1 className="font-heading text-3xl font-bold text-tekki-blue mb-4">Marque non trouvée</h1>
-          <Link href="/nos-marques" className="text-tekki-orange hover:underline">
+          <h1 className="font-home-display text-3xl font-semibold text-tekki-ink mb-4">Marque non trouvée</h1>
+          <Link href="/nos-marques" className={`text-tekki-orange hover:underline rounded-sm ${focusRing}`}>
             Retour à nos marques
           </Link>
         </div>
@@ -242,17 +234,18 @@ const BrandDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen font-body">
+    <div className="min-h-screen font-home-body bg-tekki-cream">
       {/* Hero */}
-      <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-tekki-blue relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
+      <section className="pt-32 pb-20 md:pt-40 md:pb-20 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-tekki-orange/[0.05] rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-tekki-ink/[0.03] rounded-full blur-[100px] pointer-events-none" />
 
-        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px] relative z-10">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-[1200px] relative z-10">
           <Link
             href="/nos-marques"
-            className="inline-flex items-center text-white/70 hover:text-white mb-8 transition-colors"
+            className={`inline-flex items-center text-tekki-ink-soft hover:text-tekki-orange mb-8 transition-colors rounded-sm ${focusRing}`}
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
+            <ArrowLeft className="w-4 h-4 mr-2" />
             Retour à nos marques
           </Link>
 
@@ -260,19 +253,19 @@ const BrandDetailPage = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="max-w-4xl"
+            className="max-w-3xl"
           >
-            <div className={`inline-flex items-center gap-2 bg-gradient-to-r ${brand.accentColor} rounded-full px-4 py-1.5 mb-6`}>
-              <span className="text-white text-sm font-semibold">Nos Marques</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-tekki-orange/8 border border-tekki-orange/15 mb-6">
+              <span className="text-sm font-medium text-tekki-orange tracking-wide">Nos Marques</span>
             </div>
 
-            <h1 className="font-heading text-4xl md:text-6xl font-bold text-white mb-6">
+            <h1 className="font-home-display text-[36px] md:text-[50px] font-semibold text-tekki-ink tracking-tight mb-5 leading-[1.12]">
               {brand.name}
             </h1>
-            <p className="text-xl text-white/80 mb-4 font-medium">
+            <p className="font-home-body text-[19px] text-tekki-ink mb-3 font-medium">
               {brand.tagline}
             </p>
-            <p className="text-lg text-white/60 leading-relaxed mb-8 max-w-3xl">
+            <p className="font-home-body text-[16px] text-tekki-ink-soft leading-relaxed mb-8 max-w-[600px]">
               {brand.description}
             </p>
 
@@ -280,19 +273,19 @@ const BrandDetailPage = () => {
               href={brand.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center bg-tekki-orange hover:bg-tekki-orange/90 text-white px-8 py-4 rounded-full font-bold text-lg transition-all"
+              className={`inline-flex items-center justify-center gap-2 bg-tekki-orange hover:bg-tekki-orange-hover active:scale-[0.98] text-white px-7 py-[14px] rounded-full font-home-body font-semibold text-[15px] transition-all duration-300 shadow-lg shadow-tekki-orange/20 hover:shadow-xl hover:shadow-tekki-orange/30 ${focusRing}`}
             >
-              <Globe className="w-5 h-5 mr-2" />
+              <Globe className="w-[18px] h-[18px]" />
               Visiter le site web
-              <ExternalLink className="w-4 h-4 ml-2" />
+              <ExternalLink className="w-4 h-4" />
             </a>
           </motion.div>
         </div>
       </section>
 
       {/* Stats */}
-      <section className="py-12 bg-white border-b border-tekki-blue/8">
-        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
+      <section className="py-12 bg-white border-y border-tekki-ink/8">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-[1200px]">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
             {brand.stats.map((stat: any, index: number) => (
               <motion.div
@@ -302,13 +295,13 @@ const BrandDetailPage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="text-center"
               >
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${brand.accentColor} flex items-center justify-center text-white mx-auto mb-3`}>
+                <div className="w-14 h-14 rounded-xl bg-tekki-orange/8 flex items-center justify-center text-tekki-orange-deep mx-auto mb-3">
                   {stat.icon}
                 </div>
-                <div className={`text-3xl font-bold ${brand.accentText}`}>
+                <div className="font-home-mono text-[26px] font-semibold text-tekki-ink tabular-nums">
                   {stat.value}
                 </div>
-                <div className="text-sm text-tekki-blue/60 mt-1">{stat.label}</div>
+                <div className="font-home-body text-sm text-tekki-ink-soft mt-1">{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -316,50 +309,50 @@ const BrandDetailPage = () => {
       </section>
 
       {/* Story */}
-      <section className="py-20 md:py-28 bg-tekki-cream">
-        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-tekki-blue mb-12 text-center">
-              L'histoire de {brand.name}
+      <section className="py-20 md:py-24">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-[1200px]">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="font-home-display text-[30px] font-semibold text-tekki-ink tracking-tight mb-12 text-center">
+              L&apos;histoire de {brand.name}
             </h2>
 
-            <div className="space-y-8">
-              <div className="bg-white rounded-2xl p-8 border border-tekki-blue/8">
-                <h3 className="font-heading text-xl font-bold text-tekki-blue mb-4 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
-                    <Target className="w-5 h-5 text-red-500" />
+            <div className="space-y-6">
+              <div className="bg-white rounded-2xl p-8 border border-tekki-ink/8">
+                <h3 className="font-home-display text-[18px] font-semibold text-tekki-ink mb-4 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-tekki-orange/8 flex items-center justify-center">
+                    <Target className="w-[18px] h-[18px] text-tekki-orange-deep" />
                   </div>
                   Le défi
                 </h3>
-                <p className="text-tekki-blue/60 leading-relaxed">
+                <p className="font-home-body text-[15px] text-tekki-ink-soft leading-relaxed">
                   {brand.story.challenge}
                 </p>
               </div>
 
-              <div className="bg-white rounded-2xl p-8 border border-tekki-blue/8">
-                <h3 className="font-heading text-xl font-bold text-tekki-blue mb-4 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-tekki-orange/10 flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-tekki-orange" />
+              <div className="bg-white rounded-2xl p-8 border border-tekki-ink/8">
+                <h3 className="font-home-display text-[18px] font-semibold text-tekki-ink mb-4 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-tekki-orange/8 flex items-center justify-center">
+                    <Zap className="w-[18px] h-[18px] text-tekki-orange-deep" />
                   </div>
                   Notre solution
                 </h3>
-                <p className="text-tekki-blue/60 leading-relaxed">
+                <p className="font-home-body text-[15px] text-tekki-ink-soft leading-relaxed">
                   {brand.story.solution}
                 </p>
               </div>
 
-              <div className="bg-white rounded-2xl p-8 border border-tekki-blue/8">
-                <h3 className="font-heading text-xl font-bold text-tekki-blue mb-4 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-emerald-600" />
+              <div className="bg-white rounded-2xl p-8 border border-tekki-ink/8">
+                <h3 className="font-home-display text-[18px] font-semibold text-tekki-ink mb-4 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-tekki-orange/8 flex items-center justify-center">
+                    <TrendingUp className="w-[18px] h-[18px] text-tekki-orange-deep" />
                   </div>
                   Les résultats
                 </h3>
                 <ul className="space-y-3">
                   {brand.story.results.map((result: string, index: number) => (
                     <li key={index} className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-tekki-orange flex-shrink-0 mt-0.5" />
-                      <span className="text-tekki-blue/70">{result}</span>
+                      <CheckCircle className="w-[18px] h-[18px] text-tekki-orange flex-shrink-0 mt-0.5" />
+                      <span className="font-home-body text-[15px] text-tekki-ink-soft">{result}</span>
                     </li>
                   ))}
                 </ul>
@@ -370,13 +363,13 @@ const BrandDetailPage = () => {
       </section>
 
       {/* Learnings */}
-      <section className="py-20 md:py-28 bg-white">
-        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-tekki-blue mb-12 text-center">
+      <section className="py-20 md:py-24 bg-white border-y border-tekki-ink/8">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-[1200px]">
+          <h2 className="font-home-display text-[30px] font-semibold text-tekki-ink tracking-tight mb-12 text-center">
             Ce que nous avons appris
           </h2>
 
-          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
+          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-6">
             {brand.learnings.map((learning: any, index: number) => (
               <motion.div
                 key={index}
@@ -385,15 +378,15 @@ const BrandDetailPage = () => {
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={fadeUp}
-                className="bg-tekki-cream rounded-2xl p-8 border border-tekki-blue/8"
+                className="bg-tekki-cream rounded-2xl p-8 border border-tekki-ink/8"
               >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${brand.accentColor} flex items-center justify-center text-white mb-4`}>
+                <div className="w-12 h-12 rounded-xl bg-tekki-orange/8 flex items-center justify-center text-tekki-orange-deep mb-4">
                   {learning.icon}
                 </div>
-                <h3 className="font-heading text-lg font-bold text-tekki-blue mb-3">
+                <h3 className="font-home-display text-[17px] font-semibold text-tekki-ink mb-3">
                   {learning.title}
                 </h3>
-                <p className="text-tekki-blue/60 leading-relaxed">
+                <p className="font-home-body text-[14.5px] text-tekki-ink-soft leading-relaxed">
                   {learning.description}
                 </p>
               </motion.div>
@@ -403,13 +396,13 @@ const BrandDetailPage = () => {
       </section>
 
       {/* Strategies */}
-      <section className="py-20 md:py-28 bg-tekki-cream">
-        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-tekki-blue mb-12 text-center">
+      <section className="py-20 md:py-24">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-[1200px]">
+          <h2 className="font-home-display text-[30px] font-semibold text-tekki-ink tracking-tight mb-12 text-center">
             Les stratégies appliquées
           </h2>
 
-          <div className="max-w-4xl mx-auto space-y-8">
+          <div className="max-w-3xl mx-auto space-y-6">
             {brand.strategies.map((strategy: any, index: number) => (
               <motion.div
                 key={index}
@@ -418,18 +411,18 @@ const BrandDetailPage = () => {
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={fadeUp}
-                className="bg-white rounded-2xl p-8 border border-tekki-blue/8"
+                className="bg-white rounded-2xl p-8 border border-tekki-ink/8"
               >
-                <h3 className="font-heading text-xl font-bold text-tekki-blue mb-6">
+                <h3 className="font-home-display text-[18px] font-semibold text-tekki-ink mb-6">
                   {strategy.title}
                 </h3>
                 <ul className="space-y-3">
                   {strategy.points.map((point: string, idx: number) => (
                     <li key={idx} className="flex items-start gap-3">
-                      <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${brand.accentColor} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                      <div className="w-6 h-6 rounded-full bg-tekki-orange flex items-center justify-center flex-shrink-0 mt-0.5">
                         <span className="text-white text-xs font-bold">{idx + 1}</span>
                       </div>
-                      <span className="text-tekki-blue/70">{point}</span>
+                      <span className="font-home-body text-[15px] text-tekki-ink-soft">{point}</span>
                     </li>
                   ))}
                 </ul>
@@ -440,13 +433,13 @@ const BrandDetailPage = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 md:py-28 bg-white">
-        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px]">
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-tekki-blue mb-12 text-center">
+      <section className="py-20 md:py-24 bg-white border-y border-tekki-ink/8">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-[1200px]">
+          <h2 className="font-home-display text-[30px] font-semibold text-tekki-ink tracking-tight mb-12 text-center">
             Ce que disent nos clients
           </h2>
 
-          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
+          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-6">
             {brand.testimonials.map((testimonial: any, index: number) => (
               <motion.div
                 key={index}
@@ -455,19 +448,19 @@ const BrandDetailPage = () => {
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={fadeUp}
-                className="bg-tekki-cream rounded-2xl p-8 border border-tekki-blue/8"
+                className="bg-tekki-cream rounded-2xl p-8 border border-tekki-ink/8"
               >
                 <div className="flex items-center gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    <Star key={i} className="w-[18px] h-[18px] fill-tekki-orange text-tekki-orange" />
                   ))}
                 </div>
-                <p className="text-tekki-blue/70 leading-relaxed mb-6 italic">
+                <p className="font-home-body text-[15px] text-tekki-ink-soft leading-relaxed mb-6 italic">
                   &ldquo;{testimonial.text}&rdquo;
                 </p>
-                <div className="border-t border-tekki-blue/8 pt-4">
-                  <div className="font-bold text-tekki-blue">{testimonial.author}</div>
-                  <div className="text-sm text-tekki-blue/50">{testimonial.role}</div>
+                <div className="border-t border-tekki-ink/8 pt-4">
+                  <div className="font-home-display font-semibold text-tekki-ink text-[15px]">{testimonial.author}</div>
+                  <div className="font-home-body text-sm text-tekki-ink-soft">{testimonial.role}</div>
                 </div>
               </motion.div>
             ))}
@@ -476,35 +469,36 @@ const BrandDetailPage = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-20 md:py-28 bg-tekki-blue relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-white/5 rounded-full pointer-events-none" />
+      <section className="py-20 md:py-24 bg-tekki-orange relative overflow-hidden">
+        <div className="absolute top-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute bottom-[-15%] left-[-5%] w-[300px] h-[300px] rounded-full bg-white/5 pointer-events-none" />
 
-        <div className="mx-auto px-3 md:px-6 lg:px-8 w-full max-w-[1536px] relative z-10">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-[1200px] relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto text-center"
+            className="max-w-3xl mx-auto text-center"
           >
-            <h2 className="font-heading text-3xl md:text-5xl font-bold text-white mb-6">
+            <h2 className="font-home-display text-[30px] md:text-[36px] font-semibold text-white tracking-tight mb-4 leading-tight">
               Prêt à créer votre success story ?
             </h2>
-            <p className="text-xl text-white/70 mb-8 leading-relaxed">
-              Nous appliquons ces mêmes stratégies testées et validées à votre marque
+            <p className="font-home-body text-[16px] text-white/[0.88] mb-8 leading-relaxed">
+              Nous appliquons ces mêmes stratégies testées et validées à votre marque.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/#offers"
-                className="inline-flex items-center justify-center bg-tekki-orange hover:bg-tekki-orange/90 text-white px-8 py-4 rounded-full font-bold text-lg transition-all"
+                className={`inline-flex items-center justify-center gap-2 bg-white hover:shadow-xl hover:shadow-black/25 active:scale-[0.98] text-tekki-orange-deep px-8 py-4 rounded-full font-home-body font-semibold text-[15.5px] transition-all duration-300 ${focusRing}`}
               >
                 Découvrir nos offres
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
                 href="/diagnostic"
-                className="inline-flex items-center justify-center border border-white/30 hover:border-white/50 text-white px-8 py-4 rounded-full font-bold text-lg transition-all"
+                className={`inline-flex items-center justify-center gap-2 border border-white/30 hover:bg-white/10 active:scale-[0.98] text-white px-8 py-4 rounded-full font-home-body font-semibold text-[15.5px] transition-all ${focusRing}`}
               >
                 Faire mon diagnostic gratuit
               </Link>
