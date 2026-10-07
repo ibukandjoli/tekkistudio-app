@@ -282,7 +282,7 @@ const CaseStudyDetailPage = () => {
       industry: 'Cosmétiques',
       location: 'Dakar, Sénégal',
       color: '#EC4899',
-      website: 'https://ahovicosmetics.com',
+      website: 'https://ahovi-cosmetics.myshopify.com',
 
       challenge: {
         description:

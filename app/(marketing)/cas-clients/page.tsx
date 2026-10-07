@@ -100,7 +100,7 @@ const CasClientsPage = () => {
       logo: '/images/clients/ahovi-beauty.png',
       // Même problème que Abarings : logo quasi blanc, illisible sans ce traitement.
       logoNeedsDarkening: true,
-      website: 'https://ahovicosmetics.com',
+      website: 'https://ahovi-cosmetics.myshopify.com',
       stats: [
         { label: 'Automatisation', value: '100%' },
         { label: 'Nouveaux marchés', value: '+5 villes' },
