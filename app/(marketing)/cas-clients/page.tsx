@@ -41,6 +41,8 @@ const CasClientsPage = () => {
       result: 'Automatisation complète',
       image: '/images/portfolio/abarings.png',
       logo: '/images/clients/abarings.avif',
+      // Logo source quasi blanc sur fond transparent — illisible sur badge clair sans ce traitement.
+      logoNeedsDarkening: true,
       website: 'https://abarings.com',
       stats: [
         { label: 'Commandes automatisées', value: '100%' },
@@ -96,6 +98,8 @@ const CasClientsPage = () => {
       result: 'Ventes automatisées et expansion géographique',
       image: '/images/portfolio/ahovi.png',
       logo: '/images/clients/ahovi-beauty.png',
+      // Même problème que Abarings : logo quasi blanc, illisible sans ce traitement.
+      logoNeedsDarkening: true,
       website: 'https://ahovicosmetics.com',
       stats: [
         { label: 'Automatisation', value: '100%' },
@@ -260,12 +264,12 @@ const CasClientsPage = () => {
                     {/* logo + result pill */}
                     <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
                       <div className="flex items-end justify-between gap-4">
-                        <div className="w-16 h-16 relative bg-white rounded-2xl p-2 shadow-lg">
+                        <div className="w-16 h-16 relative bg-tekki-surface rounded-2xl p-2 shadow-lg border border-tekki-ink/8">
                           <Image
                             src={cs.logo}
                             alt={`${cs.client} logo`}
                             fill
-                            className="object-contain p-1"
+                            className={`object-contain p-1 ${(cs as any).logoNeedsDarkening ? 'brightness-0' : ''}`}
                           />
                         </div>
                         <div className="bg-tekki-orange text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg">
