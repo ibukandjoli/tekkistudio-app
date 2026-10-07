@@ -26,11 +26,12 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['var(--font-jakarta)', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-        display: ['var(--font-outfit)', 'Outfit', 'sans-serif'],
-        body: ['var(--font-jakarta)', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-        heading: ['var(--font-outfit)', 'Outfit', 'sans-serif'],
-        // Refonte homepage — tokens exacts du mockup tekkistudio-refonte.html
+        // Unifié sur les tokens de la refonte homepage — plus de Outfit/Plus Jakarta Sans
+        // nulle part dans l'app, qu'on passe par font-sans/body/heading ou par les alias home-*.
+        sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['var(--font-instrument)', 'Instrument Sans', 'sans-serif'],
+        body: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-instrument)', 'Instrument Sans', 'sans-serif'],
         'home-display': ['var(--font-instrument)', 'Instrument Sans', 'sans-serif'],
         'home-body': ['var(--font-inter)', 'Inter', 'sans-serif'],
         'home-mono': ['var(--font-plex-mono)', 'IBM Plex Mono', 'monospace'],
